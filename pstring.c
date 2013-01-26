@@ -11,6 +11,8 @@ pstring_new(int len) {
 
 void
 pstring_free(pstring *pstr) {
-	free(pstr->val);
-	free(pstr);
+	if(pstr != NULL) {
+		free(pstr->val);
+		free(pstr);
+	}
 }
