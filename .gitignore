@@ -1,0 +1,6 @@
+*.o
+*.bundle
+*.a
+perc
+*.dSYM
+*.log
