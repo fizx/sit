@@ -1,0 +1,32 @@
+#include "term_ruby.h"
+#include "sit_term.h"
+#include "pstring.h"
+#include "pstring_ruby.h"
+
+VALUE
+rbc_term_new(VALUE class, VALUE rfield, VALUE rtext, VALUE roff) {
+	pstring *field = r2pstring(rfield);
+	pstring *text  = r2pstring(rtext);
+	int off = NUM2INT(roff);
+	sit_term *term = sit_term_new();
+	term->field = field;
+	term->text = text;
+	term->offset = off;
+	VALUE tdata = Data_Wrap_Struct(class, NULL, sit_term_free, term);
+	rb_obj_call_init(tdata, 0, NULL);
+	return tdata;
+}
+
+VALUE
+rbc_term_to_s(VALUE self) {
+	sit_term *term;
+	Data_Get_Struct(self, sit_term, term);
+	char *str;
+	asprintf(&str, "[%.*s:%.*s %d]", 
+		term->field->len, term->field->val, 
+		term->text->len, term->text->val, 
+		term->offset);
+	VALUE rstr = rb_str_new2(str);
+	free(str);
+	return rstr;
+}
