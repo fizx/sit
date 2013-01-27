@@ -4,7 +4,7 @@
 #include "pstring.h"
 
 typedef struct {
-	void (*consume)(void *engine, pstring *str);
+	void (*consume)(void *parser, pstring *str);
 	void *data;
 } sit_parser;
 

@@ -4,7 +4,13 @@
 #include "ruby.h"
 
 VALUE 
-rbc_parser_new(VALUE class, VALUE engine);
+rbc_parser_new(VALUE class);
+
+VALUE 
+rbc_parser_initialize(VALUE class);
+
+VALUE
+rbc_parser_set_engine(VALUE self, VALUE rengine);
 
 VALUE
 rbc_parser_consume(VALUE self, VALUE rstr);

@@ -19,7 +19,7 @@ Results
   
 Parser
   Documents have finite size, so the parser allocates O(1) space ahead of time.
-  Rough call stack:
+  Rough C call stack:
 
     - engine_consume
       - engine_append
@@ -29,6 +29,27 @@ Parser
         - engine_document_found
           - engine_percolate
           - engine_index
+  
+  Ruby version (with mixed C)
+
+		- engine = Engine.new(parser) # establishes bidi reference
+			  													# (reusing parsers is Exception)
+		- engine.consume(str)
+			- engine_consume
+				- engine_append
+				- parser#consume(str) # no super, just full custom code
+					- parser#field_found()
+						- engine#field_found()
+							- engine_field_found
+					- parser#term_found()
+						- engine#term_found()
+							- engine_term_found
+					- parser#document_found()
+						- engine#document_found()
+							- engine_document_found
+				          - engine_percolate
+				          - engine_index
+		
 
 Storage
   Three regions

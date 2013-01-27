@@ -10,6 +10,7 @@
 #include "callback_ruby.h"
 #include "query_ruby.h"
 #include "parser_ruby.h"
+#include "engine_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ring_buffer;
@@ -17,6 +18,7 @@ VALUE rbc_term;
 VALUE rbc_callback;
 VALUE rbc_query;
 VALUE rbc_parser;
+VALUE rbc_engine;
 
 void 
 Init_sit() {
@@ -55,9 +57,16 @@ Init_sit() {
 
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
-	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 1);
+	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
+	rb_define_method(rbc_parser, "initialize", rbc_parser_initialize, 0);
+	rb_define_method(rbc_parser, "engine=", rbc_parser_set_engine, 1);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
 	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 3);
 	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
+	
+	// Parser
+	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
+	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 1);
+	
 }

@@ -3,5 +3,8 @@
 
 sit_parser *
 sit_parser_new() {
-	return malloc(sizeof(sit_parser));
+	sit_parser *parser = malloc(sizeof(sit_parser));
+	parser->consume = NULL;
+	parser->data = NULL;
+	return parser;
 }
