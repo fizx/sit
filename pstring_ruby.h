@@ -16,4 +16,7 @@ rbc_pstring_new(VALUE class, VALUE rstr);
 VALUE
 rbc_pstring_to_s(VALUE self);
 
+VALUE
+rbc_pstring_comparator(VALUE self, VALUE other);
+
 #endif

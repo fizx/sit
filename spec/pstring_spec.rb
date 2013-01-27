@@ -14,4 +14,14 @@ describe "PString" do
 		pstr = PString.new(rstr)
 		pstr.to_s.should == rstr
 	end
+	
+	it "should be comparable" do
+	  ra = "hello world"
+		a = PString.new(ra)
+		
+		rb = "goodbye world"
+		b = PString.new(rb)
+		
+		a.should > b
+  end
 end

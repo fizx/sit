@@ -35,3 +35,11 @@ rbc_pstring_to_s(VALUE self) {
 	return p2rstring(pstr);
 }
 
+VALUE
+rbc_pstring_comparator(VALUE self, VALUE other) {
+	pstring *a;
+	pstring *b;
+	Data_Get_Struct(self, pstring, a);
+	Data_Get_Struct(other, pstring, b);
+	return INT2NUM(pstrcmp(a, b));
+}

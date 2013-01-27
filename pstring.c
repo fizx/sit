@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "pstring.h"
 
 pstring *
@@ -17,4 +18,14 @@ pstring_free(pstring *pstr) {
 		}
 		free(pstr);
 	}
+}
+
+int
+pstrcmp(pstring *a, pstring *b) {
+	int min = a->len > b->len ? b->len : a->len;
+	int out = strncmp(a->val, b->val, min);
+	if (!out) {
+		return a->len - b->len;
+	}
+	return out;
 }

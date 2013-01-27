@@ -9,4 +9,7 @@ rbc_term_new(VALUE class, VALUE field, VALUE text, VALUE offset);
 VALUE
 rbc_term_to_s(VALUE self);
 
+VALUE
+rbc_term_comparator(VALUE self, VALUE other);
+
 #endif

@@ -12,4 +12,7 @@ pstring_new(int len);
 void
 pstring_free(pstring *pstr);
 
+int
+pstrcmp(pstring *a, pstring *b);
+
 #endif

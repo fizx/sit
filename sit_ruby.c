@@ -24,6 +24,8 @@ Init_sit() {
 	rbc_pstring = rb_define_class_under(m_sit, "PString", rb_cObject);
 	rb_define_singleton_method(rbc_pstring, "new", rbc_pstring_new, 1);
 	rb_define_method(rbc_pstring, "to_s", rbc_pstring_to_s, 0);
+	rb_define_method(rbc_pstring, "<=>", rbc_pstring_comparator, 1);
+	rb_include_module(rbc_pstring, rb_mComparable);
 	
 	// RingBuffer
 	rbc_ring_buffer = rb_define_class_under(m_sit, "RingBuffer", rb_cObject);
@@ -35,7 +37,9 @@ Init_sit() {
 	rbc_term = rb_define_class_under(m_sit, "Term", rb_cObject);
 	rb_define_singleton_method(rbc_term, "new", rbc_term_new, 3);
 	rb_define_method(rbc_term, "to_s", rbc_term_to_s, 0);
-
+	rb_define_method(rbc_term, "<=>", rbc_term_comparator, 1);
+	rb_include_module(rbc_term, rb_mComparable);
+	
 	// Callback
 	rbc_callback = rb_define_class_under(m_sit, "Callback", rb_cObject);
 	rb_define_singleton_method(rbc_callback, "new", rbc_callback_new, 2);

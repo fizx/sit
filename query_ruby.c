@@ -22,6 +22,7 @@ rbc_query_new(VALUE class, VALUE rterms, VALUE rcallback) {
 	sit_query *query = sit_query_new(terms, term_count, cb);
 	
 	VALUE values = rb_ary_new();
+	rb_funcall(rterms, rb_intern("sort!"), 0);
 	rb_ary_push(values, rterms);
 	rb_ary_push(values, rcallback);
 	query->data = vwrap(values);

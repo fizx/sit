@@ -13,4 +13,14 @@ describe "Term" do
 		pstr = Term.new("hello", "world", 7)
 		pstr.to_s.should == "[hello:world 7]"
 	end
+	
+	it "should be comparable" do
+	  a = Term.new("foo", "world", 0)
+	  b = Term.new("foo", "hello", 0)
+	  a.should > b
+	  
+	  a = Term.new("a", "world", 0)
+	  b = Term.new("foo", "hello", 0)
+	  a.should < b
+  end
 end
