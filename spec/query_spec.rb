@@ -16,5 +16,11 @@ describe "Query" do
 		q.to_s.should == "[[#{term}], #{cb}]"
 	end
 
-	it "should be sorted"
+	it "should be sorted" do
+		a = Term.new("hello", "world", 0)
+		b = Term.new("goodbye", "world", 0)
+		cb = Callback.new("data", proc{})
+		q = Query.new([a, b], cb)
+		q.to_s.should == "[[#{b}, #{a}], #{cb}]"
+	end
 end
