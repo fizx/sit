@@ -8,7 +8,9 @@ sit_term_new() {
 
 void 
 sit_term_free(sit_term *term) {
-	pstring_free(term->field);
-	pstring_free(term->text);
-	free(term);
+	if(term != NULL) {
+		pstring_free(term->field);
+		pstring_free(term->text);
+		free(term);
+	}
 }

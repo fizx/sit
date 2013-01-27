@@ -12,7 +12,9 @@ pstring_new(int len) {
 void
 pstring_free(pstring *pstr) {
 	if(pstr != NULL) {
-		free(pstr->val);
+		if(pstr->val != NULL) {
+			free(pstr->val);
+		}
 		free(pstr);
 	}
 }
