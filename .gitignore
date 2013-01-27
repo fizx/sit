@@ -4,3 +4,4 @@
 perc
 *.dSYM
 *.log
+Makefile
