@@ -1,34 +1,44 @@
 API
-	Simple C 
-	Pull and Push based reads
-	Single-threaded string chunk stream writes
-	Pluggable SAXish document parser
-	
+  Simple C 
+  Pull and Push based reads
+  Single-threaded string chunk stream writes
+  Pluggable SAXish document parser
+  
 Ruby
-	Tests are in Ruby
-	A network api is provided in eventmachine (want to port to mbuf/c)
+  Tests are in Ruby
+  A network api is provided in eventmachine (want to port to mbuf/c)
 
 Query
-	ORs of (AND | NEAR(N))s of (NOT? key:value)
-	[title:foo NEAR(N) title:bar] means title:foo AND title:bar AND pos(bar) > pos(foo) AND pos(bar) <= pos(foo) + N
-	No further nesting allowed--use distributivity and De Morgan's law
-	
+  ORs of (AND | NEAR(N))s of (NOT? key:value)
+  [title:foo NEAR(N) title:bar] means title:foo AND title:bar AND pos(bar) > pos(foo) AND pos(bar) <= pos(foo) + N
+  No further nesting allowed--use distributivity and De Morgan's law
+  
 Results
-	Pull results are provided individually, with a pointer to the state necessary to generate the next result
-	Push results are pushed at a callback handler
-	
+  Pull results are provided individually, with a pointer to the state necessary to generate the next result
+  Push results are pushed at a callback handler
+  
 Parser
-	Documents have finite size, so the parser allocates O(1) space ahead of time.
+  Documents have finite size, so the parser allocates O(1) space ahead of time.
+  Rough call stack:
+
+    - engine_consume
+      - engine_append
+      - parser->consume
+        - engine_field_found
+        - engine_term_found
+        - engine_document_found
+          - engine_percolate
+          - engine_index
 
 Storage
-	Three regions
-		Document stream persisted
-		Term index
-		Posting lists
-	Stream, plists are ring buffer of subregions
-	Term index is a LRWritten ash table.
-	
+  Three regions
+    Document stream persisted
+    Term index
+    Posting lists
+  Stream, plists are ring buffer of subregions
+  Term index is a LRWritten ash table.
+  
 Percolation tricks
-	Document terms are added to a hash table
-	Queries are structured as a tree of hash tables.  This is consistent because clauses are sortable--[a AND b] and [b AND a] will both evaluate to the same path through the tree.
-	DFS matches out of the tree.
+  Document terms are added to a hash table
+  Queries are structured as a tree of hash tables.  This is consistent because clauses are sortable--[a AND b] and [b AND a] will both evaluate to the same path through the tree.
+  DFS matches out of the tree.
