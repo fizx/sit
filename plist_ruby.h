@@ -31,5 +31,8 @@ rbc_plist_entry_to_s(VALUE self);
 VALUE 
 rbc_plist_entry_equals(VALUE self, VALUE other);
 
+VALUE 
+rbc_plist_blocks_count(VALUE self);
+
 #endif
 

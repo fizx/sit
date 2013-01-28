@@ -94,6 +94,7 @@ Init_sit() {
 	rbc_plist = rb_define_class_under(m_sit, "Plist", rb_cObject);
 	rb_define_singleton_method(rbc_plist, "new", rbc_plist_new, 1);
 	rb_define_method(rbc_plist, "size", rbc_plist_size, 0);
+	rb_define_method(rbc_plist, "blocks_count", rbc_plist_blocks_count, 0);
 	rb_define_method(rbc_plist, "append", rbc_plist_append, 1);
 	rb_define_method(rbc_plist, "each", rbc_plist_each, 0);
 	rb_include_module(rbc_plist, rb_mEnumerable);

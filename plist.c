@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /**
  * TODO: 
@@ -58,10 +59,20 @@ plist_append_block(plist *pl) {
 	return block;
 }
 
+bool
+plist_block_is_full(plist *pl, plist_block *block) {
+	long size = pl->block_size;
+	char *base = (char *) block;
+	char *next = (char *) &block->entries[block->entries_count + 1];
+	return next - base > size;
+}
+
 void
 plist_append_entry(plist *pl, plist_entry *entry) {
 	plist_block *block;
-	if(pl->last_block == NULL || pl->last_version < pl->pool->min_version) {
+	if(pl->last_block == NULL || 
+	   pl->last_version < pl->pool->min_version ||
+	   plist_block_is_full(pl, pl->last_block)) {
 		block = plist_append_block(pl);
 	} else {
 		block = pl->last_block;

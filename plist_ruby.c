@@ -98,3 +98,22 @@ rbc_plist_entry_equals(VALUE self, VALUE other) {
 	return (a->doc == b->doc && a->pos == b->pos) ? Qtrue : Qfalse;
 }
 
+VALUE 
+rbc_plist_blocks_count(VALUE self) {
+	plist *pl;
+	Data_Get_Struct(self, plist, pl);
+	int min = pl->pool->min_version;
+	int count = 0;
+	if(pl->last_version >= min) {
+		plist_block *block = pl->last_block;
+		while(block) {
+			count++;
+			if(block->prev_version >= min) {
+				block = block->prev;
+			} else {
+				break;
+			}
+		}
+	}
+	return INT2NUM(count);
+}
