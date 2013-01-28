@@ -11,6 +11,7 @@ typedef struct {
 typedef struct _plist_block {
 	struct _plist_block *prev;
 	struct _plist_block *next;
+ 	int size;
 	int prev_version;
 	int entries_count;
 	plist_entry entries[];
@@ -20,8 +21,6 @@ typedef struct {
 	struct plist_pool  *pool;
 	plist_block *last_block;
 	int last_version;
-	int block_count;
-	long block_size;
 } plist;
 
 typedef struct plist_pool {

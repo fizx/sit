@@ -38,30 +38,34 @@ plist_new(plist_pool *pool) {
 	pl->pool = pool;
 	pl->last_block = NULL;
 	pl->last_version = -1;
-	pl->block_size = pool->default_block_size;
-	pl->block_count = 0;
 	return pl;
 }
 
 plist_block *
 plist_append_block(plist *pl) {
 	plist_block *block = pl->pool->next_block;
-	pl->pool->next_block = ((char *) block) + pl->block_size;
 	block->prev = pl->last_block;
 	block->prev_version = pl->last_version;
 	block->entries_count = 0;
 	block->next = NULL;
 	if(block->prev && block->prev_version >= pl->pool->min_version) {
+		block->size = block->prev->size;
+		if(block->prev_version == pl->pool->current_version) {
+			block->size *= 2;
+		}
 		block->prev->next = block;
+	} else {
+		block->size = pl->pool->default_block_size;
 	}
+	pl->pool->next_block = ((char *) block) + block->size;
 	pl->last_block = block;
 	pl->last_version = pl->pool->current_version;
 	return block;
 }
 
 bool
-plist_block_is_full(plist *pl, plist_block *block) {
-	long size = pl->block_size;
+plist_block_is_full(plist_block *block) {
+	long size = block->size;
 	char *base = (char *) block;
 	char *next = (char *) &block->entries[block->entries_count + 1];
 	return next - base > size;
@@ -72,7 +76,7 @@ plist_append_entry(plist *pl, plist_entry *entry) {
 	plist_block *block;
 	if(pl->last_block == NULL || 
 	   pl->last_version < pl->pool->min_version ||
-	   plist_block_is_full(pl, pl->last_block)) {
+	   plist_block_is_full(pl->last_block)) {
 		block = plist_append_block(pl);
 	} else {
 		block = pl->last_block;
