@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
+
 
 /**
  * TODO: 
@@ -16,12 +18,13 @@ plist_pool_new(long size) {
 	plist_pool *pool = malloc(sizeof(plist_pool));
 	pool->capacity = size;
 	pool->buffer = malloc(size);
-	pool->last_plist = (plist *)((char *) pool->buffer + size);
+	pool->lowest_plist = (plist *)((char *) pool->buffer + size);
 	pool->next_block = (plist_block *)pool->buffer;
 	pool->default_block_size = 512; // bytes
 	pool->region_size = size / 16;
 	pool->current_version = 0;
 	pool->min_version = 0;
+	pool->free_list = NULL;
 	return pool;
 }
 
@@ -33,12 +36,29 @@ check_region_overlap(plist_pool *pool) {
 
 plist *
 plist_new(plist_pool *pool) {
-	plist *pl = --(pool->last_plist);
+	assert(pool);
+	plist *pl;
+	if(pool->free_list == NULL) {
+	 	pl = --(pool->lowest_plist);
+	} else {
+		pl = (plist *) pool->free_list;
+		pool->free_list = pool->free_list->next;
+	}
 	check_region_overlap(pool);
 	pl->pool = pool;
 	pl->last_block = NULL;
 	pl->last_version = -1;
 	return pl;
+}
+
+void 
+plist_free(plist *pl) {
+	plist_pool *pool = pl->pool;
+	if(pool) {
+		free_list *node = (free_list *) pl;
+		node->next = pool->free_list;
+		pool->free_list = node;
+	}
 }
 
 plist_block *
@@ -75,7 +95,7 @@ void
 plist_append_entry(plist *pl, plist_entry *entry) {
 	plist_block *block;
 	if(pl->last_block == NULL || 
-	   pl->last_version < pl->pool->min_version ||
+	   pl->last_version < pl->pool->current_version ||
 	   plist_block_is_full(pl->last_block)) {
 		block = plist_append_block(pl);
 	} else {

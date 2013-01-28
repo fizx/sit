@@ -97,6 +97,8 @@ Init_sit() {
 	rb_define_method(rbc_plist, "blocks_count", rbc_plist_blocks_count, 0);
 	rb_define_method(rbc_plist, "append", rbc_plist_append, 1);
 	rb_define_method(rbc_plist, "each", rbc_plist_each, 0);
+	rb_define_method(rbc_plist, "ptr", rbc_plist_ptr, 0);
+	rb_define_method(rbc_plist, "free", rbc_plist_free, 0);
 	rb_include_module(rbc_plist, rb_mEnumerable);
 
 	// PlistEntry

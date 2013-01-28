@@ -23,6 +23,10 @@ typedef struct {
 	int last_version;
 } plist;
 
+typedef struct _free_list {
+	struct _free_list *next;
+} free_list;
+
 typedef struct plist_pool {
 	void         *buffer;
 	long          capacity;
@@ -30,7 +34,8 @@ typedef struct plist_pool {
 	int           min_version;
 	long          region_size;
 	int 					default_block_size;
-	plist        *last_plist;
+	plist        *lowest_plist;
+  free_list    *free_list;
  	void         *next_block;
 } plist_pool;
 
@@ -47,6 +52,9 @@ plist_new(plist_pool *pool);
 
 long
 plist_size(plist *plist);
+
+void
+plist_free(plist *plist);
 
 void
 plist_each(plist *plist, plist_iterator *handler);

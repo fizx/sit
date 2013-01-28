@@ -17,11 +17,29 @@ describe "PlistPool" do
 	it "should be creatable" do
 	end
 	
+	it "should not crash when using freed" do
+	  begin
+  	  plist = Plist.new @pool
+  	  plist.free
+    rescue => e
+      e.message.should == "already freed"
+    end
+  end
+	
+	it "should be able to reuse space" do
+	  plist = Plist.new @pool
+	  ptr = plist.ptr
+	  plist.free
+    plist = Plist.new @pool
+    plist.ptr.should == ptr
+  end
+	
 	it "should be able to create plists" do
 	  a = Plist.new @pool
 	  a.size.should == 0
 	  b = Plist.new @pool
 	  a.should_not == b
+	  a.ptr.should_not == b.ptr
   end
   
   it "should be able to add to plists" do

@@ -34,5 +34,11 @@ rbc_plist_entry_equals(VALUE self, VALUE other);
 VALUE 
 rbc_plist_blocks_count(VALUE self);
 
+VALUE 
+rbc_plist_ptr(VALUE self);
+
+VALUE
+rbc_plist_free(VALUE self);
+
 #endif
 

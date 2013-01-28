@@ -21,13 +21,26 @@ rbc_plist_new(VALUE class, VALUE rpool) {
 	plist_pool *pool;
 	Data_Get_Struct(rpool, plist_pool, pool);
 	plist *pl = plist_new(pool);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, pl);
+	VALUE tdata = Data_Wrap_Struct(class, NULL, plist_free, pl);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
 
 VALUE
+rbc_plist_free(VALUE self) {
+	plist *pl;
+	Data_Get_Struct(self, plist, pl);
+	plist_free(pl);
+	rb_iv_set(self, "freed", Qtrue);
+	return Qnil;	
+}
+
+VALUE
 rbc_plist_size(VALUE self) {
+	if (rb_iv_get(self, "freed") == Qtrue) {
+		rb_raise(rb_eRuntimeError, "already freed");
+		return Qnil;
+	}
 	plist *pl;
 	Data_Get_Struct(self, plist, pl);
 	return INT2NUM(plist_size(pl));
@@ -47,6 +60,10 @@ rbc_plist_entry_new(VALUE class, VALUE rdoc, VALUE rpos) {
 
 VALUE
 rbc_plist_append(VALUE self, VALUE rentry) {
+	if (rb_iv_get(self, "freed") == Qtrue) {
+		rb_raise(rb_eRuntimeError, "already freed");
+		return Qnil;
+	}
 	plist_entry *entry;
 	Data_Get_Struct(rentry, plist_entry, entry);
 	plist *pl;
@@ -67,6 +84,10 @@ _rb_each(void *data, plist_entry *entry) {
 
 VALUE
 rbc_plist_each(VALUE self) {
+	if (rb_iv_get(self, "freed") == Qtrue) {
+		rb_raise(rb_eRuntimeError, "already freed");
+		return Qnil;
+	}
 	if (rb_block_given_p()) { 
 		plist *pl;
 		Data_Get_Struct(self, plist, pl);
@@ -99,7 +120,22 @@ rbc_plist_entry_equals(VALUE self, VALUE other) {
 }
 
 VALUE 
+rbc_plist_ptr(VALUE self) {
+	if (rb_iv_get(self, "freed") == Qtrue) {
+		rb_raise(rb_eRuntimeError, "already freed");
+		return Qnil;
+	}
+	plist *pl;
+	Data_Get_Struct(self, plist, pl);
+	return LONG2NUM((long) pl);
+}
+
+VALUE 
 rbc_plist_blocks_count(VALUE self) {
+	if (rb_iv_get(self, "freed") == Qtrue) {
+		rb_raise(rb_eRuntimeError, "already freed");
+		return Qnil;
+	}
 	plist *pl;
 	Data_Get_Struct(self, plist, pl);
 	int min = pl->pool->min_version;
