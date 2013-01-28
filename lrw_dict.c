@@ -56,7 +56,9 @@ lrw_dict_put(lrw_dict *d, const void *key, const void *value) {
 			}	
 			
 			// TODO: replace with something more efficient.  We start
-			// hitting this when we O(n) loop on duplicate keys
+			// hitting this when we O(n) loop on duplicate keys.  We can
+			// count/track the duplications and hit that break very early, which
+			// will make this O(1) amortized?!
 			if(!success) {
 				dictDelete(d->dict, dictGetKey(min));
 			}
