@@ -12,7 +12,7 @@
 #include "parser_ruby.h"
 #include "engine_ruby.h"
 #include "lrw_dict_ruby.h"
-#include "plist_pool_ruby.h"
+#include "plist_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ring_buffer;
@@ -23,6 +23,8 @@ VALUE rbc_parser;
 VALUE rbc_engine;
 VALUE rbc_lrw_dict;
 VALUE rbc_plist_pool;
+VALUE rbc_plist;
+VALUE rbc_plist_entry;
 
 void 
 Init_sit() {
@@ -83,8 +85,23 @@ Init_sit() {
 	rb_define_method(rbc_lrw_dict, "each", rbc_lrw_dict_each, 0);
 	rb_include_module(rbc_lrw_dict, rb_mEnumerable);
 	
-	// Engine
+	// PlistPool
 	rbc_plist_pool = rb_define_class_under(m_sit, "PlistPool", rb_cObject);
-	rb_define_singleton_method(rbc_engine, "new", rbc_plist_pool_new, 1);
+	rb_define_singleton_method(rbc_plist_pool, "new", rbc_plist_pool_new, 1);
+	rb_define_method(rbc_plist_pool, "capacity", rbc_plist_pool_capacity, 0);
+
+	// Plist
+	rbc_plist = rb_define_class_under(m_sit, "Plist", rb_cObject);
+	rb_define_singleton_method(rbc_plist, "new", rbc_plist_new, 1);
+	rb_define_method(rbc_plist, "size", rbc_plist_size, 0);
+	rb_define_method(rbc_plist, "append", rbc_plist_append, 1);
+	rb_define_method(rbc_plist, "each", rbc_plist_each, 0);
+	rb_include_module(rbc_plist, rb_mEnumerable);
+
+	// PlistEntry
+	rbc_plist_entry = rb_define_class_under(m_sit, "PlistEntry", rb_cObject);
+	rb_define_singleton_method(rbc_plist_entry, "new", rbc_plist_entry_new, 2);
+	rb_define_method(rbc_plist_entry, "to_s", rbc_plist_entry_to_s, 0);
+	rb_define_method(rbc_plist_entry, "==", rbc_plist_entry_equals, 1);
 	
 }
