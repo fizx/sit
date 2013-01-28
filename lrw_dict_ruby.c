@@ -16,6 +16,25 @@ _rb_hash(const void *key) {
 	return hash;
 }
 
+VALUE
+rbc_lrw_dict_each(VALUE self) {
+	lrw_dict *d;
+	Data_Get_Struct(self, lrw_dict, d);	
+	dictIterator *iter = dictGetSafeIterator(d->dict);
+	if (rb_block_given_p()) {
+		dictEntry *entry;
+		while ((entry = dictNext(iter)) != NULL) {
+			VALUE ary = rb_ary_new();
+			versioned_ruby_pointer *ptr = dictGetKey(entry);
+			rb_ary_push(ary, vunwrap(ptr->pointer));
+			rb_ary_push(ary, vunwrap(dictGetVal(entry)));
+	    rb_yield(ary);
+		}
+  }
+	dictReleaseIterator(iter);
+	return Qnil;
+}
+
 static int 
 _rb_compare(void *privdata, const void *key1, const void *key2) {
   DICT_NOTUSED(privdata);

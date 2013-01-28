@@ -78,5 +78,7 @@ Init_sit() {
 	rb_define_method(rbc_lrw_dict, "[]=", rbc_lrw_dict_put, 2);
 	rb_define_method(rbc_lrw_dict, "capacity", rbc_lrw_dict_capacity, 0);
 	rb_define_method(rbc_lrw_dict, "size", rbc_lrw_dict_size, 0);
+	rb_define_method(rbc_lrw_dict, "each", rbc_lrw_dict_each, 0);
+	rb_include_module(rbc_lrw_dict, rb_mEnumerable);
 	
 }

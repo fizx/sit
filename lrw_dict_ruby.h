@@ -18,4 +18,7 @@ rbc_lrw_dict_capacity(VALUE self);
 VALUE
 rbc_lrw_dict_size(VALUE self);
 
+VALUE
+rbc_lrw_dict_each(VALUE self);
+
 #endif
