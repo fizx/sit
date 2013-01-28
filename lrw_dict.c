@@ -69,7 +69,6 @@ lrw_dict_put(lrw_dict *d, const void *key, const void *value) {
 		dictSetVal(d->dict, entry, (void *) value);
 		d->lrw_type->bump(entry, d->written++);
 	} else {
-		long existing = d->lrw_type->version(entry);
 		dictSetVal(d->dict, entry, (void *) value);
 		d->lrw_type->bump(entry, d->written);
 	}
