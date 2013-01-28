@@ -12,6 +12,7 @@
 #include "parser_ruby.h"
 #include "engine_ruby.h"
 #include "lrw_dict_ruby.h"
+#include "plist_pool_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ring_buffer;
@@ -21,6 +22,7 @@ VALUE rbc_query;
 VALUE rbc_parser;
 VALUE rbc_engine;
 VALUE rbc_lrw_dict;
+VALUE rbc_plist_pool;
 
 void 
 Init_sit() {
@@ -80,5 +82,9 @@ Init_sit() {
 	rb_define_method(rbc_lrw_dict, "size", rbc_lrw_dict_size, 0);
 	rb_define_method(rbc_lrw_dict, "each", rbc_lrw_dict_each, 0);
 	rb_include_module(rbc_lrw_dict, rb_mEnumerable);
+	
+	// Engine
+	rbc_plist_pool = rb_define_class_under(m_sit, "PlistPool", rb_cObject);
+	rb_define_singleton_method(rbc_engine, "new", rbc_plist_pool_new, 1);
 	
 }

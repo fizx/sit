@@ -25,7 +25,7 @@ rbc_query_new(VALUE class, VALUE rterms, VALUE rcallback) {
 	rb_funcall(rterms, rb_intern("sort!"), 0);
 	rb_ary_push(values, rterms);
 	rb_ary_push(values, rcallback);
-	query->data = vwrap(values);
+	query->data = (void *) vwrap(values);
 
 	VALUE tdata = Data_Wrap_Struct(class, NULL, _query_free, query);
 	rb_obj_call_init(tdata, 0, NULL);

@@ -3,7 +3,6 @@
 
 #include "pstring.h"
 #include "dict.h"
-#include "sit_stream.h"
 #include "lrw_dict.h"
 #include "plist_pool.h"
 #include "sit_term.h"
@@ -12,7 +11,9 @@ typedef struct {
   // Data structures & indexes
   dict           *queries;  // Registered for percolation
   void          (*parser)(void* engine, const pstring *buffer);
-  sit_stream     *stream;
+  void           *stream;
+	void          (*stream_append)(void *stream, pstring *buffer);
+	void          (*stream_get)(void *stream, long off, int len);
   lrw_dict       *term_dictionary;
   plist_pool     *postings;
  

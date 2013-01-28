@@ -57,7 +57,9 @@ Storage
     Term index
     Posting lists
   Stream, plists are ring buffer of subregions
-  Term index is a LRWritten ash table.
+  Term index is a LRWritten Hash table.
+
+Posting lists
   
 Percolation tricks
   Document terms are added to a hash table
