@@ -1,6 +1,6 @@
 #include "util_ruby.h"
 
-void *
+const void *
 vwrap(VALUE value) {
 	value_holder *h = malloc(sizeof(value_holder));
 	h->val = value;
@@ -8,7 +8,7 @@ vwrap(VALUE value) {
 }
 
 VALUE
-vunwrap(void *vp) {
+vunwrap(const void *vp) {
 	value_holder *h = (value_holder *) vp;
 	return h->val;
 }

@@ -11,6 +11,7 @@
 #include "query_ruby.h"
 #include "parser_ruby.h"
 #include "engine_ruby.h"
+#include "lrw_dict_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ring_buffer;
@@ -19,6 +20,7 @@ VALUE rbc_callback;
 VALUE rbc_query;
 VALUE rbc_parser;
 VALUE rbc_engine;
+VALUE rbc_lrw_dict;
 
 void 
 Init_sit() {
@@ -65,8 +67,16 @@ Init_sit() {
 	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
 	
-	// Parser
+	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
 	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 1);
+
+	// LrwDict
+	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);
+	rb_define_singleton_method(rbc_lrw_dict, "new", rbc_lrw_dict_new, 1);
+	rb_define_method(rbc_lrw_dict, "[]", rbc_lrw_dict_get, 1);
+	rb_define_method(rbc_lrw_dict, "[]=", rbc_lrw_dict_put, 2);
+	rb_define_method(rbc_lrw_dict, "capacity", rbc_lrw_dict_capacity, 0);
+	rb_define_method(rbc_lrw_dict, "size", rbc_lrw_dict_size, 0);
 	
 }

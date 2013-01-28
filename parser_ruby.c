@@ -27,7 +27,7 @@ rbc_parser_initialize(VALUE self) {
 	sit_parser *parser;
 	Data_Get_Struct(self, sit_parser, parser);
 	parser->consume = rbc_consume;
-	parser->data = vwrap(self);
+	parser->data = (void *) vwrap(self);
 	return self;
 }
 

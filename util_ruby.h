@@ -7,10 +7,10 @@ typedef struct {
 	VALUE val;
 } value_holder;
 
-void *
+const void *
 vwrap(VALUE value);
 
 VALUE
-vunwrap(void *vp);
+vunwrap(const void *vp);
 
 #endif
