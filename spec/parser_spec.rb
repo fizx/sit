@@ -12,7 +12,7 @@ include Sit
 describe "Parser" do
 	before do
 		@parser = TestAbcTsvParser.new
-		@engine = Engine.new(10_000_000)
+		@engine = Engine.new(@parser, 10_000_000)
   end
 
 	it "should be able to assign engine" do

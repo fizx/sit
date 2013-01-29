@@ -4,13 +4,14 @@
 #include "pstring.h"
 #include "dict.h"
 #include "lrw_dict.h"
-#include "plist_pool.h"
+#include "plist.h"
 #include "sit_term.h"
+#include "sit_parser.h"
 
 typedef struct {
   // Data structures & indexes
   dict           *queries;  // Registered for percolation
-  void          (*parser)(void* engine, const pstring *buffer);
+	sit_parser     *parser;
   void           *stream;
 	void          (*stream_append)(void *stream, pstring *buffer);
 	void          (*stream_get)(void *stream, long off, int len);
@@ -31,7 +32,7 @@ typedef struct {
 } sit_engine;
 
 sit_engine *
-sit_engine_new(long size);
+sit_engine_new(sit_parser *parser, long size);
 
 void 
 sit_engine_term_found(void *engine, long off, int len, int field_offset);

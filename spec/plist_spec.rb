@@ -26,21 +26,19 @@ describe "PlistPool" do
     end
   end
   
-  it "should be able to deal with regions" do
+  it "should be able to wrap regions" do
 	  plist = Plist.new @pool
     plist.region.should == nil
     plist.append(PlistEntry.new(1, 2))
     plist.region.should == 0
     while plist.region == 0
       plist.append(PlistEntry.new(1, 2))
-      puts "A #{plist.blocks_count}"
     end
     
     plist.region.should == 1
     
     while plist.region != 0
       plist.append(PlistEntry.new(1, 2))
-      puts "B #{plist.blocks_count}"
     end
     
   end

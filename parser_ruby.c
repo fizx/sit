@@ -36,6 +36,11 @@ rbc_parser_set_engine(VALUE self, VALUE rengine) {
 	return rb_iv_set(self, "@engine", rengine);
 }
 
+VALUE 
+rbc_parser_engine(VALUE self) {
+	return rb_iv_get(self, "@engine");
+}
+
 VALUE
 rbc_parser_consume(VALUE self, VALUE rstr) {
 	rb_raise(rb_eRuntimeError, "You should override Parser#consume in a subclass");

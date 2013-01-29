@@ -24,5 +24,8 @@ rbc_parser_document_found(VALUE self, VALUE off, VALUE len);
 VALUE 
 rbc_parser_field_found(VALUE self, VALUE rstr);
 
+VALUE 
+rbc_parser_engine(VALUE self);
+
 #endif
 
