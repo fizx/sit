@@ -14,7 +14,7 @@ typedef struct {
 	sit_parser     *parser;
   void           *stream;
 	void          (*stream_append)(void *stream, pstring *buffer);
-	void          (*stream_get)(void *stream, long off, int len);
+	pstring      *(*stream_get)(void *stream, long off, int len);
   lrw_dict       *term_dictionary;
   plist_pool     *postings;
  
@@ -25,10 +25,11 @@ typedef struct {
 	int 				term_capacity;
 	long				off;
 	int 				len;
-  sit_term  **terms;
 
 	// User-settable
 	void *data;
+	
+  sit_term    terms[1];
 } sit_engine;
 
 sit_engine *

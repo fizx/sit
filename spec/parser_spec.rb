@@ -11,6 +11,7 @@ include Sit
 
 describe "Parser" do
 	before do
+	  $events.clear
 		@parser = TestAbcTsvParser.new
 		@engine = Engine.new(@parser, 10_000_000)
   end
@@ -19,15 +20,16 @@ describe "Parser" do
 		@parser.engine = @engine
 	end
 
-	it "should work as a standalone" do
-		@parser.consume("z\ty")
+	it "should work standalone" do
+	  @engine.terms.size.should == 0
+		@engine.consume("z\ty")
 		$events.should == [
 			[:field, "a"], 
 			[:term, 0, 1, 0], 
 			[:field, "b"]
 		]
 		$events.clear
-		@parser.consume("yyy\tx\n")
+		@engine.consume("yyy\tx\n")
 		$events.should == [
 			[:term, 2, 4, 0], 
 			[:field, "c"],
@@ -35,8 +37,7 @@ describe "Parser" do
 			[:doc, 0, 9]
 		]
 		$events.clear
-		@parser.consume("y\n\n\nx x\n")
-		@parser.buffer[9].should == "y"
+		@engine.consume("y\n\n\nx x\n")
 		$events.should == [
 			[:term, 9, 1, 0], 
 			[:doc, 9, 2], 

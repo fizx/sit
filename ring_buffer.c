@@ -18,7 +18,7 @@ ring_buffer_free(ring_buffer *rb) {
 }
 
 void
-ring_buffer_append(ring_buffer *rb, pstring *pstr) {
+ring_buffer_append(ring_buffer *rb, pstring *pstr) {	
 	for (int i = 0; i < pstr->len; i++) {
 		rb->buffer[rb->offset++] = pstr->val[i];
 		if(rb->offset == rb->capacity) {

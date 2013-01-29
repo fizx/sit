@@ -11,10 +11,15 @@ include Sit
 
 describe "Engine" do
   before do
-    @engine = Engine.new(TestAbcTsvParser.new, 1_000_000)
+    @engine = Engine.new(RealAbcTsvParser.new, 1_000_000)
   end
   
 	it "should link the parser" do
 	  @engine.parser.engine.should == @engine
+	end
+	
+	it "should be able to parse a little" do
+	  @engine.consume("a\tb")
+	  @engine.terms.size.should == 1
 	end
 end

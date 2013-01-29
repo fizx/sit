@@ -6,7 +6,7 @@ module AbcTsvParser
 	SEP = /\t|\n| /
 	
 	def initialize
-		super()
+	  super()
 		@buffer = ""
 		@field = "a"
 		@offset = 0
@@ -53,6 +53,10 @@ module AbcTsvParser
 			@offset = sep + 1
 		end
 	end
+end
+
+class RealAbcTsvParser < Sit::Parser 
+	include AbcTsvParser 
 end
 
 class TestAbcTsvParser < Sit::Parser 

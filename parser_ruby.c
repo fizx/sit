@@ -45,9 +45,8 @@ VALUE
 rbc_parser_consume(VALUE self, VALUE rstr) {
 	rb_raise(rb_eRuntimeError, "You should override Parser#consume in a subclass");
 
-	// kill warns
-	StringValue(self); 
-	StringValue(rstr);
+	(void) self; 
+	(void) rstr;
 
 	return Qnil;
 }

@@ -76,6 +76,8 @@ Init_sit() {
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
 	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 2);
 	rb_define_method(rbc_engine, "parser", rbc_engine_parser, 0);
+	rb_define_method(rbc_engine, "consume", rbc_engine_consume, 1);
+	rb_define_method(rbc_engine, "terms", rbc_engine_terms, 0);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);
