@@ -33,6 +33,7 @@ typedef struct plist_pool {
 	int           current_version;
 	int           min_version;
 	long          region_size;
+	int          	region_count;
 	int 					default_block_size;
 	plist        *lowest_plist;
   free_list    *free_list;

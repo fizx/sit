@@ -40,5 +40,8 @@ rbc_plist_ptr(VALUE self);
 VALUE
 rbc_plist_free(VALUE self);
 
+VALUE
+rbc_plist_region(VALUE self);
+
 #endif
 

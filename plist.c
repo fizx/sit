@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <limits.h>
 #include <assert.h>
 
 
@@ -22,6 +23,7 @@ plist_pool_new(long size) {
 	pool->next_block = (plist_block *)pool->buffer;
 	pool->default_block_size = 512; // bytes
 	pool->region_size = size / 16;
+	pool->region_count = 15;
 	pool->current_version = 0;
 	pool->min_version = 0;
 	pool->free_list = NULL;
@@ -47,7 +49,7 @@ plist_new(plist_pool *pool) {
 	check_region_overlap(pool);
 	pl->pool = pool;
 	pl->last_block = NULL;
-	pl->last_version = -1;
+	pl->last_version = INT_MIN;
 	return pl;
 }
 
@@ -63,20 +65,34 @@ plist_free(plist *pl) {
 
 plist_block *
 plist_append_block(plist *pl) {
-	plist_block *block = pl->pool->next_block;
+	plist_pool *pool = pl->pool;
+	char *next_block = pool->next_block;
+	int current_region = pool->current_version % pool->region_count;
+	char *region_cutoff = ((char*)pool->buffer) + current_region * pool->region_size;
+
+	int size = pool->default_block_size;
+	if(pl->last_block && pl->last_version >= pool->min_version) {
+		size = pl->last_block->size;
+		if(pl->last_version == pool->current_version && size * 2 < pool->region_size) {
+			size *= 2;
+		}
+	}
+	
+	if(next_block + size > region_cutoff) {
+		pool->current_version++;
+		pool->min_version = pool->current_version - pool->region_count + 1;
+		next_block = ((char*)pool->buffer) + current_region * pool->region_size;
+	}
+	
+	plist_block *block = (void *) next_block;
 	block->prev = pl->last_block;
 	block->prev_version = pl->last_version;
 	block->entries_count = 0;
 	block->next = NULL;
 	if(block->prev && block->prev_version >= pl->pool->min_version) {
-		block->size = block->prev->size;
-		if(block->prev_version == pl->pool->current_version) {
-			block->size *= 2;
-		}
 		block->prev->next = block;
-	} else {
-		block->size = pl->pool->default_block_size;
 	}
+	block->size = size;
 	pl->pool->next_block = ((char *) block) + block->size;
 	pl->last_block = block;
 	pl->last_version = pl->pool->current_version;

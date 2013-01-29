@@ -130,6 +130,23 @@ rbc_plist_ptr(VALUE self) {
 	return LONG2NUM((long) pl);
 }
 
+VALUE
+rbc_plist_region(VALUE self) {
+	if (rb_iv_get(self, "freed") == Qtrue) {
+		rb_raise(rb_eRuntimeError, "already freed");
+		return Qnil;
+	}
+	plist *pl;
+	Data_Get_Struct(self, plist, pl);
+	if(plist_size(pl) == 0) {
+		return Qnil;
+	} else {
+		long offset = ((char*) pl->last_block - (char*) (pl->pool->buffer));
+		return LONG2NUM(offset / pl->pool->region_size);
+	}
+}
+
+
 VALUE 
 rbc_plist_blocks_count(VALUE self) {
 	if (rb_iv_get(self, "freed") == Qtrue) {

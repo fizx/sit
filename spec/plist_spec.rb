@@ -10,8 +10,8 @@ include Sit
 
 describe "PlistPool" do
   before do
-		@pool = PlistPool.new(10_000_000)
-		@pool.capacity.should == 10_000_000
+		@pool = PlistPool.new(100_000)
+		@pool.capacity.should == 100_000
   end
   
 	it "should be creatable" do
@@ -24,6 +24,25 @@ describe "PlistPool" do
     rescue => e
       e.message.should == "already freed"
     end
+  end
+  
+  it "should be able to deal with regions" do
+	  plist = Plist.new @pool
+    plist.region.should == nil
+    plist.append(PlistEntry.new(1, 2))
+    plist.region.should == 0
+    while plist.region == 0
+      plist.append(PlistEntry.new(1, 2))
+      puts "A #{plist.blocks_count}"
+    end
+    
+    plist.region.should == 1
+    
+    while plist.region != 0
+      plist.append(PlistEntry.new(1, 2))
+      puts "B #{plist.blocks_count}"
+    end
+    
   end
 	
 	it "should be able to reuse space" do
