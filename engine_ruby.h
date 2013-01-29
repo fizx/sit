@@ -21,4 +21,7 @@ rbc_engine_register(VALUE self, VALUE rquery);
 VALUE 
 rbc_engine_queries(VALUE self);
 
+VALUE 
+rbc_engine_unregister(VALUE self, VALUE id);
+
 #endif

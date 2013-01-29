@@ -75,6 +75,15 @@ rbc_engine_queries(VALUE self){
 }
 
 VALUE 
+rbc_engine_unregister(VALUE self, VALUE id) {
+	sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+	sit_engine_unregister(engine, NUM2LONG(id));
+	return Qnil;
+}
+
+
+VALUE 
 rbc_engine_register(VALUE self, VALUE rquery) {
 	sit_query *query;
 	Data_Get_Struct(rquery, sit_query, query);

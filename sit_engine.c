@@ -99,7 +99,7 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 	}
 }
 
-int
+long
 sit_engine_register(sit_engine *engine, sit_query *query) {
 	return _recurse_add(engine->queries, NULL, query->terms, query->term_count, query->callback);
 }
@@ -124,35 +124,41 @@ _recurse_each(dict *hash, sit_callback *cb) {
 	dictEntry *next;
 	while((next = dictNext(iterator))) {
 		sit_query_node *node = dictGetVal(next);
-		sit_callback *qc = node->callback;
-		sit_term *terms;
-		int term_count = 0;
-		while(qc) {
-			if (terms == NULL) {
-				_get_terms(&terms, node, &term_count);
-			}
-			sit_query *query = sit_query_new(&terms, term_count, qc);
-			cb->handler(query, cb->user_data);
-			qc = qc->next;
-		}
-		
+		cb->handler(node, cb->user_data);
 		if(node->children) {
 			_recurse_each(node->children, cb);
 		}
-		
-		// sit_query *query = sit_query_new();
-		// _get_parents(node, query, 1);
-		// qc = node->callback;
-		// while(qc) {
-		// 	query->callback = qc;
-		// 	cb->handler(query, cb->user_data);
-		// 	qc = qc->next;
-		// }
+	}
+}
+
+void
+_each_query(void *vnode, void *inner) {
+	sit_query_node *node = vnode;
+	sit_callback *cb = inner;
+	
+	sit_callback *qc = node->callback;
+	sit_term *terms;
+	int term_count = 0;
+	while(qc) {
+		if (terms == NULL) {
+			_get_terms(&terms, node, &term_count);
+		}
+		sit_query *query = sit_query_new(&terms, term_count, qc);
+		cb->handler(query, cb->user_data);
+		qc = qc->next;
 	}
 }
 
 void 
 sit_engine_each_query(sit_engine *engine, sit_callback *callback) {
+	sit_callback wrapper;
+	wrapper.user_data = callback;
+	wrapper.handler = _each_query;
+	_recurse_each(engine->queries, &wrapper);
+}
+
+void 
+sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
 	_recurse_each(engine->queries, callback);
 }
 
@@ -170,6 +176,41 @@ sit_engine_index(sit_engine *engine, long off, int len) {
 	(void) off;
 	(void) len;
 	printf("TODO: sit_engine_index\n");
+}
+
+void
+_unregister_handler(void *vnode, void *inner) {
+	sit_query_node *node = vnode;
+	long query_id = *(long *) inner;
+	
+	while (node->callback && node->callback->id == query_id) {
+		sit_callback *old = node->callback;
+		node->callback = old->next;
+		if(old->free) {
+			old->free(old);
+		}
+	}
+	
+	sit_callback *prev = node->callback;
+	sit_callback *qc = node->callback;
+	while(qc) {
+		if(qc->id == query_id) {
+			prev->next = qc->next;
+			if(qc->free) {
+				qc->free(qc);
+			}
+		}
+		prev = qc;
+		qc = qc->next;
+	}
+}
+
+void
+sit_engine_unregister(sit_engine *engine, long query_id) {
+	sit_callback unregister;
+	unregister.user_data = &query_id;
+	unregister.handler = _unregister_handler;
+	_recurse_each(engine->queries, &unregister);
 }
 
 void

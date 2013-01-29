@@ -80,6 +80,7 @@ Init_sit() {
 	rb_define_method(rbc_engine, "consume", rbc_engine_consume, 1);
 	rb_define_method(rbc_engine, "terms", rbc_engine_terms, 0);
 	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
+	rb_define_method(rbc_engine, "unregister", rbc_engine_unregister, 1);
 	rb_define_method(rbc_engine, "queries", rbc_engine_queries, 0);
 
 	// LrwDict

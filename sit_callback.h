@@ -7,7 +7,7 @@ typedef struct _sit_callback {
   void                 (*handler)(void* sit_data, void *user_data);
   void                  *user_data;
   struct _sit_callback *next;
-  int                    id;
+  long                    id;
   void                 (*free)(struct _sit_callback*);
 } sit_callback;
 

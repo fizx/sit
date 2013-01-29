@@ -30,4 +30,14 @@ describe "Engine" do
     @engine.register(q)
     @engine.queries.should == [q]
   end
+
+  it "should be able to remove queries" do
+    term = Term.new("hello", "world", 0)
+    cb = Callback.new("data", proc{})
+    q = Query.new([term], cb)   
+    id = @engine.register(q)
+    @engine.queries.should == [q]
+    @engine.unregister(id)
+    @engine.queries.should == []
+  end
 end

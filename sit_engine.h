@@ -54,8 +54,11 @@ sit_engine_percolate(sit_engine *engine, long off, int len);
 void
 sit_engine_index(sit_engine *engine, long off, int len);
 
-int 
+long
 sit_engine_register(sit_engine *engine, sit_query *query);
+
+void
+sit_engine_unregister(sit_engine *engine, long query_id);
 
 void 
 sit_engine_each_query(sit_engine *engine, sit_callback *callback);
