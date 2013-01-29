@@ -2,14 +2,17 @@
 #include "sit_term.h"
 #include "pstring.h"
 #include "pstring_ruby.h"
+#include <assert.h>
 
 VALUE
 rbc_term_new(VALUE class, VALUE rfield, VALUE rtext, VALUE roff) {
 	pstring *field = r2pstring(rfield);
 	pstring *text  = r2pstring(rtext);
 	int off = NUM2INT(roff);
+	assert(field);
+	assert(text);
 	sit_term *term = sit_term_new(field, text, off);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, sit_term_free, term);
+	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, term);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }

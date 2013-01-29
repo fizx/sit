@@ -51,3 +51,38 @@ rbc_engine_terms(VALUE self) {
 	}
 	return ary;
 }
+
+void _queries_handler(void *vquery, void *data) {
+	sit_query *query = vquery;
+	VALUE ary = vunwrap(data);
+	VALUE class = rb_eval_string("::Sit::Query");
+	VALUE tdata = Data_Wrap_Struct(class, NULL, free, query);
+	rb_obj_call_init(tdata, 0, NULL);
+	rb_ary_push(ary, tdata);
+}
+
+VALUE 
+rbc_engine_queries(VALUE self){
+	sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+	sit_callback cb;
+	VALUE ary = rb_ary_new();
+	cb.user_data = (void *) vwrap(ary);
+	cb.handler = _queries_handler;
+	sit_engine_each_query(engine, &cb);
+	free(cb.user_data);
+	return ary;
+}
+
+VALUE 
+rbc_engine_register(VALUE self, VALUE rquery) {
+	sit_query *query;
+	Data_Get_Struct(rquery, sit_query, query);
+	
+	sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+	
+	int cb = sit_engine_register(engine, query);
+	
+	return INT2NUM(cb);
+}

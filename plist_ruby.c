@@ -73,7 +73,8 @@ rbc_plist_append(VALUE self, VALUE rentry) {
 }
 
 void
-_rb_each(void *data, plist_entry *entry) {	
+_rb_each(void *ventry, void *data) {	
+	plist_entry *entry = ventry;
 	(void) data;
 	plist_entry *dup = malloc(sizeof(plist_entry));
 	memcpy(dup, entry, sizeof(plist_entry));
@@ -91,8 +92,8 @@ rbc_plist_each(VALUE self) {
 	if (rb_block_given_p()) { 
 		plist *pl;
 		Data_Get_Struct(self, plist, pl);
-		plist_iterator iterator;
-		iterator.handle = _rb_each;
+		sit_callback iterator;
+		iterator.handler = _rb_each;
 		plist_reach(pl, &iterator);
 	}
 	return Qnil;	

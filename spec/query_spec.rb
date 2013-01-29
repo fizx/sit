@@ -13,7 +13,7 @@ describe "Query" do
     term = Term.new("hello", "world", 0)
     cb = Callback.new("data", proc{})
     q = Query.new([term], cb)
-    q.to_s.should == "[[#{term}], #{cb}]"
+    q.to_s.should == "<query [hello:world 0][cb:3]>"
   end
 
 	it "should be sorted" do
@@ -23,6 +23,6 @@ describe "Query" do
 		qa = Query.new([a, b], cb)
 		qb = Query.new([b, a], cb)
 		qa.to_s.should == qb.to_s
-    qa.to_s.should == "[[#{b}, #{a}], #{cb}]"
+    qa.to_s.should == "<query [goodbye:world 0] [hello:world 0][cb:4]>"
 	end
 end

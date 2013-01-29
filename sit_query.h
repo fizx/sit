@@ -5,12 +5,13 @@
 #include "sit_callback.h"
 
 typedef struct {
-  sit_term    **terms;
-  int           term_count;
   sit_callback *callback;
 
 	// for random user state
 	void         *data;				
+
+  int           term_count;	
+  sit_term      terms[1];
 } sit_query;
 
 sit_query *

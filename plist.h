@@ -1,6 +1,8 @@
 #ifndef PLIST_H_INCLUDED
 #define PLIST_H_INCLUDED
 
+#include "sit_callback.h"
+
 struct plist_pool;
 
 typedef struct {
@@ -40,11 +42,6 @@ typedef struct plist_pool {
  	void         *next_block;
 } plist_pool;
 
-typedef struct {
-	void *data;
-	void (*handle)(void *data, plist_entry *entry);
-} plist_iterator;
-
 plist_pool *
 plist_pool_new(long size);
 
@@ -58,10 +55,10 @@ void
 plist_free(plist *plist);
 
 void
-plist_each(plist *plist, plist_iterator *handler);
+plist_each(plist *plist, sit_callback *handler);
 
 void
-plist_reach(plist *plist, plist_iterator *handler);
+plist_reach(plist *plist, sit_callback *handler);
 
 void
 plist_append_entry(plist *pl, plist_entry *entry);

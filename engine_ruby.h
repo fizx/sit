@@ -15,4 +15,10 @@ rbc_engine_consume(VALUE self, VALUE rstr);
 VALUE
 rbc_engine_terms(VALUE self);
 
+VALUE 
+rbc_engine_register(VALUE self, VALUE rquery);
+
+VALUE 
+rbc_engine_queries(VALUE self);
+
 #endif

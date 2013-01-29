@@ -7,6 +7,7 @@
 #include "plist.h"
 #include "sit_term.h"
 #include "sit_parser.h"
+#include "sit_query.h"
 
 typedef struct {
   // Data structures & indexes
@@ -46,6 +47,18 @@ sit_engine_field_found(void *engine, pstring *name);
 
 void
 sit_engine_consume(void *engine, pstring *pstr);
+
+void
+sit_engine_percolate(sit_engine *engine, long off, int len);
+
+void
+sit_engine_index(sit_engine *engine, long off, int len);
+
+int 
+sit_engine_register(sit_engine *engine, sit_query *query);
+
+void 
+sit_engine_each_query(sit_engine *engine, sit_callback *callback);
 
 #endif
 

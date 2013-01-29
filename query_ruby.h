@@ -9,4 +9,7 @@ rbc_query_new(VALUE class, VALUE terms, VALUE callback);
 VALUE 
 rbc_query_to_s(VALUE self);
 
+VALUE 
+rbc_query_equals(VALUE self, VALUE other);
+
 #endif

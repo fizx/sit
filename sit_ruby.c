@@ -60,6 +60,7 @@ Init_sit() {
 	rbc_query = rb_define_class_under(m_sit, "Query", rb_cObject);
 	rb_define_singleton_method(rbc_query, "new", rbc_query_new, 2);
 	rb_define_method(rbc_query, "to_s", rbc_query_to_s, 0);
+	rb_define_method(rbc_query, "==", rbc_query_equals, 1);
 
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
@@ -78,6 +79,8 @@ Init_sit() {
 	rb_define_method(rbc_engine, "parser", rbc_engine_parser, 0);
 	rb_define_method(rbc_engine, "consume", rbc_engine_consume, 1);
 	rb_define_method(rbc_engine, "terms", rbc_engine_terms, 0);
+	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
+	rb_define_method(rbc_engine, "queries", rbc_engine_queries, 0);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);

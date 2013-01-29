@@ -22,4 +22,12 @@ describe "Engine" do
 	  @engine.consume("a\tb")
 	  @engine.terms.size.should == 1
 	end
+	
+  it "should be able to register queries" do
+    term = Term.new("hello", "world", 0)
+    cb = Callback.new("data", proc{})
+    q = Query.new([term], cb)   
+    @engine.register(q)
+    @engine.queries.should == [q]
+  end
 end

@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+int query_id = 0;
+
+typedef struct sit_query_node {
+	dict                   *children;
+	sit_term							 *term;
+	struct sit_query_node  *parent;
+	sit_callback 				   *callback;
+} sit_query_node;
+
 static unsigned int 
 _term_hash(const void *key)
 {
@@ -65,6 +74,104 @@ sit_engine_new(sit_parser *parser, long size) {
 	return engine;
 }
 
+int 
+_recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, sit_callback *callback) {
+	if(!term->hash_code) {
+		sit_term_update_hash(term);
+	}
+	sit_query_node *node = dictFetchValue(hash, term);
+	if (node == NULL) {
+		node = calloc(sizeof(sit_query_node), 1);
+		node->parent = parent;
+		node->term = term;
+		dictAdd(hash, term, node);
+	}
+	if (remaining == 1) {
+		sit_callback *next = node->callback;
+		node->callback = callback;
+		callback->next = next;
+		return (callback->id = query_id++);
+	} else {
+		if(node->children == NULL) {
+			node->children = dictCreate(&termDict, 0);
+		}
+		return _recurse_add(node->children, node, term + 1, remaining - 1, callback);
+	}
+}
+
+int
+sit_engine_register(sit_engine *engine, sit_query *query) {
+	return _recurse_add(engine->queries, NULL, query->terms, query->term_count, query->callback);
+}
+
+int
+_get_terms(sit_term **terms, sit_query_node *node, int *term_count) {	 
+	(*term_count)++;
+	if(node->parent) {
+		int off = _get_terms(terms, node->parent, term_count);
+		terms[off] = node->term;
+		return off + 1;
+	} else {
+		*terms = malloc(sizeof(sit_term*) * (*term_count));
+		terms[0] = node->term;
+		return 1;
+	}
+}
+
+void
+_recurse_each(dict *hash, sit_callback *cb) {
+	dictIterator * iterator = dictGetIterator(hash);
+	dictEntry *next;
+	while((next = dictNext(iterator))) {
+		sit_query_node *node = dictGetVal(next);
+		sit_callback *qc = node->callback;
+		sit_term *terms;
+		int term_count = 0;
+		while(qc) {
+			if (terms == NULL) {
+				_get_terms(&terms, node, &term_count);
+			}
+			sit_query *query = sit_query_new(&terms, term_count, qc);
+			cb->handler(query, cb->user_data);
+			qc = qc->next;
+		}
+		
+		if(node->children) {
+			_recurse_each(node->children, cb);
+		}
+		
+		// sit_query *query = sit_query_new();
+		// _get_parents(node, query, 1);
+		// qc = node->callback;
+		// while(qc) {
+		// 	query->callback = qc;
+		// 	cb->handler(query, cb->user_data);
+		// 	qc = qc->next;
+		// }
+	}
+}
+
+void 
+sit_engine_each_query(sit_engine *engine, sit_callback *callback) {
+	_recurse_each(engine->queries, callback);
+}
+
+void
+sit_engine_percolate(sit_engine *engine, long off, int len) {
+	(void) engine;
+	(void) off;
+	(void) len;
+	printf("TODO: sit_engine_percolate\n");
+}
+
+void
+sit_engine_index(sit_engine *engine, long off, int len) {
+	(void) engine;
+	(void) off;
+	(void) len;
+	printf("TODO: sit_engine_index\n");
+}
+
 void
 sit_engine_consume(void *data, pstring *pstr) {
 	sit_engine *engine = data;
@@ -84,7 +191,9 @@ sit_engine_term_found(void *data, long off, int len, int field_offset) {
 void 
 sit_engine_document_found(void *data, long off, int len) {
 	sit_engine *engine = data;
-	printf("TODO: FOUND DOC IS NO-OP\n");
+	sit_engine_percolate(engine, off, len);
+	sit_engine_index(engine, off, len);
+	engine->term_count = 0;
 }
 
 void 

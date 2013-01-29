@@ -121,36 +121,36 @@ plist_append_entry(plist *pl, plist_entry *entry) {
 }
 
 void
-_count(void *data, plist_entry *entry) {
-	(*(int *)data)++;
+_count(void *entry, void *user_data) {
+	(*(int *)user_data)++;
 	(void) entry;
 }
 
 long
 plist_size(plist *plist) {
-	plist_iterator counter;
+	sit_callback counter;
 	int count = 0;
-	counter.handle = _count;
-	counter.data = &count;
+	counter.handler = _count;
+	counter.user_data = &count;
 	plist_reach(plist, &counter);
 	return count;
 }
 
 void
-plist_each(plist *pl, plist_iterator *iterator) {
+plist_each(plist *pl, sit_callback *iterator) {
 	//TODO: impl
 	(void) pl;
 	(void) iterator;
 }
 
 void
-plist_reach(plist *pl, plist_iterator *iterator) {
+plist_reach(plist *pl, sit_callback *iterator) {
 	int min = pl->pool->min_version;
 	if(pl->last_version >= min) {
 		plist_block *block = pl->last_block;
 		while(block) {
 			for (int i = block->entries_count - 1; i >= 0; i--) {
-				iterator->handle(iterator->data, &block->entries[i]);
+				iterator->handler(&block->entries[i], iterator->user_data);
 			}
 			if(block->prev_version >= min) {
 				block = block->prev;
