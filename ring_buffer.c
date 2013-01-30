@@ -18,17 +18,18 @@ ring_buffer_free(ring_buffer *rb) {
 }
 
 void
-ring_buffer_append(ring_buffer *rb, pstring *pstr) {	
-	for (int i = 0; i < pstr->len; i++) {
-		rb->buffer[rb->offset++] = pstr->val[i];
+ring_buffer_append(ring_buffer *rb, void *obj, int len) {	
+	char * chars = obj;
+	for (int i = 0; i < len; i++) {
+		rb->buffer[rb->offset++] = chars[i];
 		if(rb->offset == rb->capacity) {
 			rb->offset = 0;
 		}
 	}
-	rb->written += pstr->len;
+	rb->written += len;
 }
 
-pstring *
+void *
 ring_buffer_get(ring_buffer *rb, long off, int len) {
 	if(off + len > rb->written ||
 		 off < rb->written - rb->capacity ||
@@ -36,10 +37,30 @@ ring_buffer_get(ring_buffer *rb, long off, int len) {
 		return NULL;
 	} else {
 		off = off % rb->capacity;
-		pstring *pstr = pstring_new(len);
+		char *out = malloc(len);
 		for (int i = 0; i < len; i++) {
-			pstr->val[i] = rb->buffer[(off+i) % rb->capacity];
+			out[i] = rb->buffer[(off+i) % rb->capacity];
 		}
-		return pstr;
+		return out;
 	}	
+}
+
+void
+ring_buffer_append_pstring(void *data, pstring *pstr) {
+  ring_buffer *rb = data;
+	ring_buffer_append(rb, pstr->val, pstr->len);
+}
+
+pstring *
+ring_buffer_get_pstring(void *data, long off, int len) {
+  ring_buffer *rb = data;
+	char *val = ring_buffer_get(rb, off, len);
+	if(val == NULL) {
+		return NULL;
+	} else {
+		pstring *pstr = malloc(sizeof(pstring));
+		pstr->val = val;
+		pstr->len = len;
+		return pstr;
+	}
 }

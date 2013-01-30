@@ -17,9 +17,15 @@ void
 ring_buffer_free(ring_buffer *rb);
 
 void
-ring_buffer_append(ring_buffer *rb, pstring *str);
+ring_buffer_append(ring_buffer *rb, void *obj, int len);
+
+void *
+ring_buffer_get(ring_buffer *rb, long off, int len);
+
+void
+ring_buffer_append_pstring(void *rb, pstring *pstr);
 
 pstring *
-ring_buffer_get(ring_buffer *rb, long off, int len);
+ring_buffer_get_pstring(void *rb, long off, int len);
 
 #endif

@@ -15,7 +15,7 @@ rbc_ring_buffer_append(VALUE self, VALUE rstr) {
  	ring_buffer *rb;
 	Data_Get_Struct(self, ring_buffer, rb);
 	pstring *pstr = r2pstring(rstr);
-	ring_buffer_append(rb, pstr);
+	ring_buffer_append_pstring(rb, pstr);
 	pstring_free(pstr);
 	return Qnil;
 }
@@ -26,7 +26,7 @@ rbc_ring_buffer_get(VALUE self, VALUE roff, VALUE rlen) {
 	int len = NUM2INT(rlen);
  	ring_buffer *rb;
 	Data_Get_Struct(self, ring_buffer, rb);
-	pstring *pstr = ring_buffer_get(rb, off, len);
+	pstring *pstr = ring_buffer_get_pstring(rb, off, len);
 	VALUE rstr = p2rstring(pstr);
 	pstring_free(pstr);
 	return rstr;

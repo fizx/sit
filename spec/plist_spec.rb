@@ -39,16 +39,7 @@ describe "PlistPool" do
     
     while plist.region != 0
       plist.append(PlistEntry.new(1, 2))
-    end
-    
-  end
-	
-	it "should be able to reuse space" do
-	  plist = Plist.new @pool
-	  ptr = plist.ptr
-	  plist.free
-    plist = Plist.new @pool
-    plist.ptr.should == ptr
+    end  
   end
 	
 	it "should be able to create plists" do

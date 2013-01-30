@@ -19,34 +19,19 @@ plist_pool_new(long size) {
 	plist_pool *pool = malloc(sizeof(plist_pool));
 	pool->capacity = size;
 	pool->buffer = malloc(size);
-	pool->lowest_plist = (plist *)((char *) pool->buffer + size);
 	pool->next_block = (plist_block *)pool->buffer;
 	pool->default_block_size = 512; // bytes
 	pool->region_size = size / 16;
-	pool->region_count = 15;
+	pool->region_count = 16;
 	pool->current_version = 0;
 	pool->min_version = 0;
-	pool->free_list = NULL;
 	return pool;
-}
-
-void
-check_region_overlap(plist_pool *pool) {
-	(void) pool;
-	// TODO: impl
 }
 
 plist *
 plist_new(plist_pool *pool) {
 	assert(pool);
-	plist *pl;
-	if(pool->free_list == NULL) {
-	 	pl = --(pool->lowest_plist);
-	} else {
-		pl = (plist *) pool->free_list;
-		pool->free_list = pool->free_list->next;
-	}
-	check_region_overlap(pool);
+	plist *pl = malloc(sizeof(plist));
 	pl->pool = pool;
 	pl->last_block = NULL;
 	pl->last_version = INT_MIN;
@@ -55,12 +40,7 @@ plist_new(plist_pool *pool) {
 
 void 
 plist_free(plist *pl) {
-	plist_pool *pool = pl->pool;
-	if(pool) {
-		free_list *node = (free_list *) pl;
-		node->next = pool->free_list;
-		pool->free_list = node;
-	}
+	// free(pl);
 }
 
 plist_block *

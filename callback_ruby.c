@@ -14,7 +14,7 @@ void
 _handler(void *sit_data, void *user_data) {
 	VALUE block = vunwrap(user_data);
 	sit_engine *engine = sit_data;
-	VALUE rstr = p2rstring(engine->doc);
+	VALUE rstr = p2rstring(sit_engine_last_document(engine));
 	rb_funcall(block, rb_intern("call"), 1, rstr);
 }
 

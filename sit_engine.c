@@ -1,4 +1,5 @@
 #include "sit_engine.h"
+#include "ring_buffer.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -10,6 +11,11 @@ typedef struct sit_query_node {
 	struct sit_query_node  *parent;
 	sit_callback 				   *callback;
 } sit_query_node;
+
+typedef struct doc_ref {
+	long off;
+	int len;
+} doc_ref;
 
 static unsigned int 
 _term_hash(const void *key)
@@ -60,17 +66,13 @@ sit_engine_new(sit_parser *parser, long size) {
 	engine->queries = dictCreate(&termDict, 0);
 	engine->parser = parser;
 	engine->stream = ring_buffer_new(size / 4);
-	engine->stream_append = (void (*)(void *, pstring *)) &ring_buffer_append;
-	engine->stream_get =  (pstring* (*)(void *, long, int)) &ring_buffer_get;
 	engine->term_dictionary = lrw_dict_new(&termDict, &termLrw, size / 32);
 	engine->postings = plist_pool_new(size / 4);
 	engine->term_index = dictCreate(&termDict, 0);
 	engine->term_count = 0;
 	engine->field = NULL;
-	engine->doc = NULL;
+	engine->docs = ring_buffer_new((size / 4 / sizeof(doc_ref)) * sizeof(doc_ref));
 	engine->term_capacity = tc;
-	engine->off = -1;
-	engine->len = -1;
 	engine->data = NULL;
 	return engine;
 }
@@ -163,6 +165,30 @@ sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
 	_recurse_each(engine->queries, callback);
 }
 
+pstring *
+sit_engine_last_document(sit_engine *engine) {
+  return sit_engine_get_document(engine, sit_engine_last_document_id(engine));
+}
+
+pstring *
+sit_engine_get_document(sit_engine *engine, long doc_id) {
+  if (doc_id < 0) {
+    return NULL;
+  }
+  long off = doc_id * sizeof(doc_ref);
+  doc_ref *dr = ring_buffer_get(engine->docs, off, sizeof(doc_ref));
+  if(dr == NULL) {
+    return NULL;
+  } else {
+    return ring_buffer_get_pstring(engine->stream, dr->off, dr->len);
+  }
+}
+
+long
+sit_engine_last_document_id(sit_engine *engine) {
+  return engine->docs->written / sizeof(doc_ref) - 1;
+}
+
 void 
 callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
 	if(dictSize(term_index) > dictSize(query_nodes)){
@@ -205,9 +231,16 @@ sit_engine_percolate(sit_engine *engine) {
 }
 
 void
-sit_engine_index(sit_engine *engine) {
-	(void) engine;
-	printf("TODO: sit_engine_index\n");
+sit_engine_index(sit_engine *engine, long doc_id) {
+	for (int i = 0; i < engine->term_count; i++) {
+		sit_term *term = &engine->terms[i];
+		plist *value = lrw_dict_get(engine->term_dictionary, term);
+		if(value == NULL) {
+			value = plist_new(engine->postings);
+		}
+    plist_entry entry = { doc_id, term->offset };
+		plist_append_entry(value, &entry);
+	}
 }
 
 void
@@ -246,35 +279,33 @@ sit_engine_unregister(sit_engine *engine, long query_id) {
 }
 
 void
-sit_engine_consume(void *data, pstring *pstr) {
-	sit_engine *engine = data;
-	engine->stream_append(engine->stream, pstr);
+sit_engine_consume(sit_engine *engine, pstring *pstr) {
+  ring_buffer_append_pstring(engine->stream, pstr);
 	engine->parser->consume(engine->parser, pstr);
 }
 
 void 
-sit_engine_term_found(void *data, long off, int len, int field_offset) {
-	sit_engine *engine = data;
+sit_engine_term_found(sit_engine *engine, long off, int len, int field_offset) {
 	sit_term *term = &engine->terms[engine->term_count++];
 	term->field = engine->field;
-	term->text = engine->stream_get(engine->stream, off, len);
+	term->text = ring_buffer_get_pstring(engine->stream, off, len);
 	term->offset = field_offset;
 	sit_term_update_hash(term);
 	dictAdd(engine->term_index, term, term);
 }
 
 void 
-sit_engine_document_found(void *data, long off, int len) {
-	sit_engine *engine = data;
-	engine->doc = engine->stream_get(engine->stream, off, len);
+sit_engine_document_found(sit_engine *engine, long off, int len) {
+  doc_ref dr = { off, len };
+	ring_buffer_append(engine->docs, &dr, sizeof(dr));
+  long doc_id = sit_engine_last_document_id(engine);
 	sit_engine_percolate(engine);
-	sit_engine_index(engine);
+	sit_engine_index(engine, doc_id);
 	engine->term_count = 0;
 	dictEmpty(engine->term_index);
 }
 
 void 
-sit_engine_field_found(void *data, pstring *name) {
-	sit_engine *engine = data;
+sit_engine_field_found(sit_engine *engine, pstring *name) {
 	engine->field = name;
 }

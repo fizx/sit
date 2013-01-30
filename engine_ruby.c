@@ -17,6 +17,35 @@ rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
 }
 
 VALUE
+rbc_engine_last_document(VALUE self) {
+	sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  pstring *pstr = sit_engine_last_document(engine);
+  VALUE rstr = p2rstring(pstr);
+  pstring_free(pstr);
+  return rstr;
+}
+
+VALUE
+rbc_engine_last_document_id(VALUE self) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  long id = sit_engine_last_document_id(engine);
+  return LONG2NUM(id);
+}
+
+VALUE
+rbc_engine_get_document(VALUE self, VALUE rid) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  long id = NUM2LONG(rid);
+  pstring *pstr = sit_engine_get_document(engine, id);
+  VALUE rstr = p2rstring(pstr);
+  pstring_free(pstr);
+  return rstr;
+}
+
+VALUE
 rbc_engine_parser(VALUE self) {	
 	sit_engine *engine;
 	Data_Get_Struct(self, sit_engine, engine);

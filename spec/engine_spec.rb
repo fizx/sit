@@ -19,6 +19,15 @@ describe "Engine" do
     @engine.parser.engine.should == @engine
   end
   
+  it "should understand documents" do
+    last_id = @engine.last_document_id
+    @engine.consume("a\tb")
+    @engine.last_document.should be_nil
+    @engine.consume("\n")
+    @engine.last_document_id.should == last_id + 1
+    @engine.last_document.should == "a\tb\n"
+  end
+  
   it "should be able to parse a little" do
     @engine.consume("a\tb")
       @engine.terms.size.should == 1

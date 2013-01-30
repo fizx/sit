@@ -24,4 +24,13 @@ rbc_engine_queries(VALUE self);
 VALUE 
 rbc_engine_unregister(VALUE self, VALUE id);
 
+VALUE
+rbc_engine_last_document(VALUE self);
+
+VALUE
+rbc_engine_last_document_id(VALUE self);
+
+VALUE
+rbc_engine_get_document(VALUE self, VALUE rid);
+
 #endif

@@ -82,6 +82,9 @@ Init_sit() {
 	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
 	rb_define_method(rbc_engine, "unregister", rbc_engine_unregister, 1);
 	rb_define_method(rbc_engine, "queries", rbc_engine_queries, 0);
+	rb_define_method(rbc_engine, "last_document", rbc_engine_last_document, 0);
+	rb_define_method(rbc_engine, "last_document_id", rbc_engine_last_document_id, 0);
+	rb_define_method(rbc_engine, "get_document", rbc_engine_get_document, 1);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);
