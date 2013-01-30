@@ -51,4 +51,13 @@ describe "Engine" do
     $events.should == ["hello\tworld\n"]
 	end
 	
+	it "should not respond to a miss" do
+    term = Term.new("a", "nope", 0)
+    cb = Callback.new(@engine, proc{|doc| $events << doc })
+    q = Query.new([term], cb)   
+    id = @engine.register(q)
+	  @engine.consume("hello\tworld\n")
+    $events.should == []
+	end
+	
 end

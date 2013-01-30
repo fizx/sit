@@ -165,7 +165,6 @@ sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
 
 void 
 callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
-	printf("GO: %d %d\n", dictSize(term_index) , dictSize(query_nodes));
 	if(dictSize(term_index) > dictSize(query_nodes)){
 
 		dictIterator *iterator = dictGetIterator(query_nodes);
