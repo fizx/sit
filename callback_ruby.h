@@ -4,10 +4,10 @@
 #include "ruby.h"
 
 VALUE
-rbc_callback_new(VALUE class, VALUE user_data, VALUE block);
+rbc_callback_new(VALUE class, VALUE rengine, VALUE block);
 
 VALUE
-rbc_callback_call(VALUE self, VALUE sit_data);
+rbc_callback_call(VALUE self);
 
 VALUE
 rbc_callback_to_s(VALUE self);

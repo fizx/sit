@@ -67,6 +67,7 @@ sit_engine_new(sit_parser *parser, long size) {
 	engine->term_index = dictCreate(&termDict, 0);
 	engine->term_count = 0;
 	engine->field = NULL;
+	engine->doc = NULL;
 	engine->term_capacity = tc;
 	engine->off = -1;
 	engine->len = -1;
@@ -162,19 +163,51 @@ sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
 	_recurse_each(engine->queries, callback);
 }
 
-void
-sit_engine_percolate(sit_engine *engine, long off, int len) {
-	(void) engine;
-	(void) off;
-	(void) len;
-	printf("TODO: sit_engine_percolate\n");
+void 
+callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
+	printf("GO: %d %d\n", dictSize(term_index) , dictSize(query_nodes));
+	if(dictSize(term_index) > dictSize(query_nodes)){
+
+		dictIterator *iterator = dictGetIterator(query_nodes);
+		dictEntry *next;
+	
+		if ((next = dictNext(iterator)) && dictFind(term_index, dictGetKey(next))) {
+			sit_query_node *node = dictGetVal(next);
+			sit_callback *cb = node->callback;
+			while(cb) {
+				cb->handler(engine, cb->user_data);
+				cb = cb->next;
+			}
+			if(node->children) {
+				callback_recurse(engine, term_index, node->children);
+			}
+		}
+	} else {
+		dictIterator *iterator = dictGetIterator(term_index);
+		dictEntry *next;
+		sit_query_node *node;
+
+		if ((next = dictNext(iterator)) && (node = dictFetchValue(query_nodes, dictGetKey(next)))) {
+			sit_callback *cb = node->callback;
+			while(cb) {
+				cb->handler(engine, cb->user_data);
+				cb = cb->next;
+			}
+			if(node->children){
+				callback_recurse(engine, term_index, node->children);
+			}
+		}
+	}
 }
 
 void
-sit_engine_index(sit_engine *engine, long off, int len) {
+sit_engine_percolate(sit_engine *engine) {
+	callback_recurse(engine, engine->term_index, engine->queries);
+}
+
+void
+sit_engine_index(sit_engine *engine) {
 	(void) engine;
-	(void) off;
-	(void) len;
 	printf("TODO: sit_engine_index\n");
 }
 
@@ -227,14 +260,18 @@ sit_engine_term_found(void *data, long off, int len, int field_offset) {
 	term->field = engine->field;
 	term->text = engine->stream_get(engine->stream, off, len);
 	term->offset = field_offset;
+	sit_term_update_hash(term);
+	dictAdd(engine->term_index, term, term);
 }
 
 void 
 sit_engine_document_found(void *data, long off, int len) {
 	sit_engine *engine = data;
-	sit_engine_percolate(engine, off, len);
-	sit_engine_index(engine, off, len);
+	engine->doc = engine->stream_get(engine->stream, off, len);
+	sit_engine_percolate(engine);
+	sit_engine_index(engine);
 	engine->term_count = 0;
+	dictEmpty(engine->term_index);
 }
 
 void 

@@ -53,7 +53,7 @@ Init_sit() {
 	// Callback
 	rbc_callback = rb_define_class_under(m_sit, "Callback", rb_cObject);
 	rb_define_singleton_method(rbc_callback, "new", rbc_callback_new, 2);
-	rb_define_method(rbc_callback, "call", rbc_callback_call, 1);
+	rb_define_method(rbc_callback, "call", rbc_callback_call, 0);
 	rb_define_method(rbc_callback, "to_s", rbc_callback_to_s, 0);
 
 	// Query

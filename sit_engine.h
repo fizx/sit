@@ -26,6 +26,7 @@ typedef struct {
 	int 				term_capacity;
 	long				off;
 	int 				len;
+	pstring     *doc;
 
 	// User-settable
 	void *data;
@@ -49,10 +50,10 @@ void
 sit_engine_consume(void *engine, pstring *pstr);
 
 void
-sit_engine_percolate(sit_engine *engine, long off, int len);
+sit_engine_percolate(sit_engine *engine);
 
 void
-sit_engine_index(sit_engine *engine, long off, int len);
+sit_engine_index(sit_engine *engine);
 
 long
 sit_engine_register(sit_engine *engine, sit_query *query);

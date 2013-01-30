@@ -6,8 +6,8 @@
 typedef struct _sit_callback {
   void                 (*handler)(void* sit_data, void *user_data);
   void                  *user_data;
-  struct _sit_callback *next;
-  long                    id;
+  struct _sit_callback  *next;
+  long                   id;
   void                 (*free)(struct _sit_callback*);
 } sit_callback;
 
