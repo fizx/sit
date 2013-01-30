@@ -137,7 +137,7 @@ _each_query(void *vnode, void *inner) {
 	sit_callback *cb = inner;
 	
 	sit_callback *qc = node->callback;
-	sit_term *terms;
+	sit_term *terms = NULL;
 	int term_count = 0;
 	while(qc) {
 		if (terms == NULL) {
