@@ -314,7 +314,6 @@ sit_result_iterator_prev(sit_result_iterator *iter) {
       
       long doc;
       while((doc = plist_cursor_document_id(cursor)) > min) {
-        printf("i: %d doc: %d\n", i, doc);
         plist_cursor_prev(cursor);
       }
       if(doc < min) min = doc;
