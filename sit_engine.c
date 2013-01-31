@@ -303,7 +303,6 @@ sit_result_iterator_prev(sit_result_iterator *iter) {
     for (int i = 0; i < size; i++) {
       plist_cursor *cursor = iter->cursors[i];
       if (cursor == NULL) {
-        printf("WARN: cursor null\n");
         iter->doc_id = -1;
         return false;
       }
