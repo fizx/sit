@@ -25,6 +25,9 @@ VALUE
 rbc_parser_field_found(VALUE self, VALUE rstr);
 
 VALUE 
+rbc_parser_int_found(VALUE self, VALUE rint);
+
+VALUE 
 rbc_parser_engine(VALUE self);
 
 #endif

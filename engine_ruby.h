@@ -48,4 +48,14 @@ rbc_result_iterator_document_id(VALUE self);
 VALUE
 rbc_result_iterator_call(VALUE self);
 
+VALUE 
+rbc_engine_get_int(VALUE self, VALUE rid, VALUE rfield);
+
+VALUE 
+rbc_engine_set_int(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue);
+
+VALUE 
+rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue);
+
+
 #endif

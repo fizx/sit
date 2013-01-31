@@ -41,6 +41,7 @@ rbc_parser_engine(VALUE self) {
 	return rb_iv_get(self, "@engine");
 }
 
+
 VALUE
 rbc_parser_consume(VALUE self, VALUE rstr) {
 	rb_raise(rb_eRuntimeError, "You should override Parser#consume in a subclass");
@@ -61,6 +62,16 @@ rbc_parser_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset){
 	int field_offset = NUM2INT(rfield_offset);
 	sit_engine_term_found(engine, off, len, field_offset);
 	return Qnil;
+}
+
+VALUE 
+rbc_parser_int_found(VALUE self, VALUE rint) {
+	VALUE rengine = rb_iv_get(self, "@engine");
+	sit_engine *engine;
+	Data_Get_Struct(rengine, sit_engine, engine);
+	int value = NUM2INT(rint);
+	sit_engine_int_found(engine, value);
+	return Qnil;  
 }
 
 VALUE

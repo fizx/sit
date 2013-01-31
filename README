@@ -7,6 +7,10 @@ API
 Ruby
   Tests are in Ruby
   A network api is provided in eventmachine (want to port to mbuf/c)
+  
+JSON Interface
+ Queries:
+  [{"key": "\"hello world\" goodbye"}, ...]
 
 Query
   ORs of (AND | NEAR(N))s of (NOT? key:value)

@@ -16,11 +16,14 @@ typedef struct {
   ring_buffer    *stream;
   lrw_dict       *term_dictionary;
   plist_pool     *postings;
+
+  dict           *ints;
+  long            ints_capacity;
  
   // fields used to manage the current document
   dict            *term_index;
   int              term_count;
-  pstring          *field;
+  pstring         *field;
   int              term_capacity;
   ring_buffer     *docs;
 
@@ -46,6 +49,18 @@ sit_engine_search(sit_engine *engine, sit_query *query);
 
 void 
 sit_engine_term_found(sit_engine *engine, long off, int len, int field_offset);
+
+void 
+sit_engine_int_found(sit_engine *engine, int value);
+
+int *
+sit_engine_get_int(sit_engine *engine, long doc_id, pstring *field);
+
+void
+sit_engine_set_int(sit_engine *engine, long doc_id, pstring *field, int value);
+
+void
+sit_engine_incr(sit_engine *engine, long doc_id, pstring *field, int value);
 
 pstring *
 sit_engine_last_document(sit_engine *engine);

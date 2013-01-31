@@ -34,18 +34,28 @@ describe "Parser" do
 			[:term, 2, 4, 0], 
 			[:field, "c"],
 			[:term, 7, 1, 0],
+      [:field, "columns"],
+      [:int, 3],
 			[:doc, 0, 9]
 		]
 		$events.clear
 		@engine.consume("y\n\n\nx x\n")
 		$events.should == [
-			[:term, 9, 1, 0], 
-			[:doc, 9, 2], 
-			[:doc, 11, 1], 
-			[:doc, 12, 1], 
-			[:term, 13, 1, 0], 
-			[:term, 15, 1, 1],
-			[:doc, 13, 4]
-		]
+      [:term, 9, 1, 0],
+      [:field, "columns"],
+      [:int, 1],
+      [:doc, 9, 2],
+      [:field, "columns"],
+      [:int, 1],
+      [:doc, 11, 1],
+      [:field, "columns"],
+      [:int, 1],
+      [:doc, 12, 1],
+      [:term, 13, 1, 0],
+      [:term, 15, 1, 1],
+      [:field, "columns"],
+      [:int, 1],
+      [:doc, 13, 4]
+    ]
 	end
 end

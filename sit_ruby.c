@@ -74,6 +74,7 @@ Init_sit() {
 	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 3);
 	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
+	rb_define_method(rbc_parser, "int_found", rbc_parser_int_found, 1);
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
@@ -88,6 +89,9 @@ Init_sit() {
 	rb_define_method(rbc_engine, "last_document_id", rbc_engine_last_document_id, 0);
 	rb_define_method(rbc_engine, "get_document", rbc_engine_get_document, 1);
 	rb_define_method(rbc_engine, "search", rbc_engine_search, 1);
+	rb_define_method(rbc_engine, "get_int", rbc_engine_get_int, 2);
+	rb_define_method(rbc_engine, "incr", rbc_engine_incr, 3);
+	rb_define_method(rbc_engine, "set_int", rbc_engine_set_int, 3);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);

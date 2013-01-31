@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "sit_term.h"
 #include "dict.h"
+#include "pstring.h"
 
 sit_term *
 sit_term_new(pstring *field, pstring *text, int offset) {
@@ -32,9 +33,8 @@ sit_termcmp(const void *a, const void *b) {
 	return out;
 }
 
-
 void 
 sit_term_update_hash(sit_term *term) {
-	term->hash_code = dictGenHashFunction(term->field->val, term->field->len);
-	term->hash_code ^= dictGenHashFunction(term->text->val, term->text->len);
+	term->hash_code = pstrhash(term->field);
+	term->hash_code ^= pstrhash(term->text);
 }

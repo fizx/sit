@@ -23,6 +23,9 @@ void *
 ring_buffer_get(ring_buffer *rb, long off, int len);
 
 void
+ring_buffer_put(ring_buffer *rb, long off, void *obj, int len);
+
+void
 ring_buffer_append_pstring(void *rb, pstring *pstr);
 
 pstring *

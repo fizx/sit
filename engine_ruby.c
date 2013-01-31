@@ -128,6 +128,43 @@ rbc_engine_terms(VALUE self) {
 	return ary;
 }
 
+VALUE 
+rbc_engine_get_int(VALUE self, VALUE rid, VALUE rfield) {
+	sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  pstring *pstr = r2pstring(rfield);
+  long id = NUM2LONG(rid);
+  int *ptr = sit_engine_get_int(engine, id, pstr);
+  if(ptr == NULL) {
+    return Qnil;
+  } else {
+    return INT2NUM(*ptr);
+  }
+}
+
+VALUE 
+rbc_engine_set_int(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  pstring *pstr = r2pstring(rfield);
+  long id = NUM2LONG(rid);
+  int value = NUM2INT(rvalue);
+  sit_engine_set_int(engine, id, pstr, value);
+  return Qnil;
+}
+
+VALUE 
+rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  pstring *pstr = r2pstring(rfield);
+  long id = NUM2LONG(rid);
+  int value = NUM2INT(rvalue);
+  sit_engine_incr(engine, id, pstr, value);
+  return Qnil;
+}
+
+
 void _queries_handler(void *vquery, void *data) {
 	sit_query *query = vquery;
 	VALUE ary = vunwrap(data);

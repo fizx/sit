@@ -24,6 +24,21 @@ describe "Engine" do
     @engine.consume("a\tb")
     @engine.last_document.should be_nil
     @engine.consume("\n")
+    id = @engine.last_document_id
+    id.should == last_id + 1
+    @engine.last_document.should == "a\tb\n"
+    @engine.get_int(id, "columns").should == 2
+    @engine.incr(id, "columns", 1)
+    @engine.get_int(id, "columns").should == 3
+    @engine.set_int(id, "columns", 5)
+    @engine.get_int(id, "columns").should == 5
+  end
+  
+  it "should understand integers" do
+    last_id = @engine.last_document_id
+    @engine.consume("a\tb")
+    @engine.last_document.should be_nil
+    @engine.consume("\n")
     @engine.last_document_id.should == last_id + 1
     @engine.last_document.should == "a\tb\n"
   end

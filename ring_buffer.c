@@ -4,7 +4,7 @@
 ring_buffer *
 ring_buffer_new(long capacity) {
 	ring_buffer *buffer = malloc(sizeof(ring_buffer));
-	buffer->buffer = malloc(capacity);
+	buffer->buffer = calloc(1, capacity);
 	buffer->capacity = capacity;
 	buffer->offset = 0;
 	buffer->written = 0;
@@ -19,14 +19,26 @@ ring_buffer_free(ring_buffer *rb) {
 
 void
 ring_buffer_append(ring_buffer *rb, void *obj, int len) {	
-	char * chars = obj;
+  ring_buffer_put(rb, rb->written, obj, len);
+}
+
+void
+ring_buffer_put(ring_buffer *rb, long off, void *obj, int len) {
+  if(off < rb->written - rb->capacity) {
+    return;
+  }
+  rb->offset = off % rb->capacity;
+  char * chars = obj;
 	for (int i = 0; i < len; i++) {
 		rb->buffer[rb->offset++] = chars[i];
 		if(rb->offset == rb->capacity) {
 			rb->offset = 0;
 		}
 	}
-	rb->written += len;
+  long end = off + len;
+  if(end > rb->written) {
+    rb->written = end;
+  }
 }
 
 void *

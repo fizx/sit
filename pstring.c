@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pstring.h"
+#include "dict.h"
 
 pstring *
 pstring_new(int len) {
@@ -28,4 +29,9 @@ pstrcmp(pstring *a, pstring *b) {
 		return a->len - b->len;
 	}
 	return out;
+}
+
+unsigned int
+pstrhash(pstring *pstr) {
+  return dictGenHashFunction(pstr->val, pstr->len);
 }

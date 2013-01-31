@@ -23,6 +23,8 @@ module AbcTsvParser
 				size = sep - @offset
 				doc_size = sep - @doc_start + 1 # include the newline
 				term_found(@offset, size, @field_offset) if size > 0
+			  field_found("columns")
+			  int_found(@field.getbyte(0) - "a".getbyte(0) + 1)
 				document_found(@doc_start, doc_size)
 				@doc_start = @doc_start + doc_size
 				@field = "a"
@@ -74,5 +76,9 @@ class TestAbcTsvParser < Sit::Parser
 	
 	def field_found(*args)
 		$events << [:field] + args
+	end
+	
+	def int_found(*args)
+		$events << [:int] + args
 	end
 end
