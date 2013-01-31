@@ -43,5 +43,17 @@ rbc_plist_free(VALUE self);
 VALUE
 rbc_plist_region(VALUE self);
 
+VALUE
+rbc_plist_new_cursor(VALUE self);
+
+VALUE
+rbc_plist_cursor_prev(VALUE self);
+
+VALUE
+rbc_plist_cursor_next(VALUE self);
+
+VALUE
+rbc_plist_cursor_entry(VALUE self);
+
 #endif
 

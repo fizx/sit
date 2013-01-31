@@ -40,8 +40,88 @@ plist_new(plist_pool *pool) {
 
 void 
 plist_free(plist *pl) {
+  (void) pl;
 	// free(pl);
 }
+
+plist_cursor *
+plist_cursor_new(plist *pl) {
+  assert(pl);
+  plist_cursor *cursor = malloc(sizeof(plist_cursor));
+  cursor->plist = pl;
+  cursor->block = NULL;
+  cursor->entry = NULL;
+  cursor->exhausted = false;
+  return cursor;
+}
+
+long
+plist_cursor_document_id(plist_cursor *cursor) {
+  if(cursor->entry != NULL) {
+    return cursor->entry->doc;
+  } else {
+    return -1;
+  }
+}
+
+bool
+plist_cursor_prev(plist_cursor *cursor) {
+  if(cursor->exhausted) {
+    return false;
+  }
+  plist *pl = cursor->plist;
+  plist_pool *pool = pl->pool;
+  
+  if(cursor->block == NULL) {
+    if(pl->last_block && pl->last_version >= pool->min_version) {
+      cursor->block = pl->last_block;
+    } else {
+      cursor->exhausted = true;
+      return false;
+    }
+  }
+  
+  if(cursor->entry == NULL) {
+    int size = cursor->block->entries_count;
+    if (size == 0) {
+      cursor->exhausted = true;
+      return false;
+    } else {
+      cursor->entry = &cursor->block->entries[size - 1];
+      return true;
+    }
+  } else if (cursor->entry == &cursor->block->entries[0]) {
+    if(cursor->block->prev && cursor->block->prev_version >= pool->min_version) {
+      cursor->block = cursor->block->prev;
+      int size = cursor->block->entries_count;
+      if (size == 0) {
+        cursor->exhausted = true;
+        return false;
+      } else {
+        cursor->entry = &cursor->block->entries[size - 1];
+        return true;
+      }      
+    } else {
+      cursor->exhausted = true;
+      return false;
+    }
+  } else {
+    cursor->entry--;
+    return true;
+  }
+}
+
+bool
+plist_cursor_next(plist_cursor *cursor) {
+  (void) cursor;
+  return false;
+}
+
+plist_entry *
+plist_cursor_entry(plist_cursor *cursor) {
+  return cursor->exhausted ? NULL : cursor->entry;
+}
+
 
 plist_block *
 plist_append_block(plist *pl) {

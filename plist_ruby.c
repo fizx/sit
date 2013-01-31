@@ -1,4 +1,5 @@
 #include "plist_ruby.h"
+#include <assert.h>
 
 VALUE
 rbc_plist_pool_new(VALUE class, VALUE rsize) {
@@ -99,6 +100,50 @@ rbc_plist_each(VALUE self) {
 	return Qnil;	
 }
 
+VALUE
+rbc_plist_new_cursor(VALUE self) {
+  plist *pl;
+	Data_Get_Struct(self, plist, pl);
+  assert(pl);
+  plist_cursor *cursor = plist_cursor_new(pl);
+  if (cursor == NULL) {
+    return Qnil;
+  } else {
+   	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistCursor"), NULL, NULL, cursor);
+  	rb_obj_call_init(tdata, 0, NULL);
+    return tdata;
+  }
+}
+
+VALUE
+rbc_plist_cursor_prev(VALUE self) {
+  plist_cursor *cursor;
+	Data_Get_Struct(self, plist_cursor, cursor);
+  return plist_cursor_prev(cursor) ? Qtrue : Qfalse;
+}
+
+VALUE
+rbc_plist_cursor_next(VALUE self) {
+  plist_cursor *cursor;
+	Data_Get_Struct(self, plist_cursor, cursor);
+  return plist_cursor_next(cursor) ? Qtrue : Qfalse;
+}
+
+VALUE
+rbc_plist_cursor_entry(VALUE self) {
+  plist_cursor *cursor;
+	Data_Get_Struct(self, plist_cursor, cursor);
+  plist_entry *entry = plist_cursor_entry(cursor);
+  if(entry == NULL) {
+    return Qnil;
+  } else {
+    plist_entry *dup = malloc(sizeof(plist_entry));
+  	memcpy(dup, entry, sizeof(plist_entry));
+    VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), NULL, NULL, dup);
+  	rb_obj_call_init(tdata, 0, NULL);
+    return tdata;
+  }
+}
 
 VALUE 
 rbc_plist_entry_to_s(VALUE self) {

@@ -26,5 +26,9 @@ lrw_dict_get(lrw_dict *d, const void *key);
 void
 lrw_dict_put(lrw_dict *d, const void *key, const void *value);
 
+void
+lrw_dict_tap(lrw_dict *d, const void *key);
+
+
 #endif
 

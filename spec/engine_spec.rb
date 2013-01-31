@@ -33,36 +33,48 @@ describe "Engine" do
       @engine.terms.size.should == 1
   end
   
-    it "should be able to register queries" do
-      term = Term.new("hello", "world", 0)
-      cb = Callback.new("data", proc{})
-      q = Query.new([term], cb)   
-      @engine.register(q)
-      @engine.queries.should == [q]
-    end
+  it "should be able to register queries" do
+    term = Term.new("hello", "world", 0)
+    cb = Callback.new("data", proc{})
+    q = Query.new([term], cb)   
+    @engine.register(q)
+    @engine.queries.should == [q]
+  end
   
-    it "should be able to remove queries" do
-      term = Term.new("hello", "world", 0)
-      cb = Callback.new("data", proc{})
-      q = Query.new([term], cb)   
-      id = @engine.register(q)
-      @engine.queries.should == [q]
-      @engine.unregister(id)
-      @engine.queries.should == []
-    end
+  it "should be able to remove queries" do
+    term = Term.new("hello", "world", 0)
+    cb = Callback.new("data", proc{})
+    q = Query.new([term], cb)   
+    id = @engine.register(q)
+    @engine.queries.should == [q]
+    @engine.unregister(id)
+    @engine.queries.should == []
+  end
   
   it "should be able to percolate a query" do
     term = Term.new("a", "hello", 0)
-    cb = Callback.new(@engine, proc{|doc| $events << doc })
+    cb = Callback.new("ignored", proc{|doc| $events << doc })
     q = Query.new([term], cb)   
     id = @engine.register(q)
 	  @engine.consume("hello\tworld\n")
     $events.should == ["hello\tworld\n"]
 	end
 	
+	it "should be able to search a query" do
+    term = Term.new("a", "hello", 0)
+    cb = Callback.new("ignored", proc{|doc| $events << doc })
+    q = Query.new([term], cb) 
+	  @engine.consume("hello\tworld\n")  
+    cursor = @engine.search(q)
+    while cursor.prev!
+      cursor.call
+    end
+    $events.should == ["hello\tworld\n"]
+	end
+	
 	it "should not respond to a miss" do
     term = Term.new("a", "nope", 0)
-    cb = Callback.new(@engine, proc{|doc| $events << doc })
+    cb = Callback.new("ignored", proc{|doc| $events << doc })
     q = Query.new([term], cb)   
     id = @engine.register(q)
 	  @engine.consume("hello\tworld\n")

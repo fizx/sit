@@ -1,13 +1,7 @@
-// typedef struct {
-// 	long (*hash_function)(void *key);
-// 	long capacity;
-// 	dict *dict;
-//  	long **ring;
-// } lrw_dict;
-
 #include "lrw_dict.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 
 lrw_dict *
 lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity) {
@@ -28,6 +22,13 @@ lrw_dict_get(lrw_dict *d, const void *key) {
 	} else {
 		return dictGetVal(entry);
 	}
+}
+
+void
+lrw_dict_tap(lrw_dict *d, const void *key) {
+  assert(key);
+  dictEntry *entry = dictFind(d->dict, key);
+	d->lrw_type->bump(entry, d->written);
 }
 
 void

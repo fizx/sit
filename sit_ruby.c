@@ -24,7 +24,9 @@ VALUE rbc_engine;
 VALUE rbc_lrw_dict;
 VALUE rbc_plist_pool;
 VALUE rbc_plist;
+VALUE rbc_plist_cursor;
 VALUE rbc_plist_entry;
+VALUE rbc_result_iterator;
 
 void 
 Init_sit() {
@@ -85,6 +87,7 @@ Init_sit() {
 	rb_define_method(rbc_engine, "last_document", rbc_engine_last_document, 0);
 	rb_define_method(rbc_engine, "last_document_id", rbc_engine_last_document_id, 0);
 	rb_define_method(rbc_engine, "get_document", rbc_engine_get_document, 1);
+	rb_define_method(rbc_engine, "search", rbc_engine_search, 1);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);
@@ -111,7 +114,14 @@ Init_sit() {
 	rb_define_method(rbc_plist, "each", rbc_plist_each, 0);
 	rb_define_method(rbc_plist, "ptr", rbc_plist_ptr, 0);
 	rb_define_method(rbc_plist, "free", rbc_plist_free, 0);
+	rb_define_method(rbc_plist, "new_cursor", rbc_plist_new_cursor, 0);
 	rb_include_module(rbc_plist, rb_mEnumerable);
+	
+	// PlistCursor
+	rbc_plist_cursor = rb_define_class_under(m_sit, "PlistCursor", rb_cObject);
+	rb_define_method(rbc_plist_cursor, "prev!", rbc_plist_cursor_prev, 0);
+	rb_define_method(rbc_plist_cursor, "next!", rbc_plist_cursor_next, 0);
+	rb_define_method(rbc_plist_cursor, "entry", rbc_plist_cursor_entry, 0);
 
 	// PlistEntry
 	rbc_plist_entry = rb_define_class_under(m_sit, "PlistEntry", rb_cObject);
@@ -119,4 +129,9 @@ Init_sit() {
 	rb_define_method(rbc_plist_entry, "to_s", rbc_plist_entry_to_s, 0);
 	rb_define_method(rbc_plist_entry, "==", rbc_plist_entry_equals, 1);
 	
+	rbc_result_iterator = rb_define_class_under(m_sit, "ResultIterator", rb_cObject);
+	rb_define_method(rbc_result_iterator, "prev!", rbc_result_iterator_prev, 0);
+	rb_define_method(rbc_result_iterator, "document", rbc_result_iterator_document, 0);
+	rb_define_method(rbc_result_iterator, "call", rbc_result_iterator_call, 0);
+	rb_define_method(rbc_result_iterator, "document_id", rbc_result_iterator_document_id, 0);	
 }

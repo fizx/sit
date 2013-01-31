@@ -1,7 +1,9 @@
 #include "sit_engine.h"
 #include "ring_buffer.h"
+#include "dict.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 int query_id = 0;
 
@@ -190,7 +192,7 @@ sit_engine_last_document_id(sit_engine *engine) {
 }
 
 void 
-callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
+callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstring *doc) {
 	if(dictSize(term_index) > dictSize(query_nodes)){
 
 		dictIterator *iterator = dictGetIterator(query_nodes);
@@ -200,11 +202,11 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
 			sit_query_node *node = dictGetVal(next);
 			sit_callback *cb = node->callback;
 			while(cb) {
-				cb->handler(engine, cb->user_data);
+				cb->handler(doc, cb->user_data);
 				cb = cb->next;
 			}
 			if(node->children) {
-				callback_recurse(engine, term_index, node->children);
+				callback_recurse(engine, term_index, node->children, doc);
 			}
 		}
 	} else {
@@ -215,11 +217,11 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
 		if ((next = dictNext(iterator)) && (node = dictFetchValue(query_nodes, dictGetKey(next)))) {
 			sit_callback *cb = node->callback;
 			while(cb) {
-				cb->handler(engine, cb->user_data);
+				cb->handler(doc, cb->user_data);
 				cb = cb->next;
 			}
 			if(node->children){
-				callback_recurse(engine, term_index, node->children);
+				callback_recurse(engine, term_index, node->children, doc);
 			}
 		}
 	}
@@ -227,7 +229,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes) {
 
 void
 sit_engine_percolate(sit_engine *engine) {
-	callback_recurse(engine, engine->term_index, engine->queries);
+	callback_recurse(engine, engine->term_index, engine->queries, sit_engine_last_document(engine));
 }
 
 void
@@ -237,6 +239,9 @@ sit_engine_index(sit_engine *engine, long doc_id) {
 		plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
+			lrw_dict_put(engine->term_dictionary, term, value);
+		} else {
+      lrw_dict_tap(engine->term_dictionary, term);
 		}
     plist_entry entry = { doc_id, term->offset };
 		plist_append_entry(value, &entry);
@@ -268,6 +273,75 @@ _unregister_handler(void *vnode, void *inner) {
 		prev = qc;
 		qc = qc->next;
 	}
+}
+
+sit_result_iterator *
+sit_engine_search(sit_engine *engine, sit_query *query) {
+  sit_result_iterator *iter = malloc(sizeof(sit_result_iterator) + (query->term_count - 1) * sizeof(plist_block *));
+  iter->query = query;
+  iter->engine = engine;
+  iter->doc_id = LONG_MAX;
+  iter->initialized = false;
+  for(int i = 0; i < query->term_count; i++) {
+    sit_term *term = &query->terms[i];
+    plist *pl = lrw_dict_get(engine->term_dictionary, term);
+    iter->cursors[i] = pl == NULL ? NULL : plist_cursor_new(pl);
+  }
+  return iter; 
+}
+
+
+// TODO: not that efficient
+bool
+sit_result_iterator_prev(sit_result_iterator *iter) {
+  int size = iter->query->term_count;
+
+  long min = iter->doc_id;
+  long max = -1;
+  min--;
+  while (min != max && min >= 0) {
+    for (int i = 0; i < size; i++) {
+      plist_cursor *cursor = iter->cursors[i];
+      if (cursor == NULL) {
+        printf("WARN: cursor null\n");
+        iter->doc_id = -1;
+        return false;
+      }
+
+      if(!iter->initialized) {
+        plist_cursor_prev(cursor);
+      }
+      
+      long doc;
+      while((doc = plist_cursor_document_id(cursor)) > min) {
+        printf("i: %d doc: %d\n", i, doc);
+        plist_cursor_prev(cursor);
+      }
+      if(doc < min) min = doc;
+      if(doc > max) max = doc;
+    }
+    iter->initialized = true;
+  }
+  
+  iter->doc_id = min;
+  
+  return min >= 0;
+}
+
+void
+sit_result_iterator_do_callback(sit_result_iterator *iter) {
+  iter->query->callback->handler(sit_result_iterator_document(iter), iter->query->callback->user_data);
+}
+
+
+pstring *
+sit_result_iterator_document(sit_result_iterator *iter) {
+  return sit_engine_get_document(iter->engine, sit_result_iterator_document_id(iter));
+}
+
+long
+sit_result_iterator_document_id(sit_result_iterator *iter) {
+  return iter->doc_id;
 }
 
 void

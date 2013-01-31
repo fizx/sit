@@ -9,20 +9,22 @@ require File.dirname(__FILE__) + "/../sit"
 include Sit
 
 describe "Callback" do
+  
   before do
-    @engine = Engine.new(RealAbcTsvParser.new, 1_000_000)
+    @string = "hello"
   end
+  
 	it "should to_s" do
-		cb = Callback.new(@engine, proc{|a, b| $foo = a + b })
+		cb = Callback.new(@string, proc{|a, b| $foo = a + b })
 		cb.to_s.should =~ /\[Callback \d+\]/
 	end
 	
 	it "should be callable" do
-		cb = Callback.new(@engine, proc{|doc| 
-		  doc.should be_nil
-		  $foo = @engine 
+		cb = Callback.new(@string, proc{ |doc| 
+		  doc.should == @string
+		  $foo = @string
 		})
 		cb.call
-		$foo.should == @engine
+		$foo.should == @string
 	end
 end

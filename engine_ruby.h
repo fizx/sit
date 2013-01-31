@@ -33,4 +33,19 @@ rbc_engine_last_document_id(VALUE self);
 VALUE
 rbc_engine_get_document(VALUE self, VALUE rid);
 
+VALUE 
+rbc_engine_search(VALUE self, VALUE query);
+
+VALUE
+rbc_result_iterator_prev(VALUE self);
+
+VALUE
+rbc_result_iterator_document(VALUE self);
+
+VALUE
+rbc_result_iterator_document_id(VALUE self);
+
+VALUE
+rbc_result_iterator_call(VALUE self);
+
 #endif

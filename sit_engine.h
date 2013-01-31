@@ -30,8 +30,19 @@ typedef struct {
   sit_term    terms[1];
 } sit_engine;
 
+typedef struct {
+  sit_engine *engine;
+  long doc_id;
+  sit_query *query;
+  bool initialized;
+  plist_cursor *cursors[1];
+} sit_result_iterator;
+
 sit_engine *
 sit_engine_new(sit_parser *parser, long size);
+
+sit_result_iterator *
+sit_engine_search(sit_engine *engine, sit_query *query);
 
 void 
 sit_engine_term_found(sit_engine *engine, long off, int len, int field_offset);
@@ -69,5 +80,16 @@ sit_engine_unregister(sit_engine *engine, long query_id);
 void 
 sit_engine_each_query(sit_engine *engine, sit_callback *callback);
 
-#endif
+bool
+sit_result_iterator_prev(sit_result_iterator *iter);
 
+void
+sit_result_iterator_do_callback(sit_result_iterator *iter);
+
+pstring *
+sit_result_iterator_document(sit_result_iterator *iter);
+
+long
+sit_result_iterator_document_id(sit_result_iterator *iter);
+
+#endif

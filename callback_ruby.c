@@ -1,7 +1,6 @@
 #include "sit_callback.h"
 #include "callback_ruby.h"
 #include "pstring_ruby.h"
-#include "sit_engine.h"
 #include "util_ruby.h"
 #include <assert.h>
 
@@ -13,8 +12,8 @@ void _cb_mark(void *data) {
 void 
 _handler(void *sit_data, void *user_data) {
 	VALUE block = vunwrap(user_data);
-	sit_engine *engine = sit_data;
-	VALUE rstr = p2rstring(sit_engine_last_document(engine));
+	pstring *pstr = sit_data;
+	VALUE rstr = p2rstring(pstr);
 	rb_funcall(block, rb_intern("call"), 1, rstr);
 }
 
@@ -27,13 +26,13 @@ _free(sit_callback *cb) {
 }
 
 VALUE
-rbc_callback_new(VALUE class, VALUE rengine, VALUE block) {
+rbc_callback_new(VALUE class, VALUE rstr, VALUE block) {
 	sit_callback *cb = sit_callback_new();
 	cb->user_data = vwrap(block);
 	cb->handler = _handler;
 	VALUE tdata = Data_Wrap_Struct(class, _cb_mark, _free, cb);
 	rb_obj_call_init(tdata, 0, NULL);
-	rb_iv_set(tdata, "@engine", rengine);
+	rb_iv_set(tdata, "@rstr", StringValue(rstr));
 	return tdata;
 }
 
@@ -42,12 +41,10 @@ rbc_callback_call(VALUE self) {
 	sit_callback *cb;
 	Data_Get_Struct(self, sit_callback, cb);
 	
-	VALUE rengine = rb_iv_get(self, "@engine");
+	VALUE rstr = rb_iv_get(self, "@rstr");
 	
-	sit_engine *engine;
-	Data_Get_Struct(rengine, sit_engine, engine);
-	
-	cb->handler(engine, cb->user_data);
+		
+	cb->handler(r2pstring(rstr), cb->user_data);
 	return Qnil;
 }
 

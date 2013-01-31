@@ -2,6 +2,7 @@
 #include "sit_engine.h"
 #include "util_ruby.h"
 #include "pstring_ruby.h"
+#include <assert.h>
 
 VALUE
 rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
@@ -26,12 +27,57 @@ rbc_engine_last_document(VALUE self) {
   return rstr;
 }
 
+VALUE 
+rbc_engine_search(VALUE self, VALUE rquery) {
+	sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  sit_query *query;
+	Data_Get_Struct(rquery, sit_query, query);
+  sit_result_iterator *iter = sit_engine_search(engine, query);
+  assert(iter);
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ResultIterator"), NULL, NULL, iter);
+  return tdata;
+}
+
+VALUE
+rbc_result_iterator_prev(VALUE self) {
+  sit_result_iterator *iter;
+  Data_Get_Struct(self, sit_result_iterator, iter);
+  return sit_result_iterator_prev(iter) ? Qtrue : Qfalse;
+}
+
+VALUE
+rbc_result_iterator_document(VALUE self) {
+  sit_result_iterator *iter;
+  Data_Get_Struct(self, sit_result_iterator, iter);
+  pstring *pstr = sit_result_iterator_document(iter);
+  VALUE rstr = p2rstring(pstr);
+  pstring_free(pstr);
+  return rstr;
+}
+
+VALUE
+rbc_result_iterator_document_id(VALUE self) {
+  sit_result_iterator *iter;
+  Data_Get_Struct(self, sit_result_iterator, iter);
+  long id = sit_result_iterator_document_id(iter);
+  return LONG2NUM(id);
+}
+
 VALUE
 rbc_engine_last_document_id(VALUE self) {
   sit_engine *engine;
 	Data_Get_Struct(self, sit_engine, engine);
   long id = sit_engine_last_document_id(engine);
   return LONG2NUM(id);
+}
+
+VALUE
+rbc_result_iterator_call(VALUE self) {
+  sit_result_iterator *iter;
+  Data_Get_Struct(self, sit_result_iterator, iter);
+  sit_result_iterator_do_callback(iter);
+  return Qnil;
 }
 
 VALUE

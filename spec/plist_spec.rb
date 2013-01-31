@@ -41,6 +41,24 @@ describe "PlistPool" do
       plist.append(PlistEntry.new(1, 2))
     end  
   end
+  
+  it "should be able to cursor" do
+	  plist = Plist.new @pool
+	  100.times do |i|
+      plist.append(PlistEntry.new(i, i))
+    end
+    
+    cursor = plist.new_cursor
+    cursor.entry.should be_nil
+    cursor.prev!
+    cursor.entry.should == PlistEntry.new(99, 99)
+    
+    while cursor.prev!
+    end
+
+    cursor.entry.should be_nil
+  end
+  
 	
 	it "should be able to create plists" do
 	  a = Plist.new @pool

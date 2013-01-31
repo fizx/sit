@@ -2,6 +2,7 @@
 #define PLIST_H_INCLUDED
 
 #include "sit_callback.h"
+#include <stdbool.h>
 
 struct plist_pool;
 
@@ -42,8 +43,18 @@ typedef struct plist_pool {
  	void         *next_block;
 } plist_pool;
 
+typedef struct {
+  plist *plist;
+  plist_block *block;
+  plist_entry *entry;
+  bool exhausted;
+} plist_cursor;
+
 plist_pool *
 plist_pool_new(long size);
+
+plist_cursor *
+plist_cursor_new(plist *plist);
 
 plist *
 plist_new(plist_pool *pool);
@@ -62,5 +73,17 @@ plist_reach(plist *plist, sit_callback *handler);
 
 void
 plist_append_entry(plist *pl, plist_entry *entry);
+
+bool
+plist_cursor_prev(plist_cursor *cursor);
+
+bool
+plist_cursor_next(plist_cursor *cursor);
+
+plist_entry *
+plist_cursor_entry(plist_cursor *cursor);
+
+long
+plist_cursor_document_id(plist_cursor *cursor);
 
 #endif
