@@ -4,7 +4,7 @@
 #include "ruby.h"
 
 VALUE
-rbc_callback_new(VALUE class, VALUE rengine, VALUE block);
+rbc_callback_new(VALUE class, VALUE klass, VALUE block);
 
 VALUE
 rbc_callback_call(VALUE self);

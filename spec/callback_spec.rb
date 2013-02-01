@@ -11,20 +11,17 @@ include Sit
 describe "Callback" do
   
   before do
-    @string = "hello"
   end
   
 	it "should to_s" do
-		cb = Callback.new(@string, proc{|a, b| $foo = a + b })
+		cb = Callback.new(String, proc{|a, b| $foo = a + b })
 		cb.to_s.should =~ /\[Callback \d+\]/
 	end
 	
 	it "should be callable" do
-		cb = Callback.new(@string, proc{ |doc| 
-		  doc.should == @string
-		  $foo = @string
+		cb = Callback.new(String, proc{ |doc| 
+		  doc.should == nil
 		})
 		cb.call
-		$foo.should == @string
 	end
 end

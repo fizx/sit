@@ -1,12 +1,19 @@
+
 %token_table
 %debug
-%pure-parser
 %locations
 %defines
 %error-verbose
 
+%define api.pure full
+%define api.push-pull push
+
 %parse-param { query_parser* context }
 %lex-param { void* scanner  }
+
+%code requires {
+  #include "query_parser.h"
+}
 
 %union
 {
@@ -14,8 +21,6 @@
    char* cptr;
 }
 
-%token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE BRK
-%token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
 
 %{
 
@@ -23,6 +28,7 @@
 #include "sit_callback.h"
 #include "pstring.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
 
@@ -35,10 +41,8 @@ void yyerror(YYLTYPE* locp, query_parser *parser, const char* err) {
 
 %}
 
-
-
-
-
+%token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE BRK
+%token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
 
 %start full_expression
 

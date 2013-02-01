@@ -11,7 +11,7 @@ include Sit
 describe "Query" do
   it "should be to_s" do
     term = Term.new("hello", "world", 0)
-    cb = Callback.new("data", proc{})
+    cb = Callback.new(String, proc{})
     q = Query.new([term], cb)
     q.to_s.should =~ /<query \[hello:world 0\]\[cb:\d+\]>/
   end
@@ -19,7 +19,7 @@ describe "Query" do
 	it "should be sorted" do
 		a = Term.new("hello", "world", 0)
 		b = Term.new("goodbye", "world", 0)
-		cb = Callback.new("data", proc{})
+		cb = Callback.new(String, proc{})
 		qa = Query.new([a, b], cb)
 		qb = Query.new([b, a], cb)
 		qa.to_s.should == qb.to_s

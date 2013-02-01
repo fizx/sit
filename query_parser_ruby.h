@@ -1,5 +1,7 @@
-#ifndef PSTRING_RUBY_H_INCLUDED
-#define PSTRING_RUBY_H_INCLUDED
+#ifndef QUERY_PARSER_RUBY_H_INCLUDED
+#define QUERY_PARSER_RUBY_H_INCLUDED
+
+#include "ruby.h"
 
 VALUE 
 rbc_query_parser_new(VALUE class);

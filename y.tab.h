@@ -39,6 +39,15 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+/* Line 2065 of yacc.c  */
+#line 14 "query_parser.y"
+
+  #include "query_parser.h"
+
+
+/* Line 2065 of yacc.c  */
+#line 51 "y.tab.h"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -92,14 +101,14 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2065 of yacc.c  */
-#line 12 "query_parser.y"
+#line 19 "query_parser.y"
 
    int integer;
    char* cptr;
 
 
 /* Line 2065 of yacc.c  */
-#line 103 "y.tab.h"
+#line 112 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -120,18 +129,28 @@ typedef struct YYLTYPE
 #endif
 
 
-#ifdef YYPARSE_PARAM
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void *YYPARSE_PARAM);
-#else
-int yyparse ();
+#ifndef YYPUSH_MORE_DEFINED
+# define YYPUSH_MORE_DEFINED
+enum { YYPUSH_MORE = 4 };
 #endif
-#else /* ! YYPARSE_PARAM */
+
+typedef struct yypstate yypstate;
+
 #if defined __STDC__ || defined __cplusplus
-int yyparse (query_parser* context);
+int yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, query_parser* context);
 #else
-int yyparse ();
+int yypush_parse ();
 #endif
-#endif /* ! YYPARSE_PARAM */
+
+#if defined __STDC__ || defined __cplusplus
+yypstate * yypstate_new (void);
+#else
+yypstate * yypstate_new ();
+#endif
+#if defined __STDC__ || defined __cplusplus
+void yypstate_delete (yypstate *ps);
+#else
+void yypstate_delete ();
+#endif
 
 #endif /* !YY_YY_Y_TAB_H_INCLUDED  */

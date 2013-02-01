@@ -13,6 +13,7 @@
 #include "engine_ruby.h"
 #include "lrw_dict_ruby.h"
 #include "plist_ruby.h"
+#include "query_parser_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ring_buffer;

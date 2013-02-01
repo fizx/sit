@@ -2153,5 +2153,7 @@ query_parser_new(sit_callback *cb) {
 void
 query_parser_consume(query_parser *parser, pstring *pstr) {
   parser->buf = pstr;
+  
+//  yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, query_parser* context);
   yyparse(parser);
 }
