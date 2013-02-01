@@ -97,8 +97,7 @@ sit_engine_new(sit_parser *parser, long size) {
 	engine->postings = plist_pool_new(size / 4);
 	engine->term_index = dictCreate(&termDict, 0);
 	engine->term_count = 0;
-	engine->field = pstring_new(7);
-  engine->field->val = "default";
+	engine->field = c2pstring("default");
 	engine->docs = ring_buffer_new((size / 4 / sizeof(doc_ref)) * sizeof(doc_ref));
 	engine->term_capacity = tc;
 	engine->data = NULL;

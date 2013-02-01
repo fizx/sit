@@ -13,7 +13,7 @@ rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
 	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
 	rb_funcall(rparser, rb_intern("engine="), 1, tdata);
-	engine->data = vwrap(tdata);
+	engine->data = (void *) vwrap(tdata);
 	return tdata;
 }
 

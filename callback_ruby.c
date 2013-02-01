@@ -28,7 +28,7 @@ _free(sit_callback *cb) {
 VALUE
 rbc_callback_new(VALUE class, VALUE rstr, VALUE block) {
 	sit_callback *cb = sit_callback_new();
-	cb->user_data = vwrap(block);
+	cb->user_data = (void *) vwrap(block);
 	cb->handler = _handler;
 	VALUE tdata = Data_Wrap_Struct(class, _cb_mark, _free, cb);
 	rb_obj_call_init(tdata, 0, NULL);

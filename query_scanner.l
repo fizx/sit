@@ -1,18 +1,37 @@
+%option reentrant
+%option bison-bridge
+%option bison-locations
+%option noyywrap
+%option yylineno
+
 D			[0-9]
 L			[a-zA-Z_]
 H			[a-fA-F0-9]
 NS    [^ \t\n\r,?*():\^"]
 
 %{
-#include <stdio.h>
 #include "y.tab.h"
+#include <stdio.h>
+#include "query_parser.h"
 
-void count();
+#define YY_EXTRA_TYPE query_parser*
+#define YY_USER_ACTION yylloc->first_line = yylineno;
+
+#define YY_INPUT(cbuf, result, max_size)  {       \
+  if(yyextra->off < yyextra->buf->len) {          \
+    cbuf[0] = yyextra->buf->val[yyextra->off++];  \
+    result = 1;                                   \
+  } else {                                        \
+    result = YY_NULL;                             \
+  }                                               \
+}
+
+int yyparse (query_parser* context);
+
 %}
 
-%option bison-bridge
-
 %%
+
 ("and"|"AND")             { return(AND); }
 ("or"|"OR")               { return(OR); }
 ("not"|"NOT")             { return(NOT); }
@@ -35,3 +54,20 @@ L?\"(\\.|[^\\"])*\"	      { return(STRING_LITERAL); }
 .			                    { /* ignore bad characters */ }
 
 %%
+
+query_parser *
+query_parser_new(sit_callback *cb) {
+  query_parser *parser = malloc(sizeof(query_parser));
+  parser->buf = NULL;
+  parser->off = 0;
+  parser->cb = cb;
+  yylex_init(&parser->scanner);
+  yyset_extra(parser, parser->scanner);
+  return parser;
+}
+
+void
+query_parser_consume(query_parser *parser, pstring *pstr) {
+  parser->buf = pstr;
+  yyparse(parser);
+}

@@ -9,6 +9,9 @@ typedef struct {
 pstring *
 pstring_new(int len);
 
+pstring *
+c2pstring(const char *cstr);
+
 void
 pstring_free(pstring *pstr);
 

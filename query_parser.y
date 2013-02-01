@@ -1,16 +1,44 @@
+%token_table
+%debug
+%pure-parser
+%locations
+%defines
+%error-verbose
+
+%parse-param { query_parser* context }
+%lex-param { void* scanner  }
+
+%union
+{
+   int integer;
+   char* cptr;
+}
+
+%token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE BRK
+%token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
+
 %{
+
+#include "query_parser.h"
+#include "sit_callback.h"
+#include "pstring.h"
+#include <stdlib.h>
+
+int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+
+void yyerror(YYLTYPE* locp, query_parser *parser, const char* err) {
+  (void) locp;
+  parser->error = c2pstring(err);
+}
+
+#define scanner context->scanner
 
 %}
 
-// %define api.pure full
-// %define api.push-pull push
 
-%glr-parser
-%token_table
-%debug
 
-%token AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE BRK
-%token TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
+
+
 
 %start full_expression
 
@@ -76,14 +104,3 @@ binary_expression_operator
   ;
    
 %%
-#include <stdio.h>
-
-extern char yytext[];
-extern int column;
-
-yyerror(s)
-char *s;
-{
-	fflush(stdout);
-	printf("\n%*s\n%*s\n", column, "^", column, s);
-}

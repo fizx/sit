@@ -11,6 +11,13 @@ pstring_new(int len) {
 	return pstr;
 }
 
+pstring *
+c2pstring(const char *cstr) {
+  pstring *pstr = pstring_new(strlen(cstr));
+  strncpy(pstr->val, cstr, pstr->len);
+  return pstr;
+}
+
 void
 pstring_free(pstring *pstr) {
 	if(pstr != NULL) {

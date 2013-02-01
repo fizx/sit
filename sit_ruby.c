@@ -27,6 +27,7 @@ VALUE rbc_plist;
 VALUE rbc_plist_cursor;
 VALUE rbc_plist_entry;
 VALUE rbc_result_iterator;
+VALUE rbc_query_parser;
 
 void 
 Init_sit() {
@@ -63,6 +64,12 @@ Init_sit() {
 	rb_define_singleton_method(rbc_query, "new", rbc_query_new, 2);
 	rb_define_method(rbc_query, "to_s", rbc_query_to_s, 0);
 	rb_define_method(rbc_query, "==", rbc_query_equals, 1);
+
+	// QueryParser
+	rbc_query_parser = rb_define_class_under(m_sit, "QueryParser", rb_cObject);
+	rb_define_singleton_method(rbc_query_parser, "new", rbc_query_parser_new, 0);
+	rb_define_method(rbc_query, "consume", rbc_query_parser_consume, 1);
+	rb_define_method(rbc_query, "queries", rbc_query_parser_queries, 0);
 
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
