@@ -11,7 +11,7 @@ def sys(*a); puts a.join(" "); system(*a); end
 task :default => :spec
 
 task :bison do 
-  sys "flex query_scanner.l && /usr/local/bin/bison -yd query_parser.y"
+  sys "flex query_scanner.l && /usr/local/bin/bison -ytd query_parser.y"
 end
 
 task :clean do

@@ -69,8 +69,9 @@ Init_sit() {
 	// QueryParser
 	rbc_query_parser = rb_define_class_under(m_sit, "QueryParser", rb_cObject);
 	rb_define_singleton_method(rbc_query_parser, "new", rbc_query_parser_new, 0);
-	rb_define_method(rbc_query, "consume", rbc_query_parser_consume, 1);
-	rb_define_method(rbc_query, "queries", rbc_query_parser_queries, 0);
+	rb_define_method(rbc_query_parser, "consume", rbc_query_parser_consume, 1);
+	rb_define_method(rbc_query_parser, "queries", rbc_query_parser_queries, 0);
+	rb_define_method(rbc_query_parser, "last_error", rbc_query_parser_last_error, 0);
 
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);

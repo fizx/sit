@@ -371,13 +371,13 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[44] =
+static yyconst flex_int16_t yy_accept[45] =
     {   0,
         0,    0,   22,   17,   19,   18,   17,   20,   20,    4,
-        5,   13,   15,   14,   17,    8,    6,    7,   17,   17,
-       17,   17,   17,   17,   17,   11,   17,    0,   16,    0,
-       14,   10,   12,    9,   17,    0,   17,    2,   17,   17,
-        1,    3,    0
+        5,   13,   15,   14,   18,    8,    6,    7,   17,   17,
+       17,   17,   17,   17,   17,   11,   17,   18,    0,   16,
+        0,   14,   10,   12,    9,   17,    0,   17,    2,   17,
+       17,    1,    3,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -415,52 +415,56 @@ static yyconst flex_int32_t yy_ec[256] =
 static yyconst flex_int32_t yy_meta[31] =
     {   0,
         1,    2,    2,    1,    2,    2,    2,    2,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int16_t yy_base[46] =
+static yyconst flex_int16_t yy_base[47] =
     {   0,
-        0,    0,   57,    0,   58,   58,    0,   58,   25,   58,
-       58,    0,    0,   45,    0,   18,    0,   41,   31,   43,
-       27,   25,   19,   17,   15,    0,    0,   28,   58,   39,
-       30,    0,    0,    0,   23,   29,   17,    0,   13,    8,
-        0,    0,   58,   35,   52
+        0,    0,   63,    0,   64,   28,    0,   64,   26,   64,
+       64,    0,    0,   51,   30,   20,    0,   47,   41,   53,
+       38,   32,   26,   24,   22,    0,    0,   33,   31,   64,
+       45,   36,    0,    0,    0,   29,   32,   22,    0,   18,
+       12,    0,    0,   64,   38,   55
     } ;
 
-static yyconst flex_int16_t yy_def[46] =
+static yyconst flex_int16_t yy_def[47] =
     {   0,
-       43,    1,   43,   44,   43,   43,   44,   43,   45,   43,
-       43,   44,   44,   44,   44,   44,   44,   44,   44,   44,
-       44,   44,   44,   44,   44,   44,   44,   45,   43,   45,
-       44,   44,   44,   44,   44,   45,   44,   44,   44,   44,
-       44,   44,    0,   43,   43
+       44,    1,   44,   45,   44,   44,   45,   44,   46,   44,
+       44,   45,   45,   45,   44,   45,   45,   45,   45,   45,
+       45,   45,   45,   45,   45,   45,   45,   44,   46,   44,
+       46,   45,   45,   45,   45,   45,   46,   45,   45,   45,
+       45,   45,   45,    0,   44,   44
     } ;
 
-static yyconst flex_int16_t yy_nxt[89] =
+static yyconst flex_int16_t yy_nxt[95] =
     {   0,
         4,    5,    6,    7,    8,    9,   10,   11,   12,   13,
        14,   15,   16,   17,   18,   19,    4,   20,   21,   22,
         4,    4,    4,   23,    4,   24,   25,    4,    4,   26,
-       29,   32,   33,   29,   29,   27,   42,   41,   42,   41,
-       31,   43,   38,   40,   39,   38,   37,   30,   36,   35,
-       30,   30,   28,   28,   34,   31,   43,    3,   43,   43,
-       43,   43,   43,   43,   43,   43,   43,   43,   43,   43,
-       43,   43,   43,   43,   43,   43,   43,   43,   43,   43,
-       43,   43,   43,   43,   43,   43,   43,   43
+       28,   30,   28,   33,   34,   28,   30,   30,   27,   28,
+       43,   28,   42,   43,   28,   42,   32,   44,   31,   39,
+       41,   40,   39,   31,   31,   29,   29,   38,   37,   36,
+       35,   32,   44,    3,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44
+
     } ;
 
-static yyconst flex_int16_t yy_chk[89] =
+static yyconst flex_int16_t yy_chk[95] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        9,   16,   16,   28,   36,   44,   40,   39,   37,   35,
-       31,   30,   25,   24,   23,   22,   21,    9,   20,   19,
-       28,   36,   45,   45,   18,   14,    3,   43,   43,   43,
-       43,   43,   43,   43,   43,   43,   43,   43,   43,   43,
-       43,   43,   43,   43,   43,   43,   43,   43,   43,   43,
-       43,   43,   43,   43,   43,   43,   43,   43
+        6,    9,   15,   16,   16,   28,   29,   37,   45,    6,
+       41,   15,   40,   38,   28,   36,   32,   31,    9,   25,
+       24,   23,   22,   29,   37,   46,   46,   21,   20,   19,
+       18,   14,    3,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44
+
     } ;
 
 /* Table of booleans, true if rule could match eol. */
@@ -481,22 +485,23 @@ static yyconst flex_int32_t yy_rule_can_match_eol[22] =
 #include "y.tab.h"
 #include <stdio.h>
 #include "query_parser.h"
+#include <assert.h>
 
 #define YY_EXTRA_TYPE query_parser*
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
-#define YY_INPUT(cbuf, result, max_size)  {       \
-  if(yyextra->off < yyextra->buf->len) {          \
-    cbuf[0] = yyextra->buf->val[yyextra->off++];  \
-    result = 1;                                   \
-  } else {                                        \
-    result = YY_NULL;                             \
-  }                                               \
-}
+#define YY_INPUT(cbuf, offset, max_size)  {                                   \
+  int i;\
+  for(i = 0; i < max_size && offset < yyextra->buf->len; i++, offset++) { \
+    cbuf[i] = yyextra->buf->val[offset];                                      \
+  }                                                                         \
+  if(i == 0) {                                                              \
+    yyextra->done++;                                                   \
+  }                                                                         \
+  offset = i;                                                                 \
+}                                                                             
 
-int yyparse (query_parser* context);
-
-#line 500 "lex.yy.c"
+#line 505 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -737,10 +742,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 33 "query_scanner.l"
+#line 34 "query_scanner.l"
 
 
-#line 744 "lex.yy.c"
+#line 749 "lex.yy.c"
 
     yylval = yylval_param;
 
@@ -797,13 +802,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 44 )
+				if ( yy_current_state >= 45 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 58 );
+		while ( yy_base[yy_current_state] != 64 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -841,112 +846,112 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 35 "query_scanner.l"
+#line 36 "query_scanner.l"
 { return(AND); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 36 "query_scanner.l"
+#line 37 "query_scanner.l"
 { return(OR); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 37 "query_scanner.l"
+#line 38 "query_scanner.l"
 { return(NOT); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 38 "query_scanner.l"
+#line 39 "query_scanner.l"
 { return(LPAREN); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 39 "query_scanner.l"
+#line 40 "query_scanner.l"
 { return(RPAREN); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 40 "query_scanner.l"
+#line 41 "query_scanner.l"
 { return(EQ); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 41 "query_scanner.l"
+#line 42 "query_scanner.l"
 { return(GT); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 42 "query_scanner.l"
+#line 43 "query_scanner.l"
 { return(LT); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 43 "query_scanner.l"
+#line 44 "query_scanner.l"
 { return(GTE); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 44 "query_scanner.l"
+#line 45 "query_scanner.l"
 { return(LTE); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 45 "query_scanner.l"
+#line 46 "query_scanner.l"
 { return(TILDE); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 46 "query_scanner.l"
+#line 47 "query_scanner.l"
 { return(NEQ); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 47 "query_scanner.l"
+#line 48 "query_scanner.l"
 { return(MINUS); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 48 "query_scanner.l"
-{ return(DIGITS); }
+#line 49 "query_scanner.l"
+{ yyextra->ptr = cstring_new(yytext, yyleng); printf("a '%s' %d\n", yyextra->ptr, yyleng); return(DIGITS); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 49 "query_scanner.l"
-{ return(DOT); }
+#line 50 "query_scanner.l"
+{ printf(".DOT!\n");return(DOT); }
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 50 "query_scanner.l"
-{ return(STRING_LITERAL); }
+#line 51 "query_scanner.l"
+{ yyextra->ptr = cstring_new(yytext, yyleng); printf("b '%s' %d\n", yyextra->ptr, yyleng); return(STRING_LITERAL); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 51 "query_scanner.l"
-{ return(UNQUOTED); }
+#line 52 "query_scanner.l"
+{ yyextra->ptr = cstring_new(yytext, yyleng); printf("c '%s' %d\n", yyextra->ptr, yyleng); return(UNQUOTED); }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 52 "query_scanner.l"
-{ return(BRK); }
+#line 53 "query_scanner.l"
+{ printf("EQ\n"); return(EOQ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 53 "query_scanner.l"
+#line 54 "query_scanner.l"
 { /* ignore whitespace*/ }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 54 "query_scanner.l"
-{ /* ignore bad characters */ }
+#line 55 "query_scanner.l"
+{ printf("wut"); /* ignore bad characters */ }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 56 "query_scanner.l"
+#line 57 "query_scanner.l"
 ECHO;
 	YY_BREAK
-#line 950 "lex.yy.c"
+#line 955 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1240,7 +1245,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 44 )
+			if ( yy_current_state >= 45 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1269,11 +1274,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 44 )
+		if ( yy_current_state >= 45 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 43);
+	yy_is_jam = (yy_current_state == 44);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2135,7 +2140,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 56 "query_scanner.l"
+#line 57 "query_scanner.l"
 
 
 
@@ -2143,17 +2148,39 @@ query_parser *
 query_parser_new(sit_callback *cb) {
   query_parser *parser = malloc(sizeof(query_parser));
   parser->buf = NULL;
-  parser->off = 0;
+  parser->error = NULL;
   parser->cb = cb;
+  parser->push_state = yypstate_new();
+  parser->lvalp = malloc(sizeof(YYSTYPE));
+  parser->llocp = malloc(sizeof(YYLTYPE));
   yylex_init(&parser->scanner);
   yyset_extra(parser,parser->scanner);
   return parser;
 }
 
-void
+int
 query_parser_consume(query_parser *parser, pstring *pstr) {
+  assert(pstr);
+  assert(pstr->len);
   parser->buf = pstr;
-  
-//  yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, query_parser* context);
-  yyparse(parser);
+  parser->done = false;
+  //return yyparse(parser);
+  int status = YYPUSH_MORE;
+  while (status == YYPUSH_MORE && parser->done < 1) {
+    status = yypush_parse(
+      parser->push_state,
+      yylex(parser->lvalp,parser->llocp,parser->scanner), 
+      parser->lvalp,
+      parser->llocp,
+      parser);
+  }
+  printf("poff %d of %d\n", parser->done, pstr->len);
+  return status;
 }
+
+
+void
+query_parser_construct(query_parser *context, query_node *root) {
+  assert(0);
+};
+

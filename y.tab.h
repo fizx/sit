@@ -65,7 +65,7 @@ extern int yydebug;
      LT = 265,
      GTE = 266,
      LTE = 267,
-     BRK = 268,
+     EOQ = 268,
      TILDE = 269,
      NEQ = 270,
      MINUS = 271,
@@ -86,7 +86,7 @@ extern int yydebug;
 #define LT 265
 #define GTE 266
 #define LTE 267
-#define BRK 268
+#define EOQ 268
 #define TILDE 269
 #define NEQ 270
 #define MINUS 271
@@ -102,13 +102,15 @@ typedef union YYSTYPE
 {
 /* Line 2065 of yacc.c  */
 #line 19 "query_parser.y"
-
-   int integer;
-   char* cptr;
+ 
+  query_node *node;
+  int         num;
+  char       *cptr;
+  cmp_type    cmp;
 
 
 /* Line 2065 of yacc.c  */
-#line 112 "y.tab.h"
+#line 114 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -137,11 +139,20 @@ enum { YYPUSH_MORE = 4 };
 typedef struct yypstate yypstate;
 
 #if defined __STDC__ || defined __cplusplus
+int yyparse (query_parser* context);
+#else
+int yyparse ();
+#endif
+#if defined __STDC__ || defined __cplusplus
 int yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, query_parser* context);
 #else
 int yypush_parse ();
 #endif
-
+#if defined __STDC__ || defined __cplusplus
+int yypull_parse (yypstate *ps, query_parser* context);
+#else
+int yypull_parse ();
+#endif
 #if defined __STDC__ || defined __cplusplus
 yypstate * yypstate_new (void);
 #else

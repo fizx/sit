@@ -7,26 +7,27 @@
 D			[0-9]
 L			[a-zA-Z_]
 H			[a-fA-F0-9]
-NS    [^ \t\n\r,?*():\^"]
+NS    [^ \t\n\r,?*();:\^"]
 
 %{
 #include "y.tab.h"
 #include <stdio.h>
 #include "query_parser.h"
+#include <assert.h>
 
 #define YY_EXTRA_TYPE query_parser*
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
-#define YY_INPUT(cbuf, result, max_size)  {       \
-  if(yyextra->off < yyextra->buf->len) {          \
-    cbuf[0] = yyextra->buf->val[yyextra->off++];  \
-    result = 1;                                   \
-  } else {                                        \
-    result = YY_NULL;                             \
-  }                                               \
-}
-
-int yyparse (query_parser* context);
+#define YY_INPUT(cbuf, offset, max_size)  {                                   \
+  int i;\
+  for(i = 0; i < max_size && offset < yyextra->buf->len; i++, offset++) { \
+    cbuf[i] = yyextra->buf->val[offset];                                      \
+  }                                                                         \
+  if(i == 0) {                                                              \
+    yyextra->done++;                                                   \
+  }                                                                         \
+  offset = i;                                                                 \
+}                                                                             
 
 %}
 
@@ -45,13 +46,13 @@ int yyparse (query_parser* context);
 "~"                       { return(TILDE); }
 "<>"                      { return(NEQ); }
 "-"                       { return(MINUS); }
-{D}+                      { return(DIGITS); }
-"."                       { return(DOT); }
-L?\"(\\.|[^\\"])*\"	      { return(STRING_LITERAL); }
-{NS}+             	      { return(UNQUOTED); }
-[;\n]                     { return(BRK); }
+{D}+                      { yyextra->ptr = cstring_new(yytext, yyleng); printf("a '%s' %d\n", yyextra->ptr, yyleng); return(DIGITS); }
+"."                       { printf(".DOT!\n");return(DOT); }
+L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); printf("b '%s' %d\n", yyextra->ptr, yyleng); return(STRING_LITERAL); }
+{NS}+             	      { yyextra->ptr = cstring_new(yytext, yyleng); printf("c '%s' %d\n", yyextra->ptr, yyleng); return(UNQUOTED); }
+[;\n]+                    { printf("EQ\n"); return(EOQ); }
 [ \t\v\f]  		            { /* ignore whitespace*/ }
-.			                    { /* ignore bad characters */ }
+.			                    { printf("wut"); /* ignore bad characters */ }
 
 %%
 
@@ -59,17 +60,38 @@ query_parser *
 query_parser_new(sit_callback *cb) {
   query_parser *parser = malloc(sizeof(query_parser));
   parser->buf = NULL;
-  parser->off = 0;
+  parser->error = NULL;
   parser->cb = cb;
+  parser->push_state = yypstate_new();
+  parser->lvalp = malloc(sizeof(YYSTYPE));
+  parser->llocp = malloc(sizeof(YYLTYPE));
   yylex_init(&parser->scanner);
   yyset_extra(parser, parser->scanner);
   return parser;
 }
 
-void
+int
 query_parser_consume(query_parser *parser, pstring *pstr) {
+  assert(pstr);
+  assert(pstr->len);
   parser->buf = pstr;
-  
-//  yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, query_parser* context);
-  yyparse(parser);
+  parser->done = false;
+  //return yyparse(parser);
+  int status = YYPUSH_MORE;
+  while (status == YYPUSH_MORE && parser->done < 1) {
+    status = yypush_parse(
+      parser->push_state,
+      yylex(parser->lvalp, parser->llocp, parser->scanner), 
+      parser->lvalp,
+      parser->llocp,
+      parser);
+  }
+  printf("poff %d of %d\n", parser->done, pstr->len);
+  return status;
 }
+
+
+void
+query_parser_construct(query_parser *context, query_node *root) {
+  assert(0);
+};

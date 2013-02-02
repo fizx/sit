@@ -12,4 +12,7 @@ rbc_query_parser_consume(VALUE self, VALUE rstr);
 VALUE 
 rbc_query_parser_queries(VALUE self);
 
+VALUE
+rbc_query_parser_last_error(VALUE self);
+
 #endif

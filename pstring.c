@@ -18,6 +18,38 @@ c2pstring(const char *cstr) {
   return pstr;
 }
 
+char *
+cstring_new(char *cstr, int len) {
+  char *new = malloc(len + 1);
+  memcpy(new, cstr, len);
+  new[len] = 0;
+  return new;
+}
+
+pstring *
+pstring_new2(char *cstr, int len) {
+  pstring *pstr = pstring_new(len + 1);
+  memcpy(pstr->val, cstr, len);
+  pstr->val[len] = 0;
+  return pstr;
+}
+
+pstring *
+qc2pstring(const char *cstr) {
+  pstring *pstr = pstring_new(strlen(cstr));
+  char *val = pstr->val;
+  int len = strlen(cstr);
+  for(int i = 1; i < len - 1; i++) {
+    if(cstr[i] == '\\') {
+      i++;
+    } else {
+      *val++ = cstr[i];
+    }
+  }
+  pstr->len = val - pstr->val;
+  return pstr;
+}
+
 void
 pstring_free(pstring *pstr) {
 	if(pstr != NULL) {

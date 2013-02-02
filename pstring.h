@@ -10,7 +10,16 @@ pstring *
 pstring_new(int len);
 
 pstring *
+pstring_new2(char *cstr, int len);
+
+char *
+cstring_new(char *cstr, int len);
+
+pstring *
 c2pstring(const char *cstr);
+
+pstring *
+qc2pstring(const char *cstr);
 
 void
 pstring_free(pstring *pstr);
