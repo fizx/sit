@@ -6,20 +6,8 @@
 #include "pstring.h"
 #include <stdbool.h>
 
-typedef struct {
-  pstring      *buf;
-  pstring      *error;
-  int          done;
-  sit_callback *cb;
-  void         *scanner;
-  void         *push_state;
-  void         *lvalp;
-  void         *llocp;
-  char         *ptr;
-} query_parser;
-
-typedef enum { NUM, EXPR, CLAUSE, CMP, STR, MODSTR, BOOLOP } query_node_type;
-typedef enum { _EQ, _GT, _LT, _GTE, _LTE, _TILDE, _NEQ } cmp_type;
+typedef enum { UNKNOWN, NUM, EXPR, CLAUSE, CMP, STR, MODSTR, BOOLOP } query_node_type;
+typedef enum { _NA, _EQ, _GT, _LT, _GTE, _LTE, _TILDE, _NEQ } cmp_type;
 
 typedef struct query_node {
   query_node_type     type;
@@ -31,6 +19,19 @@ typedef struct query_node {
   struct query_node  *children;
   struct query_node  *next;
 } query_node;
+
+typedef struct {
+  pstring      *buf;
+  pstring      *error;
+  int          done;
+  sit_callback *cb;
+  void         *scanner;
+  void         *push_state;
+  void         *lvalp;
+  void         *llocp;
+  char         *ptr;
+  query_node   *ast;
+} query_parser;
 
 query_parser *
 query_parser_new();

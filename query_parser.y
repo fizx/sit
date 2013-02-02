@@ -101,12 +101,12 @@ mstr_node() {
 %token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE EOQ
 %token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
 
-%type<node> number string full_expression expression clause 
-%type<node> simple_clause value modified_string 
+%type<node> number string full_expressions full_expression expression 
+%type<node> simple_clause value modified_string clause 
 %type<num> binary_expression_operator 
 %type<cmp> comparison_operator
 
-%start full_expression
+%start full_expressions
 
 %%
 
@@ -119,14 +119,19 @@ string
   : STRING_LITERAL    { $$ = qstr_node(context->ptr); }
   | UNQUOTED          { $$ = str_node(context->ptr); }
   ;
-	
+  
+full_expressions
+  : full_expression full_expressions
+  | full_expression
+  ;
+
 full_expression
   : expression EOQ  { query_parser_construct(context, $$); }
   ;
 
 expression
   : clause                                          { $$ = expr_node(); $$->children = $1; }
-  | clause binary_expression_operator expression    { $$ = $3; $1->next = $3->children; $3->children = $1; $1->logic *= $2; }
+  | expression binary_expression_operator expression    { $$ = $3; $1->next = $3->children; $3->children = $1; $1->logic *= $2; }
   | LPAREN expression RPAREN                        { $$ = $2; }
   ;
 

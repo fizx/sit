@@ -912,29 +912,29 @@ YY_RULE_SETUP
 case 14:
 YY_RULE_SETUP
 #line 49 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); printf("a '%s' %d\n", yyextra->ptr, yyleng); return(DIGITS); }
+{ yyextra->ptr = cstring_new(yytext, yyleng); return(DIGITS); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 50 "query_scanner.l"
-{ printf(".DOT!\n");return(DOT); }
+{ return(DOT); }
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
 #line 51 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); printf("b '%s' %d\n", yyextra->ptr, yyleng); return(STRING_LITERAL); }
+{ yyextra->ptr = cstring_new(yytext, yyleng); return(STRING_LITERAL); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 52 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); printf("c '%s' %d\n", yyextra->ptr, yyleng); return(UNQUOTED); }
+{ yyextra->ptr = cstring_new(yytext, yyleng); return(UNQUOTED); }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
 #line 53 "query_scanner.l"
-{ printf("EQ\n"); return(EOQ); }
+{ return(EOQ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
@@ -944,7 +944,7 @@ YY_RULE_SETUP
 case 20:
 YY_RULE_SETUP
 #line 55 "query_scanner.l"
-{ printf("wut"); /* ignore bad characters */ }
+{ /* ignore bad characters */ }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
@@ -2149,6 +2149,7 @@ query_parser_new(sit_callback *cb) {
   query_parser *parser = malloc(sizeof(query_parser));
   parser->buf = NULL;
   parser->error = NULL;
+  parser->ast = NULL;
   parser->cb = cb;
   parser->push_state = yypstate_new();
   parser->lvalp = malloc(sizeof(YYSTYPE));
@@ -2174,13 +2175,12 @@ query_parser_consume(query_parser *parser, pstring *pstr) {
       parser->llocp,
       parser);
   }
-  printf("poff %d of %d\n", parser->done, pstr->len);
   return status;
 }
 
 
 void
-query_parser_construct(query_parser *context, query_node *root) {
-  assert(0);
-};
+query_parser_construct(query_parser *context, query_node *expression) {
+  context->ast = expression;
+}
 

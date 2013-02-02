@@ -46,13 +46,13 @@ NS    [^ \t\n\r,?*();:\^"]
 "~"                       { return(TILDE); }
 "<>"                      { return(NEQ); }
 "-"                       { return(MINUS); }
-{D}+                      { yyextra->ptr = cstring_new(yytext, yyleng); printf("a '%s' %d\n", yyextra->ptr, yyleng); return(DIGITS); }
-"."                       { printf(".DOT!\n");return(DOT); }
-L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); printf("b '%s' %d\n", yyextra->ptr, yyleng); return(STRING_LITERAL); }
-{NS}+             	      { yyextra->ptr = cstring_new(yytext, yyleng); printf("c '%s' %d\n", yyextra->ptr, yyleng); return(UNQUOTED); }
-[;\n]+                    { printf("EQ\n"); return(EOQ); }
+{D}+                      { yyextra->ptr = cstring_new(yytext, yyleng); return(DIGITS); }
+"."                       { return(DOT); }
+L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); return(STRING_LITERAL); }
+{NS}+             	      { yyextra->ptr = cstring_new(yytext, yyleng); return(UNQUOTED); }
+[;\n]+                    { return(EOQ); }
 [ \t\v\f]  		            { /* ignore whitespace*/ }
-.			                    { printf("wut"); /* ignore bad characters */ }
+.			                    { /* ignore bad characters */ }
 
 %%
 
@@ -61,6 +61,7 @@ query_parser_new(sit_callback *cb) {
   query_parser *parser = malloc(sizeof(query_parser));
   parser->buf = NULL;
   parser->error = NULL;
+  parser->ast = NULL;
   parser->cb = cb;
   parser->push_state = yypstate_new();
   parser->lvalp = malloc(sizeof(YYSTYPE));
@@ -86,12 +87,11 @@ query_parser_consume(query_parser *parser, pstring *pstr) {
       parser->llocp,
       parser);
   }
-  printf("poff %d of %d\n", parser->done, pstr->len);
   return status;
 }
 
 
 void
-query_parser_construct(query_parser *context, query_node *root) {
-  assert(0);
-};
+query_parser_construct(query_parser *context, query_node *expression) {
+  context->ast = expression;
+}
