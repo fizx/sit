@@ -19,4 +19,7 @@ rbc_pstring_to_s(VALUE self);
 VALUE
 rbc_pstring_comparator(VALUE self, VALUE other);
 
+VALUE
+rbc_pstring_append(VALUE self, VALUE rother);
+
 #endif

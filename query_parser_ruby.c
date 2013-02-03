@@ -52,75 +52,24 @@ rbc_query_parser_last_error(VALUE self) {
   return p2rstring(qp->error);
 }
 
-VALUE 
-node_to_s(query_node *node) {
-  VALUE buf;
-  switch(node->type) {
-    case NUM: 
-      buf = INT2NUM(node->num);
-      return StringValue(buf);
-    case EXPR:
-      buf = rb_ary_new();
-      if (abs(node->logic) == 2) {
-        rbpush(" OR ");
-      } else if (abs(node->logic) == 1) {
-        rbpush(" AND ");
-      }
-      if (node->logic < 0) {
-        rbpush("NOT ");
-      }
-      rbpush("(");
-      node = node->children;
-      do {
-        rb_ary_push(buf, node_to_s(node));
-      } while ((node = node->next));
-      rbpush(")");
-      return rb_funcall(buf, rb_intern("join"), 0);
-    case CLAUSE:
-      buf = rb_ary_new();
-      if (abs(node->logic) == 2) {
-        rbpush(" OR ");
-      } else if (abs(node->logic) == 1) {
-        rbpush(" AND ");
-      }
-      if (node->logic < 0) {
-        rbpush("NOT ");
-      }
-      rb_ary_push(buf, node_to_s(node->children));
-      rbpush(" ");
-      switch(node->cmp) {
-        case _NA    : rbpush("WTF"); break;
-        case _EQ    : rbpush("=="); break;
-        case _GT    : rbpush(">"); break;
-        case _LT    : rbpush("<"); break;
-        case _GTE   : rbpush(">="); break;
-        case _LTE   : rbpush("<="); break;
-        case _TILDE : rbpush("~"); break;
-        case _NEQ   : rbpush("!="); break;
-      }
-      rbpush(" ");
-      rb_ary_push(buf, node_to_s(node->children->next));
-      return rb_funcall(buf, rb_intern("join"), 0);
-    case STR:
-      return p2rstring(node->val);
-    case MODSTR:
-      return rb_str_new2("mod");
-    case BOOLOP:
-    case UNKNOWN:
-    case CMP:
-    default:
-      assert(0);
+void
+_ast_to_s_recurse(ast_node_t* node, VALUE buf, int n) {
+  if(node == NULL) return;
+  for(int i =0; i < n; i++) {
+    rb_ary_push(buf, rb_str_new2("\t"));
   }
+  rb_ary_push(buf, p2rstring(query_node_to_s(node->data)));
+  rb_ary_push(buf, rb_str_new2("\n"));
+  _ast_to_s_recurse(node->child, buf, n + 1);
+  _ast_to_s_recurse(node->next, buf, n);
 }
 
 VALUE 
 rbc_query_parser_last_ast_to_s(VALUE self) {
 	query_parser *qp;
 	Data_Get_Struct(self, query_parser, qp);
-	query_node *ast = qp->ast;
-	if(ast == NULL) {
-    return Qnil;
-  } else {
-    return node_to_s(ast);
-  }
+  ast_node_t* node = qp->root;
+  VALUE a = rb_ary_new();
+  _ast_to_s_recurse(node, a, 0);
+  return rb_funcall(a, rb_intern("join"), 0);
 }

@@ -17,12 +17,10 @@
 
 %union
 { 
-  query_node *node;
+  ast_node_t *node;
   int         num;
   char       *cptr;
-  cmp_type    cmp;
 }
-
 
 %{
 
@@ -41,58 +39,49 @@ void yyerror(YYLTYPE* locp, query_parser *parser, const char* err) {
 }
 
 #define scanner context->scanner
+#define Q(node)   ((query_node *)(node->data))
 
-query_node *
-query_node_new(query_node_type type) {
-  query_node *node = malloc(sizeof(query_node));
-  node->type     = type;
-  node->val      = NULL;
-  node->num      = 0;
-  node->logic    = 0;
-  node->parent   = NULL;
-  node->children = NULL;
-  node->next     = NULL;
+ast_node_t *
+int_node(query_parser *context) {
+  ast_node_t *node = query_node_new(context, NUM);
+  Q(node)->num = atoi(context->ptr);
   return node;
 }
 
-query_node *
-int_node(char *str) {
-  query_node *node = query_node_new(NUM);
-  node->num = atoi(str);
+ast_node_t *
+str_node(query_parser *context) {
+  ast_node_t *node = query_node_new(context, STR);
+  Q(node)->val = c2pstring(context->ptr);
   return node;
 }
 
-query_node *
-str_node(char *str) {
-  query_node *node = query_node_new(STR);
-  node->val = c2pstring(str);
+ast_node_t *
+qstr_node(query_parser *context) {
+  ast_node_t *node = query_node_new(context, STR);
+  Q(node)->val = qc2pstring(context->ptr);
   return node;
 }
 
-query_node *
-qstr_node(char *str) {
-  query_node *node = query_node_new(STR);
-  node->val = qc2pstring(str);
+ast_node_t *
+expr_node(query_parser *context) {
+  return query_node_new(context, EXPR);
+}
+
+ast_node_t *
+clause_node(query_parser *context) {
+  return query_node_new(context, CLAUSE);
+}
+
+ast_node_t *
+mstr_node(query_parser *context) {
+  return query_node_new(context, MODSTR);
+}
+
+ast_node_t *
+cmp_node(query_parser *context, cmp_type c) {
+  ast_node_t *node = query_node_new(context, CMP);
+  Q(node)->cmp = c;
   return node;
-}
-
-query_node *
-expr_node() {
-  return query_node_new(EXPR);
-}
-
-query_node *
-clause_node(query_node *str, cmp_type cmp, query_node *val) {
-  query_node *node = query_node_new(CLAUSE);
-  node->children = str;
-  str->next = val;
-  node->cmp = cmp;
-  return node;
-}
-
-query_node *
-mstr_node() {
-  return query_node_new(MODSTR);
 }
 
 
@@ -103,21 +92,20 @@ mstr_node() {
 
 %type<node> number string full_expressions full_expression expression 
 %type<node> simple_clause value modified_string clause 
-%type<num> binary_expression_operator 
-%type<cmp> comparison_operator
-
+%type<node> binary_expression_operator comparison_operator
+%expect 6
 %start full_expressions
 
 %%
 
 number
-	: DIGITS            { $$ = int_node(context->ptr); }
-	| MINUS DIGITS      { $$ = int_node(context->ptr); $$->num *= -1; }
+	: DIGITS            { $$ = int_node(context); }
+	| MINUS DIGITS      { $$ = int_node(context); Q($$)->num *= -1; }
 	;
 	
 string
-  : STRING_LITERAL    { $$ = qstr_node(context->ptr); }
-  | UNQUOTED          { $$ = str_node(context->ptr); }
+  : STRING_LITERAL    { $$ = qstr_node(context); }
+  | UNQUOTED          { $$ = str_node(context); }
   ;
   
 full_expressions
@@ -130,29 +118,47 @@ full_expression
   ;
 
 expression
-  : clause                                          { $$ = expr_node(); $$->children = $1; }
-  | expression binary_expression_operator expression    { $$ = $3; $1->next = $3->children; $3->children = $1; $1->logic *= $2; }
-  | LPAREN expression RPAREN                        { $$ = $2; }
+  : clause binary_expression_operator expression      { 
+      $$ = $3;
+      ast_node_prepend_child($3, $1);
+      ast_node_insert_after($1, $2);
+    }
+  | expression binary_expression_operator expression  { 
+      $$ = expr_node(context);
+      ast_node_prepend_child($$, $1);
+      ast_node_insert_after($1, $2);
+      ast_node_insert_after($2, $3);
+    }
+  | LPAREN expression RPAREN                          { $$ = $2; }
+  | clause                                            { 
+      $$ = expr_node(context);
+      ast_node_prepend_child($$, $1);
+    }
   ;
 
 clause
-  : simple_clause             { $$ = $1; $1->logic = 1; }
-  | NOT simple_clause         { $$ = $2; $2->logic = -1; }
+  : simple_clause             { $$ = $1; Q($1)->negated = false; }
+  | NOT simple_clause         { $$ = $2; Q($2)->negated = true; }
   ;
 
 
 simple_clause
-  : string comparison_operator value  { $$ = clause_node($1, $2, $3); }
+  : string comparison_operator value  { 
+      $$ = clause_node(context);
+      ast_node_prepend_child($$, $1);
+      ast_node_insert_after($1, $2);
+      ast_node_insert_after($2, $3);
+    }
   ;
   
 comparison_operator
-  : EQ      { $$ = _EQ     ;}
-  | GT      { $$ = _GT     ;}
-  | LT      { $$ = _LT     ;}
-  | GTE     { $$ = _GTE    ;}
-  | LTE     { $$ = _LTE    ;}
-  | TILDE   { $$ = _TILDE  ;}
-  | NEQ     { $$ = _NEQ    ;}
+  : EQ      { $$ = cmp_node(context, _EQ     );}
+  | GT      { $$ = cmp_node(context, _GT     );}
+  | LT      { $$ = cmp_node(context, _LT     );}
+  | GTE     { $$ = cmp_node(context, _GTE    );}
+  | LTE     { $$ = cmp_node(context, _LTE    );}
+  | TILDE   { $$ = cmp_node(context, _TILDE  );}
+  | NEQ     { $$ = cmp_node(context, _NEQ    );}
   ;
 
 
@@ -163,14 +169,18 @@ value
 
 
 modified_string
-  : string LPAREN modified_string RPAREN  { $$ = mstr_node(); $$->children = $1; $1->next = $3; }
+  : string LPAREN modified_string RPAREN  { 
+      $$ = $1; 
+      Q($1)->type = MODSTR; 
+      ast_node_insert_after($1, $3);
+    }
   | string             
   ;
 
 
 binary_expression_operator
-  : AND                 { $$ = 1; }
-  | OR                  { $$ = 2; }
+  : AND                 { $$ = query_node_new(context, BAND); }
+  | OR                  { $$ = query_node_new(context, BOR); }
   ;
    
 %%

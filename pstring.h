@@ -12,6 +12,15 @@ pstring_new(int len);
 pstring *
 pstring_new2(char *cstr, int len);
 
+void
+padd(pstring *pstr, pstring *append);
+
+pstring *
+pcpy(pstring *pstr);
+
+void
+paddc(pstring * pstr, char *cstr);
+
 char *
 cstring_new(char *cstr, int len);
 

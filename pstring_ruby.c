@@ -43,3 +43,14 @@ rbc_pstring_comparator(VALUE self, VALUE other) {
 	Data_Get_Struct(other, pstring, b);
 	return INT2NUM(pstrcmp(a, b));
 }
+
+VALUE
+rbc_pstring_append(VALUE self, VALUE rother) {
+  pstring *pstr;
+	Data_Get_Struct(self, pstring, pstr);
+  VALUE rs = StringValue(rother);
+  pstring *other = r2pstring(rs);
+  padd(pstr, other);
+  free(other);
+  return p2rstring(pstr);
+}

@@ -14,8 +14,11 @@
 #include "lrw_dict_ruby.h"
 #include "plist_ruby.h"
 #include "query_parser_ruby.h"
+#include "ast_ruby.h"
 
 VALUE rbc_pstring;
+VALUE rbc_ast;
+VALUE rbc_ast_node;
 VALUE rbc_ring_buffer;
 VALUE rbc_term;
 VALUE rbc_callback;
@@ -38,8 +41,31 @@ Init_sit() {
 	rbc_pstring = rb_define_class_under(m_sit, "PString", rb_cObject);
 	rb_define_singleton_method(rbc_pstring, "new", rbc_pstring_new, 1);
 	rb_define_method(rbc_pstring, "to_s", rbc_pstring_to_s, 0);
+	rb_define_method(rbc_pstring, "<<", rbc_pstring_append, 1);
 	rb_define_method(rbc_pstring, "<=>", rbc_pstring_comparator, 1);
 	rb_include_module(rbc_pstring, rb_mComparable);
+	
+	// AST
+	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
+	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
+
+	// AST::Node
+	rbc_ast_node = rb_define_class_under(m_sit, "ASTNode", rb_cObject);
+	rb_define_singleton_method(rbc_ast_node, "new", rbc_ast_node_new, 2);
+	rb_define_method(rbc_ast_node, "data", rbc_ast_node_get_data, 0);
+	rb_define_method(rbc_ast_node, "data=", rbc_ast_node_set_data, 1);
+	rb_define_method(rbc_ast_node, "next", rbc_ast_node_next, 0);
+	rb_define_method(rbc_ast_node, "prev", rbc_ast_node_prev, 0);
+	rb_define_method(rbc_ast_node, "parent", rbc_ast_node_parent, 0);
+	rb_define_method(rbc_ast_node, "child", rbc_ast_node_child, 0);
+	rb_define_method(rbc_ast_node, "==", rbc_ast_node_equals, 1);
+	rb_define_method(rbc_ast_node, "to_s", rbc_ast_node_to_s, 0);
+	
+	rb_define_singleton_method(rbc_ast_node, "insert_before", rbc_ast_node_insert_before, 2);
+	rb_define_singleton_method(rbc_ast_node, "insert_after", rbc_ast_node_insert_after, 2);
+	rb_define_singleton_method(rbc_ast_node, "prepend_child", rbc_ast_node_prepend_child, 2);
+	rb_define_singleton_method(rbc_ast_node, "remove", rbc_ast_node_remove, 1);
+	rb_define_singleton_method(rbc_ast_node, "wrap", rbc_ast_node_wrap, 2);
 	
 	// RingBuffer
 	rbc_ring_buffer = rb_define_class_under(m_sit, "RingBuffer", rb_cObject);

@@ -5,19 +5,17 @@
 #include "sit_callback.h"
 #include "pstring.h"
 #include <stdbool.h>
+#include "ast.h"
 
-typedef enum { UNKNOWN, NUM, EXPR, CLAUSE, CMP, STR, MODSTR, BOOLOP } query_node_type;
+typedef enum { UNKNOWN, NUM, EXPR, CLAUSE, CMP, STR, MODSTR, BAND, BOR, ANDS, ORS } query_node_type;
 typedef enum { _NA, _EQ, _GT, _LT, _GTE, _LTE, _TILDE, _NEQ } cmp_type;
 
 typedef struct query_node {
   query_node_type     type;
   pstring            *val;
   int                 num;
-  int                 logic;
   cmp_type            cmp;
-  struct query_node  *parent;
-  struct query_node  *children;
-  struct query_node  *next;
+  bool                negated;
 } query_node;
 
 typedef struct {
@@ -30,16 +28,23 @@ typedef struct {
   void         *lvalp;
   void         *llocp;
   char         *ptr;
-  query_node   *ast;
+  ast_t        *ast;
+  ast_node_t   *root;
 } query_parser;
 
 query_parser *
 query_parser_new();
 
+ast_node_t *
+query_node_new(query_parser *qp, query_node_type type);
+
+pstring * 
+query_node_to_s(query_node *node);
+
 int
 query_parser_consume(query_parser *parser, pstring *pstr);
 
 void
-query_parser_construct(query_parser *context, query_node *root);
+query_parser_construct(query_parser *context, ast_node_t *root);
 
 #endif

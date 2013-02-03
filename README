@@ -69,3 +69,21 @@ Percolation tricks
   Document terms are added to a hash table
   Queries are structured as a tree of hash tables.  This is consistent because clauses are sortable--[a AND b] and [b AND a] will both evaluate to the same path through the tree.
   DFS matches out of the tree.
+  
+  
+  
+  
+  
+  
+  
+A AND B OR C AND D OR E
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

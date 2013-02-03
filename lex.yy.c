@@ -484,7 +484,10 @@ static yyconst flex_int32_t yy_rule_can_match_eol[22] =
 #line 13 "query_scanner.l"
 #include "y.tab.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "query_parser.h"
+#include "pstring.h"
 #include <assert.h>
 
 #define YY_EXTRA_TYPE query_parser*
@@ -501,7 +504,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[22] =
   offset = i;                                                                 \
 }                                                                             
 
-#line 505 "lex.yy.c"
+#line 508 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -742,10 +745,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 34 "query_scanner.l"
+#line 37 "query_scanner.l"
 
 
-#line 749 "lex.yy.c"
+#line 752 "lex.yy.c"
 
     yylval = yylval_param;
 
@@ -846,112 +849,112 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 36 "query_scanner.l"
+#line 39 "query_scanner.l"
 { return(AND); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 37 "query_scanner.l"
+#line 40 "query_scanner.l"
 { return(OR); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 38 "query_scanner.l"
+#line 41 "query_scanner.l"
 { return(NOT); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 39 "query_scanner.l"
+#line 42 "query_scanner.l"
 { return(LPAREN); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 40 "query_scanner.l"
+#line 43 "query_scanner.l"
 { return(RPAREN); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 41 "query_scanner.l"
+#line 44 "query_scanner.l"
 { return(EQ); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 42 "query_scanner.l"
+#line 45 "query_scanner.l"
 { return(GT); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 43 "query_scanner.l"
+#line 46 "query_scanner.l"
 { return(LT); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 44 "query_scanner.l"
+#line 47 "query_scanner.l"
 { return(GTE); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 45 "query_scanner.l"
+#line 48 "query_scanner.l"
 { return(LTE); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 46 "query_scanner.l"
+#line 49 "query_scanner.l"
 { return(TILDE); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 47 "query_scanner.l"
+#line 50 "query_scanner.l"
 { return(NEQ); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 48 "query_scanner.l"
+#line 51 "query_scanner.l"
 { return(MINUS); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 49 "query_scanner.l"
+#line 52 "query_scanner.l"
 { yyextra->ptr = cstring_new(yytext, yyleng); return(DIGITS); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 50 "query_scanner.l"
+#line 53 "query_scanner.l"
 { return(DOT); }
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 51 "query_scanner.l"
+#line 54 "query_scanner.l"
 { yyextra->ptr = cstring_new(yytext, yyleng); return(STRING_LITERAL); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 52 "query_scanner.l"
+#line 55 "query_scanner.l"
 { yyextra->ptr = cstring_new(yytext, yyleng); return(UNQUOTED); }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 53 "query_scanner.l"
+#line 56 "query_scanner.l"
 { return(EOQ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 54 "query_scanner.l"
+#line 57 "query_scanner.l"
 { /* ignore whitespace*/ }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 55 "query_scanner.l"
+#line 58 "query_scanner.l"
 { /* ignore bad characters */ }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 57 "query_scanner.l"
+#line 60 "query_scanner.l"
 ECHO;
 	YY_BREAK
-#line 955 "lex.yy.c"
+#line 958 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2140,16 +2143,31 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 57 "query_scanner.l"
+#line 60 "query_scanner.l"
 
 
+
+ast_node_t *
+query_node_new(query_parser *qp, query_node_type type) {
+  query_node *node = malloc(sizeof(query_node));
+  node->type     = type;
+  node->val      = NULL;
+  node->num      = 0;
+  node->negated  = false;
+  
+  ast_node_t *ast_node = ast_node_new(qp->ast);
+  ast_node->data = node;
+  
+  return ast_node;
+}
 
 query_parser *
 query_parser_new(sit_callback *cb) {
   query_parser *parser = malloc(sizeof(query_parser));
   parser->buf = NULL;
   parser->error = NULL;
-  parser->ast = NULL;
+  parser->ast = ast_new(NULL, free);
+  parser->root = NULL;
   parser->cb = cb;
   parser->push_state = yypstate_new();
   parser->lvalp = malloc(sizeof(YYSTYPE));
@@ -2178,9 +2196,105 @@ query_parser_consume(query_parser *parser, pstring *pstr) {
   return status;
 }
 
-
-void
-query_parser_construct(query_parser *context, query_node *expression) {
-  context->ast = expression;
+void 
+associate_ands(ast_node_t *node) {
+  // query_node *qn = node->data;
+  // if(!expr){// || (expr->type != EXPR && expr->type != CLAUSE)) {
+  // printf("FUCK %d\n", expr && expr->type == CLAUSE);
+  //   return;
+  // }  
+  // 
+  // printf("down\n");
+  // associate_ands(expr->children);
+  // printf("up\n");
+  // 
+  // query_node *op = expr->next;
+  // query_node *other = op == NULL ? NULL : op->next;
+  // query_node *after = other == NULL ? NULL : other->next;
+  // 
+  // if(op != NULL && op->type == BAND) {  
+  //   printf("splice\n");
+  //   query_node *p = query_node_new(ANDS);
+  //   p->parent = expr->parent;
+  //   if(p->parent && p->parent->children == expr) p->parent->children = p;
+  //   p->prev = expr->prev;
+  //   if(p->prev) p->prev->next = p;
+  //   p->next = after;
+  //   if(after) after->prev = p;
+  //   p->children = expr;
+  //   expr->parent = p;
+  //   expr->prev = NULL;
+  //   expr->next = other;
+  //   other->next = NULL;
+  //   if(expr->next) expr->next->prev = expr;
+  // 
+  //   pstring *pstr = query_node_to_s(p);
+  //   printf("HERE: %.*s\n", pstr->len, pstr->val);
+  //   
+  //   pstr = query_node_to_s(p->prev);
+  //   printf("PREV: %.*s\n", pstr->len, pstr->val);
+  //   
+  //   printf("AFTER: %d\n", (long) p->next);
+  // 
+  //   associate_ands(p);
+  //   
+  //   printf("WUT\n");
+  // } else {
+  //   printf("ZOMG %d\n", (long)other);
+  //   
+  //   associate_ands(other);
+  // }
 }
 
+void
+query_parser_construct(query_parser *context, ast_node_t *expression) {
+  context->root = expression;
+  // associate_ands(expression);
+}
+
+char *
+_s(query_node_type t) {
+  switch(t) {
+    case UNKNOWN : return "UNKNOWN" ;
+    case NUM     : return "NUM"     ;
+    case EXPR    : return "EXPR"    ;
+    case CLAUSE  : return "CLAUSE"  ;
+    case CMP     : return "CMP"     ;
+    case STR     : return "STR"     ;
+    case MODSTR  : return "MODSTR"  ;
+    case BAND    : return "BAND"    ;
+    case BOR     : return "BOR"     ;
+    case ANDS    : return "ANDS"    ;
+    case ORS     : return "ORS"     ;
+  }
+}
+
+char *
+_c(cmp_type t) {
+  switch(t) {
+    case _NA    : return "_NA";
+    case _EQ    : return "_EQ";
+    case _GT    : return "_GT";
+    case _LT    : return "_LT";
+    case _GTE   : return "_GTE";
+    case _LTE   : return "_LTE";
+    case _TILDE : return "_TILDE";
+    case _NEQ   : return "_NEQ";
+  }
+}
+
+pstring * 
+query_node_to_s(query_node *node) {
+  char *str;
+  int len = 4;
+  char *val = "NULL";
+  if(node->val) {
+    len = node->val->len;
+    val = node->val->val;
+  }
+  asprintf(&str, "[%s %.*s %d %s %s]", _s(node->type), len, val, node->num, _c(node->cmp), node->negated ? "true" : "false");
+  pstring *pstr = malloc(sizeof(*pstr));
+  pstr->val = str;
+  pstr->len = strlen(str);
+  return pstr;
+}

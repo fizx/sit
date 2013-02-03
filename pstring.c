@@ -27,6 +27,33 @@ cstring_new(char *cstr, int len) {
 }
 
 pstring *
+pcpy(pstring *pstr) {
+  pstring *cpy = pstring_new(pstr->len);
+  memcpy(cpy->val, pstr->val, pstr->len);
+  return cpy;
+}
+
+void
+padd(pstring *pstr, pstring *append) {
+  int nlen = pstr->len + append->len;
+  char *nbuf = malloc(nlen);
+  memcpy(nbuf, pstr->val, pstr->len);
+  memcpy(nbuf + pstr->len, append->val, append->len);
+  free(pstr->val);
+  pstr->val = nbuf;
+  pstr->len = nlen;
+}
+
+void
+paddc(pstring *pstr, char *cstr) {
+  pstring tmp = {
+    cstr,
+    strlen(cstr)
+  };
+  padd(pstr, &tmp);
+}
+
+pstring *
 pstring_new2(char *cstr, int len) {
   pstring *pstr = pstring_new(len + 1);
   memcpy(pstr->val, cstr, len);

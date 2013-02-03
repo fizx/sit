@@ -103,14 +103,13 @@ typedef union YYSTYPE
 /* Line 2065 of yacc.c  */
 #line 19 "query_parser.y"
  
-  query_node *node;
+  ast_node_t *node;
   int         num;
   char       *cptr;
-  cmp_type    cmp;
 
 
 /* Line 2065 of yacc.c  */
-#line 114 "y.tab.h"
+#line 113 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

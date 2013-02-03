@@ -24,4 +24,11 @@ describe "PString" do
 		
 		a.should > b
   end
+  
+  it "should be appendable" do
+    rb = "goodbye world"
+		b = PString.new(rb)
+    b << "!!!"
+    b.to_s.should == rb + "!!!"
+  end
 end
