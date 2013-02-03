@@ -47,6 +47,9 @@ query_node_to_s(query_node *node);
 pstring * 
 query_node_query(ast_node_t *node);
 
+pstring * 
+query_node_ast_to_s(ast_node_t *node);
+
 int
 query_parser_consume(query_parser *parser, pstring *pstr);
 

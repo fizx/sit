@@ -115,7 +115,6 @@ associate_ands(query_parser *context, ast_node_t *node) {
   if(!node) return;
   ast_node_t *op    = node->next;
   ast_node_t *other = NEXT(op);
-  ast_node_t *after = NEXT(other);
   
   if(op && Q(op)->type == BAND) {
     ast_node_t *wrapper = query_node_new(context, ANDS); 
@@ -227,7 +226,17 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   associate_ands(context, expression);
   combine_ors(context, expression);
   unwrap_exprs(context, expression->child);
+  merge_ands(context, expression);
+  merge_ors(context, expression);
+  // pstring *pstr = query_node_query(expression);
+  // printf("%.*s\n", pstr->len, pstr->val);
+  // pstr = query_node_ast_to_s(expression);
+  // printf("\n%.*s\n****************\n", pstr->len, pstr->val);
   bubble_ors(context, expression);
+  // pstr = query_node_query(expression);
+  // printf("%.*s\n", pstr->len, pstr->val);
+  // pstr = query_node_ast_to_s(expression);
+  // printf("%.*s\n", pstr->len, pstr->val);
   merge_ands(context, expression);
   merge_ors(context, expression);
 }
@@ -271,7 +280,7 @@ pstring *
 query_node_query(ast_node_t *node) {
   char *tmp;
   pstring *buf = pstring_new(0);
-  if(Q(node)->negated) P("NOT ");
+  if(Q(node)->negated) PC("NOT ");
   switch(Q(node)->type) {
   case EXPR:
     PQ(node->child);
@@ -328,6 +337,24 @@ query_node_query(ast_node_t *node) {
     break;
   }
   return buf;
+}
+
+pstring * 
+_query_node_ast_to_s(ast_node_t *node, int level) {
+  pstring *buf = pstring_new(0);
+  if(!node) return buf;
+  assert(node->ast);
+  for(int i = 0; i < level; i++) PC("\t");
+  P(query_node_to_s(Q(node)));
+  PC("\n");
+  P(_query_node_ast_to_s(node->child, level + 1));
+  P(_query_node_ast_to_s(node->next, level));
+  return buf;
+}
+
+pstring * 
+query_node_ast_to_s(ast_node_t *node) {
+  return _query_node_ast_to_s(node, 0);
 }
 
 pstring * 

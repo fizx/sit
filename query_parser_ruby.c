@@ -69,9 +69,7 @@ rbc_query_parser_last_ast_to_s(VALUE self) {
 	query_parser *qp;
 	Data_Get_Struct(self, query_parser, qp);
   ast_node_t* node = qp->root;
-  VALUE a = rb_ary_new();
-  _ast_to_s_recurse(node, a, 0);
-  return rb_funcall(a, rb_intern("join"), 0);
+  return p2rstring(query_node_ast_to_s(node));
 }
 
 VALUE

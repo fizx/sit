@@ -16,6 +16,7 @@ ast_node_new(ast_t *ast) {
   node->child = NULL;
   node->next = NULL;
   node->prev = NULL;
+  node->ast = ast;
   node->internal = ast->nodes;
   ast->nodes = node;
   if(ast->make_data != NULL) {
