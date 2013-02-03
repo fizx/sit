@@ -19,43 +19,53 @@ describe "Parser" do
 	it "should be able to assign engine" do
 		@parser.engine = @engine
 	end
-
-	it "should work standalone" do
-	  @engine.terms.size.should == 0
-		@engine.consume("z\ty")
-		$events.should == [
-			[:field, "a"], 
-			[:term, 0, 1, 0], 
-			[:field, "b"]
+	
+	it "should do whitespace" do
+	  @parser = Parser.new_whitespace
+	  @parser.extend(TestEvents)
+	  @parser.consume("hello world")
+	  $events.should == [
+			[:term, 0, 5, 0],
+			[:term, 6, 5, 1]
 		]
-		$events.clear
-		@engine.consume("yyy\tx\n")
-		$events.should == [
-			[:term, 2, 4, 0], 
-			[:field, "c"],
-			[:term, 7, 1, 0],
-      [:field, "columns"],
-      [:int, 3],
-			[:doc, 0, 9]
-		]
-		$events.clear
-		@engine.consume("y\n\n\nx x\n")
-		$events.should == [
-      [:term, 9, 1, 0],
-      [:field, "columns"],
-      [:int, 1],
-      [:doc, 9, 2],
-      [:field, "columns"],
-      [:int, 1],
-      [:doc, 11, 1],
-      [:field, "columns"],
-      [:int, 1],
-      [:doc, 12, 1],
-      [:term, 13, 1, 0],
-      [:term, 15, 1, 1],
-      [:field, "columns"],
-      [:int, 1],
-      [:doc, 13, 4]
+  end
+  
+  it "should work standalone" do
+    @engine.terms.size.should == 0
+    @engine.consume("z\ty")
+    $events.should == [
+      [:field, "a"], 
+      [:term, 0, 1, 0], 
+      [:field, "b"]
     ]
-	end
+    $events.clear
+    @engine.consume("yyy\tx\n")
+    $events.should == [
+      [:term, 2, 4, 0], 
+      [:field, "c"],
+      [:term, 7, 1, 0],
+        [:field, "columns"],
+        [:int, 3],
+      [:doc, 0, 9]
+    ]
+    $events.clear
+    @engine.consume("y\n\n\nx x\n")
+    $events.should == [
+        [:term, 9, 1, 0],
+        [:field, "columns"],
+        [:int, 1],
+        [:doc, 9, 2],
+        [:field, "columns"],
+        [:int, 1],
+        [:doc, 11, 1],
+        [:field, "columns"],
+        [:int, 1],
+        [:doc, 12, 1],
+        [:term, 13, 1, 0],
+        [:term, 15, 1, 1],
+        [:field, "columns"],
+        [:int, 1],
+        [:doc, 13, 4]
+      ]
+  end
 end

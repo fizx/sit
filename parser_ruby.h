@@ -7,6 +7,9 @@ VALUE
 rbc_parser_new(VALUE class);
 
 VALUE 
+rbc_whitespace_parser_new(VALUE class);
+
+VALUE 
 rbc_parser_initialize(VALUE class);
 
 VALUE

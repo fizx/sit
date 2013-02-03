@@ -61,12 +61,9 @@ class RealAbcTsvParser < Sit::Parser
 	include AbcTsvParser 
 end
 
-class TestAbcTsvParser < Sit::Parser 
-	include AbcTsvParser 
-	$events = []
-	attr_reader :buffer
-	
-	def term_found(*args)
+module TestEvents
+  $events = []
+  def term_found(*args)
 		$events << [:term] + args
 	end
 	
@@ -82,3 +79,10 @@ class TestAbcTsvParser < Sit::Parser
 		$events << [:int] + args
 	end
 end
+
+class TestAbcTsvParser < Sit::Parser 
+	include AbcTsvParser 
+	include TestEvents
+	attr_reader :buffer
+end
+

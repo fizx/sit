@@ -8,6 +8,7 @@ typedef struct sit_parser {
   void (*term_found)(struct sit_parser *parser, long off, int len, int field_offset);
   void (*document_found)(struct sit_parser *parser, long off, int len);
   void (*field_found)(struct sit_parser *parser, pstring *name);
+  void (*int_found)(struct sit_parser *parser, int val);
 	void *data;
 } sit_parser;
 

@@ -104,6 +104,7 @@ Init_sit() {
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
+	rb_define_singleton_method(rbc_parser, "new_whitespace", rbc_whitespace_parser_new, 0);
 	rb_define_method(rbc_parser, "initialize", rbc_parser_initialize, 0);
 	rb_define_method(rbc_parser, "engine=", rbc_parser_set_engine, 1);
 	rb_define_method(rbc_parser, "engine", rbc_parser_engine, 0);
@@ -129,6 +130,10 @@ Init_sit() {
 	rb_define_method(rbc_engine, "get_int", rbc_engine_get_int, 2);
 	rb_define_method(rbc_engine, "incr", rbc_engine_incr, 3);
 	rb_define_method(rbc_engine, "set_int", rbc_engine_set_int, 3);
+	rb_define_method(rbc_engine, "document_found", rbc_engine_document_found, 2);
+	rb_define_method(rbc_engine, "field_found", rbc_engine_field_found, 1);
+	rb_define_method(rbc_engine, "int_found", rbc_engine_int_found, 1);
+	rb_define_method(rbc_engine, "term_found", rbc_engine_term_found, 3);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);

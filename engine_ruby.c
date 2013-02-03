@@ -195,6 +195,46 @@ rbc_engine_unregister(VALUE self, VALUE id) {
 	return Qnil;
 }
 
+VALUE 
+rbc_engine_document_found(VALUE self, VALUE roff, VALUE rlen) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  long off = NUM2LONG(roff);
+  int len = NUM2INT(rlen);
+  sit_engine_document_found(engine, off, len);
+	return Qnil;
+}
+
+VALUE 
+rbc_engine_field_found(VALUE self, VALUE rstr) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  pstring *pstr = r2pstring(rstr);
+  sit_engine_field_found(engine, pstr);
+	return Qnil;
+}
+
+VALUE 
+rbc_engine_int_found(VALUE self, VALUE rval) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  int val = NUM2INT(rval);
+  sit_engine_int_found(engine, val);
+	return Qnil;
+  
+}
+
+VALUE 
+rbc_engine_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset) {
+  sit_engine *engine;
+	Data_Get_Struct(self, sit_engine, engine);
+  long off = NUM2LONG(roff);
+  int len = NUM2INT(rlen);
+  int field_offset = NUM2INT(rfield_offset);
+  sit_engine_term_found(engine, off, len, field_offset);
+	return Qnil;
+}
+
 
 VALUE 
 rbc_engine_register(VALUE self, VALUE rquery) {

@@ -57,5 +57,16 @@ rbc_engine_set_int(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue);
 VALUE 
 rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue);
 
+VALUE 
+rbc_engine_document_found(VALUE self, VALUE roff, VALUE rlen);
+
+VALUE 
+rbc_engine_field_found(VALUE self, VALUE rstr);
+
+VALUE 
+rbc_engine_int_found(VALUE self, VALUE rval);
+
+VALUE 
+rbc_engine_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset);
 
 #endif
