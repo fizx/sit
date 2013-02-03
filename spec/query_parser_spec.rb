@@ -63,11 +63,11 @@ describe "QueryParser" do
     @qp.last_query_to_s.should == "((#{A} AND #{B} AND #{C} AND #{D}) OR #{E})"
   end
   
-  # it "should bubble ors" do
-  #   @qp.consume("#{A} AND (#{B} OR #{C});")
-  #   @qp.last_error.should be_nil
-  #   @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c))"
-  # end
+  it "should bubble ors" do
+    @qp.consume("#{A} AND (#{B} OR #{C});")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c))"
+  end
   
   # it "should bubble crazy ors" do
   #   @qp.consume("#{A} AND (#{B} OR (#{C} AND #{D} OR #{E}));")
