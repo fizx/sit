@@ -36,7 +36,7 @@ describe "QueryParser" do
   it "should consume partial" do
     @qp.consume("foo ~ bar").should == :more
   end
-
+  
   it "should understand precedence" do
     @qp.consume("#{A} AND #{B} OR #{C} AND #{D} OR #{E};")
     @qp.last_error.should be_nil
@@ -69,11 +69,22 @@ describe "QueryParser" do
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c))"
   end
-
+  
   it "should bubble crazy ors" do
     @qp.consume("#{A} AND (#{B} OR (#{C} AND #{D} OR #{E}));")
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c AND foo ~ d) OR (foo ~ a AND foo ~ e))"
   end
   
+  it "should bubble NOTS downward" do  
+    @qp.consume("#{A} AND NOT (#{B} OR #{C});")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "(#{A} AND NOT #{B} AND NOT #{C})"
+  end
+  
+  it "should bubble NOTS downward" do  
+    @qp.consume("#{A} AND NOT (#{B} AND #{C});")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "((#{A} AND NOT #{B}) OR (#{A} AND NOT #{C}))"
+  end
 end

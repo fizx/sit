@@ -111,13 +111,14 @@ query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
 %token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
 
 %type<node> number string full_expressions full_expression expression 
-%type<node> simple_clause value modified_string clause 
+%type<node> value modified_string clause 
 %type<node> comparison_operator
 %expect 0
 %start full_expressions
 
 %left OR
 %left AND
+%right NOT
 
 %%
 
@@ -159,6 +160,10 @@ expression
       $$ = expr_node(context);
       ast_node_prepend_child($$, $2);
     }
+  | NOT expression                                { 
+      $$ = $2;
+      Q($$)->negated = !Q($$)->negated;
+    }
   | clause                                            { 
       $$ = expr_node(context);
       ast_node_prepend_child($$, $1);
@@ -166,12 +171,6 @@ expression
   ;
 
 clause
-  : simple_clause             { $$ = $1; Q($1)->negated = false; }
-  | NOT simple_clause         { $$ = $2; Q($2)->negated = true; }
-  ;
-
-
-simple_clause
   : string comparison_operator value  { 
       $$ = clause_node(context);
       ast_node_prepend_child($$, $1);

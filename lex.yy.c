@@ -2236,6 +2236,56 @@ combine_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
+demorgans(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+  ast_node_t *tmp;
+  
+  if(Q(node)->negated && Q(node)->type != CLAUSE) {
+    switch(Q(node)->type) {
+    case EXPR   :
+      Q(node)->negated = false;
+      tmp = node->child;
+      while(tmp) {
+        Q(tmp)->negated = !Q(tmp)->negated;
+        tmp = tmp->next;
+      }
+      break;
+    case ANDS   :
+      Q(node)->negated = false;
+      Q(node)->type = ORS;
+      tmp = node->child;
+      while(tmp) {
+        Q(tmp)->negated = !Q(tmp)->negated;
+        tmp = tmp->next;
+      }
+      break;
+    case ORS    :
+      Q(node)->negated = false;
+      Q(node)->type = ANDS;
+      tmp = node->child;
+      while(tmp) {
+        Q(tmp)->negated = !Q(tmp)->negated;
+        tmp = tmp->next;
+      }
+      break;
+    case CLAUSE :
+    case UNKNOWN:
+    case NUM    :
+    case CMP    :
+    case STR    :
+    case MODSTR :
+    case BAND   :
+    case BOR    :
+      assert(0);
+    }
+  }
+  
+  demorgans(context, node->next);
+  demorgans(context, node->child);
+}
+
+
+void
 unwrap_exprs(query_parser *context, ast_node_t *node) {
   if(!node) return;
   unwrap_exprs(context, node->next);
@@ -2313,18 +2363,19 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   context->root = expression;
   associate_ands(context, expression);
   combine_ors(context, expression);
-  unwrap_exprs(context, expression->child);
-  merge_ands(context, expression);
-  merge_ors(context, expression);
   // pstring *pstr = query_node_query(expression);
   // printf("%.*s\n", pstr->len, pstr->val);
   // pstr = query_node_ast_to_s(expression);
   // printf("\n%.*s\n****************\n", pstr->len, pstr->val);
+  demorgans(context, expression);
+  // str = query_node_query(expression);
+  // rintf("%.*s\n", pstr->len, pstr->val);
+  // str = query_node_ast_to_s(expression);
+  // rintf("%.*s\n", pstr->len, pstr->val);
+  unwrap_exprs(context, expression->child);
+  merge_ands(context, expression);
+  merge_ors(context, expression);
   bubble_ors(context, expression);
-  // pstr = query_node_query(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
-  // pstr = query_node_ast_to_s(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
   merge_ands(context, expression);
   merge_ors(context, expression);
 }
