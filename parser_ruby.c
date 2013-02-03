@@ -9,10 +9,8 @@
 
 void 
 rbc_consume(sit_parser *parser, pstring *pstr) {  
-  printf("WAT\n");
 	VALUE rparser = vunwrap(parser->data);
 	VALUE rstr = p2rstring(pstr);
-  printf("WAT\n");
 	rb_funcall(rparser, rb_intern("consume"), 1, rstr);
 }
 	

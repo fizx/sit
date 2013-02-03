@@ -5,7 +5,6 @@
 
 void
 _white_consume(struct sit_parser *parser, pstring *str) {
-  printf("ENTER\n");
   int token = 0;
   int off = 0;
   bool waswhite = false;
