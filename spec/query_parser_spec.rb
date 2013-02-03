@@ -42,18 +42,32 @@ describe "QueryParser" do
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((#{A} AND #{B}) OR (#{C} AND #{D}) OR #{E})"
   end
+  
+  it "should understand parens" do
+    @qp.consume("#{A} AND (#{B} OR #{C});")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "(#{A} AND (#{B} OR #{C}))"
+  end
+  
+  it "should understand parens with a clause after" do
+    @qp.consume("#{A} AND (#{B} OR #{C}) AND #{D} OR #{E};")
+    @qp.last_error.should be_nil
+    puts
+    puts @qp.last_ast_to_s
+    @qp.last_query_to_s.should == "((foo ~ a AND (foo ~ b OR foo ~ c) AND foo ~ d) OR foo ~ e)"
+  end
 
-  it "should understand precedence" do
+  it "should group clauses" do
     @qp.consume("#{A} AND #{B} AND #{C} AND #{D} OR #{E};")
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((#{A} AND #{B} AND #{C} AND #{D}) OR #{E})"
   end
   
-  it "should bubble ors" do
-    @qp.consume("#{A} AND (#{B} OR #{C});")
-    @qp.last_error.should be_nil
-    @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c))"
-  end
+  # it "should bubble ors" do
+  #   @qp.consume("#{A} AND (#{B} OR #{C});")
+  #   @qp.last_error.should be_nil
+  #   @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c))"
+  # end
   
   # it "should bubble crazy ors" do
   #   @qp.consume("#{A} AND (#{B} OR (#{C} AND #{D} OR #{E}));")

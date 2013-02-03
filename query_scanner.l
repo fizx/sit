@@ -226,8 +226,8 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   context->root = expression;
   associate_ands(context, expression);
   combine_ors(context, expression);
-  //unwrap_exprs(context, expression->child);
-  bubble_ors(context, expression);
+  unwrap_exprs(context, expression->child);
+  //bubble_ors(context, expression);
   merge_ands(context, expression);
   merge_ors(context, expression);
 }

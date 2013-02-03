@@ -112,9 +112,12 @@ query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
 
 %type<node> number string full_expressions full_expression expression 
 %type<node> simple_clause value modified_string clause 
-%type<node> binary_expression_operator comparison_operator
-%expect 6
+%type<node> comparison_operator
+%expect 0
 %start full_expressions
+
+%left OR
+%left AND
 
 %%
 
@@ -134,20 +137,23 @@ full_expressions
   ;
 
 full_expression
-  : expression EOQ  { query_parser_construct(context, $$); }
+  : expression EOQ  { 
+      query_parser_construct(context, $1); 
+    }
   ;
 
 expression
-  : clause binary_expression_operator expression      { 
-      $$ = $3;
-      ast_node_prepend_child($$, $1);
-      ast_node_insert_after($1, $2);
-    }
-  | expression binary_expression_operator expression  { 
+  : expression OR expression  { 
       $$ = expr_node(context);
       ast_node_prepend_child($$, $1);
-      ast_node_insert_after($1, $2);
-      ast_node_insert_after($2, $3);
+      ast_node_insert_after($1, $3);
+      ast_node_insert_after($1, query_node_new(context, BOR));
+    }
+  | expression AND expression  { 
+      $$ = expr_node(context);
+      ast_node_prepend_child($$, $1);
+      ast_node_insert_after($1, $3);
+      ast_node_insert_after($1, query_node_new(context, BAND));
     }
   | LPAREN expression RPAREN                          { 
       $$ = expr_node(context);
@@ -198,12 +204,6 @@ modified_string
       ast_node_insert_after($1, $3);
     }
   | string             
-  ;
-
-
-binary_expression_operator
-  : AND                 { $$ = query_node_new(context, BAND); }
-  | OR                  { $$ = query_node_new(context, BOR); }
   ;
    
 %%

@@ -33,7 +33,7 @@ ast_node_insert_before(ast_node_t *self, ast_node_t *other) {
   other->next = self;
   other->parent = self->parent;
 
-  if(other->parent->child == self) other->parent->child = other;
+  if(other->parent && other->parent->child == self) other->parent->child = other;
   if(other->prev) other->prev->next = other;
 }
 
