@@ -26,6 +26,12 @@ ast_node_new(ast_t *ast) {
 }
 
 void
+ast_node_replace(ast_node_t *self, ast_node_t *other) {
+  ast_node_insert_before(self, other);
+  ast_node_remove(self);
+}
+
+void
 ast_node_insert_before(ast_node_t *self, ast_node_t *other) {
   ast_node_remove(other);
 

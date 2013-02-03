@@ -7,16 +7,42 @@
 #include "util_ruby.h"
 
 void 
-rbc_consume(void *data, pstring *pstr) {
-	sit_parser *parser = data;
+rbc_consume(sit_parser *parser, pstring *pstr) {
 	VALUE rparser = vunwrap(parser->data);
 	VALUE rstr = p2rstring(pstr);
 	rb_funcall(rparser, rb_intern("consume"), 1, rstr);
 }
+	
+void 
+_ruby_term_found(struct sit_parser *parser, long off, int len, int field_offset) {
+  VALUE rparser = vunwrap(parser->data);
+  VALUE rengine = rb_iv_get(rparser, "@engine");
+	sit_engine *engine;
+	Data_Get_Struct(rengine, sit_engine, engine);
+	sit_engine_term_found(engine, off, len, field_offset);
+}
+
+void 
+_ruby_document_found(struct sit_parser *parser, long off, int len) {
+  VALUE rparser = vunwrap(parser->data);
+  VALUE rengine = rb_iv_get(rparser, "@engine");
+	sit_engine *engine;
+	Data_Get_Struct(rengine, sit_engine, engine);
+  sit_engine_document_found(engine, off, len);
+}
+
+void 
+_ruby_field_found(struct sit_parser *parser, pstring *name) {
+  VALUE rparser = vunwrap(parser->data);
+  VALUE rengine = rb_iv_get(rparser, "@engine");
+	sit_engine *engine;
+	Data_Get_Struct(rengine, sit_engine, engine);
+  sit_engine_field_found(engine, name);
+}
 
 VALUE 
 rbc_parser_new(VALUE class) {
-	sit_parser *parser = sit_parser_new();
+	sit_parser *parser = sit_parser_new(NULL);
 	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, parser);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -28,6 +54,9 @@ rbc_parser_initialize(VALUE self) {
 	Data_Get_Struct(self, sit_parser, parser);
 	parser->consume = rbc_consume;
 	parser->data = (void *) vwrap(self);
+  parser->term_found = _ruby_term_found;
+  parser->document_found = _ruby_document_found;
+  parser->field_found = _ruby_field_found;
 	return self;
 }
 
@@ -45,22 +74,19 @@ rbc_parser_engine(VALUE self) {
 VALUE
 rbc_parser_consume(VALUE self, VALUE rstr) {
 	rb_raise(rb_eRuntimeError, "You should override Parser#consume in a subclass");
-
 	(void) self; 
 	(void) rstr;
-
 	return Qnil;
 }
 
 VALUE
 rbc_parser_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset){ 
-	VALUE rengine = rb_iv_get(self, "@engine");
-	sit_engine *engine;
-	Data_Get_Struct(rengine, sit_engine, engine);
+	sit_parser *parser;
+	Data_Get_Struct(self, sit_parser, parser);
 	long off = NUM2LONG(roff);
 	int len = NUM2INT(rlen);
 	int field_offset = NUM2INT(rfield_offset);
-	sit_engine_term_found(engine, off, len, field_offset);
+  parser->term_found(parser, off, len, field_offset);
 	return Qnil;
 }
 

@@ -42,6 +42,9 @@ void
 ast_node_remove(ast_node_t *self);
 
 void
+ast_node_replace(ast_node_t *self, ast_node_t *other);
+
+void
 ast_node_wrap(ast_node_t *self, ast_node_t *other);
 
 void

@@ -92,6 +92,8 @@ query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
   Q(cp)->cmp = Q(subtree)->cmp;
   Q(cp)->negated = Q(subtree)->negated;
   if(Q(subtree)->val) Q(cp)->val = pcpy(Q(subtree)->val);
+  if(Q(subtree)->field) Q(cp)->field = pcpy(Q(subtree)->field);
+  
   
   cp->next = query_node_copy_subtree(context, subtree->next);
   if(cp->next) cp->next->prev = cp;

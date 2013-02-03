@@ -51,6 +51,12 @@ void
 sit_engine_term_found(sit_engine *engine, long off, int len, int field_offset);
 
 void 
+sit_engine_document_found(sit_engine *engine, long off, int len);
+
+void 
+sit_engine_field_found(sit_engine *engine, pstring *name);
+
+void 
 sit_engine_int_found(sit_engine *engine, int value);
 
 int *
@@ -71,11 +77,7 @@ sit_engine_get_document(sit_engine *engine, long doc_id);
 long
 sit_engine_last_document_id(sit_engine *engine);
 
-void 
-sit_engine_document_found(sit_engine *engine, long off, int len);
 
-void 
-sit_engine_field_found(sit_engine *engine, pstring *name);
 
 void
 sit_engine_consume(sit_engine *engine, pstring *pstr);

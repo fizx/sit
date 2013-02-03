@@ -63,6 +63,7 @@ ast_node_t *
 query_node_new(query_parser *qp, query_node_type type) {
   query_node *node = malloc(sizeof(query_node));
   node->type     = type;
+  node->field    = NULL;
   node->val      = NULL;
   node->num      = 0;
   node->negated  = false;
@@ -271,8 +272,26 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
+expand_clauses(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+
+  if(Q(node)->type == CLAUSE) {
+    ast_node_t *op  = node->child->next;
+    ast_node_t *val = node->child->next->next;
+    if(Q(op)->type == TILDE && Q(val)->type == STR) {
+      pstring *doc = Q(val)->val;
+    } else if(Q(op)->type != TILDE && Q(val)->type == NUM) {
+    
+    } else {
+      assert(0);
+    }
+  }
+}
+
+void
 query_parser_construct(query_parser *context, ast_node_t *expression) {
   context->root = expression;
+  //expand_clauses(context, expression);
   associate_ands(context, expression);
   combine_ors(context, expression);
   // pstring *pstr = query_node_query(expression);
