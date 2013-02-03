@@ -84,6 +84,26 @@ cmp_node(query_parser *context, cmp_type c) {
   return node;
 }
 
+ast_node_t *
+query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
+  if(!subtree) return NULL;
+  ast_node_t *cp = query_node_new(context, Q(subtree)->type);
+  Q(cp)->num = Q(subtree)->num;
+  Q(cp)->cmp = Q(subtree)->cmp;
+  Q(cp)->negated = Q(subtree)->negated;
+  if(Q(subtree)->val) Q(cp)->val = pcpy(Q(subtree)->val);
+  
+  cp->next = query_node_copy_subtree(context, subtree->next);
+  if(cp->next) cp->next->prev = cp;
+  cp->child = query_node_copy_subtree(context, subtree->child);
+  ast_node_t *child = cp->child;
+  while(child) {
+    child->parent = cp;
+    child = child->next;
+  }
+  return cp;
+}
+
 
 %}
 
@@ -120,7 +140,7 @@ full_expression
 expression
   : clause binary_expression_operator expression      { 
       $$ = $3;
-      ast_node_prepend_child($3, $1);
+      ast_node_prepend_child($$, $1);
       ast_node_insert_after($1, $2);
     }
   | expression binary_expression_operator expression  { 
@@ -129,7 +149,10 @@ expression
       ast_node_insert_after($1, $2);
       ast_node_insert_after($2, $3);
     }
-  | LPAREN expression RPAREN                          { $$ = $2; }
+  | LPAREN expression RPAREN                          { 
+      $$ = expr_node(context);
+      ast_node_prepend_child($$, $2);
+    }
   | clause                                            { 
       $$ = expr_node(context);
       ast_node_prepend_child($$, $1);

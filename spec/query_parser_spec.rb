@@ -30,17 +30,35 @@ describe "QueryParser" do
     status = @qp.consume("foo ~ bar;")
     @qp.last_error.should be_nil
     status.should == :more
-    @qp.last_ast_to_s.should == "[EXPR NULL 0 _NA false]\n\t[CLAUSE NULL 0 _NA false]\n\t\t[STR foo 0 _NA false]\n\t\t[CMP NULL 0 _TILDE false]\n\t\t[STR bar 0 _NA false]\n"
+    @qp.last_query_to_s.should == "foo ~ bar"
   end
-  
+
   it "should consume partial" do
     @qp.consume("foo ~ bar").should == :more
   end
-  
+
   it "should understand precedence" do
     @qp.consume("#{A} AND #{B} OR #{C} AND #{D} OR #{E};")
     @qp.last_error.should be_nil
-    @qp.last_ast_to_s.should == "[EXPR NULL 0 _NA false]\n\t[CLAUSE NULL 0 _NA false]\n\t\t[STR foo 0 _EQ false]\n\t\t[CMP NULL 0 _TILDE false]\n\t\t[STR a 0 _NA false]\n\t[BAND NULL 0 _NA false]\n\t[CLAUSE NULL 0 _NA false]\n\t\t[STR foo 0 _NA false]\n\t\t[CMP NULL 0 _TILDE false]\n\t\t[STR b 0 _NA false]\n\t[BOR NULL 0 _NA false]\n\t[CLAUSE NULL 0 _NA false]\n\t\t[STR foo 0 _NA false]\n\t\t[CMP NULL 0 _TILDE false]\n\t\t[STR c 0 _NA false]\n\t[BAND NULL 0 _NA false]\n\t[CLAUSE NULL 0 _NA false]\n\t\t[STR foo 0 _NA false]\n\t\t[CMP NULL 0 _TILDE false]\n\t\t[STR d 0 _NA false]\n\t[BOR NULL 0 _NA false]\n\t[CLAUSE NULL 0 _NA false]\n\t\t[STR foo 0 _NA false]\n\t\t[CMP NULL 0 _TILDE false]\n\t\t[STR e 0 _NA false]\n"
+    @qp.last_query_to_s.should == "((#{A} AND #{B}) OR (#{C} AND #{D}) OR #{E})"
   end
+
+  it "should understand precedence" do
+    @qp.consume("#{A} AND #{B} AND #{C} AND #{D} OR #{E};")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "((#{A} AND #{B} AND #{C} AND #{D}) OR #{E})"
+  end
+  
+  it "should bubble ors" do
+    @qp.consume("#{A} AND (#{B} OR #{C});")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c))"
+  end
+  
+  # it "should bubble crazy ors" do
+  #   @qp.consume("#{A} AND (#{B} OR (#{C} AND #{D} OR #{E}));")
+  #   @qp.last_error.should be_nil
+  #   @qp.last_query_to_s.should == ""
+  # end
   
 end

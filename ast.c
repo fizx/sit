@@ -63,6 +63,22 @@ ast_node_prepend_child(ast_node_t *self, ast_node_t *other) {
 }
 
 void
+ast_node_append_child(ast_node_t *self, ast_node_t *other) {
+  ast_node_remove(other);
+
+  ast_node_t *child = self->child;
+  if(child == NULL) {
+    self->child = other;
+    other->parent = self;
+  } else {
+    while(child->next) {
+      child = child->next;
+    }
+    ast_node_insert_after(child, other);
+  }  
+}
+
+void
 ast_node_remove(ast_node_t *self) {
   if(self->parent && self->parent->child == self) {
     self->parent->child = self->next;
@@ -86,4 +102,12 @@ ast_node_wrap(ast_node_t *self, ast_node_t *other) {
   if(other->parent->child == self) other->parent->child = other;
   
   ast_node_prepend_child(other, self);
+}
+
+void
+ast_node_unwrap(ast_node_t *self) {
+  while(self->child) {
+    ast_node_insert_before(self, self->child);
+  }
+  ast_node_remove(self);
 }

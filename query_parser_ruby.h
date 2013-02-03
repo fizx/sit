@@ -18,4 +18,7 @@ rbc_query_parser_last_error(VALUE self);
 VALUE 
 rbc_query_parser_last_ast_to_s(VALUE self);
 
+VALUE
+rbc_query_parser_last_query_to_s(VALUE self);
+
 #endif

@@ -108,60 +108,128 @@ query_parser_consume(query_parser *parser, pstring *pstr) {
   return status;
 }
 
+#define Q(node)     ((query_node *)(node->data))
+#define NEXT(obj)   (obj ? obj->next : NULL)
 void 
-associate_ands(ast_node_t *node) {
-  // query_node *qn = node->data;
-  // if(!expr){// || (expr->type != EXPR && expr->type != CLAUSE)) {
-  // printf("FUCK %d\n", expr && expr->type == CLAUSE);
-  //   return;
-  // }  
-  // 
-  // printf("down\n");
-  // associate_ands(expr->children);
-  // printf("up\n");
-  // 
-  // query_node *op = expr->next;
-  // query_node *other = op == NULL ? NULL : op->next;
-  // query_node *after = other == NULL ? NULL : other->next;
-  // 
-  // if(op != NULL && op->type == BAND) {  
-  //   printf("splice\n");
-  //   query_node *p = query_node_new(ANDS);
-  //   p->parent = expr->parent;
-  //   if(p->parent && p->parent->children == expr) p->parent->children = p;
-  //   p->prev = expr->prev;
-  //   if(p->prev) p->prev->next = p;
-  //   p->next = after;
-  //   if(after) after->prev = p;
-  //   p->children = expr;
-  //   expr->parent = p;
-  //   expr->prev = NULL;
-  //   expr->next = other;
-  //   other->next = NULL;
-  //   if(expr->next) expr->next->prev = expr;
-  // 
-  //   pstring *pstr = query_node_to_s(p);
-  //   printf("HERE: %.*s\n", pstr->len, pstr->val);
-  //   
-  //   pstr = query_node_to_s(p->prev);
-  //   printf("PREV: %.*s\n", pstr->len, pstr->val);
-  //   
-  //   printf("AFTER: %d\n", (long) p->next);
-  // 
-  //   associate_ands(p);
-  //   
-  //   printf("WUT\n");
-  // } else {
-  //   printf("ZOMG %d\n", (long)other);
-  //   
-  //   associate_ands(other);
-  // }
+associate_ands(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+  ast_node_t *op    = node->next;
+  ast_node_t *other = NEXT(op);
+  ast_node_t *after = NEXT(other);
+  
+  if(op && Q(op)->type == BAND) {
+    ast_node_t *wrapper = query_node_new(context, ANDS); 
+    ast_node_insert_before(op, wrapper);
+    ast_node_prepend_child(wrapper, other);
+    ast_node_prepend_child(wrapper, node);
+    ast_node_remove(op);
+    associate_ands(context, wrapper);
+  }
+  associate_ands(context, other);
+  associate_ands(context, node->child);
+}
+
+void 
+combine_ors(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+  ast_node_t *op    = node->next;
+  ast_node_t *other = NEXT(op);
+  ast_node_t *after = NEXT(other);
+  
+  if(op && Q(op)->type == BOR) {
+    ast_node_t *wrapper = query_node_new(context, ORS); 
+    ast_node_insert_before(op, wrapper);
+    ast_node_prepend_child(wrapper, other);
+    ast_node_prepend_child(wrapper, node);
+    ast_node_remove(op);
+    combine_ors(context, wrapper);
+  }
+  combine_ors(context, op);
+  combine_ors(context, node->child);
+}
+
+void
+unwrap_exprs(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+  unwrap_exprs(context, node->next);
+  unwrap_exprs(context, node->child);
+  if(node && Q(node)->type == EXPR) {
+    ast_node_unwrap(node);
+  }
+}
+
+void 
+merge_ands(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+  merge_ands(context, node->next);
+  merge_ands(context, node->child);
+  if(Q(node)->type == ANDS) {
+    ast_node_t *child = node->child;
+    while(child) {
+      if(Q(child)->type == ANDS) {
+        ast_node_unwrap(child);
+      }
+      child = child->next;
+    }
+  }
+}
+
+void 
+merge_ors(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+  merge_ors(context, node->next);
+  merge_ors(context, node->child);
+  if(Q(node)->type == ORS) {
+    ast_node_t *child = node->child;
+    while(child) {
+      if(Q(child)->type == ORS) {
+        ast_node_unwrap(child);
+      }
+      child = child->next;
+    }
+  }
+}
+
+void 
+bubble_ors(query_parser *context, ast_node_t *node) {
+  if(!node) return;
+
+  ast_node_t *parent = node->parent;
+  if(Q(node)->type == ORS && Q(parent)->type != EXPR) {
+    ast_node_t *gp = query_node_new(context, ORS);
+    ast_node_t *child = node->child;
+    for (int i = 0; child; i++, child = child->next) {
+      ast_node_t *cp = query_node_copy_subtree(context, parent);
+      ast_node_append_child(gp, cp);
+      ast_node_t *cpkid = cp->child;
+      while(cpkid) {
+        if(Q(cpkid)->type == ORS) {
+          ast_node_insert_before(cpkid, query_node_copy_subtree(context, child));
+          ast_node_remove(cpkid);
+          break;
+        }
+        cpkid = cpkid->next;
+      }
+    }
+    ast_node_insert_before(parent, gp);
+    ast_node_remove(parent);
+    // bubble_ors(context, gp->parent); // to bubble up
+  }
+  
+  
+  bubble_ors(context, node->child); // depth-first
+  bubble_ors(context, node->next); // left-to-right
 }
 
 void
 query_parser_construct(query_parser *context, ast_node_t *expression) {
   context->root = expression;
-  // associate_ands(expression);
+  associate_ands(context, expression);
+  combine_ors(context, expression);
+  //unwrap_exprs(context, expression->child);
+  //bubble_ors(context, expression);
+  merge_ands(context, expression);
+  merge_ors(context, expression);
 }
 
 char *
@@ -184,15 +252,82 @@ _s(query_node_type t) {
 char *
 _c(cmp_type t) {
   switch(t) {
-    case _NA    : return "_NA";
-    case _EQ    : return "_EQ";
-    case _GT    : return "_GT";
-    case _LT    : return "_LT";
-    case _GTE   : return "_GTE";
-    case _LTE   : return "_LTE";
-    case _TILDE : return "_TILDE";
-    case _NEQ   : return "_NEQ";
+    case _NA    : return "??";
+    case _EQ    : return "=";
+    case _GT    : return ">";
+    case _LT    : return "<";
+    case _GTE   : return ">=";
+    case _LTE   : return "<=";
+    case _TILDE : return "~";
+    case _NEQ   : return "!=";
   }
+}
+
+#define P(x)   padd(buf, x)
+#define PC(x)   paddc(buf, x)
+#define PQ(x)  padd(buf, query_node_query(x))
+
+pstring * 
+query_node_query(ast_node_t *node) {
+  char *tmp;
+  pstring *buf = pstring_new(0);
+  if(Q(node)->negated) P("NOT ");
+  switch(Q(node)->type) {
+  case EXPR:
+    PQ(node->child);
+    break;
+  case CLAUSE:
+    node = node->child;
+    while(node) {
+      PQ(node);
+      node = node->next;
+    }
+    break;
+  case CMP:
+    PC(" ");
+    PC(_c(Q(node)->cmp));
+    PC(" ");
+    break;
+  case STR:
+    P(Q(node)->val);
+    break;
+  case NUM:
+    asprintf(&tmp, "%d", Q(node)->num);
+    PC(tmp);
+    free(tmp);
+    break;
+  case MODSTR:
+    P(Q(node)->val);
+    PC("(");
+    PQ(node->next);
+    PC(")");
+    break;
+  case ANDS:
+    tmp = "first";
+    node = node->child;
+    PC("(");
+    while(node) {
+      if(!tmp) PC(" AND ");
+      tmp = NULL;
+      PQ(node);
+      node = node->next;
+    }
+    PC(")");
+    break;
+  case ORS:
+    tmp = "first";
+    node = node->child;
+    PC("(");
+    while(node) {
+      if(!tmp) PC(" OR ");
+      tmp = NULL;
+      PQ(node);
+      node = node->next;
+    }
+    PC(")");
+    break;
+  }
+  return buf;
 }
 
 pstring * 

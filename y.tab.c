@@ -284,10 +284,30 @@ cmp_node(query_parser *context, cmp_type c) {
   return node;
 }
 
+ast_node_t *
+query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
+  if(!subtree) return NULL;
+  ast_node_t *cp = query_node_new(context, Q(subtree)->type);
+  Q(cp)->num = Q(subtree)->num;
+  Q(cp)->cmp = Q(subtree)->cmp;
+  Q(cp)->negated = Q(subtree)->negated;
+  if(Q(subtree)->val) Q(cp)->val = pcpy(Q(subtree)->val);
+  
+  cp->next = query_node_copy_subtree(context, subtree->next);
+  if(cp->next) cp->next->prev = cp;
+  cp->child = query_node_copy_subtree(context, subtree->child);
+  ast_node_t *child = cp->child;
+  while(child) {
+    child->parent = cp;
+    child = child->next;
+  }
+  return cp;
+}
+
 
 
 /* Line 390 of yacc.c  */
-#line 291 "y.tab.c"
+#line 311 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -561,9 +581,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   102,   102,   103,   107,   108,   112,   113,   117,   121,
-     126,   132,   133,   140,   141,   146,   155,   156,   157,   158,
-     159,   160,   161,   166,   167,   172,   177,   182,   183
+       0,   122,   122,   123,   127,   128,   132,   133,   137,   141,
+     146,   152,   156,   163,   164,   169,   178,   179,   180,   181,
+     182,   183,   184,   189,   190,   195,   200,   205,   206
 };
 #endif
 
@@ -1733,47 +1753,47 @@ yyreduce:
     {
         case 2:
 /* Line 1807 of yacc.c  */
-#line 102 "query_parser.y"
+#line 122 "query_parser.y"
     { (yyval.node) = int_node(context); }
     break;
 
   case 3:
 /* Line 1807 of yacc.c  */
-#line 103 "query_parser.y"
+#line 123 "query_parser.y"
     { (yyval.node) = int_node(context); Q((yyval.node))->num *= -1; }
     break;
 
   case 4:
 /* Line 1807 of yacc.c  */
-#line 107 "query_parser.y"
+#line 127 "query_parser.y"
     { (yyval.node) = qstr_node(context); }
     break;
 
   case 5:
 /* Line 1807 of yacc.c  */
-#line 108 "query_parser.y"
+#line 128 "query_parser.y"
     { (yyval.node) = str_node(context); }
     break;
 
   case 8:
 /* Line 1807 of yacc.c  */
-#line 117 "query_parser.y"
+#line 137 "query_parser.y"
     { query_parser_construct(context, (yyval.node)); }
     break;
 
   case 9:
 /* Line 1807 of yacc.c  */
-#line 121 "query_parser.y"
+#line 141 "query_parser.y"
     { 
       (yyval.node) = (yyvsp[(3) - (3)].node);
-      ast_node_prepend_child((yyvsp[(3) - (3)].node), (yyvsp[(1) - (3)].node));
+      ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
       ast_node_insert_after((yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node));
     }
     break;
 
   case 10:
 /* Line 1807 of yacc.c  */
-#line 126 "query_parser.y"
+#line 146 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1784,13 +1804,16 @@ yyreduce:
 
   case 11:
 /* Line 1807 of yacc.c  */
-#line 132 "query_parser.y"
-    { (yyval.node) = (yyvsp[(2) - (3)].node); }
+#line 152 "query_parser.y"
+    { 
+      (yyval.node) = expr_node(context);
+      ast_node_prepend_child((yyval.node), (yyvsp[(2) - (3)].node));
+    }
     break;
 
   case 12:
 /* Line 1807 of yacc.c  */
-#line 133 "query_parser.y"
+#line 156 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (1)].node));
@@ -1799,19 +1822,19 @@ yyreduce:
 
   case 13:
 /* Line 1807 of yacc.c  */
-#line 140 "query_parser.y"
+#line 163 "query_parser.y"
     { (yyval.node) = (yyvsp[(1) - (1)].node); Q((yyvsp[(1) - (1)].node))->negated = false; }
     break;
 
   case 14:
 /* Line 1807 of yacc.c  */
-#line 141 "query_parser.y"
+#line 164 "query_parser.y"
     { (yyval.node) = (yyvsp[(2) - (2)].node); Q((yyvsp[(2) - (2)].node))->negated = true; }
     break;
 
   case 15:
 /* Line 1807 of yacc.c  */
-#line 146 "query_parser.y"
+#line 169 "query_parser.y"
     { 
       (yyval.node) = clause_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1822,49 +1845,49 @@ yyreduce:
 
   case 16:
 /* Line 1807 of yacc.c  */
-#line 155 "query_parser.y"
+#line 178 "query_parser.y"
     { (yyval.node) = cmp_node(context, _EQ     );}
     break;
 
   case 17:
 /* Line 1807 of yacc.c  */
-#line 156 "query_parser.y"
+#line 179 "query_parser.y"
     { (yyval.node) = cmp_node(context, _GT     );}
     break;
 
   case 18:
 /* Line 1807 of yacc.c  */
-#line 157 "query_parser.y"
+#line 180 "query_parser.y"
     { (yyval.node) = cmp_node(context, _LT     );}
     break;
 
   case 19:
 /* Line 1807 of yacc.c  */
-#line 158 "query_parser.y"
+#line 181 "query_parser.y"
     { (yyval.node) = cmp_node(context, _GTE    );}
     break;
 
   case 20:
 /* Line 1807 of yacc.c  */
-#line 159 "query_parser.y"
+#line 182 "query_parser.y"
     { (yyval.node) = cmp_node(context, _LTE    );}
     break;
 
   case 21:
 /* Line 1807 of yacc.c  */
-#line 160 "query_parser.y"
+#line 183 "query_parser.y"
     { (yyval.node) = cmp_node(context, _TILDE  );}
     break;
 
   case 22:
 /* Line 1807 of yacc.c  */
-#line 161 "query_parser.y"
+#line 184 "query_parser.y"
     { (yyval.node) = cmp_node(context, _NEQ    );}
     break;
 
   case 25:
 /* Line 1807 of yacc.c  */
-#line 172 "query_parser.y"
+#line 195 "query_parser.y"
     { 
       (yyval.node) = (yyvsp[(1) - (4)].node); 
       Q((yyvsp[(1) - (4)].node))->type = MODSTR; 
@@ -1874,19 +1897,19 @@ yyreduce:
 
   case 27:
 /* Line 1807 of yacc.c  */
-#line 182 "query_parser.y"
+#line 205 "query_parser.y"
     { (yyval.node) = query_node_new(context, BAND); }
     break;
 
   case 28:
 /* Line 1807 of yacc.c  */
-#line 183 "query_parser.y"
+#line 206 "query_parser.y"
     { (yyval.node) = query_node_new(context, BOR); }
     break;
 
 
 /* Line 1807 of yacc.c  */
-#line 1890 "y.tab.c"
+#line 1913 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2128,5 +2151,5 @@ yypushreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 186 "query_parser.y"
+#line 209 "query_parser.y"
 

@@ -36,9 +36,15 @@ void
 ast_node_prepend_child(ast_node_t *self, ast_node_t *other);
 
 void
+ast_node_append_child(ast_node_t *self, ast_node_t *other);
+
+void
 ast_node_remove(ast_node_t *self);
 
 void
 ast_node_wrap(ast_node_t *self, ast_node_t *other);
+
+void
+ast_node_unwrap(ast_node_t *self);
 
 #endif
