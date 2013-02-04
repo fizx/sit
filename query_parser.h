@@ -29,6 +29,7 @@ typedef struct {
   void         *push_state;
   void         *lvalp;
   void         *llocp;
+  void         *tmp;
   char         *ptr;
   sit_parser   *tokenizer;
   ast_t        *ast;

@@ -15,6 +15,7 @@ NS    [^ \t\n\r,?*();:\^"]
 #include <stdlib.h>
 #include <string.h>
 #include "query_parser.h"
+#include "white_parser.h"
 #include "pstring.h"
 #include <assert.h>
 
@@ -82,6 +83,7 @@ query_parser_new(sit_callback *cb) {
   parser->ast = ast_new(NULL, free);
   parser->root = NULL;
   parser->cb = cb;
+  parser->tokenizer = white_parser_new();
   parser->push_state = yypstate_new();
   parser->lvalp = malloc(sizeof(YYSTYPE));
   parser->llocp = malloc(sizeof(YYLTYPE));
@@ -134,7 +136,6 @@ combine_ors(query_parser *context, ast_node_t *node) {
   if(!node) return;
   ast_node_t *op    = node->next;
   ast_node_t *other = NEXT(op);
-  ast_node_t *after = NEXT(other);
   
   if(op && Q(op)->type == BOR) {
     ast_node_t *wrapper = query_node_new(context, ORS); 
@@ -153,7 +154,7 @@ demorgans(query_parser *context, ast_node_t *node) {
   if(!node) return;
   ast_node_t *tmp;
   
-  if(Q(node)->negated && Q(node)->type != CLAUSE) {
+  if(Q(node)->negated) {
     switch(Q(node)->type) {
     case EXPR   :
       Q(node)->negated = false;
@@ -182,6 +183,9 @@ demorgans(query_parser *context, ast_node_t *node) {
       }
       break;
     case CLAUSE :
+    case TERM:
+    case NUMTERM :
+      break;
     case UNKNOWN:
     case NUM    :
     case CMP    :
@@ -209,33 +213,25 @@ unwrap_exprs(query_parser *context, ast_node_t *node) {
 }
 
 void 
-merge_ands(query_parser *context, ast_node_t *node) {
+merge_bools(query_parser *context, ast_node_t *node, query_node_type type) {
   if(!node) return;
-  merge_ands(context, node->next);
-  merge_ands(context, node->child);
-  if(Q(node)->type == ANDS) {
+  merge_bools(context, node->next, type);
+  merge_bools(context, node->child, type);
+  if(Q(node)->type == type) {
     ast_node_t *child = node->child;
+    int count = 0;
     while(child) {
-      if(Q(child)->type == ANDS) {
+      if(Q(child)->type == type) {
         ast_node_unwrap(child);
+        child = node->child;
+        int count = 0;
+      } else {
+        count++;
+        child = child->next;
       }
-      child = child->next;
     }
-  }
-}
-
-void 
-merge_ors(query_parser *context, ast_node_t *node) {
-  if(!node) return;
-  merge_ors(context, node->next);
-  merge_ors(context, node->child);
-  if(Q(node)->type == ORS) {
-    ast_node_t *child = node->child;
-    while(child) {
-      if(Q(child)->type == ORS) {
-        ast_node_unwrap(child);
-      }
-      child = child->next;
+    if(count == 1) {
+      ast_node_unwrap(node);
     }
   }
 }
@@ -263,7 +259,6 @@ bubble_ors(query_parser *context, ast_node_t *node) {
     }
     ast_node_insert_before(parent, gp);
     ast_node_remove(parent);
-    // bubble_ors(context, gp->parent); // to bubble up
   }
   
   
@@ -272,43 +267,72 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
+add_token(sit_parser *parser, long off, int len, int field_offset) {
+  query_parser *context = parser->data;
+  ast_node_t *node = context->tmp;
+  pstring *field = Q(node)->field;
+  pstring *val = Q(node)->val;
+  pstring *pstr = pstring_new2(val->val + off, len);
+  ast_node_t *term = query_node_new(context, TERM);
+  Q(term)->cmp = Q(node)->cmp;
+  Q(term)->field = field;
+  Q(term)->val = pstr;
+  ast_node_append_child(node, term);
+}
+  
+
+void
 expand_clauses(query_parser *context, ast_node_t *node) {
   if(!node) return;
 
   if(Q(node)->type == CLAUSE) {
+    ast_node_t *field = node->child;
     ast_node_t *op  = node->child->next;
     ast_node_t *val = node->child->next->next;
-    if(Q(op)->type == TILDE && Q(val)->type == STR) {
-      pstring *doc = Q(val)->val;
-    } else if(Q(op)->type != TILDE && Q(val)->type == NUM) {
-    
+    if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
+      Q(node)->type = ANDS;
+      context->tokenizer->data = context;
+      context->tokenizer->term_found = add_token;
+      context->tmp = node;
+      Q(node)->field = Q(field)->val;
+      Q(node)->cmp = Q(op)->cmp;
+      Q(node)->val = Q(val)->val;
+      ast_node_remove(field);
+      ast_node_remove(op);
+      ast_node_remove(val);
+      context->tokenizer->consume(context->tokenizer, Q(node)->val);
+    } else if(Q(op)->cmp != _TILDE && Q(val)->type == NUM) {
+      Q(node)->type = NUMTERM;
+      node->child = NULL;
     } else {
       assert(0);
     }
   }
+  expand_clauses(context, node->child); 
+  expand_clauses(context, node->next);
 }
 
 void
 query_parser_construct(query_parser *context, ast_node_t *expression) {
   context->root = expression;
-  //expand_clauses(context, expression);
-  associate_ands(context, expression);
-  combine_ors(context, expression);
   // pstring *pstr = query_node_query(expression);
   // printf("%.*s\n", pstr->len, pstr->val);
   // pstr = query_node_ast_to_s(expression);
   // printf("\n%.*s\n****************\n", pstr->len, pstr->val);
+  expand_clauses(context, expression);
+  associate_ands(context, expression);
+  combine_ors(context, expression);
   demorgans(context, expression);
-  // str = query_node_query(expression);
-  // rintf("%.*s\n", pstr->len, pstr->val);
-  // str = query_node_ast_to_s(expression);
-  // rintf("%.*s\n", pstr->len, pstr->val);
   unwrap_exprs(context, expression->child);
-  merge_ands(context, expression);
-  merge_ors(context, expression);
+  merge_bools(context, expression, ORS);
+  merge_bools(context, expression, ANDS);
   bubble_ors(context, expression);
-  merge_ands(context, expression);
-  merge_ors(context, expression);
+  merge_bools(context, expression, ORS);
+  merge_bools(context, expression, ANDS);
+  // pstr = query_node_query(expression);
+  // printf("%.*s\n", pstr->len, pstr->val);
+  // pstr = query_node_ast_to_s(expression);
+  // printf("%.*s\n", pstr->len, pstr->val);
 }
 
 char *
@@ -325,6 +349,8 @@ _s(query_node_type t) {
     case BOR     : return "BOR"     ;
     case ANDS    : return "ANDS"    ;
     case ORS     : return "ORS"     ;
+    case TERM    : return "TERM"    ;
+    case NUMTERM : return "NUMTERM" ;
   }
 }
 
@@ -339,6 +365,7 @@ _c(cmp_type t) {
     case _LTE   : return "<=";
     case _TILDE : return "~";
     case _NEQ   : return "!=";
+    default     : return "??";
   }
 }
 
@@ -369,6 +396,13 @@ query_node_query(ast_node_t *node) {
     break;
   case STR:
     P(Q(node)->val);
+    break;
+  case TERM:
+    assert(Q(node)->field);
+    assert(Q(node)->val);
+    asprintf(&tmp, "%.*s %s %.*s", Q(node)->field->len, Q(node)->field->val, _c(Q(node)->cmp), Q(node)->val->len, Q(node)->val->val);
+    PC(tmp);
+    free(tmp);
     break;
   case NUM:
     asprintf(&tmp, "%d", Q(node)->num);

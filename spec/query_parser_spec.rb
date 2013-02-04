@@ -20,8 +20,8 @@ describe "QueryParser" do
   end
   
   it "should be creatable" do
-  end
-  
+    end
+    
   it "should have queries" do
     @qp.queries.should == []
   end
@@ -57,13 +57,13 @@ describe "QueryParser" do
     @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b AND foo ~ d) OR (foo ~ a AND foo ~ c AND foo ~ d) OR foo ~ e)"
     # "((foo ~ a AND (foo ~ b OR foo ~ c) AND foo ~ d) OR foo ~ e)" # without bubbling ors
   end
-  
+    
   it "should group clauses" do
     @qp.consume("#{A} AND #{B} AND #{C} AND #{D} OR #{E};")
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((#{A} AND #{B} AND #{C} AND #{D}) OR #{E})"
   end
-  # 
+  
   it "should bubble ors" do
     @qp.consume("#{A} AND (#{B} OR #{C});")
     @qp.last_error.should be_nil
@@ -76,13 +76,13 @@ describe "QueryParser" do
     @qp.last_query_to_s.should == "((foo ~ a AND foo ~ b) OR (foo ~ a AND foo ~ c AND foo ~ d) OR (foo ~ a AND foo ~ e))"
   end
   
-  it "should bubble NOTS downward" do  
+  it "should bubble NOTS downward 1" do  
     @qp.consume("#{A} AND NOT (#{B} OR #{C});")
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "(#{A} AND NOT #{B} AND NOT #{C})"
   end
   
-  it "should bubble NOTS downward" do  
+  it "should bubble NOTS downward 2" do  
     @qp.consume("#{A} AND NOT (#{B} AND #{C});")
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((#{A} AND NOT #{B}) OR (#{A} AND NOT #{C}))"
