@@ -122,7 +122,8 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 		sit_callback *next = node->callback;
 		node->callback = callback;
 		callback->next = next;
-		return (callback->id = query_id++);
+    if(!callback->id) callback->id = ++query_id;
+		return callback->id;
 	} else {
 		if(node->children == NULL) {
 			node->children = dictCreate(&termDict, 0);
@@ -133,7 +134,10 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 
 long
 sit_engine_register(sit_engine *engine, sit_query *query) {
-	return _recurse_add(engine->queries, NULL, query->terms, query->term_count, query->callback);
+  for(int i = 0; i< query->count; i++) {
+	  _recurse_add(engine->queries, NULL, query->conjunctions[i]->terms, query->count, query->callback);
+  }
+  return query->callback->id;
 }
 
 int
@@ -175,7 +179,9 @@ _each_query(void *vnode, void *inner) {
 		if (terms == NULL) {
 			_get_terms(&terms, node, &term_count);
 		}
-		sit_query *query = sit_query_new(&terms, term_count, qc);
+    conjunction_t *cjs[1];
+    cjs[0] = conjunction_new(&terms, term_count);
+		sit_query *query = sit_query_new(cjs, 1, qc);
 		cb->handler(query, cb->user_data);
 		qc = qc->next;
 	}
@@ -304,25 +310,40 @@ _unregister_handler(void *vnode, void *inner) {
 
 sit_result_iterator *
 sit_engine_search(sit_engine *engine, sit_query *query) {
-  sit_result_iterator *iter = malloc(sizeof(sit_result_iterator) + (query->term_count - 1) * sizeof(plist_block *));
+  sit_result_iterator *iter = malloc(sizeof(sit_result_iterator));
   iter->query = query;
   iter->engine = engine;
   iter->doc_id = LONG_MAX;
   iter->initialized = false;
-  for(int i = 0; i < query->term_count; i++) {
-    sit_term *term = &query->terms[i];
-    plist *pl = lrw_dict_get(engine->term_dictionary, term);
-    iter->cursors[i] = pl == NULL ? NULL : plist_cursor_new(pl);
+  iter->cursors = dictCreate(&termDict, 0);
+  iter->subs = malloc(sizeof(sub_iterator*) * query->count);
+  iter->count = query->count;
+  for(int i = 0; i < query->count; i++) {
+    conjunction_t *cj = query->conjunctions[i];
+    iter->subs[i] = malloc(sizeof(sub_iterator));
+    iter->subs[i]->doc_id = LONG_MAX;
+    iter->subs[i]->cursors = malloc(sizeof(plist_cursor*) * cj->count);
+    iter->subs[i]->initialized = false;
+    iter->subs[i]->count = cj->count;
+    for(int j = 0; j < cj->count; j++) {
+      sit_term *term = &cj->terms[j];
+      plist_cursor *cursor = dictFetchValue(iter->cursors, term);
+      if(cursor == NULL) {
+        plist *pl = lrw_dict_get(engine->term_dictionary, term);
+        cursor = pl == NULL ? NULL : plist_cursor_new(pl);
+        dictAdd(iter->cursors, term, cursor);
+      }
+      iter->subs[i]->cursors[j] = cursor;
+      iter->subs[i]->cursors[j] = cursor;
+    }
   }
   return iter; 
 }
 
-
 // TODO: not that efficient
 bool
-sit_result_iterator_prev(sit_result_iterator *iter) {
-  int size = iter->query->term_count;
-
+sit_result_sub_iterator_prev(sub_iterator *iter) {
+  int size = iter->count;
   long min = iter->doc_id;
   long max = -1;
   min--;
@@ -351,6 +372,38 @@ sit_result_iterator_prev(sit_result_iterator *iter) {
   iter->doc_id = min;
   
   return min >= 0;
+}
+
+// TODO: not that efficient
+bool
+sit_result_iterator_prev(sit_result_iterator *iter) {
+  int size = iter->count;
+
+  long bound = iter->doc_id;
+  bound--;
+  long max = -1;
+  for (int i = 0; i < size; i++) {
+    sub_iterator *subiter = iter->subs[i];
+    if (subiter == NULL) {
+      iter->doc_id = -1;
+      return false;
+    }
+
+    if(!iter->initialized) {
+      sit_result_sub_iterator_prev(subiter);
+    }
+    
+    while(subiter->doc_id > bound) {
+      sit_result_sub_iterator_prev(subiter);
+    }
+    
+    if(subiter->doc_id > max) max = subiter->doc_id;
+  }
+
+  iter->initialized = true;
+  iter->doc_id = max;
+  
+  return max >= 0;
 }
 
 void

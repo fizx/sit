@@ -87,4 +87,11 @@ describe "QueryParser" do
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((#{A} AND NOT #{B}) OR (#{A} AND NOT #{C}))"
   end
+  
+  it "should work with multi-term queries" do  
+    @qp.consume("foo ~ \"hello sweet world\";")
+    @qp.last_error.should be_nil
+    @qp.last_query_to_s.should == "(foo ~ hello AND foo ~ sweet AND foo ~ world)"
+  end
+  
 end

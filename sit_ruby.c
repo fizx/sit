@@ -23,6 +23,7 @@ VALUE rbc_ring_buffer;
 VALUE rbc_term;
 VALUE rbc_callback;
 VALUE rbc_query;
+VALUE rbc_conjunction;
 VALUE rbc_parser;
 VALUE rbc_engine;
 VALUE rbc_lrw_dict;
@@ -91,6 +92,12 @@ Init_sit() {
 	rb_define_singleton_method(rbc_query, "new", rbc_query_new, 2);
 	rb_define_method(rbc_query, "to_s", rbc_query_to_s, 0);
 	rb_define_method(rbc_query, "==", rbc_query_equals, 1);
+
+	// Conjunction
+	rbc_conjunction = rb_define_class_under(m_sit, "Conjunction", rb_cObject);
+	rb_define_singleton_method(rbc_conjunction, "new", rbc_conjunction_new, 1);
+	rb_define_method(rbc_conjunction, "to_s", rbc_conjunction_to_s, 0);
+	rb_define_method(rbc_conjunction, "==", rbc_conjunction_equals, 1);
 
 	// QueryParser
 	rbc_query_parser = rb_define_class_under(m_sit, "QueryParser", rb_cObject);

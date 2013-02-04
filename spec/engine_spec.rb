@@ -50,8 +50,9 @@ describe "Engine" do
   
   it "should be able to register queries" do
     term = Term.new("hello", "world", 0)
+    cj = Conjunction.new([term])
     cb = Callback.new(String, proc{})
-    q = Query.new([term], cb)   
+    q = Query.new([cj], cb)   
     @engine.register(q)
     @engine.queries.should == [q]
   end
@@ -59,7 +60,8 @@ describe "Engine" do
   it "should be able to remove queries" do
     term = Term.new("hello", "world", 0)
     cb = Callback.new(String, proc{})
-    q = Query.new([term], cb)   
+    cj = Conjunction.new([term])
+    q = Query.new([cj], cb)   
     id = @engine.register(q)
     @engine.queries.should == [q]
     @engine.unregister(id)
@@ -68,8 +70,9 @@ describe "Engine" do
   
   it "should be able to percolate a query" do
     term = Term.new("a", "hello", 0)
+    cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
-    q = Query.new([term], cb)   
+    q = Query.new([cj], cb)   
     id = @engine.register(q)
     @engine.consume("hello\tworld\n")
     $events.should == ["hello\tworld\n"]
@@ -77,8 +80,9 @@ describe "Engine" do
   
   it "should be able to search a query" do
     term = Term.new("a", "hello", 0)
+    cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
-    q = Query.new([term], cb) 
+    q = Query.new([cj], cb) 
     @engine.consume("hello\tworld\n")  
     cursor = @engine.search(q)
     while cursor.prev!
@@ -89,8 +93,9 @@ describe "Engine" do
   
   it "should be able to search a query" do
     term = Term.new("a", "miss", 0)
+    cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
-    q = Query.new([term], cb) 
+    q = Query.new([cj], cb) 
     @engine.consume("hello\tworld\n")  
     cursor = @engine.search(q)
     while cursor.prev!
@@ -101,11 +106,11 @@ describe "Engine" do
   
   it "should not respond to a miss" do
     term = Term.new("a", "nope", 0)
+    cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
-    q = Query.new([term], cb)   
+    q = Query.new([cj], cb)   
     id = @engine.register(q)
     @engine.consume("hello\tworld\n")
     $events.should == []
   end
-  
 end

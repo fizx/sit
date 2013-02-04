@@ -34,12 +34,22 @@ typedef struct {
 } sit_engine;
 
 typedef struct {
+  int count;
+  long doc_id;
+  bool initialized;
+  plist_cursor **cursors;
+} sub_iterator;
+
+typedef struct {
   sit_engine *engine;
   long doc_id;
   sit_query *query;
   bool initialized;
-  plist_cursor *cursors[1];
+  int count;
+  sub_iterator **subs;
+  dict *cursors;
 } sit_result_iterator;
+
 
 sit_engine *
 sit_engine_new(sit_parser *parser, long size);
