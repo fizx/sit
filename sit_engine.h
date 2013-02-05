@@ -38,6 +38,8 @@ typedef struct {
   long doc_id;
   bool initialized;
   plist_cursor **cursors;
+  long *state;
+  int *negateds;
 } sub_iterator;
 
 typedef struct {

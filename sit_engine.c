@@ -323,6 +323,8 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
     iter->subs[i] = malloc(sizeof(sub_iterator));
     iter->subs[i]->doc_id = LONG_MAX;
     iter->subs[i]->cursors = malloc(sizeof(plist_cursor*) * cj->count);
+    iter->subs[i]->negateds = malloc(cj->count);
+    iter->subs[i]->state = malloc(sizeof(long) * cj->count);
     iter->subs[i]->initialized = false;
     iter->subs[i]->count = cj->count;
     for(int j = 0; j < cj->count; j++) {
@@ -333,8 +335,11 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
         cursor = pl == NULL ? NULL : plist_cursor_new(pl);
         dictAdd(iter->cursors, term, cursor);
       }
+      if(term->negated) {
+        iter->subs[i]->negateds[j] = 1;
+      }
       iter->subs[i]->cursors[j] = cursor;
-      iter->subs[i]->cursors[j] = cursor;
+      iter->subs[i]->state[j] = LONG_MAX;
     }
   }
   return iter; 
@@ -345,32 +350,58 @@ bool
 sit_result_sub_iterator_prev(sub_iterator *iter) {
   int size = iter->count;
   long min = iter->doc_id;
-  long max = -1;
   min--;
-  while (min != max && min >= 0) {
+  while (min >= 0) {
+    long max = -1;
     for (int i = 0; i < size; i++) {
       plist_cursor *cursor = iter->cursors[i];
+      int negated = iter->negateds[i];
+
       if (cursor == NULL) {
-        iter->doc_id = -1;
-        return false;
+        if(negated) {
+          continue;
+        } else {
+          iter->doc_id = -1;
+          return false;
+        }
       }
 
       if(!iter->initialized) {
+        iter->state[i] = LONG_MAX;
         plist_cursor_prev(cursor);
       }
       
-      long doc;
-      while((doc = plist_cursor_document_id(cursor)) > min) {
-        plist_cursor_prev(cursor);
+      if (negated) {
+        long lower;
+        while((lower = plist_cursor_document_id(cursor)) >= min || iter->state[i] >= min) {
+          iter->state[i] = lower;
+          if(!plist_cursor_prev(cursor)) {
+            lower = -1;
+            break;
+          }
+        }  
+
+        min = lower - 1;
+        if(min > max) max = min;
+      } else {
+        
+        long doc;
+        while((doc = plist_cursor_document_id(cursor)) > min) {
+          plist_cursor_prev(cursor);
+        }
+        if(doc < min) min = doc;
+        if(doc > max) max = doc;
       }
-      if(doc < min) min = doc;
-      if(doc > max) max = doc;
+    }
+    if(max == -1) {
+      iter->doc_id = -1;
+      return false;
     }
     iter->initialized = true;
+    if(min == max) break;
   }
   
   iter->doc_id = min;
-  
   return min >= 0;
 }
 
@@ -403,7 +434,7 @@ sit_result_iterator_prev(sit_result_iterator *iter) {
   iter->initialized = true;
   iter->doc_id = max;
   
-  return max >= 0;
+  return max >= (long)0;
 }
 
 void

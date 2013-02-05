@@ -4,11 +4,12 @@
 #include "pstring.h"
 
 sit_term *
-sit_term_new(pstring *field, pstring *text, int offset) {
+sit_term_new(pstring *field, pstring *text, int offset, bool negated) {
  	sit_term *term = malloc(sizeof(sit_term));
 	term->field = field;
 	term->text = text;
 	term->offset = offset;
+  term->negated = negated;
 	sit_term_update_hash(term);
 	return term;
 }
@@ -26,8 +27,14 @@ int
 sit_termcmp(const void *a, const void *b) {
 	sit_term *ta = (sit_term *) a;
 	sit_term *tb = (sit_term *) b;
-	int out = pstrcmp(ta->field, tb->field);
-	if (out == 0) {
+	
+  // int out = ta->negated - tb->negated;
+  int out = 0;
+  
+	if (!out) {
+	  out = pstrcmp(ta->field, tb->field);
+  }
+	if (!out) {
 		out = pstrcmp(ta->text, tb->text);
 	}
 	return out;

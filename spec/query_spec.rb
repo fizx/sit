@@ -10,7 +10,7 @@ include Sit
 
 describe "Query" do
   it "should be to_s" do
-    term = Term.new("hello", "world", 0)
+    term = Term.new("hello", "world", 0, false)
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{})
     q = Query.new([cj], cb)
@@ -18,8 +18,8 @@ describe "Query" do
   end
 
 	it "should be sorted" do
-    a = Term.new("hello", "world", 0)
-    b = Term.new("goodbye", "world", 0)
+    a = Term.new("hello", "world", 0, false)
+    b = Term.new("goodbye", "world", 0, false)
     cb = Callback.new(String, proc{})
     cj1 = Conjunction.new([a,b])
     cj2 = Conjunction.new([b,a])

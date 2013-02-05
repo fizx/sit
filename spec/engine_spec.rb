@@ -49,7 +49,7 @@ describe "Engine" do
   end
   
   it "should be able to register queries" do
-    term = Term.new("hello", "world", 0)
+    term = Term.new("hello", "world", 0, false)
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{})
     q = Query.new([cj], cb)   
@@ -58,7 +58,7 @@ describe "Engine" do
   end
   
   it "should be able to remove queries" do
-    term = Term.new("hello", "world", 0)
+    term = Term.new("hello", "world", 0, false)
     cb = Callback.new(String, proc{})
     cj = Conjunction.new([term])
     q = Query.new([cj], cb)   
@@ -69,7 +69,7 @@ describe "Engine" do
   end
   
   it "should be able to percolate a query" do
-    term = Term.new("a", "hello", 0)
+    term = Term.new("a", "hello", 0, false)
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
     q = Query.new([cj], cb)   
@@ -78,8 +78,63 @@ describe "Engine" do
     $events.should == ["hello\tworld\n"]
   end
   
+  it "should be able to percolate a not query" do
+    term = Term.new("a", "dsafdsa", 0, true)
+    cj = Conjunction.new([term])
+    cb = Callback.new(String, proc{|doc| $events << doc })
+    q = Query.new([cj], cb)   
+    id = @engine.register(q)
+    @engine.consume("hello\tworld\n")
+    $events.should == ["hello\tworld\n"]
+  end
+  
+  it "cannot search a not query by itself" do
+    term = Term.new("a", "miss", 0, true)
+    cj = Conjunction.new([term])
+    cb = Callback.new(String, proc{|doc| $events << doc })
+    q = Query.new([cj], cb) 
+    @engine.consume("hello\tworld\n")  
+    cursor = @engine.search(q)
+    while cursor.prev!
+      cursor.call
+    end
+    $events.should == []
+  end
+  
+  
+  it "should be able to search a not query" do
+    puts "begin"
+    a = Term.new("a", "miss", 0, true)
+    b = Term.new("a", "hello", 0, false)
+    cj = Conjunction.new([a, b])
+    cb = Callback.new(String, proc{|doc| $events << doc })
+    q = Query.new([cj], cb) 
+    @engine.consume("hello\tworld\n")  
+    cursor = @engine.search(q)
+    while cursor.prev!
+      cursor.call
+    end
+    $events.should == ["hello\tworld\n"]
+  end
+  
+  it "should be able to search another not query" do
+    puts "begin"
+    a = Term.new("b", "world", 0, true)
+    b = Term.new("a", "hello", 0, false)
+    cj = Conjunction.new([a, b])
+    cb = Callback.new(String, proc{|doc| $events << doc })
+    q = Query.new([cj], cb) 
+    @engine.consume("hello\tworld\n")  
+    cursor = @engine.search(q)
+    while cursor.prev!
+      cursor.call
+    end
+    $events.should == []
+    puts "end"
+  end
+  
   it "should be able to search a query" do
-    term = Term.new("a", "hello", 0)
+    term = Term.new("a", "hello", 0, false)
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
     q = Query.new([cj], cb) 
@@ -92,7 +147,7 @@ describe "Engine" do
   end
   
   it "should be able to search a query" do
-    term = Term.new("a", "miss", 0)
+    term = Term.new("a", "miss", 0, false)
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
     q = Query.new([cj], cb) 
@@ -105,7 +160,7 @@ describe "Engine" do
   end
   
   it "should not respond to a miss" do
-    term = Term.new("a", "nope", 0)
+    term = Term.new("a", "nope", 0, false)
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{|doc| $events << doc })
     q = Query.new([cj], cb)   
@@ -113,4 +168,5 @@ describe "Engine" do
     @engine.consume("hello\tworld\n")
     $events.should == []
   end
+  
 end

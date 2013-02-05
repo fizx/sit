@@ -4,7 +4,7 @@
 #include "ruby.h"
 
 VALUE
-rbc_term_new(VALUE class, VALUE field, VALUE text, VALUE offset);
+rbc_term_new(VALUE class, VALUE field, VALUE text, VALUE offset, VALUE negated);
 
 VALUE
 rbc_term_to_s(VALUE self);
