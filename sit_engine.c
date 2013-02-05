@@ -106,11 +106,34 @@ sit_engine_new(sit_parser *parser, long size) {
 	return engine;
 }
 
+sit_term SENTINEL = {
+  NULL,
+  NULL,
+  0,
+  0,
+  true
+};
+
 int 
-_recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, sit_callback *callback) {
+_recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, sit_callback *callback) {
 	if(!term->hash_code) {
 		sit_term_update_hash(term);
 	}
+
+	if(term->negated && !negated_yet) {
+	  sit_query_node *node = dictFetchValue(hash, &SENTINEL);
+	  if (node == NULL) {
+  	  node = calloc(sizeof(sit_query_node), 1);
+  		node->parent = parent;
+  		node->term = &SENTINEL;
+  		node->children = dictCreate(&termDict, 0);
+      dictAdd(hash, &SENTINEL, node);
+		}
+    parent = node;
+    hash = node->children;
+    negated_yet = true;
+	}
+	
 	sit_query_node *node = dictFetchValue(hash, term);
 	if (node == NULL) {
 		node = calloc(sizeof(sit_query_node), 1);
@@ -128,29 +151,38 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 		if(node->children == NULL) {
 			node->children = dictCreate(&termDict, 0);
 		}
-		return _recurse_add(node->children, node, term + 1, remaining - 1, callback);
+		return _recurse_add(node->children, node, term + 1, remaining - 1, negated_yet, callback);
 	}
 }
 
 long
 sit_engine_register(sit_engine *engine, sit_query *query) {
   for(int i = 0; i< query->count; i++) {
-	  _recurse_add(engine->queries, NULL, query->conjunctions[i]->terms, query->count, query->callback);
+	  _recurse_add(engine->queries, NULL, query->conjunctions[i]->terms, query->count, false, query->callback);
   }
   return query->callback->id;
 }
 
 int
 _get_terms(sit_term **terms, sit_query_node *node, int *term_count) {	 
-	(*term_count)++;
-	if(node->parent) {
-		int off = _get_terms(terms, node->parent, term_count);
-		terms[off] = node->term;
-		return off + 1;
-	} else {
-		*terms = malloc(sizeof(sit_term*) * (*term_count));
-		terms[0] = node->term;
-		return 1;
+  if(node->term == &SENTINEL){
+    if(node->parent) {
+      return _get_terms(terms, node->parent, term_count);
+    } else {
+      *terms = malloc(sizeof(sit_term*) * (*term_count));
+  		return 0;
+    }
+  } else {
+    (*term_count)++;
+  	if(node->parent) {
+  		int off = _get_terms(terms, node->parent, term_count);
+  		terms[off] = node->term;
+  		return off + 1;
+  	} else {
+  		*terms = malloc(sizeof(sit_term*) * (*term_count));
+  		terms[0] = node->term;
+  		return 1;
+  	}
 	}
 }
 
@@ -225,13 +257,18 @@ sit_engine_last_document_id(sit_engine *engine) {
 }
 
 void 
-callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstring *doc) {
-	if(dictSize(term_index) > dictSize(query_nodes)){
-
+callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstring *doc, bool positive) {
+  if(positive) {
+    sit_query_node *n = dictFetchValue(query_nodes, &SENTINEL);
+    if (n) {
+      callback_recurse(engine, term_index, n->children, doc, false);
+    }
+  }
+	if(dictSize(term_index) > dictSize(query_nodes) || !positive){
 		dictIterator *iterator = dictGetIterator(query_nodes);
 		dictEntry *next;
 	
-		if ((next = dictNext(iterator)) && dictFind(term_index, dictGetKey(next))) {
+		if ((next = dictNext(iterator)) && positive == !!dictFind(term_index, dictGetKey(next))) {
 			sit_query_node *node = dictGetVal(next);
 			sit_callback *cb = node->callback;
 			while(cb) {
@@ -239,7 +276,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 				cb = cb->next;
 			}
 			if(node->children) {
-				callback_recurse(engine, term_index, node->children, doc);
+				callback_recurse(engine, term_index, node->children, doc,positive);
 			}
 		}
 	} else {
@@ -247,14 +284,14 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 		dictEntry *next;
 		sit_query_node *node;
 
-		if ((next = dictNext(iterator)) && (node = dictFetchValue(query_nodes, dictGetKey(next)))) {
+		if ((next = dictNext(iterator)) && positive == !!(node = dictFetchValue(query_nodes, dictGetKey(next)))) {
 			sit_callback *cb = node->callback;
 			while(cb) {
 				cb->handler(doc, cb->user_data);
 				cb = cb->next;
 			}
 			if(node->children){
-				callback_recurse(engine, term_index, node->children, doc);
+				callback_recurse(engine, term_index, node->children, doc,positive);
 			}
 		}
 	}
@@ -262,7 +299,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 
 void
 sit_engine_percolate(sit_engine *engine) {
-	callback_recurse(engine, engine->term_index, engine->queries, sit_engine_last_document(engine));
+	callback_recurse(engine, engine->term_index, engine->queries, sit_engine_last_document(engine), true);
 }
 
 void

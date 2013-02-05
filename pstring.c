@@ -89,6 +89,9 @@ pstring_free(pstring *pstr) {
 
 int
 pstrcmp(pstring *a, pstring *b) {
+  if(a == b) return 0;
+  if(a == NULL) return -1;
+  if(b == NULL) return 1;
 	int min = a->len > b->len ? b->len : a->len;
 	int out = strncmp(a->val, b->val, min);
 	if (!out) {

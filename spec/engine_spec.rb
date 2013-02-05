@@ -84,6 +84,7 @@ describe "Engine" do
     cb = Callback.new(String, proc{|doc| $events << doc })
     q = Query.new([cj], cb)   
     id = @engine.register(q)
+    @engine.queries.first.to_s.should =~ /<\(NOT a ~ dsafdsa\) cb:\d+>/
     @engine.consume("hello\tworld\n")
     $events.should == ["hello\tworld\n"]
   end
