@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "pstring.h"
 #include "dict.h"
 
 pstring *
 pstring_new(int len) {
+  assert(len >= 0);
 	pstring *pstr = malloc(sizeof(pstring));
 	pstr->val = malloc(len);
 	pstr->len = len;

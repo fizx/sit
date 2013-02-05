@@ -4,6 +4,7 @@
 #include "assert.h"
 #include "sit_engine.h"
 #include "sit_parser.h"
+#include "json_parser.h"
 #include "util_ruby.h"
 #include "white_parser.h"
 
@@ -42,6 +43,14 @@ VALUE
 rbc_parser_new(VALUE class) {
 	sit_parser *parser = sit_parser_new(NULL);
 	parser->consume = rbc_consume;
+	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, parser);
+	rb_obj_call_init(tdata, 0, NULL);
+	return tdata;
+}
+
+VALUE 
+rbc_parser_new_json(VALUE class) {
+	sit_parser *parser = json_white_parser_new(NULL);
 	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, parser);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;

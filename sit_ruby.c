@@ -35,6 +35,7 @@ VALUE rbc_plist_cursor;
 VALUE rbc_plist_entry;
 VALUE rbc_result_iterator;
 VALUE rbc_query_parser;
+VALUE rbc_json_parser;
 
 void 
 Init_sit() {
@@ -113,6 +114,7 @@ Init_sit() {
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
+	rb_define_singleton_method(rbc_parser, "new_json", rbc_parser_new_json, 0);
 	rb_define_method(rbc_parser, "initialize", rbc_parser_initialize, 0);
 	rb_define_method(rbc_parser, "engine=", rbc_parser_set_engine, 1);
 	rb_define_method(rbc_parser, "engine", rbc_parser_engine, 0);

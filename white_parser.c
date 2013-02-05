@@ -2,12 +2,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
 
 typedef struct {
   int token;
   long off;
   pstring *remaining;
 } white_state;
+
+void 
+_white_set_off(struct sit_parser *parser, long off) {
+  white_state *state = parser->state;
+  state->off = off;
+}
 
 void
 _white_consume(struct sit_parser *parser, pstring *str) {
@@ -52,6 +59,8 @@ _white_consume(struct sit_parser *parser, pstring *str) {
 }
 
 void white_end_stream(struct sit_parser *parser) {
+  assert(parser);
+  assert(parser->state);
   white_state *state = parser->state;
   if(state->remaining && state->remaining->len > 0) {
     parser->term_found(parser, state->off, state->remaining->len, state->token);
@@ -65,6 +74,7 @@ sit_parser *
 white_parser_new() {
   sit_parser *parser = malloc(sizeof(*parser));
   parser->consume = _white_consume;
+  parser->set_offset = _white_set_off;
   parser->state = malloc(sizeof(white_state));
   white_state *state = parser->state;
   state->remaining = NULL;
