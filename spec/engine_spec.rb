@@ -103,7 +103,6 @@ describe "Engine" do
   
   
   it "should be able to search a not query" do
-    puts "begin"
     a = Term.new("a", "miss", 0, true)
     b = Term.new("a", "hello", 0, false)
     cj = Conjunction.new([a, b])
@@ -118,7 +117,6 @@ describe "Engine" do
   end
   
   it "should be able to search another not query" do
-    puts "begin"
     a = Term.new("b", "world", 0, true)
     b = Term.new("a", "hello", 0, false)
     cj = Conjunction.new([a, b])
@@ -130,7 +128,6 @@ describe "Engine" do
       cursor.call
     end
     $events.should == []
-    puts "end"
   end
   
   it "should be able to search a query" do

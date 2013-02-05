@@ -86,6 +86,9 @@ rbc_conjunction_to_s(VALUE self) {
 	    rb_ary_push(buf, rb_str_new2(" AND "));
     }
 		sit_term *term = &con->terms[i];
+		if(term->negated) {
+		  rb_ary_push(buf, rb_str_new2("NOT "));
+		}
 		char *str;
 		asprintf(&str, "%.*s ~ %.*s", 
 			term->field->len, term->field->val, 

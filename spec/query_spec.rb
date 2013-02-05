@@ -16,8 +16,8 @@ describe "Query" do
     q = Query.new([cj], cb)
     q.to_s.should =~ /<\(hello ~ world\) cb:\d+>/
   end
-
-	it "should be sorted" do
+  
+  it "should be sorted" do
     a = Term.new("hello", "world", 0, false)
     b = Term.new("goodbye", "world", 0, false)
     cb = Callback.new(String, proc{})
@@ -31,5 +31,13 @@ describe "Query" do
     qb = Query.new([cj2], cb)
     qa.to_s.should == qb.to_s
     qa.to_s.should =~ /<\(goodbye ~ world AND hello ~ world\) cb:\d+>/
-	end
+  end
+  
+	it "should sort nots last" do
+	  a = Term.new("a", "a", 0, true)
+    b = Term.new("z", "z", 0, false)
+    cb = Callback.new(String, proc{})
+    cj = Conjunction.new([a,b])
+    cj.to_s.should == "(z ~ z AND NOT a ~ a)"
+  end
 end

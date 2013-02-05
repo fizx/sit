@@ -5,9 +5,13 @@
 
 int
 qsit_termcmp(const void *a, const void *b) {
-	sit_term **ta = (sit_term **)a;
-	sit_term **tb = (sit_term **)b;
-	return sit_termcmp(*ta, *tb);
+	const sit_term *ta = a;
+	const sit_term *tb = b;
+  int out = ta->negated - tb->negated;
+  if(!out) {
+	  out = sit_termcmp(ta, tb);
+  }
+  return out;
 }
 
 sit_query *
@@ -27,7 +31,7 @@ conjunction_new(sit_term **terms, int count) {
 	for(int i = 0	; i < count; i++) {
 		memcpy(&con->terms[i], terms[i], sizeof(sit_term));
 	}
-	qsort(con->terms, count, sizeof(sit_term), sit_termcmp);	
+	qsort(con->terms, count, sizeof(sit_term), qsit_termcmp);	
 	con->count = count;
 	con->data = NULL;
 	return con;
