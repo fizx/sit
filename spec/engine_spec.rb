@@ -102,7 +102,6 @@ describe "Engine" do
     $events.should == []
   end
   
-  
   it "should be able to search a not query" do
     a = Term.new("a", "miss", 0, true)
     b = Term.new("a", "hello", 0, false)

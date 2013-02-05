@@ -15,6 +15,7 @@
 #include "plist_ruby.h"
 #include "query_parser_ruby.h"
 #include "ast_ruby.h"
+#include "tokenizer_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ast;
@@ -25,6 +26,7 @@ VALUE rbc_callback;
 VALUE rbc_query;
 VALUE rbc_conjunction;
 VALUE rbc_parser;
+VALUE rbc_tokenizer;
 VALUE rbc_engine;
 VALUE rbc_lrw_dict;
 VALUE rbc_plist_pool;
@@ -111,7 +113,6 @@ Init_sit() {
 	// Parser
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
-	rb_define_singleton_method(rbc_parser, "new_whitespace", rbc_whitespace_parser_new, 0);
 	rb_define_method(rbc_parser, "initialize", rbc_parser_initialize, 0);
 	rb_define_method(rbc_parser, "engine=", rbc_parser_set_engine, 1);
 	rb_define_method(rbc_parser, "engine", rbc_parser_engine, 0);
@@ -120,6 +121,7 @@ Init_sit() {
 	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
 	rb_define_method(rbc_parser, "int_found", rbc_parser_int_found, 1);
+	rb_define_method(rbc_parser, "end_stream", rbc_parser_end_stream, 0);
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
@@ -182,9 +184,18 @@ Init_sit() {
 	rb_define_method(rbc_plist_entry, "to_s", rbc_plist_entry_to_s, 0);
 	rb_define_method(rbc_plist_entry, "==", rbc_plist_entry_equals, 1);
 	
+	// ResultIterator
 	rbc_result_iterator = rb_define_class_under(m_sit, "ResultIterator", rb_cObject);
 	rb_define_method(rbc_result_iterator, "prev!", rbc_result_iterator_prev, 0);
 	rb_define_method(rbc_result_iterator, "document", rbc_result_iterator_document, 0);
 	rb_define_method(rbc_result_iterator, "call", rbc_result_iterator_call, 0);
 	rb_define_method(rbc_result_iterator, "document_id", rbc_result_iterator_document_id, 0);	
+	
+	// Tokenizer
+	rbc_tokenizer = rb_define_class_under(m_sit, "Tokenizer", rb_cObject);
+	rb_define_singleton_method(rbc_tokenizer, "new", rbc_tokenizer_new, 0);
+	rb_define_method(rbc_tokenizer, "consume", rbc_tokenizer_consume, 1);
+	rb_define_method(rbc_tokenizer, "term_found", rbc_tokenizer_term_found, 3);
+	rb_define_method(rbc_tokenizer, "end_stream", rbc_tokenizer_end_stream, 0);
+	
 }

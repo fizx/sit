@@ -31,6 +31,9 @@ VALUE
 rbc_parser_int_found(VALUE self, VALUE rint);
 
 VALUE 
+rbc_parser_end_stream(VALUE self);
+
+VALUE 
 rbc_parser_engine(VALUE self);
 
 #endif

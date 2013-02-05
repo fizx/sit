@@ -4,11 +4,13 @@
 #include "pstring.h"
 
 typedef struct sit_parser {
+  void (*end_stream)(struct sit_parser *parser);
 	void (*consume)(struct sit_parser *parser, pstring *str);
   void (*term_found)(struct sit_parser *parser, long off, int len, int field_offset);
   void (*document_found)(struct sit_parser *parser, long off, int len);
   void (*field_found)(struct sit_parser *parser, pstring *name);
   void (*int_found)(struct sit_parser *parser, int val);
+	void *state;
 	void *data;
 } sit_parser;
 

@@ -89,8 +89,6 @@ sit_engine_get_document(sit_engine *engine, long doc_id);
 long
 sit_engine_last_document_id(sit_engine *engine);
 
-
-
 void
 sit_engine_consume(sit_engine *engine, pstring *pstr);
 

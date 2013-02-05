@@ -20,16 +20,6 @@ describe "Parser" do
 		@parser.engine = @engine
 	end
 	
-	it "should do whitespace" do
-	  @parser = Parser.new_whitespace
-	  @parser.extend(TestEvents)
-	  @parser.consume("hello world")
-	  $events.should == [
-			[:term, 0, 5, 0],
-			[:term, 6, 5, 1]
-		]
-  end
-  
   it "should work standalone" do
     @engine.terms.size.should == 0
     @engine.consume("z\ty")

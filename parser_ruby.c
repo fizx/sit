@@ -48,14 +48,6 @@ rbc_parser_new(VALUE class) {
 }
 
 VALUE 
-rbc_whitespace_parser_new(VALUE class) {
-	sit_parser *parser = white_parser_new();
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, parser);
-	rb_obj_call_init(tdata, 0, NULL);
-	return tdata;
-}
-
-VALUE 
 rbc_parser_initialize(VALUE self) {	
 	sit_parser *parser;
 	Data_Get_Struct(self, sit_parser, parser);
@@ -104,6 +96,14 @@ VALUE
 rbc_parser_document_found(VALUE self, VALUE roff, VALUE rlen) {
   VALUE rengine = rb_iv_get(self, "@engine");
   rb_funcall(rengine, rb_intern("document_found"), 2, roff, rlen);
+	return Qnil;
+}
+
+VALUE
+rbc_parser_end_stream(VALUE self) {
+  sit_parser *parser;
+	Data_Get_Struct(self, sit_parser, parser);
+  parser->end_stream(parser);
 	return Qnil;
 }
 

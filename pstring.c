@@ -55,9 +55,8 @@ paddc(pstring *pstr, char *cstr) {
 
 pstring *
 pstring_new2(char *cstr, int len) {
-  pstring *pstr = pstring_new(len + 1);
+  pstring *pstr = pstring_new(len);
   memcpy(pstr->val, cstr, len);
-  pstr->val[len] = 0;
   return pstr;
 }
 
