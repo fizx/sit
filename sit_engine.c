@@ -92,6 +92,7 @@ sit_engine_new(sit_parser *parser, long size) {
  	sit_engine *engine = malloc(sizeof(sit_engine) + (tc - 1) * (sizeof(sit_term)));
 	engine->queries = dictCreate(&termDict, 0);
 	engine->parser = parser;
+	parser->forwards_to = engine;
 	engine->stream = ring_buffer_new(size / 4);
 	engine->term_dictionary = lrw_dict_new(&termDict, &termLrw, size / 32);
 	engine->postings = plist_pool_new(size / 4);
@@ -234,7 +235,9 @@ sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
 
 pstring *
 sit_engine_last_document(sit_engine *engine) {
-  return sit_engine_get_document(engine, sit_engine_last_document_id(engine));
+	long id = sit_engine_last_document_id(engine);
+ 	pstring *out = sit_engine_get_document(engine, id);
+	return out;
 }
 
 pstring *
@@ -247,7 +250,8 @@ sit_engine_get_document(sit_engine *engine, long doc_id) {
   if(dr == NULL) {
     return NULL;
   } else {
-    return ring_buffer_get_pstring(engine->stream, dr->off, dr->len);
+		pstring *doc = ring_buffer_get_pstring(engine->stream, dr->off, dr->len);
+		return doc;
   }
 }
 
@@ -258,6 +262,7 @@ sit_engine_last_document_id(sit_engine *engine) {
 
 void 
 callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstring *doc, bool positive) {
+	assert(doc);
   if(positive) {
     sit_query_node *n = dictFetchValue(query_nodes, &SENTINEL);
     if (n) {
@@ -276,7 +281,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 				cb = cb->next;
 			}
 			if(node->children) {
-				callback_recurse(engine, term_index, node->children, doc,positive);
+				callback_recurse(engine, term_index, node->children, doc, positive);
 			}
 		}
 	} else {
@@ -529,6 +534,8 @@ sit_engine_zero_ints(sit_engine *engine) {
 
 void 
 sit_engine_document_found(sit_engine *engine, long off, int len) {
+	assert(off >= 0);
+	assert(len > 0);
   doc_ref dr = { off, len };
 	ring_buffer_append(engine->docs, &dr, sizeof(dr));
   long doc_id = sit_engine_last_document_id(engine);

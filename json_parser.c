@@ -70,6 +70,7 @@ _jsonsl_stack_callback(
       sit_state->buf->len = len;
       sit_state->tokenizer->term_found = parser->term_found;
       sit_state->tokenizer->data = parser->data;
+			sit_state->tokenizer->forwards_to = parser->forwards_to;
       sit_state->tokenizer->set_offset(sit_state->tokenizer, sit_state->start_off);
       sit_state->tokenizer->consume(sit_state->tokenizer, sit_state->buf);
       sit_state->tokenizer->end_stream(sit_state->tokenizer);
@@ -78,7 +79,7 @@ _jsonsl_stack_callback(
 		case JSONSL_T_OBJECT:  
       off = at + 1 - sit_state->active->val;
       end = sit_state->active_off + off;
-		  parser->document_found(parser, sit_state->doc_off, off - sit_state->doc_off);
+		  parser->document_found(parser, sit_state->doc_off, end - sit_state->doc_off);
 		  jsonsl_reset(sit_state->json_parser);
       break;
 		}
@@ -89,8 +90,8 @@ _jsonsl_stack_callback(
 }
 
 sit_parser *
-json_white_parser_new(sit_engine *engine) {
-  return json_parser_new(engine, white_parser_new());
+json_white_parser_new() {
+  return json_parser_new(white_parser_new());
 }
 
 void 
@@ -105,8 +106,8 @@ _json_consume(struct sit_parser *parser, pstring *str) {
 }
 
 sit_parser *
-json_parser_new(sit_engine *engine, sit_parser *tokenizer) {
-  sit_parser *parser = sit_parser_new(engine);
+json_parser_new(sit_parser *tokenizer) {
+  sit_parser *parser = sit_parser_new();
   parser->state = malloc(sizeof(json_state));
   json_state *state = parser->state;
   state->json_parser = jsonsl_new(100);

@@ -313,10 +313,88 @@ expand_clauses(query_parser *context, ast_node_t *node) {
   expand_clauses(context, node->next);
 }
 
+void *
+to_conjunction(ast_node_t *node, void *obj) {
+  switch(Q(node)->type) {
+  case TERM: {
+    conjunction_t *con = malloc(sizeof(conjunction_t));
+    memcpy(&con->terms[0], obj, sizeof(sit_term));
+  	con->count = 1;
+  	con->data = NULL;
+    return con;
+  }
+  case ANDS: 
+    return obj;
+  default:
+    assert(0);
+  }
+}
+
+void *
+to_query(ast_node_t *node, void *obj) {
+  switch(Q(node)->type) {
+  case TERM: {
+    obj = to_conjunction(node, obj);
+    // fall-through
+  }
+  case ANDS: {
+    sit_query *query = malloc(sizeof(sit_query));
+    query->count = 1;
+    query->conjunctions = malloc(sizeof(conjunction_t*));
+    query->conjunctions[0] = obj;
+    return query;
+  }
+  case ORS: 
+    return obj;
+  default:
+    assert(0);
+  }
+}
+
+void *
+make_query_and_callback(query_parser *context, ast_node_t *node) {
+  switch(Q(node)->type) {
+  case TERM:
+    return sit_term_new(Q(node)->field, Q(node)->val, Q(node)->num, Q(node)->negated);
+  case ANDS: {
+    int count = ast_node_child_count(node);
+    conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(sit_term));
+    ast_node_t *child = node->child;
+  	for(int i = 0	; i < count; i++) {
+  		memcpy(&con->terms[i], make_query_and_callback(context, child), sizeof(sit_term));
+  		child = child->next;
+  	}
+  	qsort(con->terms, count, sizeof(sit_term), qsit_termcmp);	
+  	con->count = count;
+  	con->data = NULL;
+  	return con;
+  } 
+  case ORS: {
+    int count = ast_node_child_count(node);
+    sit_query *query = malloc(sizeof(sit_query));
+    query->count = count;
+    query->conjunctions = malloc(count * sizeof(conjunction_t*));
+    ast_node_t *child = node->child;
+    for(int i = 0	; i < count; i++) {
+      query->conjunctions[i] = to_conjunction(child, make_query_and_callback(context, child));
+  		child = child->next;
+  	}
+  } 
+  case EXPR: {
+    sit_query *query = to_query(node->child, make_query_and_callback(context, node->child));
+    context->cb->handler(query, context->cb->user_data);
+    return NULL;
+  }
+  default:
+    assert(0);
+  }
+}
+
 void
 query_parser_construct(query_parser *context, ast_node_t *expression) {
+  pstring *pstr;
   context->root = expression;
-  // pstring *pstr = query_node_query(expression);
+  // pstr = query_node_query(expression);
   // printf("%.*s\n", pstr->len, pstr->val);
   // pstr = query_node_ast_to_s(expression);
   // printf("\n%.*s\n****************\n", pstr->len, pstr->val);
@@ -334,6 +412,8 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   // printf("%.*s\n", pstr->len, pstr->val);
   // pstr = query_node_ast_to_s(expression);
   // printf("%.*s\n", pstr->len, pstr->val);
+  
+  make_query_and_callback(context, expression);
 }
 
 char *

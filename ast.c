@@ -25,6 +25,17 @@ ast_node_new(ast_t *ast) {
   return node;
 }
 
+int
+ast_node_child_count(ast_node_t *self) {
+	ast_node_t *child = self->child;
+	int i = 0;
+	while(child) {
+		child = child->next;
+		i++;
+	}
+	return i;
+}
+
 void
 ast_node_replace(ast_node_t *self, ast_node_t *other) {
   ast_node_insert_before(self, other);

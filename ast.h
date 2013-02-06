@@ -26,6 +26,9 @@ ast_new(void *(*fmake)(), void (*ffree)(void *));
 ast_node_t *
 ast_node_new(ast_t *ast); 
 
+int
+ast_node_child_count(ast_node_t *self);
+
 void
 ast_node_insert_before(ast_node_t *self, ast_node_t *other);
 

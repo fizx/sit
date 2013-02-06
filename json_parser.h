@@ -6,9 +6,9 @@
 #include "sit_callback.h"
 
 sit_parser *
-json_white_parser_new(sit_engine *engine);
+json_white_parser_new();
 
 sit_parser *
-json_parser_new(sit_engine *engine, sit_parser *tokenizer);
+json_parser_new(sit_parser *tokenizer);
 
 #endif

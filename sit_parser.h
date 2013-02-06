@@ -12,8 +12,9 @@ typedef struct sit_parser {
   void (*field_found)(struct sit_parser *parser, pstring *name);
   void (*error_found)(struct sit_parser *parser, pstring *message);
   void (*int_found)(struct sit_parser *parser, int val);
-	void *state;
-	void *data;
+	void *state; // for internal parser state
+	void *data;  // for user purposes, e.g. the ruby bindings keep the ruby object here.
+	void *forwards_to;  // if this parser forwards events to another object (usually engine)
 } sit_parser;
 
 sit_parser *

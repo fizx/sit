@@ -22,6 +22,9 @@ typedef struct {
   conjunction_t **conjunctions;
 } sit_query;
 
+int
+qsit_termcmp(const void *a, const void *b);
+
 sit_query *
 sit_query_new(conjunction_t **conjunctions, int count, sit_callback *callback);
 
