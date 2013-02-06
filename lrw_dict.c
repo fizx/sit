@@ -1,4 +1,5 @@
 #include "lrw_dict.h"
+#include "sit_term.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -72,7 +73,7 @@ lrw_dict_put(lrw_dict *d, const void *key, const void *value) {
 			_truncate(d);
 		}
 		entry = dictAddRaw(d->dict, (void *) key);
-		if(!entry) {
+		if(!entry && dictIsRehashing(d->dict)) {
 			entry = dictFind(d->dict, key);
 		}
 		assert(entry);
