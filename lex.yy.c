@@ -2537,8 +2537,6 @@ _c(cmp_type t) {
   }
 }
 
-#define P(x)   padd(buf, x)
-#define PC(x)   paddc(buf, x)
 #define PQ(x)  padd(buf, query_node_query(x))
 
 pstring * 

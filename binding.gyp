@@ -1,0 +1,1 @@
+{"targets":[{"target_name":"sit","sources":["node/hello.cc","ast.c","dict.c","json_parser.c","jsonsl.c","lex.yy.c","lrw_dict.c","main.c","plist.c","pstring.c","ring_buffer.c","sit_callback.c","sit_engine.c","sit_parser.c","sit_query.c","sit_term.c","white_parser.c","y.tab.c"]}]}

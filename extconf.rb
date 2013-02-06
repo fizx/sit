@@ -11,15 +11,8 @@ $CFLAGS << ' -g -std=c99
              -Wno-switch-enum 
              -Wno-switch
              -o sit'.gsub(/\s+/, " ")
-if have_library('ev', 'ev_default_loop')
-  have_header("ev.h")
-  find_library('ev', 'ev_default_loop')
-end
 
-if have_library('', 'ev_default_loop')
-  have_header("pcre.h")
-  find_library('ev', 'ev_default_loop')
-end
+have_header("ev.h") && find_library('ev', 'ev_default_loop')
 
 create_makefile('sit')
 
