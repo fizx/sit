@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include "pstring.h"
@@ -44,6 +45,16 @@ padd(pstring *pstr, pstring *append) {
   free(pstr->val);
   pstr->val = nbuf;
   pstr->len = nlen;
+}
+
+void
+paddv(pstring *pstr, char *fmt, ...) {
+	va_list args;
+  va_start(args, fmt);
+	char *tmp;
+	vasprintf(&tmp, fmt, args);
+	paddc(pstr, tmp);
+	free(tmp);
 }
 
 void

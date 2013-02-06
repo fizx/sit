@@ -42,7 +42,7 @@ rbc_query_to_s(VALUE self) {
   	rb_ary_push(buf, rb_funcall(tdata, rb_intern("to_s"), 0));
 	}
 	rb_ary_push(buf, rb_str_new2(" cb:"));
-	rb_ary_push(buf, INT2NUM(query->callback->id));
+	rb_ary_push(buf, query->callback ? INT2NUM(query->callback->id) : Qnil);
 	rb_ary_push(buf, rb_str_new2(">"));
 	return rb_funcall(buf, rb_intern("join"), 0);
 }

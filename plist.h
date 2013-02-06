@@ -56,6 +56,9 @@ plist_pool_new(long size);
 plist_cursor *
 plist_cursor_new(plist *plist);
 
+long 
+plist_cursor_seek_lte(plist_cursor *cursor, long value);
+
 plist *
 plist_new(plist_pool *pool);
 

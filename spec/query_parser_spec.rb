@@ -17,14 +17,12 @@ E = "foo ~ e"
 describe "QueryParser" do
   before do
     @qp = QueryParser.new
+		$queries = []
   end
   
   it "should be creatable" do
-    end
-    
-  it "should have queries" do
-    @qp.queries.should == []
   end
+    
   
   it "should consume strings" do
     status = @qp.consume("foo ~ bar;")
@@ -41,6 +39,7 @@ describe "QueryParser" do
     @qp.consume("#{A} AND #{B} OR #{C} AND #{D} OR #{E};")
     @qp.last_error.should be_nil
     @qp.last_query_to_s.should == "((#{A} AND #{B}) OR (#{C} AND #{D}) OR #{E})"
+		$queries.size.should == 1
   end
   
   # 

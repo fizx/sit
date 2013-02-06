@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 int
 qsit_termcmp(const void *a, const void *b) {
@@ -41,4 +42,49 @@ void
 sit_query_free(sit_query *query) {
 	sit_callback_free(query->callback);
 	free(query);
+}
+
+pstring *
+sit_query_to_s(sit_query *query) {
+	pstring *buf = pstring_new(0);
+	PC("<");
+	for(int i = 0; i < query->count; i++) {
+	  if(i > 0) {
+			PC(" OR ");
+    }
+		conjunction_t *con = query->conjunctions[i];
+		P(conjunction_to_s(con));
+	}
+	PC(" cb:");
+	if (query->callback) {
+		PV("%d", query->callback->id);
+	} else {
+		PC("NULL");
+	}
+	PC(">");
+	return buf;
+}
+
+pstring *
+conjunction_to_s(conjunction_t *con) {
+	pstring *buf = pstring_new(0);
+	PC("(");
+	for(int i = 0; i < con->count; i++) {
+	  if(i > 0) {
+			PC(" AND ");
+    }
+		sit_term *term = &con->terms[i];
+		if(term->negated) {
+			PC("NOT ");
+		}
+		assert(term->field);
+		assert(term->text);
+		PV("%.*s ~ %.*s", 
+			term->field->len, term->field->val, 
+			term->text->len, term->text->val);
+	}
+	PC(")");
+	
+	return buf;
+	
 }

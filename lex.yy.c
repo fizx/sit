@@ -2469,9 +2469,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
   	}
   } 
   case EXPR: {
-    sit_query *query = to_query(node->child, make_query_and_callback(context, node->child));
-    context->cb->handler(query, context->cb->user_data);
-    return NULL;
+    return to_query(node->child, make_query_and_callback(context, node->child));
   }
   default:
     assert(0);
@@ -2501,7 +2499,8 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   // pstr = query_node_ast_to_s(expression);
   // printf("%.*s\n", pstr->len, pstr->val);
   
-  make_query_and_callback(context, expression);
+  sit_query * query = make_query_and_callback(context, expression);
+  context->cb->handler(query, context->cb->user_data);
 }
 
 char *

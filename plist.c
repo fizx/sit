@@ -196,6 +196,21 @@ plist_size(plist *plist) {
 	return count;
 }
 
+long 
+plist_cursor_seek_lte(plist_cursor *cursor, long value) {
+	long doc;
+	while((doc = plist_cursor_document_id(cursor)) > value) {
+		if(!plist_cursor_prev(cursor)) {
+			doc = -1;
+			break;
+		}
+	}	
+	printf("HERE: %d\n", doc);
+	return doc;
+}
+
+
+
 void
 plist_each(plist *pl, sit_callback *iterator) {
 	//TODO: impl

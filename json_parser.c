@@ -116,6 +116,7 @@ json_parser_new(sit_parser *tokenizer) {
   state->tokenizer = tokenizer;
   state->active_off = 0;
   state->token = 0;
+	state->buf = pstring_new(0);
   state->json_parser->action_callback = _jsonsl_stack_callback;
 	state->json_parser->error_callback = _jsonsl_error_callback;
 	state->json_parser->data = parser;

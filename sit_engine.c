@@ -142,7 +142,7 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 		node->term = term;
 		dictAdd(hash, term, node);
 	}
-	if (remaining == 1) {
+	if (remaining == 0) {
 		sit_callback *next = node->callback;
 		node->callback = callback;
 		callback->next = next;
@@ -390,6 +390,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
 // TODO: not that efficient
 bool
 sit_result_sub_iterator_prev(sub_iterator *iter) {
+	printf("WAT\n");
   int size = iter->count;
   long min = iter->doc_id;
   min--;
@@ -410,6 +411,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
 
       if(!iter->initialized) {
         iter->state[i] = LONG_MAX;
+				printf("init\n");
         plist_cursor_prev(cursor);
       }
       
@@ -427,10 +429,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
         if(min > max) max = min;
       } else {
         
-        long doc;
-        while((doc = plist_cursor_document_id(cursor)) > min) {
-          plist_cursor_prev(cursor);
-        }
+        long doc = plist_cursor_seek_lte(cursor, min);
         if(doc < min) min = doc;
         if(doc > max) max = doc;
       }
@@ -450,6 +449,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
 // TODO: not that efficient
 bool
 sit_result_iterator_prev(sit_result_iterator *iter) {
+	printf("HAI\n");
   int size = iter->count;
 
   long bound = iter->doc_id;

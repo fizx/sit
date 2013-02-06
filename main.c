@@ -1,14 +1,16 @@
 #include "sit.h"
 #define BUF_SIZE 65536
 
+sit_query *query = NULL;
+sit_engine *engine = NULL;
+
 void 
 _print_handler(void *sit_data, void *user_data) {
 	(void) user_data;
 	pstring *pstr = sit_data;
-	printf("%.*s\n", pstr->len, pstr->val);
+	printf("%ld\t%.*s\n", sit_engine_last_document_id(engine), pstr->len, pstr->val);
 }
 
-sit_query *query = NULL;
 
 void
 _main_query_handler(void *sit_data, void *user_data) {
@@ -30,7 +32,7 @@ main(int argc, char **argv) {
 	cb->handler = _print_handler;
 	
 	sit_parser *parser = json_parser_new(white_parser_new());
-	sit_engine *engine = sit_engine_new(parser, 100000);
+	engine = sit_engine_new(parser, 100000);
 	query_parser *qparser = query_parser_new();
 	qparser->cb = sit_callback_new();
 	qparser->cb->handler = _main_query_handler;
@@ -41,9 +43,11 @@ main(int argc, char **argv) {
 		} else {
 			printf("Could not recognize your query: unknown error\n");
 		}
-		
 		return 2;
 	}
+	
+	pstring *ps = sit_query_to_s(query);
+	fprintf(stderr, "query: %.*s\n", ps->len, ps->val);
 	
 	sit_engine_register(engine, query);
 

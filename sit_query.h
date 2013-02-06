@@ -34,4 +34,11 @@ conjunction_new(sit_term **terms, int count);
 void 
 sit_query_free(sit_query *query);
 
+pstring *
+sit_query_to_s(sit_query *query);
+
+pstring *
+conjunction_to_s(conjunction_t *cj);
+
+
 #endif

@@ -13,9 +13,8 @@ rbc_query_parser_new(VALUE class) {
   VALUE rcb = rbc_callback_new(
     rb_eval_string("::Sit::Callback"), 
     rb_eval_string("::Sit::Query"),
-    rb_eval_string("proc{|q| @queries << q }")
+    rb_eval_string("proc{|q| $queries ||=[]; $queries << q }")
   );
-  rb_iv_set(rcb, "@queries", rb_ary_new());
 	sit_callback *cb;
 	Data_Get_Struct(rcb, sit_callback, cb);
   query_parser *qp = query_parser_new(cb);
