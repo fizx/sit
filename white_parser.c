@@ -6,7 +6,7 @@
 
 typedef struct {
   int token;
-  long off;
+  long off; // relative to global stream
   pstring *remaining;
 } white_state;
 

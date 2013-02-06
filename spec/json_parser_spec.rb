@@ -33,13 +33,13 @@ describe "Parser" do
     @parser.consume(str)
     $events.should == [
       [:field, "hello"],
-      [:term, str.index("w"), 7, 0],
+      [:term, str.index("w"), 5, 0],
       [:doc, 2, str.length - 2],
     ]
   end
     
   it "should do multiple docs" do
-    str = '{"hello":"world"}\n{"wha":"goodbye thanks"}'
+    str = "{\"hello\":\"world\"}\n{\"wha\":\"goodbye thanks\"}"
     @parser = Parser.new_json()
     @parser.extend(TestEvents)
     @parser.consume(str)
