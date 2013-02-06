@@ -12,9 +12,9 @@ include Sit
 describe "integration" do
 	Dir[File.dirname(__FILE__) + "/bash/*.flags"].each do |path|
 		it "should run #{path} successfully" do
-			out = path.sub(".cmd", ".out")
-			File.exists(out).should == true
-			`cd "#{File.dirname(path)}" && ../../sit #{File.read(path)}`.should == File.read(out)
+			out = path.sub(".flags", ".out")
+			File.exists?(out).should == true
+			`cd "#{File.dirname(path)}/../.." && ./sit #{File.read(path)} 2>/dev/null`.should == File.read(out)
 		end
 	end
 end

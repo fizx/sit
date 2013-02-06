@@ -2,6 +2,7 @@
 #include "sit_term.h"
 #include "dict.h"
 #include "pstring.h"
+#include <assert.h>
 
 sit_term *
 sit_term_new(pstring *field, pstring *text, int offset, bool negated) {
@@ -21,6 +22,16 @@ sit_term_free(sit_term *term) {
 		pstring_free(term->text);
 		free(term);
 	}
+}
+
+pstring *
+sit_term_to_s(sit_term *term) {	
+	assert(term->field);
+	assert(term->text);
+	pstring *buf = pstring_new(0);
+	PV("%.*s:%.*s", term->field->len, term->field->val, 
+	term->text->len, term->text->val);
+	return buf;
 }
 
 int

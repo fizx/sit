@@ -1,4 +1,5 @@
 #include "sit_query.h"
+#include "sit_term.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,11 +78,7 @@ conjunction_to_s(conjunction_t *con) {
 		if(term->negated) {
 			PC("NOT ");
 		}
-		assert(term->field);
-		assert(term->text);
-		PV("%.*s ~ %.*s", 
-			term->field->len, term->field->val, 
-			term->text->len, term->text->val);
+		P(sit_term_to_s(term));
 	}
 	PC(")");
 	

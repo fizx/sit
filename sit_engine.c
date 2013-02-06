@@ -117,6 +117,7 @@ sit_term SENTINEL = {
 
 int 
 _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, sit_callback *callback) {
+	pstring *tmp;
 	if(!term->hash_code) {
 		sit_term_update_hash(term);
 	}
@@ -141,8 +142,9 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 		node->parent = parent;
 		node->term = term;
 		dictAdd(hash, term, node);
+		tmp = sit_term_to_s(term);
 	}
-	if (remaining == 0) {
+	if (remaining == 1) {
 		sit_callback *next = node->callback;
 		node->callback = callback;
 		callback->next = next;
@@ -159,7 +161,7 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 long
 sit_engine_register(sit_engine *engine, sit_query *query) {
   for(int i = 0; i< query->count; i++) {
-	  _recurse_add(engine->queries, NULL, query->conjunctions[i]->terms, query->count, false, query->callback);
+	  _recurse_add(engine->queries, NULL, query->conjunctions[i]->terms, query->conjunctions[i]->count, false, query->callback);
   }
   return query->callback->id;
 }
@@ -177,7 +179,7 @@ _get_terms(sit_term **terms, sit_query_node *node, int *term_count) {
     (*term_count)++;
   	if(node->parent) {
   		int off = _get_terms(terms, node->parent, term_count);
-  		terms[off] = node->term;
+  		terms[off] = node->term;			
   		return off + 1;
   	} else {
   		*terms = malloc(sizeof(sit_term*) * (*term_count));
@@ -390,7 +392,6 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
 // TODO: not that efficient
 bool
 sit_result_sub_iterator_prev(sub_iterator *iter) {
-	printf("WAT\n");
   int size = iter->count;
   long min = iter->doc_id;
   min--;
@@ -411,7 +412,6 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
 
       if(!iter->initialized) {
         iter->state[i] = LONG_MAX;
-				printf("init\n");
         plist_cursor_prev(cursor);
       }
       
@@ -449,7 +449,6 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
 // TODO: not that efficient
 bool
 sit_result_iterator_prev(sit_result_iterator *iter) {
-	printf("HAI\n");
   int size = iter->count;
 
   long bound = iter->doc_id;

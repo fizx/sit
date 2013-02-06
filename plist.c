@@ -205,7 +205,6 @@ plist_cursor_seek_lte(plist_cursor *cursor, long value) {
 			break;
 		}
 	}	
-	printf("HERE: %d\n", doc);
 	return doc;
 }
 
