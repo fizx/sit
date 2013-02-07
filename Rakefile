@@ -12,7 +12,7 @@ def sys!(*a); puts a.join(" "); system(*a) or exit(1); end
 
 task :test => :spec
 
-task :default => [:make, :node]
+task :default => :make
 
 task :node => "binding.gyp" do
 	sys! "node-gyp configure build"

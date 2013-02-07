@@ -12,7 +12,7 @@ $CFLAGS << ' -g -std=c99
              -Wno-switch
              -o sit'.gsub(/\s+/, " ")
 
-have_header("ev.h") && find_library('ev', 'ev_default_loop')
+find_library('ev', 'ev_default_loop') && have_header("ev.h")
 
 create_makefile('sit')
 
