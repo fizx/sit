@@ -53,6 +53,8 @@ sit_termcmp(const void *a, const void *b) {
 
 void 
 sit_term_update_hash(sit_term *term) {
+	assert(term->field);
+	assert(term->text);
 	term->hash_code = pstrhash(term->field);
 	term->hash_code ^= pstrhash(term->text);
 }

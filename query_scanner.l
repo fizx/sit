@@ -13,6 +13,7 @@ NS    [^ \t\n\r,?*();:\^"]
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "util.h"
 #include <string.h>
 #include "query_parser.h"
 #include "white_parser.h"
@@ -267,8 +268,8 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
-add_token(sit_parser *parser, long off, int len, int field_offset) {
-  query_parser *context = parser->data;
+add_token(sit_receiver *receiver, long off, int len, int field_offset) {
+  query_parser *context = receiver->data;
   ast_node_t *node = context->tmp;
   pstring *field = Q(node)->field;
   pstring *val = Q(node)->val;
@@ -279,7 +280,15 @@ add_token(sit_parser *parser, long off, int len, int field_offset) {
   Q(term)->val = pstr;
   ast_node_append_child(node, term);
 }
-  
+
+sit_receiver token_receiver = {
+  add_token,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+	NULL
+};
 
 void
 expand_clauses(query_parser *context, ast_node_t *node) {
@@ -291,8 +300,8 @@ expand_clauses(query_parser *context, ast_node_t *node) {
     ast_node_t *val = node->child->next->next;
     if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
       Q(node)->type = ANDS;
-      context->tokenizer->data = context;
-      context->tokenizer->term_found = add_token;
+      context->tokenizer->receiver = &token_receiver;
+      context->tokenizer->receiver->data = context;
       context->tmp = node;
       Q(node)->field = Q(field)->val;
       Q(node)->cmp = Q(op)->cmp;
@@ -391,6 +400,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
 void
 query_parser_construct(query_parser *context, ast_node_t *expression) {
   pstring *pstr;
+  (void) pstr;
   context->root = expression;
   // pstr = query_node_query(expression);
   // printf("%.*s\n", pstr->len, pstr->val);

@@ -6,10 +6,12 @@
 #include "lrw_dict.h"
 #include "plist.h"
 #include "sit_term.h"
+#include "sit_input.h"
 #include "sit_parser.h"
 #include "sit_query.h"
 
-typedef struct {
+typedef struct sit_engine {
+	struct sit_receiver as_receiver;
   // Data structures & indexes
   dict           *queries;  // Registered for percolation
   sit_parser     *parser;
@@ -26,12 +28,18 @@ typedef struct {
   pstring         *field;
   int              term_capacity;
   ring_buffer     *docs;
+	sit_input       *current_input;
 
   // User-settable
   void *data;
   
   sit_term    terms[1];
 } sit_engine;
+
+typedef struct doc_ref {
+	long off;
+	int len;
+} doc_ref;
 
 typedef struct {
   int count;
@@ -60,16 +68,16 @@ sit_result_iterator *
 sit_engine_search(sit_engine *engine, sit_query *query);
 
 void 
-sit_engine_term_found(sit_engine *engine, long off, int len, int field_offset);
+sit_engine_term_found(sit_receiver *receiver, long off, int len, int field_offset);
 
 void 
-sit_engine_document_found(sit_engine *engine, long off, int len);
+sit_engine_document_found(sit_receiver *receiver, long off, int len);
 
 void 
-sit_engine_field_found(sit_engine *engine, pstring *name);
+sit_engine_field_found(sit_receiver *receiver, pstring *name);
 
 void 
-sit_engine_int_found(sit_engine *engine, int value);
+sit_engine_int_found(sit_receiver *receiver, int value);
 
 int *
 sit_engine_get_int(sit_engine *engine, long doc_id, pstring *field);

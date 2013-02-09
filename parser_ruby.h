@@ -10,13 +10,13 @@ VALUE
 rbc_parser_new_json(VALUE class);
 
 VALUE 
-rbc_whitespace_parser_new(VALUE class);
+rbc_parser_new_whitespace(VALUE class);
 
 VALUE 
-rbc_parser_initialize(VALUE class);
+rbc_whitespace_parser_new(VALUE class);
 
 VALUE
-rbc_parser_set_engine(VALUE self, VALUE rengine);
+rbc_parser_set_receiver(VALUE self, VALUE rengine);
 
 VALUE
 rbc_parser_consume(VALUE self, VALUE rstr);
@@ -35,9 +35,6 @@ rbc_parser_int_found(VALUE self, VALUE rint);
 
 VALUE 
 rbc_parser_end_stream(VALUE self);
-
-VALUE 
-rbc_parser_engine(VALUE self);
 
 #endif
 

@@ -6,4 +6,8 @@
 sit_parser *
 white_parser_new();
 
+sit_parser *
+white_fresh_copy(sit_parser *parser);
+
+
 #endif

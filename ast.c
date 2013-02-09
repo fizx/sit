@@ -1,3 +1,4 @@
+#include "util.h"
 #include "ast.h"
 #include <stdlib.h>
 

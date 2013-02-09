@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 
 #define BUFFER_SIZE 8096
+#define STREAM_BUFFER_SIZE 1048576
 
 void 
 read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
@@ -47,7 +48,7 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 void 
 accept_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 	(void) loop;
-	server_t *server = (server_t *) watcher;
+	sit_server *server = (sit_server *) watcher;
 	conn_t *conn = conn_new(server);
 	conn_start(conn, revents);
 }
@@ -58,10 +59,10 @@ conn_free(conn_t * conn) {
 }
 
 conn_t *
-conn_new(server_t *server) {
+conn_new(sit_server *server) {
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
-	conn->input  = sit_engine_new_input(server->engine);
+	conn->input  = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
 	return conn;
 }
 
@@ -94,9 +95,10 @@ conn_start(conn_t * conn, int revents) {
 	printf("%d client(s) connected.\n", conn->server->total_clients);
 }
 
-server_t *
-server_new() {
-	server_t *server = malloc(sizeof(*server));
+sit_server *
+sit_server_new(sit_engine *engine) {
+	sit_server *server = malloc(sizeof(*server));
+	server->engine = engine;
 	server->loop = ev_default_loop (0);
 	server->addr = NULL;
 	server->total_clients = 0;
@@ -104,7 +106,7 @@ server_new() {
 }
 
 int
-server_start(server_t *server, struct sockaddr_in *addr) {
+sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	struct ev_loop *loop = ev_default_loop(0);
 	int sd;
 

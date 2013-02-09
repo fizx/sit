@@ -18,6 +18,12 @@ ring_buffer_free(ring_buffer *rb) {
 }
 
 void
+ring_buffer_reset(ring_buffer *rb) {
+	rb->offset = 0;
+	rb->written = 0;	
+}
+
+void
 ring_buffer_append(ring_buffer *rb, void *obj, int len) {	
   ring_buffer_put(rb, rb->written, obj, len);
 }

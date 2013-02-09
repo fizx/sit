@@ -1,27 +1,34 @@
 #include "sit_input_ruby.h"
 #include "sit_ruby.h"
 #include "sit.h"
+#include <assert.h>
+
+VALUE
+rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size) {
+	sit_engine *engine;
+	Data_Get_Struct(rengine, sit_engine, engine);
+	long term_capacity = NUM2LONG(rterm_capacity);
+	long buf_size = NUM2LONG(rbuf_size);
+	sit_input *input = sit_input_new(engine, term_capacity, buf_size);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, input);
+  return tdata;
+}
 
 VALUE 
 rbc_input_consume(VALUE self, VALUE rstr) {
 	sit_input *input;
 	Data_Get_Struct(self, sit_input, input);
 	pstring *pstr = r2pstring(rstr);
+  assert(input->parser->receiver == &input->as_receiver);
 	sit_input_consume(input, pstr);
 	pstring_free(pstr);
 	return Qnil;
 }
 
 VALUE
-rbc_input_terms(VALUE self) {
+rbc_input_end_stream(VALUE self) {
 	sit_input *input;
 	Data_Get_Struct(self, sit_input, input);
-	VALUE ary = rb_ary_new();
-	for (int i = 0; i < input->term_count; i++) {
-		sit_term *term = &input->terms[i];
-		pstring *pstr = sit_term_to_s(term);
-		rb_ary_push(ary, p2rstring(pstr));
-		pstring_free(pstr);
-	}
-	return ary;
+	sit_input_end_stream(input);
+	return Qnil;
 }

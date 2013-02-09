@@ -1,12 +1,13 @@
 require File.dirname(__FILE__) + "/../sit"
 
 # A pretty terrible TSV parser for testing purposes
-module AbcTsvParser
+class AbcTsvParser < Sit::Parser 
 	
 	SEP = /\t|\n| /
 	
 	def initialize
 	  super()
+		@id = rand(1<<20)
 		@buffer = ""
 		@field = "a"
 		@offset = 0
@@ -57,11 +58,13 @@ module AbcTsvParser
 	end
 end
 
-class RealAbcTsvParser < Sit::Parser 
-	include AbcTsvParser 
-end
-
 module TestEvents
+	def self.new
+		r = Sit::Receiver.new
+		r.extend(TestEvents)
+		r
+	end
+	
   $events = []
   def term_found(*args)
 		$events << [:term] + args
@@ -79,10 +82,3 @@ module TestEvents
 		$events << [:int] + args
 	end
 end
-
-class TestAbcTsvParser < Sit::Parser 
-	include AbcTsvParser 
-	include TestEvents
-	attr_reader :buffer
-end
-

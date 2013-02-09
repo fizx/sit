@@ -1,3 +1,4 @@
+#include "util.h"
 #include "engine_ruby.h"
 #include "sit_engine.h"
 #include "util_ruby.h"
@@ -10,10 +11,11 @@ rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
 	Data_Get_Struct(rparser, sit_parser, parser);
 	long size = NUM2LONG(rsize);
 	sit_engine *engine = sit_engine_new(parser, size);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, engine);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
-	rb_funcall(rparser, rb_intern("engine="), 1, tdata);
-	engine->data = (void *) vwrap(tdata);
+	rb_funcall(rparser, rb_intern("receiver="), 1, tdata);
+	engine->parser = parser;
+	SET_ONCE(engine->data, (void *) vwrap(tdata));
 	return tdata;
 }
 
@@ -35,7 +37,7 @@ rbc_engine_search(VALUE self, VALUE rquery) {
 	Data_Get_Struct(rquery, sit_query, query);
   sit_result_iterator *iter = sit_engine_search(engine, query);
   assert(iter);
-	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ResultIterator"), NULL, NULL, iter);
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ResultIterator"), markall, NULL, iter);
   return tdata;
 }
 
@@ -201,7 +203,7 @@ rbc_engine_document_found(VALUE self, VALUE roff, VALUE rlen) {
 	Data_Get_Struct(self, sit_engine, engine);
   long off = NUM2LONG(roff);
   int len = NUM2INT(rlen);
-  sit_engine_document_found(engine, off, len);
+  sit_engine_document_found((sit_receiver*)engine, off, len);
 	return Qnil;
 }
 
@@ -210,7 +212,7 @@ rbc_engine_field_found(VALUE self, VALUE rstr) {
   sit_engine *engine;
 	Data_Get_Struct(self, sit_engine, engine);
   pstring *pstr = r2pstring(rstr);
-  sit_engine_field_found(engine, pstr);
+  sit_engine_field_found((sit_receiver*)engine, pstr);
 	return Qnil;
 }
 
@@ -219,9 +221,8 @@ rbc_engine_int_found(VALUE self, VALUE rval) {
   sit_engine *engine;
 	Data_Get_Struct(self, sit_engine, engine);
   int val = NUM2INT(rval);
-  sit_engine_int_found(engine, val);
+  sit_engine_int_found((sit_receiver*)engine, val);
 	return Qnil;
-  
 }
 
 VALUE 
@@ -231,10 +232,9 @@ rbc_engine_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset) {
   long off = NUM2LONG(roff);
   int len = NUM2INT(rlen);
   int field_offset = NUM2INT(rfield_offset);
-  sit_engine_term_found(engine, off, len, field_offset);
+  sit_engine_term_found((sit_receiver*)engine, off, len, field_offset);
 	return Qnil;
 }
-
 
 VALUE 
 rbc_engine_register(VALUE self, VALUE rquery) {

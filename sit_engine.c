@@ -1,6 +1,7 @@
 #include "sit_engine.h"
 #include "ring_buffer.h"
 #include "dict.h"
+#include "dict_types.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
@@ -15,95 +16,28 @@ typedef struct sit_query_node {
 	sit_callback 				   *callback;
 } sit_query_node;
 
-typedef struct doc_ref {
-	long off;
-	int len;
-} doc_ref;
-
-static unsigned int 
-_term_hash(const void *key)
-{
-    return ((sit_term *) key)->hash_code;
-}
-
-static int 
-_term_compare(void *privdata, const void *key1,
-        const void *key2)
-{
-    DICT_NOTUSED(privdata);
-
-    return _term_hash(key1) == _term_hash(key2);
-}
-
-static void
-_term_bump(dictEntry *entry, long value) {
-	sit_term *term = dictGetKey(entry);
-	term->offset = value;
-}
-
-static long
-_term_version(dictEntry *entry) {
-	sit_term *term = dictGetKey(entry);
-	return term->offset;
-}
-
-static unsigned int 
-_pstr_hash(const void *key) {  
-  pstring *pstr = (pstring *) key;
-  return pstrhash(pstr);
-}
-
-static int 
-_pstr_compare(void *privdata, const void *key1,
-        const void *key2) {
-  (void) privdata;
-  pstring *a = (pstring *) key1;
-  pstring *b = (pstring *) key2;
-  return pstrcmp(a, b) == 0;
-}
-
-dictType pstrDict = {
-    _pstr_hash,    /* hash function */
-    NULL,          /* key dup */
-    NULL,          /* val dup */
-    _pstr_compare, /* key compare */
-    NULL,    			 /* key destructor */
-    NULL           /* val destructor */
-};
-
-dictType termDict = {
-    _term_hash,    /* hash function */
-    NULL,          /* key dup */
-    NULL,          /* val dup */
-    _term_compare, /* key compare */
-    NULL,    			 /* key destructor */
-    NULL           /* val destructor */
-};
-
-lrw_type termLrw = {
-	_term_bump,
-	_term_version
-};
-
-
 sit_engine *
 sit_engine_new(sit_parser *parser, long size) {
 	int tc = size / 64;
  	sit_engine *engine = malloc(sizeof(sit_engine) + (tc - 1) * (sizeof(sit_term)));
-	engine->queries = dictCreate(&termDict, 0);
+	engine->queries = dictCreate(getTermDict(), 0);
 	engine->parser = parser;
-	parser->forwards_to = engine;
+	parser->receiver = &engine->as_receiver;
+  parser->receiver->term_found = sit_engine_term_found;
+  parser->receiver->document_found = sit_engine_document_found;
+  parser->receiver->field_found = sit_engine_field_found;
+  parser->receiver->int_found = sit_engine_int_found;
 	engine->stream = ring_buffer_new(size / 4);
-	engine->term_dictionary = lrw_dict_new(&termDict, &termLrw, size / 32);
+	engine->term_dictionary = lrw_dict_new(getTermDict(), getTermLrw(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
-	engine->term_index = dictCreate(&termDict, 0);
+	engine->term_index = dictCreate(getTermDict(), 0);
 	engine->term_count = 0;
 	engine->field = c2pstring("default");
 	engine->docs = ring_buffer_new((size / 4 / sizeof(doc_ref)) * sizeof(doc_ref));
 	engine->term_capacity = tc;
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
-	engine->ints = dictCreate(&pstrDict, 0);
+	engine->ints = dictCreate(getPstrDict(), 0);
 	return engine;
 }
 
@@ -128,7 +62,7 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
   	  node = calloc(sizeof(sit_query_node), 1);
   		node->parent = parent;
   		node->term = &SENTINEL;
-  		node->children = dictCreate(&termDict, 0);
+  		node->children = dictCreate(getTermDict(), 0);
       dictAdd(hash, &SENTINEL, node);
 		}
     parent = node;
@@ -152,7 +86,7 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 		return callback->id;
 	} else {
 		if(node->children == NULL) {
-			node->children = dictCreate(&termDict, 0);
+			node->children = dictCreate(getTermDict(), 0);
 		}
 		return _recurse_add(node->children, node, term + 1, remaining - 1, negated_yet, callback);
 	}
@@ -304,15 +238,17 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 	}
 }
 
+#define INPUTISH(m) (engine->current_input ? engine->current_input->m : engine->m)
+
 void
 sit_engine_percolate(sit_engine *engine) {
-	callback_recurse(engine, engine->term_index, engine->queries, sit_engine_last_document(engine), true);
+	callback_recurse(engine, INPUTISH(term_index), engine->queries, sit_engine_last_document(engine), true);
 }
 
 void
 sit_engine_index(sit_engine *engine, long doc_id) {
-	for (int i = 0; i < engine->term_count; i++) {
-		sit_term *term = &engine->terms[i];
+	for (int i = 0; i < INPUTISH(term_count); i++) {
+		sit_term *term = &INPUTISH(terms)[i];
 		plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
@@ -359,7 +295,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
   iter->engine = engine;
   iter->doc_id = LONG_MAX;
   iter->initialized = false;
-  iter->cursors = dictCreate(&termDict, 0);
+  iter->cursors = dictCreate(getTermDict(), 0);
   iter->subs = malloc(sizeof(sub_iterator*) * query->count);
   iter->count = query->count;
   for(int i = 0; i < query->count; i++) {
@@ -509,7 +445,8 @@ sit_engine_consume(sit_engine *engine, pstring *pstr) {
 }
 
 void 
-sit_engine_term_found(sit_engine *engine, long off, int len, int field_offset) {
+sit_engine_term_found(sit_receiver *receiver, long off, int len, int field_offset) {
+  sit_engine *engine = (sit_engine *)receiver;
 	sit_term *term = &engine->terms[engine->term_count++];
 	term->field = engine->field;
 	term->text = ring_buffer_get_pstring(engine->stream, off, len);
@@ -525,14 +462,15 @@ sit_engine_zero_ints(sit_engine *engine) {
   dictEntry *entry;
   while ((entry = dictNext(iter))) {
     engine->field = dictGetKey(entry);
-    sit_engine_int_found(engine, 0);
+    sit_engine_int_found(&engine->as_receiver, 0);
   }
   engine->field = orig_field;
   dictReleaseIterator(iter);
 }
 
 void 
-sit_engine_document_found(sit_engine *engine, long off, int len) {
+sit_engine_document_found(sit_receiver *receiver, long off, int len) {
+  sit_engine *engine = (sit_engine *)receiver;
 	assert(off >= 0);
 	assert(len > 0);
   doc_ref dr = { off, len };
@@ -565,7 +503,7 @@ sit_engine_set_int(sit_engine *engine, long doc_id, pstring *field, int value) {
   assert(field);
   if(rb == NULL) {
     rb = ring_buffer_new(engine->ints_capacity);
-    dictAdd(engine->ints, engine->field, rb);
+    dictAdd(engine->ints, field, rb);
   }
   ring_buffer_put(rb, doc_id * sizeof(int), &value, sizeof(int));
 }
@@ -579,12 +517,14 @@ sit_engine_incr(sit_engine *engine, long doc_id, pstring *field, int value) {
 }
 
 void 
-sit_engine_int_found(sit_engine *engine, int value) {
+sit_engine_int_found(sit_receiver *receiver, int value) {
+  sit_engine *engine = (sit_engine *)receiver;
   long doc_id = sit_engine_last_document_id(engine) + 1;
   sit_engine_set_int(engine, doc_id, engine->field, value);
 }
 
 void 
-sit_engine_field_found(sit_engine *engine, pstring *name) {
+sit_engine_field_found(sit_receiver *receiver, pstring *name) {
+  sit_engine *engine = (sit_engine *)receiver;
 	engine->field = name;
 }

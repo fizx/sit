@@ -1,11 +1,12 @@
 #include "plist_ruby.h"
+#include "util_ruby.h"
 #include <assert.h>
 
 VALUE
 rbc_plist_pool_new(VALUE class, VALUE rsize) {
 	long size = NUM2LONG(rsize);
 	plist_pool *pool = plist_pool_new(size);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, pool);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, pool);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
@@ -54,7 +55,7 @@ rbc_plist_entry_new(VALUE class, VALUE rdoc, VALUE rpos) {
 	plist_entry *entry = malloc(sizeof(plist_entry));
 	entry->doc = doc;
 	entry->pos = pos;
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, entry);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, entry);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
@@ -79,7 +80,7 @@ _rb_each(void *ventry, void *data) {
 	(void) data;
 	plist_entry *dup = malloc(sizeof(plist_entry));
 	memcpy(dup, entry, sizeof(plist_entry));
-	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), NULL, NULL, dup);
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), markall, NULL, dup);
 	rb_obj_call_init(tdata, 0, NULL);
 	rb_yield(tdata);
 }
@@ -109,7 +110,7 @@ rbc_plist_new_cursor(VALUE self) {
   if (cursor == NULL) {
     return Qnil;
   } else {
-   	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistCursor"), NULL, NULL, cursor);
+   	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistCursor"), markall, NULL, cursor);
   	rb_obj_call_init(tdata, 0, NULL);
     return tdata;
   }
@@ -139,7 +140,7 @@ rbc_plist_cursor_entry(VALUE self) {
   } else {
     plist_entry *dup = malloc(sizeof(plist_entry));
   	memcpy(dup, entry, sizeof(plist_entry));
-    VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), NULL, NULL, dup);
+    VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), markall, NULL, dup);
   	rb_obj_call_init(tdata, 0, NULL);
     return tdata;
   }

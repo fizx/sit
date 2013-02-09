@@ -11,13 +11,14 @@ include Sit
 
 describe "Parser" do
 	before do
-	  $events.clear
+	  $events = []
+	  @te = TestEvents.new
 	end
   
   it "should do json" do
     str = "{\"hello\":\"world\"}"
     @parser = Parser.new_json()
-    @parser.extend(TestEvents)
+    @parser.receiver = @te
     @parser.consume(str)
     $events.should == [
       [:field, "hello"],
@@ -29,7 +30,7 @@ describe "Parser" do
   it "should do account for newline" do
     str = "\n\n{\"hello\":\"world\"}"
     @parser = Parser.new_json()
-    @parser.extend(TestEvents)
+    @parser.receiver = @te
     @parser.consume(str)
     $events.should == [
       [:field, "hello"],
@@ -41,7 +42,7 @@ describe "Parser" do
   it "should do multiple docs" do
     str = "{\"hello\":\"world\"}\n{\"wha\":\"goodbye thanks\"}"
     @parser = Parser.new_json()
-    @parser.extend(TestEvents)
+    @parser.receiver = @te
     @parser.consume(str)
     start = str.index("{", 10)
     $events.should == [

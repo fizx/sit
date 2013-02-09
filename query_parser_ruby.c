@@ -4,6 +4,7 @@
 #include "sit_callback.h"
 #include "pstring_ruby.h"
 #include "ruby.h"
+#include "util_ruby.h"
 #include <assert.h>
 
 #define rbpush(cstr)    rb_ary_push(buf, rb_str_new2(cstr));
@@ -18,7 +19,7 @@ rbc_query_parser_new(VALUE class) {
 	sit_callback *cb;
 	Data_Get_Struct(rcb, sit_callback, cb);
   query_parser *qp = query_parser_new(cb);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, qp);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, qp);
   rb_iv_set(tdata, "@callback", rcb);
   return tdata;
 }

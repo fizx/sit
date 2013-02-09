@@ -3,6 +3,7 @@
 
 #include "ast.h"
 #include "dict.h"
+#include "dict_types.h"
 #include "json_parser.h"
 #include "jsonsl.h"
 #include "lrw_dict.h"
@@ -15,6 +16,7 @@
 #include "sit_engine.h"
 #include "sit_parser.h"
 #include "sit_query.h"
+#include "sit_server.h"
 #include "sit_term.h"
 #include "white_parser.h"
 #include "y.tab.h"

@@ -14,7 +14,7 @@
 #include "sit_input_ruby.h"
 #include "sit_ruby.h"
 #include "term_ruby.h"
-#include "tokenizer_ruby.h"
+#include "receiver_ruby.h"
 #include "util_ruby.h"
 
 #endif

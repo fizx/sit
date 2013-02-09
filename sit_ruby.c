@@ -4,18 +4,7 @@
  */
 
 #include "ruby.h"
-#include "pstring_ruby.h"
-#include "ring_buffer_ruby.h"
-#include "term_ruby.h"
-#include "callback_ruby.h"
-#include "query_ruby.h"
-#include "parser_ruby.h"
-#include "engine_ruby.h"
-#include "lrw_dict_ruby.h"
-#include "plist_ruby.h"
-#include "query_parser_ruby.h"
-#include "ast_ruby.h"
-#include "tokenizer_ruby.h"
+#include "sit_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ast;
@@ -36,10 +25,15 @@ VALUE rbc_plist_entry;
 VALUE rbc_result_iterator;
 VALUE rbc_query_parser;
 VALUE rbc_json_parser;
+VALUE rbc_input;
+VALUE rbc_forwardable;
+VALUE rbc_receiver;
 
 void 
 Init_sit() {
 	VALUE m_sit = rb_define_module("Sit");
+	
+	rbc_forwardable = rb_define_module_under(m_sit, "Forwardable");
 	
 	// PString
 	rbc_pstring = rb_define_class_under(m_sit, "PString", rb_cObject);
@@ -52,6 +46,11 @@ Init_sit() {
 	// AST
 	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
 	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
+	
+	// Receiver
+	rbc_receiver = rb_define_class_under(m_sit, "Receiver", rb_cObject);
+	rb_define_singleton_method(rbc_receiver, "new", rbc_receiver_new, 0);
+	rb_include_module(rbc_receiver, rbc_forwardable);
 
 	// AST::Node
 	rbc_ast_node = rb_define_class_under(m_sit, "ASTNode", rb_cObject);
@@ -115,15 +114,15 @@ Init_sit() {
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
 	rb_define_singleton_method(rbc_parser, "new_json", rbc_parser_new_json, 0);
-	rb_define_method(rbc_parser, "initialize", rbc_parser_initialize, 0);
-	rb_define_method(rbc_parser, "engine=", rbc_parser_set_engine, 1);
-	rb_define_method(rbc_parser, "engine", rbc_parser_engine, 0);
+	rb_define_singleton_method(rbc_parser, "new_whitespace", rbc_parser_new_whitespace, 0);
+	rb_define_method(rbc_parser, "receiver=", rbc_parser_set_receiver, 1);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
 	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 3);
 	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
 	rb_define_method(rbc_parser, "int_found", rbc_parser_int_found, 1);
 	rb_define_method(rbc_parser, "end_stream", rbc_parser_end_stream, 0);
+	rb_include_module(rbc_parser, rbc_forwardable);
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
@@ -145,6 +144,7 @@ Init_sit() {
 	rb_define_method(rbc_engine, "field_found", rbc_engine_field_found, 1);
 	rb_define_method(rbc_engine, "int_found", rbc_engine_int_found, 1);
 	rb_define_method(rbc_engine, "term_found", rbc_engine_term_found, 3);
+	rb_include_module(rbc_engine, rbc_forwardable);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);
@@ -193,11 +193,10 @@ Init_sit() {
 	rb_define_method(rbc_result_iterator, "call", rbc_result_iterator_call, 0);
 	rb_define_method(rbc_result_iterator, "document_id", rbc_result_iterator_document_id, 0);	
 	
-	// Tokenizer
-	rbc_tokenizer = rb_define_class_under(m_sit, "Tokenizer", rb_cObject);
-	rb_define_singleton_method(rbc_tokenizer, "new", rbc_tokenizer_new, 0);
-	rb_define_method(rbc_tokenizer, "consume", rbc_tokenizer_consume, 1);
-	rb_define_method(rbc_tokenizer, "term_found", rbc_tokenizer_term_found, 3);
-	rb_define_method(rbc_tokenizer, "end_stream", rbc_tokenizer_end_stream, 0);
-	
+	// Input
+	rbc_input = rb_define_class_under(m_sit, "Input", rb_cObject);
+	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 3);
+	rb_define_method(rbc_input, "consume", rbc_input_consume, 1);
+	rb_define_method(rbc_input, "end_stream", rbc_input_end_stream, 0);
+	rb_include_module(rbc_input, rbc_forwardable);
 }

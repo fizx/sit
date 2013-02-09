@@ -19,6 +19,9 @@ ring_buffer_free(ring_buffer *rb);
 void
 ring_buffer_append(ring_buffer *rb, void *obj, int len);
 
+void
+ring_buffer_reset(ring_buffer *rb);
+
 void *
 ring_buffer_get(ring_buffer *rb, long off, int len);
 

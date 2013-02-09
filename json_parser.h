@@ -11,4 +11,6 @@ json_white_parser_new();
 sit_parser *
 json_parser_new(sit_parser *tokenizer);
 
+sit_parser *
+json_fresh_copy(sit_parser *parser);
 #endif

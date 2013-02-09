@@ -1,5 +1,6 @@
 #include "term_ruby.h"
 #include "sit_term.h"
+#include "util_ruby.h"
 #include "pstring.h"
 #include "pstring_ruby.h"
 #include <assert.h>
@@ -14,7 +15,7 @@ rbc_term_new(VALUE class, VALUE rfield, VALUE rtext, VALUE roff, VALUE rnegated)
 	assert(field);
 	assert(text);
 	sit_term *term = sit_term_new(field, text, off, negated);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, term);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, term);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }

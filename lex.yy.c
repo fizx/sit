@@ -485,6 +485,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[22] =
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "util.h"
 #include <string.h>
 #include "query_parser.h"
 #include "white_parser.h"
@@ -505,7 +506,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[22] =
   offset = i;                                                                 \
 }                                                                             
 
-#line 509 "lex.yy.c"
+#line 510 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -746,10 +747,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 38 "query_scanner.l"
+#line 39 "query_scanner.l"
 
 
-#line 753 "lex.yy.c"
+#line 754 "lex.yy.c"
 
     yylval = yylval_param;
 
@@ -850,112 +851,112 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 40 "query_scanner.l"
+#line 41 "query_scanner.l"
 { return(AND); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 41 "query_scanner.l"
+#line 42 "query_scanner.l"
 { return(OR); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 42 "query_scanner.l"
+#line 43 "query_scanner.l"
 { return(NOT); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 43 "query_scanner.l"
+#line 44 "query_scanner.l"
 { return(LPAREN); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 44 "query_scanner.l"
+#line 45 "query_scanner.l"
 { return(RPAREN); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 45 "query_scanner.l"
+#line 46 "query_scanner.l"
 { return(EQ); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 46 "query_scanner.l"
+#line 47 "query_scanner.l"
 { return(GT); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 47 "query_scanner.l"
+#line 48 "query_scanner.l"
 { return(LT); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "query_scanner.l"
+#line 49 "query_scanner.l"
 { return(GTE); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 49 "query_scanner.l"
+#line 50 "query_scanner.l"
 { return(LTE); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 50 "query_scanner.l"
+#line 51 "query_scanner.l"
 { return(TILDE); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 51 "query_scanner.l"
+#line 52 "query_scanner.l"
 { return(NEQ); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 52 "query_scanner.l"
+#line 53 "query_scanner.l"
 { return(MINUS); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 53 "query_scanner.l"
+#line 54 "query_scanner.l"
 { yyextra->ptr = cstring_new(yytext, yyleng); return(DIGITS); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 54 "query_scanner.l"
+#line 55 "query_scanner.l"
 { return(DOT); }
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 55 "query_scanner.l"
+#line 56 "query_scanner.l"
 { yyextra->ptr = cstring_new(yytext, yyleng); return(STRING_LITERAL); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 56 "query_scanner.l"
+#line 57 "query_scanner.l"
 { yyextra->ptr = cstring_new(yytext, yyleng); return(UNQUOTED); }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 57 "query_scanner.l"
+#line 58 "query_scanner.l"
 { return(EOQ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 58 "query_scanner.l"
+#line 59 "query_scanner.l"
 { /* ignore whitespace*/ }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 59 "query_scanner.l"
+#line 60 "query_scanner.l"
 { /* ignore bad characters */ }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 61 "query_scanner.l"
+#line 62 "query_scanner.l"
 ECHO;
 	YY_BREAK
-#line 959 "lex.yy.c"
+#line 960 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2144,7 +2145,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 61 "query_scanner.l"
+#line 62 "query_scanner.l"
 
 
 
@@ -2355,8 +2356,8 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
-add_token(sit_parser *parser, long off, int len, int field_offset) {
-  query_parser *context = parser->data;
+add_token(sit_receiver *receiver, long off, int len, int field_offset) {
+  query_parser *context = receiver->data;
   ast_node_t *node = context->tmp;
   pstring *field = Q(node)->field;
   pstring *val = Q(node)->val;
@@ -2367,7 +2368,15 @@ add_token(sit_parser *parser, long off, int len, int field_offset) {
   Q(term)->val = pstr;
   ast_node_append_child(node, term);
 }
-  
+
+sit_receiver token_receiver = {
+  add_token,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+	NULL
+};
 
 void
 expand_clauses(query_parser *context, ast_node_t *node) {
@@ -2379,8 +2388,8 @@ expand_clauses(query_parser *context, ast_node_t *node) {
     ast_node_t *val = node->child->next->next;
     if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
       Q(node)->type = ANDS;
-      context->tokenizer->data = context;
-      context->tokenizer->term_found = add_token;
+      context->tokenizer->receiver = &token_receiver;
+      context->tokenizer->receiver->data = context;
       context->tmp = node;
       Q(node)->field = Q(field)->val;
       Q(node)->cmp = Q(op)->cmp;
@@ -2479,6 +2488,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
 void
 query_parser_construct(query_parser *context, ast_node_t *expression) {
   pstring *pstr;
+  (void) pstr;
   context->root = expression;
   // pstr = query_node_query(expression);
   // printf("%.*s\n", pstr->len, pstr->val);

@@ -21,7 +21,7 @@ rbc_query_new(VALUE class, VALUE rconjunctions, VALUE rcallback) {
 	Data_Get_Struct(rcallback, sit_callback, cb);
 	sit_query *query = sit_query_new(conjunctions, count, cb);
 	
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, query);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
@@ -37,7 +37,7 @@ rbc_query_to_s(VALUE self) {
 	    rb_ary_push(buf, rb_str_new2(" OR "));
     }
 		conjunction_t *con = query->conjunctions[i];
-  	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::Conjunction"), NULL, NULL, con);
+  	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::Conjunction"), markall, NULL, con);
   	rb_obj_call_init(tdata, 0, NULL);
   	rb_ary_push(buf, rb_funcall(tdata, rb_intern("to_s"), 0));
 	}

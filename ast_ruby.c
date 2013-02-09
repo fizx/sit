@@ -8,9 +8,9 @@ wrapnil() {
 }
 
 VALUE 
-rbc_ast_new(VALUE class) {
+rbc_ast_new(VALUE class) {	
   ast_t *ast = ast_new(wrapnil, free);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, ast);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, ast);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }
@@ -20,7 +20,7 @@ rbc_ast_node_new(VALUE class, VALUE rast, VALUE rdata) {
   ast_t *ast;
   Data_Get_Struct(rast, ast_t, ast);
   ast_node_t *node = ast_node_new(ast);  
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, node);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, node);
 	rb_obj_call_init(tdata, 0, NULL);
   rbc_ast_node_set_data(tdata, rdata);
   return tdata;
@@ -46,7 +46,7 @@ rbc_ast_node_next(VALUE self) {
   ast_node_t *node;
   Data_Get_Struct(self, ast_node_t, node);
   if(node->next == NULL) return Qnil;
-  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), NULL, NULL, node->next);
+  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->next);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }
@@ -56,7 +56,7 @@ rbc_ast_node_prev(VALUE self) {
   ast_node_t *node;
   Data_Get_Struct(self, ast_node_t, node);
   if(node->prev == NULL) return Qnil;
-  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), NULL, NULL, node->prev);
+  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->prev);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }
@@ -66,7 +66,7 @@ rbc_ast_node_parent(VALUE self) {
   ast_node_t *node;
   Data_Get_Struct(self, ast_node_t, node);
   if(node->parent == NULL) return Qnil;
-  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), NULL, NULL, node->parent);
+  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->parent);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }
@@ -76,7 +76,7 @@ rbc_ast_node_child(VALUE self) {
   ast_node_t *node;
   Data_Get_Struct(self, ast_node_t, node);
   if(node->child == NULL) return Qnil;
-  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), NULL, NULL, node->child);
+  VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->child);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }

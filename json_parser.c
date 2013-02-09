@@ -1,7 +1,9 @@
+#include "util.h"
 #include "json_parser.h"
 #include "jsonsl.h"
 #include "white_parser.h"
 #include "white_parser.h"
+#include <assert.h>
 
 typedef struct {
   jsonsl_t    json_parser;
@@ -24,7 +26,7 @@ _jsonsl_error_callback(
   (void) state;
   (void) at;
 	sit_parser *parser = jsn->data;
-  parser->error_found(parser, c2pstring(jsonsl_strerror(error)));
+  parser->receiver->error_found(parser->receiver, c2pstring(jsonsl_strerror(error)));
 	return 0;
 }
 
@@ -62,15 +64,14 @@ _jsonsl_stack_callback(
 		case JSONSL_T_HKEY:
       len = state->pos_cur - state->pos_begin - 1;
       sit_state->buf->len = len;
-      parser->field_found(parser, sit_state->buf);
+      parser->receiver->field_found(parser->receiver, sit_state->buf);
       sit_state->buffering = false;
 			break;
 		case JSONSL_T_STRING:
       len = state->pos_cur - state->pos_begin - 1;
       sit_state->buf->len = len;
-      sit_state->tokenizer->term_found = parser->term_found;
       sit_state->tokenizer->data = parser->data;
-			sit_state->tokenizer->forwards_to = parser->forwards_to;
+			sit_state->tokenizer->receiver = parser->receiver;
       sit_state->tokenizer->set_offset(sit_state->tokenizer, sit_state->start_off);
       sit_state->tokenizer->consume(sit_state->tokenizer, sit_state->buf);
       sit_state->tokenizer->end_stream(sit_state->tokenizer);
@@ -79,7 +80,7 @@ _jsonsl_stack_callback(
 		case JSONSL_T_OBJECT:  
       off = at + 1 - sit_state->active->val;
       end = sit_state->active_off + off;
-		  parser->document_found(parser, sit_state->doc_off, end - sit_state->doc_off);
+		  parser->receiver->document_found(parser->receiver, sit_state->doc_off, end - sit_state->doc_off);
 		  jsonsl_reset(sit_state->json_parser);
       break;
 		}
@@ -94,8 +95,15 @@ json_white_parser_new() {
   return json_parser_new(white_parser_new());
 }
 
+sit_parser *
+json_fresh_copy(sit_parser *parser) {
+	json_state *state = parser->state;
+	return json_parser_new(state->tokenizer->fresh_copy(state->tokenizer));
+}
+
 void 
 _json_consume(struct sit_parser *parser, pstring *str) {
+  assert(parser->receiver);
   json_state *state = parser->state;
   state->active = str;
   if(state->buffering) {
@@ -119,8 +127,8 @@ json_parser_new(sit_parser *tokenizer) {
 	state->buf = pstring_new(0);
   state->json_parser->action_callback = _jsonsl_stack_callback;
 	state->json_parser->error_callback = _jsonsl_error_callback;
-	state->json_parser->data = parser;
-	
+	SET_ONCE(state->json_parser->data, parser);
+	parser->fresh_copy = json_fresh_copy;
   parser->consume = _json_consume;
   return parser;
 }
