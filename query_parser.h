@@ -20,7 +20,7 @@ typedef struct query_node {
   bool                negated;
 } query_node;
 
-typedef struct {
+typedef struct query_parser {
   pstring      *buf;
   pstring      *error;
   int          done;

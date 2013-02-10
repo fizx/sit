@@ -1,14 +1,56 @@
 #include "sit.h"
 #include <assert.h>
+#include <stdbool.h>
 #include "ruby.h"
 #include "util_ruby.h"
+
+void
+_perc_found_handler(sit_callback *callback, void *data) {
+  pstring *doc = data;
+  sit_input *input = callback->user_data;
+  long query_id = callback->id;
+  long doc_id = sit_engine_last_document_id(input->engine);
+  pstring *buf = pstring_new(0);
+  PV("{\"status\": \"ok\", \"message\":\"found\", \"query_id\": %ld, \"doc_id\": %ld", query_id, doc_id);
+  input->output->write(input->output, buf);
+  pstring_free(buf);
+}
+
+
+void
+_channel_handler(sit_callback *callback, void *data) {
+  sit_query *query = data;
+  sit_input *input = callback->user_data;
+  sit_engine * engine = input->engine;
+  if(input->qparser_mode == REGISTERING) {
+    query->callback = sit_callback_new();
+    query->callback->user_data = input;
+    query->callback->handler = _perc_found_handler;
+    long query_id = sit_engine_register(engine, query);
+    query_id_node *node = malloc(sizeof(*node));
+    node->query_id = query_id;
+    node->next = input->query_ids;
+    input->query_ids = node;
+    pstring *buf = pstring_new(0);
+    PV("{\"status\": \"ok\", \"message\":\"registered\", \"id\": %ld", query_id);
+    input->output->write(input->output, buf);
+    pstring_free(buf);
+  } else {
+    
+  } 
+}
 
 sit_input *
 sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
 	assert(engine);
 	assert(engine->parser);
- 	sit_input *input = malloc(sizeof(sit_input) + (term_capacity - 1) * (sizeof(sit_term)));
+ 	sit_input *input = calloc(1, sizeof(sit_input) + (term_capacity - 1) * (sizeof(sit_term)));
 	input->engine = engine;
+  input->qparser_mode = REGISTERING;
+	input->qparser = query_parser_new();
+	input->qparser->cb = sit_callback_new();
+	input->qparser->cb->handler = _channel_handler;
+  input->qparser->cb->user_data = input;
 	input->parser = engine->parser->fresh_copy(engine->parser);
 	input->parser->receiver = &input->as_receiver;
 	input->as_receiver.term_found     = sit_input_term_found;
@@ -22,6 +64,7 @@ sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
 	input->field = c2pstring("default");
 	input->term_capacity = term_capacity;
 	input->data = NULL;
+	input->error = NULL;
 	return input;	
 }
 

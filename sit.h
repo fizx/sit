@@ -11,7 +11,6 @@
 #include "pstring.h"
 #include "query_parser.h"
 #include "ring_buffer.h"
-#include "sit.h"
 #include "sit_callback.h"
 #include "sit_input.h"
 #include "sit_engine.h"

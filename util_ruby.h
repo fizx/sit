@@ -2,6 +2,7 @@
 #define UTIL_RUBY_H_INCLUDED
 
 #include "ruby.h"
+#include <stdbool.h>
 
 typedef struct value_holder {
 	VALUE val;
@@ -16,5 +17,17 @@ vunwrap(const void *vp);
 
 void 
 markall();
+
+bool
+isTestMode();
+
+void
+setTestMode(bool val);
+
+VALUE
+rbc_isTestMode();
+
+VALUE
+rbc_setTestMode(VALUE val);
 
 #endif

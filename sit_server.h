@@ -20,7 +20,7 @@ typedef struct {
 	struct ev_io        as_io;
 	sit_server         *server;
 	struct sockaddr_in *addr;
-	struct sit_input   *input;
+	struct sit_protocol_parser   *parser;
 } conn_t;
 
 sit_server *

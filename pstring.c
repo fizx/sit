@@ -105,6 +105,14 @@ pstring_free(pstring *pstr) {
 }
 
 int
+cpstrcmp(char *a, pstring *b) {
+  pstring ap;
+  ap.val = a;
+  ap.len = strlen(a);
+  return pstrcmp(&ap, b);
+}
+
+int
 pstrcmp(pstring *a, pstring *b) {
   if(a == b) return 0;
   if(a == NULL) return -1;

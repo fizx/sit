@@ -31,4 +31,7 @@ typedef struct sit_protocol_handler {
 sit_protocol_parser *
 sit_line_protocol_new();
 
+sit_protocol_parser *
+sit_line_input_protocol_new(struct sit_input *input);
+
 #endif

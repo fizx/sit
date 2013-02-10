@@ -48,6 +48,9 @@ pstring_free(pstring *pstr);
 int
 pstrcmp(pstring *a, pstring *b);
 
+int
+cpstrcmp(char *a, pstring *b);
+
 unsigned int
 pstrhash(pstring *pstr);
 

@@ -29,10 +29,13 @@ VALUE rbc_input;
 VALUE rbc_forwardable;
 VALUE rbc_receiver;
 VALUE rbc_protocol;
+VALUE rbc_server;
 
 void 
 Init_sit() {
 	VALUE m_sit = rb_define_module("Sit");
+	rb_define_singleton_method(m_sit, "test_mode=", rbc_setTestMode, 1);
+	rb_define_singleton_method(m_sit, "test_mode", rbc_isTestMode, 0);
 	
 	rbc_forwardable = rb_define_module_under(m_sit, "Forwardable");
 	
@@ -180,6 +183,11 @@ Init_sit() {
 	rb_define_method(rbc_plist_cursor, "prev!", rbc_plist_cursor_prev, 0);
 	rb_define_method(rbc_plist_cursor, "next!", rbc_plist_cursor_next, 0);
 	rb_define_method(rbc_plist_cursor, "entry", rbc_plist_cursor_entry, 0);
+	
+	// Server
+	rbc_server = rb_define_class_under(m_sit, "Server", rb_cObject);
+	rb_define_singleton_method(rbc_server, "new", rbc_server_new, 1);
+	rb_define_method(rbc_server, "start", rbc_server_start, 1);
 
 	// PlistEntry
 	rbc_plist_entry = rb_define_class_under(m_sit, "PlistEntry", rb_cObject);

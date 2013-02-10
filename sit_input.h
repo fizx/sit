@@ -4,11 +4,25 @@
 #include "sit.h"
 
 struct sit_engine;
+struct query_parser;
+
+typedef struct sit_output {
+	void *data;
+  void (*write)(struct sit_output *output, pstring *message);
+} sit_output;
+
+typedef enum { REGISTERING, QUERYING } query_parser_mode;
+
+typedef struct query_id_node {
+  long query_id;
+  struct query_id_node *next;
+} query_id_node;
 
 typedef struct sit_input {
 	struct sit_receiver as_receiver;
   struct sit_engine *engine;
 	sit_parser      *parser;
+  struct query_parser    *qparser;
   
 	// fields used to manage the current document
   dict            *term_index;
@@ -18,6 +32,12 @@ typedef struct sit_input {
 	dict            *ints;
   
   ring_buffer     *stream;
+  
+  query_parser_mode qparser_mode;
+  query_id_node    *query_ids;
+  
+  sit_output      *output;
+  pstring *error;
 
 	void *data;
 

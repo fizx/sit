@@ -2,17 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "util_ruby.h"
+#ifdef HAVE_EV_H
+#include <ev.h>
+#endif
 
 #define COMMAND_LIMIT 16
 
-pstring *
-err_rsp(char *cstr) {
-  char *msg;
-  asprintf(&msg, "{\"status\": \"error\", \"message\": \"%s\"}", cstr);
-  pstring *pstr = c2pstring(msg);
-  free(msg);
-  return pstr;
+void
+_input_error_found(struct sit_protocol_handler *handler, pstring *message) {
+  sit_input *input = handler->data;
+  sit_output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PC("{\"status\": \"error\", \"message\": \"");
+  P(message);
+  PC("\"}");
+  output->write(output, buf);
+  pstring_free(buf);
 }
+
 
 int
 extract_string(pstring *target, pstring *haystack, int off) {
@@ -75,8 +83,85 @@ _line_end_stream(sit_protocol_parser *parser) {
   (void) parser;
 }
 
+void
+_input_command_found(struct sit_protocol_handler *handler, pstring *command, int argc, pstring** argv) {
+  sit_protocol_parser *parser = handler->parser;
+  pstring *last_command = parser->data;
+  sit_input *input = handler->data;
+  if(!cpstrcmp("add", command)) {
+    // last_command will work it out when the data comes
+  } else if(!cpstrcmp("register", command)) {
+    input->qparser_mode = REGISTERING;
+  } else if(!cpstrcmp("query", last_command)) {
+    input->qparser_mode = QUERYING;
+  } else if(!cpstrcmp("unregister", command)) {
+    //TODO: unregister
+  } else if(!cpstrcmp("close", command)) {
+    sit_input_end_stream(input);
+#ifdef HAVE_EV_H
+  } else if(isTestMode() && !cpstrcmp("stop", command)) {
+    ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
+#endif
+  } else {
+    _input_error_found(handler, c2pstring("Unknown command"));
+  }
+  handler->parser->data = command;
+}
+
+void
+_input_data_found(struct sit_protocol_handler *handler, pstring *data) {
+  sit_protocol_parser * parser = handler->parser;
+  pstring *last_command = parser->data;
+  sit_input *input = handler->data;
+  if(last_command == NULL || !cpstrcmp("add", last_command)) {
+    sit_input_consume(input, data);
+  } else if(!cpstrcmp("register", last_command)) {
+    query_parser_consume(input->qparser, data);
+  } else if(!cpstrcmp("query", last_command)) {
+    query_parser_consume(input->qparser, data);
+  } else {
+    // ignore and trust complete to raise the error
+  }
+}
+
+void
+_input_data_complete(struct sit_protocol_handler *handler) {
+  sit_protocol_parser * parser = handler->parser;
+  pstring *last_command = parser->data;
+  sit_input *input = handler->data;
+  if(last_command == NULL || !cpstrcmp("add", last_command)) {
+    sit_output *output = input->output;
+    pstring *buf = pstring_new(0);
+    PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
+    PV("%ld", engine_last_document_id(input->engine));
+    PC("\"}");
+    output->write(output, buf);
+    pstring_free(buf);    
+  } else if(!cpstrcmp("register", last_command)) {
+    //no-op
+  } else if(!cpstrcmp("query", last_command)) {
+    //no-op
+  } else if(input->error) {
+    _input_error_found(handler, input->error);
+    input->error = NULL;
+  } else {
+    _input_error_found(handler, c2pstring("Unknown context for the given data block"));
+    input->error = NULL;
+  }
+}
+
 sit_protocol_parser *
-sit_line_protocol_new();
+sit_line_input_protocol_new(sit_input *input) {
+  sit_protocol_parser * parser = sit_line_protocol_new();
+  sit_protocol_handler *handler = parser->handler;
+  parser->data = NULL;
+  handler->data = input;
+  handler->command_found = _input_command_found;
+  handler->data_found    = _input_data_found   ;
+  handler->data_complete = _input_data_complete;
+  handler->error_found   = _input_error_found  ;
+  return parser;
+}
 
 sit_protocol_parser *
 sit_line_protocol_new() {

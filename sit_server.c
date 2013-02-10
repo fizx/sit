@@ -41,7 +41,7 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 		pstring pstr;
 		pstr.val = buffer;
 		pstr.len = read;
-		sit_input_consume(conn->input, &pstr);
+    conn->parser->consume(conn->parser, &pstr);
 		bzero(buffer, read);
 	}
 }
@@ -64,7 +64,8 @@ conn_new(sit_server *server) {
   assert(server->engine);
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
-	conn->input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+	sit_input *input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+  conn->parser = sit_line_input_protocol_new(input);
 	return conn;
 }
 

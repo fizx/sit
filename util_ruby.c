@@ -1,10 +1,23 @@
 #include "util_ruby.h"
 #include "dict.h"
+#include <stdbool.h>
 
 value_holder root = {
   0, 
   NULL
 };
+
+bool _is_test_mode = false;
+
+bool
+isTestMode() {
+  return _is_test_mode;
+}
+
+void
+setTestMode(bool val) {
+  _is_test_mode = val;
+}
 
 const void *
 vwrap(VALUE value) {
@@ -29,4 +42,15 @@ markall() {
     rb_gc_mark(h->val);
     h = h->next;
   }
+}
+
+VALUE
+rbc_isTestMode() {
+  return _is_test_mode ? Qtrue : Qfalse;
+}
+
+VALUE
+rbc_setTestMode(VALUE val) {
+  _is_test_mode = val == Qtrue;
+  return Qnil;
 }
