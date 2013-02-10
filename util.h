@@ -3,6 +3,6 @@
 
 #include <assert.h>
 
-#define SET_ONCE(variable, value) ((variable && variable != value) ? assert(0) : (variable = value))
+#define SET_ONCE(variable, value) ((variable && variable != value) ? assert(0) : (void)(variable = value))
 
 #endif

@@ -11,6 +11,7 @@
 #include "query_parser_ruby.h"
 #include "query_ruby.h"
 #include "ring_buffer_ruby.h"
+#include "sit_protocol_ruby.h"
 #include "sit_input_ruby.h"
 #include "sit_ruby.h"
 #include "term_ruby.h"

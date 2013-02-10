@@ -24,6 +24,9 @@ padd(pstring *pstr, pstring *append);
 pstring *
 pcpy(pstring *pstr);
 
+char *
+p2cstring(pstring *pstr);
+
 void
 paddc(pstring *pstr, char *cstr);
 

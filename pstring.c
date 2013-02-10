@@ -22,6 +22,11 @@ c2pstring(const char *cstr) {
 }
 
 char *
+p2cstring(pstring *pstr) {
+  return cstring_new(pstr->val, pstr->len);
+}
+
+char *
 cstring_new(char *cstr, int len) {
   char *new = malloc(len + 1);
   memcpy(new, cstr, len);

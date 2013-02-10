@@ -7,7 +7,7 @@ VALUE
 rbc_protocol_consume(VALUE self, VALUE rstr);
 
 VALUE
-rbc_protocol_new(VALUE class, VALUE rinput);
+rbc_protocol_new(VALUE class, VALUE rcommands, VALUE rdatas);
 
 VALUE
 rbc_protocol_end_stream(VALUE self);

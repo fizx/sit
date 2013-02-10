@@ -203,7 +203,7 @@ Init_sit() {
 
 	// Protocol
   rbc_protocol = rb_define_class_under(m_sit, "Protocol", rb_cObject);
-  rb_define_singleton_method(rbc_protocol, "new", rbc_protocol_new, 1);
+  rb_define_singleton_method(rbc_protocol, "new", rbc_protocol_new, 2);
   rb_define_method(rbc_protocol, "consume", rbc_protocol_consume, 1);
   rb_define_method(rbc_protocol, "end_stream", rbc_protocol_end_stream, 0);
 }
