@@ -33,11 +33,9 @@ rbc_default_fresh_copy(sit_parser *parser) {
 
 sit_parser *
 rbc_json_fresh_copy(sit_parser *parser) {
-  VALUE old = vunwrap(parser->data);
-  VALUE class = rb_funcall(old, rb_intern("class"), 0);
   sit_parser* copy = json_fresh_copy(parser);
 	copy->fresh_copy = rbc_json_fresh_copy;
-	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, copy);
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::Parser"), markall, NULL, copy);
 	rb_obj_call_init(tdata, 0, NULL);
   SET_ONCE(copy->data, vwrap(tdata));
   return copy;
@@ -45,11 +43,9 @@ rbc_json_fresh_copy(sit_parser *parser) {
 
 sit_parser *
 rbc_white_fresh_copy(sit_parser *parser) {
-  VALUE old = vunwrap(parser->data);
-  VALUE class = rb_funcall(old, rb_intern("class"), 0);
   sit_parser* copy = white_fresh_copy(parser);
 	copy->fresh_copy = rbc_white_fresh_copy;
-	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, copy);
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::Parser"), markall, NULL, copy);
 	rb_obj_call_init(tdata, 0, NULL);
   SET_ONCE(copy->data, vwrap(tdata));
   return copy;
