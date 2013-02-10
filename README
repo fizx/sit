@@ -21,6 +21,13 @@ Results
   Pull results are provided individually, with a pointer to the state necessary to generate the next result
   Push results are pushed at a callback handler
   
+Protocol
+  Simple, line-oriented, tcp/stream protocol, pipelined.
+  command "args"\n
+  {} // json
+  all responses are json
+  commands are stateful/modal (e.g. you can add command 1x, then stream documents)
+  
 Parser
   Documents have finite size, so the parser allocates O(1) space ahead of time.
   Rough C call stack:

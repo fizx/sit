@@ -9,7 +9,7 @@ struct sit_engine;
 struct sit_input;
 
 typedef struct {
-	struct ev_io        io;
+	struct ev_io        as_io;
 	struct ev_loop     *loop;
 	struct sit_engine  *engine;
 	struct sockaddr_in *addr;
@@ -17,7 +17,7 @@ typedef struct {
 } sit_server;
 
 typedef struct {
-	struct ev_io        io;
+	struct ev_io        as_io;
 	sit_server         *server;
 	struct sockaddr_in *addr;
 	struct sit_input   *input;

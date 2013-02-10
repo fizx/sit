@@ -31,8 +31,12 @@ main(int argc, char **argv) {
 		printf("Usage: sit --server PORT \n");
 		return 1;
 	}
+	
 	char *filename = argv[1];
 	char *str = argv[2];
+	
+	sit_parser *parser = json_parser_new(white_parser_new());
+	engine = sit_engine_new(parser, 100000);
 #ifdef HAVE_EV_H
 	if(!strcmp(filename, "--server")) {
 		int port = atoi(str);
@@ -53,15 +57,11 @@ main(int argc, char **argv) {
 #else
   {
 #endif
-		sit_callback *cb = sit_callback_new();
-		cb->handler = _print_handler;
-	
-		sit_parser *parser = json_parser_new(white_parser_new());
-		engine = sit_engine_new(parser, 100000);
-		query_parser *qparser = query_parser_new();
-		qparser->cb = sit_callback_new();
-		qparser->cb->handler = _main_query_handler;
-		query_parser_consume(qparser, c2pstring(str));
+    query_parser *qparser = query_parser_new();
+  	qparser->cb = sit_callback_new();
+  	qparser->cb->handler = _main_query_handler;
+  	query_parser_consume(qparser, c2pstring(str));
+
 		if(!query) {
 			if(qparser->error) {
 				printf("Could not recognize your query: %.*s\n", qparser->error->len, qparser->error->val);

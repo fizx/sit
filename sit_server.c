@@ -2,6 +2,7 @@
 
 #include "sit_server.h"
 #include <ev.h>
+#include <assert.h>
 #include <sys/socket.h>
 #include <stdio.h>
 #include <netinet/in.h>
@@ -60,9 +61,10 @@ conn_free(conn_t * conn) {
 
 conn_t *
 conn_new(sit_server *server) {
+  assert(server->engine);
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
-	conn->input  = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+	conn->input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
 	return conn;
 }
 
@@ -80,7 +82,7 @@ conn_start(conn_t * conn, int revents) {
   	return;
 	}
 	
-	client_sd = accept(watcher->fd, (struct sockaddr *)&client_addr, &client_len);
+	client_sd = accept(conn->server->as_io.fd, (struct sockaddr *)&client_addr, &client_len);
 	
 	if (client_sd < 0) {
 	  perror("accept error");
@@ -117,7 +119,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	}
 
 	// Bind socket to address
-	if (bind(sd, (struct sockaddr*) &addr, sizeof(addr)) != 0) {
+	if (bind(sd, (struct sockaddr*) addr, sizeof(*addr)) != 0) {
 	  perror("bind error");
 	}
 
@@ -132,6 +134,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	ev_io_start(loop, (struct ev_io *) server);
 
 	// Start infinite loop
+	printf("Successfully started server.\n");	
 	while (1)
 	{
 	  ev_loop(loop, 0);
