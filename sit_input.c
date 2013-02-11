@@ -11,7 +11,7 @@ _perc_found_handler(sit_callback *callback, void *data) {
   long query_id = callback->id;
   long doc_id = sit_engine_last_document_id(input->engine);
   pstring *buf = pstring_new(0);
-  PV("{\"status\": \"ok\", \"message\":\"found\", \"query_id\": %ld, \"doc_id\": %ld", query_id, doc_id);
+  PV("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld}", query_id, doc_id);
   input->output->write(input->output, buf);
   pstring_free(buf);
 }
@@ -32,7 +32,7 @@ _channel_handler(sit_callback *callback, void *data) {
     node->next = input->query_ids;
     input->query_ids = node;
     pstring *buf = pstring_new(0);
-    PV("{\"status\": \"ok\", \"message\":\"registered\", \"id\": %ld}", query_id);
+    PV("{\"status\": \"ok\", \"message\": \"registered\", \"id\": %ld}", query_id);
     input->output->write(input->output, buf);
     pstring_free(buf);
   } else {
@@ -120,5 +120,7 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
     sit_engine_set_int(engine, doc_id, dictGetKey(entry), dictGetSignedIntegerVal(entry));
   }
   dictReleaseIterator(iter);
+  input->term_count = 0;
+	dictEmpty(input->term_index);
 	engine->current_input = NULL;
 }

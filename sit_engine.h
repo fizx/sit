@@ -33,6 +33,8 @@ typedef struct sit_engine {
   // User-settable
   void *data;
   
+  
+  long                query_id;
   sit_term    terms[1];
 } sit_engine;
 

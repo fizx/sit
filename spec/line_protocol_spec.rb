@@ -8,39 +8,24 @@ require "rr"
 require File.dirname(__FILE__) + "/../sit"
 include Sit
 
-describe "LineProtocol" do
+describe "integration" do
   before do
     @engine = Engine.new(Parser.new_json, 1_000_000)
  		@input = Input.new(@engine, 1 << 10, 1 << 20)
     @proto = LineProtocol.new(@input)
   end
-
-  it "should parse commands" do
-    @proto.consume("add\n")
-    @proto.output.should == ['{"status": "ok", "message": "ack", "command": "add"}']
-  end
   
-  it "should parse data" do
-    @proto.consume('add
-{"hello": "world"}
-{"hello": "world"}
-{"hello": "world"}
-{"hello": "world"}
-')
-    @proto.output.should == [
-     "{\"status\": \"ok\", \"message\": \"ack\", \"command\": \"add\"}",
-     "{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": 0\"}",
-     "{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": 1\"}",
-     "{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": 2\"}",
-     "{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": 3\"}"
-    ]
-  end
-  
-  it "should parse query registration" do
-    @proto.consume('register
-hello ~ world;
-')
-    @proto.output.first.should == "{\"status\": \"ok\", \"message\": \"ack\", \"command\": \"register\"}"
-    @proto.output.last.should =~ /\{\"status\": \"ok\", \"message\":\"registered\", \"id\": \d+}/
-  end
+	Dir[File.dirname(__FILE__) + "/proto/*.in"].each do |path|
+		it "should run #{path} successfully" do
+			out = path.sub(".in", ".out")
+			File.exists?(out).should == true
+			@proto.consume(File.read(path))
+			expected = File.readlines(out)
+			actual = @proto.output
+      actual.zip(expected).each do |a,e|
+        a.should == e.chomp
+      end
+      expected.size.should == actual.size
+		end
+	end
 end

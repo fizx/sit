@@ -7,8 +7,6 @@
 #include <limits.h>
 #include <assert.h>
 
-int query_id = 0;
-
 typedef struct sit_query_node {
 	dict                   *children;
 	sit_term							 *term;
@@ -22,6 +20,7 @@ sit_engine_new(sit_parser *parser, long size) {
  	sit_engine *engine = malloc(sizeof(sit_engine) + (tc - 1) * (sizeof(sit_term)));
 	engine->queries = dictCreate(getTermDict(), 0);
 	engine->parser = parser;
+	engine->query_id = 0;
 	parser->receiver = &engine->as_receiver;
   parser->receiver->term_found = sit_engine_term_found;
   parser->receiver->document_found = sit_engine_document_found;
@@ -50,7 +49,7 @@ sit_term SENTINEL = {
 };
 
 int 
-_recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, sit_callback *callback) {
+_recurse_add(sit_engine *engine, dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, sit_callback *callback) {
   assert(term);
 	pstring *tmp;
 	if(!term->hash_code) {
@@ -83,20 +82,20 @@ _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, 
 		sit_callback *next = node->callback;
 		node->callback = callback;
 		callback->next = next;
-    if(!callback->id) callback->id = ++query_id;
+    if(!callback->id) callback->id = engine->query_id++;
 		return callback->id;
 	} else {
 		if(node->children == NULL) {
 			node->children = dictCreate(getTermDict(), 0);
 		}
-		return _recurse_add(node->children, node, term + 1, remaining - 1, negated_yet, callback);
+		return _recurse_add(engine, node->children, node, term + 1, remaining - 1, negated_yet, callback);
 	}
 }
 
 long
 sit_engine_register(sit_engine *engine, sit_query *query) {
   for(int i = 0; i< query->count; i++) {
-	  _recurse_add(engine->queries, NULL, query->conjunctions[i]->terms, query->conjunctions[i]->count, false, query->callback);
+	  _recurse_add(engine, engine->queries, NULL, query->conjunctions[i]->terms, query->conjunctions[i]->count, false, query->callback);
   }
   return query->callback->id;
 }
@@ -210,7 +209,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 		dictIterator *iterator = dictGetIterator(query_nodes);
 		dictEntry *next;
 	
-		if ((next = dictNext(iterator)) && positive == !!dictFind(term_index, dictGetKey(next))) {
+		if ((next = dictNext(iterator)) && positive == !!dictFetchValue(term_index, dictGetKey(next))) {
 			sit_query_node *node = dictGetVal(next);
 			sit_callback *cb = node->callback;
 			while(cb) {

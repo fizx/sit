@@ -1,0 +1,6 @@
+{"status": "ok", "message": "ack", "command": "register"}
+{"status": "ok", "message": "registered", "id": 2}
+{"status": "ok", "message": "ack", "command": "add"}
+{"status": "ok", "message": "found", "query_id": 2, "doc_id": 0}
+{"status": "ok", "message": "added", "doc_id": 0"}
+{"status": "ok", "message": "added", "doc_id": 1"}
