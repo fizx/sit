@@ -41,6 +41,6 @@ describe "LineProtocol" do
 hello ~ world;
 ')
     @proto.output.first.should == "{\"status\": \"ok\", \"message\": \"ack\", \"command\": \"register\"}"
-    @proto.output.last.should == "{\"status\": \"ok\", \"message\":\"registered\", \"id\": 28}"
+    @proto.output.last.should =~ /\{\"status\": \"ok\", \"message\":\"registered\", \"id\": \d+}/
   end
 end
