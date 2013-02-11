@@ -45,12 +45,12 @@ markall() {
 }
 
 VALUE
-rbc_isTestMode() {
+rbc_isTestMode(VALUE class) {
   return _is_test_mode ? Qtrue : Qfalse;
 }
 
 VALUE
-rbc_setTestMode(VALUE val) {
+rbc_setTestMode(VALUE class, VALUE val) {
   _is_test_mode = val == Qtrue;
   return Qnil;
 }

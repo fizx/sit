@@ -25,9 +25,9 @@ void
 setTestMode(bool val);
 
 VALUE
-rbc_isTestMode();
+rbc_isTestMode(VALUE class);
 
 VALUE
-rbc_setTestMode(VALUE val);
+rbc_setTestMode(VALUE class, VALUE val);
 
 #endif

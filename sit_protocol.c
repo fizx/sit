@@ -25,7 +25,7 @@ _input_error_found(struct sit_protocol_handler *handler, pstring *message) {
 int
 extract_string(pstring *target, pstring *haystack, int off) {
   for (int i = off; i < haystack->len; i++) {
-    if (haystack->val[i] == ' ') {
+    if (haystack->val[i] == ' ' || haystack->val[i] == '\r') {
       target->val = haystack->val + off;
       target->len = i - off;
       return i + 1;
@@ -83,33 +83,56 @@ _line_end_stream(sit_protocol_parser *parser) {
   (void) parser;
 }
 
+void 
+command_ack(sit_input *input, pstring *cmd) {
+  sit_output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PV("{\"status\": \"ok\", \"message\": \"ack\", \"command\": \"%.*s\"}", cmd->len, cmd->val);
+  output->write(output, buf);
+  pstring_free(buf);    
+}
+
 void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, int argc, pstring** argv) {
+  printf("found cmd:  %.*s\n", command->len, command->val);
   sit_protocol_parser *parser = handler->parser;
   pstring *last_command = parser->data;
   sit_input *input = handler->data;
+  
   if(!cpstrcmp("add", command)) {
     // last_command will work it out when the data comes
+    command_ack(input, command);
   } else if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
+    command_ack(input, command);
   } else if(!cpstrcmp("query", last_command)) {
     input->qparser_mode = QUERYING;
+    command_ack(input, command);
   } else if(!cpstrcmp("unregister", command)) {
     //TODO: unregister
+    command_ack(input, command);
   } else if(!cpstrcmp("close", command)) {
-    sit_input_end_stream(input);
+    command_ack(input, command);
+    input->output->close(input->output);
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
+    command_ack(input, command);
+    printf("stopping now!\n");
     ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
+    printf("stopped\n");
 #endif
   } else {
-    _input_error_found(handler, c2pstring("Unknown command"));
+    pstring *buf = pstring_new(0);
+    PV("Unknown command: %.*s", command->len, command->val);
+    _input_error_found(handler, buf);
+    pstring_free(buf);
   }
   handler->parser->data = command;
 }
 
 void
 _input_data_found(struct sit_protocol_handler *handler, pstring *data) {
+  printf("found data: %.*s\n", data->len, data->val);
   sit_protocol_parser * parser = handler->parser;
   pstring *last_command = parser->data;
   sit_input *input = handler->data;
@@ -126,6 +149,7 @@ _input_data_found(struct sit_protocol_handler *handler, pstring *data) {
 
 void
 _input_data_complete(struct sit_protocol_handler *handler) {
+  printf("data complete\n");
   sit_protocol_parser * parser = handler->parser;
   pstring *last_command = parser->data;
   sit_input *input = handler->data;

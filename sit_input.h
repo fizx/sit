@@ -9,6 +9,7 @@ struct query_parser;
 typedef struct sit_output {
 	void *data;
   void (*write)(struct sit_output *output, pstring *message);
+  void (*close)(struct sit_output *output);
 } sit_output;
 
 typedef enum { REGISTERING, QUERYING } query_parser_mode;

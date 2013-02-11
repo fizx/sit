@@ -1,5 +1,5 @@
 #ifdef HAVE_EV_H
-
+#include <errno.h>
 #include "sit_server.h"
 #include <ev.h>
 #include <assert.h>
@@ -27,7 +27,11 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 	if(read < 0) {
   	perror("read error");
   	return;
+	} else {
+    printf("Read %d bytes\n", read);
 	}
+	
+  printf("FYI: %d\n", watcher->fd);
 
 	if(read == 0) {
 	  // Stop and free watchet if client socket is closing
@@ -59,12 +63,37 @@ conn_free(conn_t * conn) {
 	free(conn);
 }
 
+void
+conn_write(sit_output *output, pstring *data) {
+  paddc(data, "\n");
+  printf("writing back: %.*s", data->len, data->val);
+  conn_t *conn = output->data;
+  send(conn->as_io.fd, data->val, data->len, 0);
+}
+
+void 
+out_conn_close(sit_output *output) {
+  errno = 0;
+  conn_t *conn = output->data;
+  printf("closing: %d\n",conn->as_io.fd);
+  ev_io_stop(ev_default_loop(0), &conn->as_io);
+  close(conn->as_io.fd);
+	conn->server->total_clients--;
+	conn_free(conn);
+	printf("closing connection per request\n");
+	printf("%d client(s) connected.\n", conn->server->total_clients);
+}
+
 conn_t *
 conn_new(sit_server *server) {
   assert(server->engine);
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
 	sit_input *input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+  input->output = malloc(sizeof(sit_output));
+  input->output->data = conn;
+  input->output->write = conn_write;
+  input->output->close = out_conn_close;
   conn->parser = sit_line_input_protocol_new(input);
 	return conn;
 }
@@ -108,6 +137,8 @@ sit_server_new(sit_engine *engine) {
 	return server;
 }
 
+int reuse = 1;
+
 int
 sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	struct ev_loop *loop = ev_default_loop(0);
@@ -118,11 +149,17 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	  perror("socket error");
 	  return -1;
 	}
+	
+	
+	setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 
 	// Bind socket to address
 	if (bind(sd, (struct sockaddr*) addr, sizeof(*addr)) != 0) {
 	  perror("bind error");
 	}
+	
+	
+	
 
 	// Start listing on the socket
 	if (listen(sd, 2) < 0) {
@@ -136,10 +173,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 
 	// Start infinite loop
 	printf("Successfully started server.\n");	
-	while (1)
-	{
-	  ev_loop(loop, 0);
-	}	
+  ev_loop(loop, 0);
 }
 
 
