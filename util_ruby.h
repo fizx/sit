@@ -18,12 +18,6 @@ vunwrap(const void *vp);
 void 
 markall();
 
-bool
-isTestMode();
-
-void
-setTestMode(bool val);
-
 VALUE
 rbc_isTestMode(VALUE class);
 

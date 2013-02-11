@@ -11,7 +11,7 @@ _perc_found_handler(sit_callback *callback, void *data) {
   long query_id = callback->id;
   long doc_id = sit_engine_last_document_id(input->engine);
   pstring *buf = pstring_new(0);
-  PV("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld}", query_id, doc_id);
+  PV("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld, \"doc\": %.*s}", query_id, doc_id, doc->len, doc->val);
   input->output->write(input->output, buf);
   pstring_free(buf);
 }
