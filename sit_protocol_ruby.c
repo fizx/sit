@@ -2,14 +2,11 @@
 #include "sit.h"
 
 void
-_ruby_command_found(struct sit_protocol_handler *handler, pstring *command, int argc, pstring** argv) {
+_ruby_command_found(struct sit_protocol_handler *handler, pstring *command, pstring* more) {
   VALUE rcmd = p2rstring(command);
-  VALUE ary = rb_ary_new();
-  for(int i = 0; i < argc; i++) {
-    rb_ary_push(ary, p2rstring(argv[i]));
-  }
+  VALUE rmore = p2rstring(more);
   VALUE block = rb_ary_entry(vunwrap(handler->data), 0);
-  rb_funcall(block, rb_intern("call"), 2, rcmd, ary);
+  rb_funcall(block, rb_intern("call"), 2, rcmd, rmore);
 }
 
 void

@@ -72,7 +72,8 @@ extern int yydebug;
      DIGITS = 272,
      DOT = 273,
      STRING_LITERAL = 274,
-     UNQUOTED = 275
+     UNQUOTED = 275,
+     LIMIT = 276
    };
 #endif
 /* Tokens.  */
@@ -94,6 +95,7 @@ extern int yydebug;
 #define DOT 273
 #define STRING_LITERAL 274
 #define UNQUOTED 275
+#define LIMIT 276
 
 
 
@@ -109,7 +111,7 @@ typedef union YYSTYPE
 
 
 /* Line 2065 of yacc.c  */
-#line 113 "y.tab.h"
+#line 115 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

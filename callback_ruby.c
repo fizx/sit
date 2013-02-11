@@ -20,6 +20,15 @@ _string_handler(sit_callback *cb, void *sit_data) {
 }
 
 void 
+_numeric_handler(sit_callback *cb, void *sit_data) {
+  long val = *(long*)sit_data;
+  VALUE rval = LONG2NUM(val);
+	VALUE block = vunwrap(cb->user_data);
+  rb_funcall(block, rb_intern("call"), 1, rval);
+}
+
+
+void 
 _query_handler(sit_callback *cb, void *sit_data) {
 	VALUE block = vunwrap(cb->user_data);
 	sit_query *query = sit_data;
@@ -49,6 +58,8 @@ rbc_callback_new(VALUE class, VALUE klass, VALUE block) {
 	
 	if (rb_equal(klass, rb_eval_string("::String"))) {
 	  cb->handler = _string_handler;
+	} else if (rb_equal(klass, rb_eval_string("::Numeric"))) {
+	  cb->handler = _numeric_handler;
 	} else if (rb_equal(klass, rb_eval_string("::Sit::Query"))) {
 	  cb->handler = _query_handler;
   } else {

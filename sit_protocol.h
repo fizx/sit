@@ -21,7 +21,7 @@ typedef struct sit_protocol_parser {
 
 typedef struct sit_protocol_handler {
   sit_protocol_parser *parser;
-  void (*command_found)(struct sit_protocol_handler *protocol, pstring *command, int argc, pstring** argv);
+  void (*command_found)(struct sit_protocol_handler *protocol, pstring *command, pstring* more);
   void (*data_found)(struct sit_protocol_handler *protocol, pstring *data);
   void (*data_complete)(struct sit_protocol_handler *protocol);
   void (*error_found)(struct sit_protocol_handler *protocol, pstring *data);

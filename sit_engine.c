@@ -21,6 +21,7 @@ sit_engine_new(sit_parser *parser, long size) {
 	engine->queries = dictCreate(getTermDict(), 0);
 	engine->parser = parser;
 	engine->query_id = 0;
+	engine->on_document_found = NULL;
 	parser->receiver = &engine->as_receiver;
   parser->receiver->term_found = sit_engine_term_found;
   parser->receiver->document_found = sit_engine_document_found;
@@ -197,7 +198,7 @@ sit_engine_last_document_id(sit_engine *engine) {
 }
 
 void 
-callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstring *doc, bool positive) {
+callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, void *doc, bool positive) {
 	assert(doc);
   if(positive) {
     sit_query_node *n = dictFetchValue(query_nodes, &SENTINEL);
@@ -242,7 +243,8 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 
 void
 sit_engine_percolate(sit_engine *engine) {
-	callback_recurse(engine, INPUTISH(term_index), engine->queries, sit_engine_last_document(engine), true);
+  long id = sit_engine_last_document_id(engine);
+	callback_recurse(engine, INPUTISH(term_index), engine->queries, &id, true);
 }
 
 void
@@ -252,9 +254,11 @@ sit_engine_index(sit_engine *engine, long doc_id) {
 		plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
-			lrw_dict_put(engine->term_dictionary, term, value);
+			lrw_dict_put(engine->term_dictionary, sit_term_copy(term), value);
+			assert(lrw_dict_get(engine->term_dictionary, term));
 		} else {
       lrw_dict_tap(engine->term_dictionary, term);
+			assert(lrw_dict_get(engine->term_dictionary, term));
 		}
     plist_entry entry = { doc_id, term->offset };
 		plist_append_entry(value, &entry);
@@ -311,6 +315,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
       sit_term *term = &cj->terms[j];
       plist_cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
+        pstring *t = sit_term_to_s(term);
         plist *pl = lrw_dict_get(engine->term_dictionary, term);
         cursor = pl == NULL ? NULL : plist_cursor_new(pl);
         dictAdd(iter->cursors, term, cursor);
@@ -416,9 +421,9 @@ sit_result_iterator_prev(sit_result_iterator *iter) {
 
 void
 sit_result_iterator_do_callback(sit_result_iterator *iter) {
-  iter->query->callback->handler(iter->query->callback, sit_result_iterator_document(iter));
+  long id = sit_result_iterator_document_id(iter);
+  iter->query->callback->handler(iter->query->callback, &id);
 }
-
 
 pstring *
 sit_result_iterator_document(sit_result_iterator *iter) {
@@ -476,6 +481,9 @@ sit_engine_document_found(sit_receiver *receiver, long off, int len) {
   doc_ref dr = { off, len };
 	ring_buffer_append(engine->docs, &dr, sizeof(dr));
   long doc_id = sit_engine_last_document_id(engine);
+  if(engine->on_document_found) {
+    engine->on_document_found->handler(engine->on_document_found, engine);
+  }
 	sit_engine_percolate(engine);
 	sit_engine_index(engine, doc_id);
   sit_engine_zero_ints(engine);

@@ -6,16 +6,16 @@
 
 void
 _perc_found_handler(sit_callback *callback, void *data) {
-  pstring *doc = data;
+  long doc_id = *(long*)data;
   sit_input *input = callback->user_data;
+  sit_engine *engine = input->engine;
+  pstring *doc = sit_engine_get_document(engine, doc_id);
   long query_id = callback->id;
-  long doc_id = sit_engine_last_document_id(input->engine);
   pstring *buf = pstring_new(0);
   PV("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld, \"doc\": %.*s}", query_id, doc_id, doc->len, doc->val);
   input->output->write(input->output, buf);
   pstring_free(buf);
 }
-
 
 void
 _channel_handler(sit_callback *callback, void *data) {
@@ -36,7 +36,21 @@ _channel_handler(sit_callback *callback, void *data) {
     input->output->write(input->output, buf);
     pstring_free(buf);
   } else {
-    
+    query->callback = sit_callback_new();
+    query->callback->user_data = input;
+    query->callback->handler = _perc_found_handler;
+    sit_result_iterator *iter = sit_engine_search(engine, query);
+    pstring *buf = pstring_new(0);
+    PV("{\"status\": \"ok\", \"message\": \"querying\", \"id\": %ld}", query->callback->id);
+    input->output->write(input->output, buf);
+    pstring_free(buf);
+    while(sit_result_iterator_prev(iter) && (query->limit-- != 0)) {
+      sit_result_iterator_do_callback(iter);
+    }
+    buf = pstring_new(0);
+    PV("{\"status\": \"ok\", \"message\": \"complete\", \"id\": %ld}", query->callback->id);
+    input->output->write(input->output, buf);
+    pstring_free(buf);
   } 
 }
 
@@ -105,6 +119,19 @@ sit_input_int_found(sit_receiver *receiver, int value) {
 }
 
 void 
+_ack_doc(sit_callback *cb, void *data) {
+  sit_engine *engine = data;
+  sit_input *input = cb->user_data;
+  sit_output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
+  PV("%ld", sit_engine_last_document_id(input->engine));
+  PC("\"}");
+  output->write(output, buf);
+  pstring_free(buf);    
+}
+
+void 
 sit_input_document_found(sit_receiver *receiver, long off, int len) {
 	sit_input *input = (sit_input *)receiver;
 	assert(off >= 0);
@@ -112,7 +139,17 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
 	sit_engine *engine = input->engine;
 	ring_buffer_append(engine->stream, input->stream->buffer + off, len);
 	engine->current_input = input;
+  sit_callback *old = engine->on_document_found;
+  sit_callback cb = {
+    _ack_doc,
+    input,
+    NULL,
+    -1,
+    NULL
+  };
+  engine->on_document_found = &cb;
 	sit_engine_document_found(&engine->as_receiver, engine->stream->written - len, len);
+  engine->on_document_found = old;
   long doc_id = sit_engine_last_document_id(engine);
   dictIterator *iter = dictGetIterator(input->ints);
   dictEntry *entry;

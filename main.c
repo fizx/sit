@@ -12,8 +12,9 @@ sit_engine *engine = NULL;
 void 
 _print_handler(sit_callback *cb, void *sit_data) {
 	(void) cb;
-	pstring *pstr = sit_data;
-	printf("%ld\t%.*s\n", sit_engine_last_document_id(engine), pstr->len, pstr->val);
+  long id = *(long*)sit_data;
+  pstring *pstr = sit_engine_get_document(engine, id);
+	printf("%ld\t%.*s\n", id, pstr->len, pstr->val);
 }
 
 void

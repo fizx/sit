@@ -36,7 +36,8 @@ file "Makefile" => "y.tab.h" do
 	sys!("./configure")
 end
 
-file "y.tab.h" do 
+file "y.tab.h" => :bison
+task :bison do 
   sys "flex query_scanner.l && /usr/local/bin/bison -ytd query_parser.y"
 end
 

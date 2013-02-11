@@ -111,11 +111,12 @@ query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
 %}
 
 %token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE EOQ
-%token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED
+%token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED LIMIT
 
 %type<node> number string full_expressions full_expression expression 
 %type<node> value modified_string clause 
 %type<node> comparison_operator
+%type<num> expression_modifiers
 %expect 0
 %start full_expressions
 
@@ -141,10 +142,16 @@ full_expressions
   ;
 
 full_expression
-  : expression EOQ  { 
-      query_parser_construct(context, $1); 
-    }
+  : expression expression_modifiers EOQ  { 
+    query_parser_construct(context, $1, $2); 
+  }
+  | expression EOQ  { 
+    query_parser_construct(context, $1, -1); 
+  }
   ;
+
+expression_modifiers 
+  : LIMIT number { $$ = Q($2)->num; }
 
 expression
   : expression OR expression  { 

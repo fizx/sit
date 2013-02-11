@@ -18,6 +18,9 @@ sit_term_new(pstring *field, pstring *text, int offset, bool negated);
 pstring *
 sit_term_to_s(sit_term *term);
 
+sit_term *
+sit_term_copy(sit_term *term);
+
 void 
 sit_term_free(sit_term *term);
 

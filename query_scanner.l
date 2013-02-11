@@ -39,6 +39,7 @@ NS    [^ \t\n\r,?*();:\^"]
 %%
 
 ("and"|"AND")             { return(AND); }
+("limit"|"LIMIT")         { return(LIMIT); }
 ("or"|"OR")               { return(OR); }
 ("not"|"NOT")             { return(NOT); }
 "("                       { return(LPAREN); }
@@ -96,7 +97,6 @@ query_parser_new(sit_callback *cb) {
 int
 query_parser_consume(query_parser *parser, pstring *pstr) {
   assert(pstr);
-  assert(pstr->len);
   parser->buf = pstr;
   parser->done = false;
   //return yyparse(parser);
@@ -398,7 +398,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
 }
 
 void
-query_parser_construct(query_parser *context, ast_node_t *expression) {
+query_parser_construct(query_parser *context, ast_node_t *expression, int limit) {
   pstring *pstr;
   (void) pstr;
   context->root = expression;
@@ -422,6 +422,7 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   // printf("%.*s\n", pstr->len, pstr->val);
   
   sit_query * query = make_query_and_callback(context, expression);
+  query->limit = limit;
   context->cb->handler(context->cb, query);
 }
 

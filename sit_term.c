@@ -24,6 +24,17 @@ sit_term_free(sit_term *term) {
 	}
 }
 
+sit_term *
+sit_term_copy(sit_term *term) {	
+ 	sit_term *copy = malloc(sizeof(sit_term));
+  copy->field = pcpy(term->field);
+  copy->text = pcpy(term->text);
+  copy->offset = term->offset;
+  copy->negated = term->negated;
+	sit_term_update_hash(copy);
+  return copy;
+}
+
 pstring *
 sit_term_to_s(sit_term *term) {	
 	assert(term->field);

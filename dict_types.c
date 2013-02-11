@@ -12,7 +12,6 @@ _term_compare(void *privdata, const void *key1,
         const void *key2)
 {
     DICT_NOTUSED(privdata);
-
     return _term_hash(key1) == _term_hash(key2);
 }
 

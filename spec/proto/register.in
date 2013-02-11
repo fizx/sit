@@ -1,5 +1,3 @@
-register
-hello ~ world;
-add
+register hello ~ world;
 {"hello":"world"}
 {"goodbye":"world"}

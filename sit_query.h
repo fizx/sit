@@ -17,7 +17,7 @@ typedef struct {
 
 	// for random user state
 	void         *data;				
-
+  int           limit;
   int           count;	
   conjunction_t **conjunctions;
 } sit_query;

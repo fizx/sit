@@ -20,7 +20,7 @@ describe "Protocol" do
 
   it "should parse commands" do
     @proto.consume("hello\n")
-    $cmds.should == [["hello", []]]
+    $cmds.should == [["hello", ""]]
   end
   
   it "should parse data" do

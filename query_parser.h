@@ -58,6 +58,6 @@ int
 query_parser_consume(query_parser *parser, pstring *pstr);
 
 void
-query_parser_construct(query_parser *context, ast_node_t *root);
+query_parser_construct(query_parser *context, ast_node_t *root, int limit);
 
 #endif

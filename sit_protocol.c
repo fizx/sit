@@ -38,16 +38,14 @@ extract_string(pstring *target, pstring *haystack, int off) {
 
 void 
 _parse_command(sit_protocol_parser *parser, pstring *pstr) {
-  pstring args[COMMAND_LIMIT];
   pstring cmd;
+  pstring more;
   int off = 0;
-  int i;
   off = extract_string(&cmd, pstr, off);
+  more.len = pstr->len - off;
+  more.val = pstr->val + off;
   if(!cmd.len) return; // empty line
-  for(i = 0; i < COMMAND_LIMIT && off < pstr->len; i++) {
-    off = extract_string(&args[i], pstr, off);
-  }
-  parser->handler->command_found(parser->handler, &cmd, i, &args);
+  parser->handler->command_found(parser->handler, &cmd, &more);
 }
 
 void 
@@ -98,25 +96,35 @@ command_ack(struct sit_protocol_handler *handler, pstring *cmd) {
 }
 
 void
-_input_command_found(struct sit_protocol_handler *handler, pstring *command, int argc, pstring** argv) {
+_input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
   printf("found cmd:  %.*s\n", command->len, command->val);
   sit_protocol_parser *parser = handler->parser;
   sit_input *input = handler->data;
   sit_output *output = input->output;
   
-  if(!cpstrcmp("add", command)) {
-    // last_command will work it out when the data comes
-    command_ack(handler, command);
-  } else if(!cpstrcmp("register", command)) {
+  if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
-    parser->state = FORCE_DATA;
+    printf("registering: %.*s\n", more->len, more->val);
+    query_parser_consume(input->qparser, more);
     command_ack(handler, command);
   } else if(!cpstrcmp("query", command)) {
     input->qparser_mode = QUERYING;
-    parser->state = FORCE_DATA;
+    query_parser_consume(input->qparser, more);
     command_ack(handler, command);
   } else if(!cpstrcmp("unregister", command)) {
-    //TODO: unregister
+    sit_engine_unregister(input->engine, strtol(more->val, NULL, 10));
+    command_ack(handler, command);
+  } else if(!cpstrcmp("get", command)) {
+    long doc_id = strtol(more->val, NULL, 10);
+    pstring *doc = sit_engine_get_document(input->engine, doc_id);
+    pstring *buf = pstring_new(0);
+    if(doc) {
+      PV("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": %.*s}", doc->len, doc->val);
+    } else {
+      PV("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": %ld}", doc_id);
+    }
+    output->write(output, buf);
+    pstring_free(buf);
     command_ack(handler, command);
   } else if(!cpstrcmp("close", command)) {
     command_ack(handler, command);
@@ -142,48 +150,11 @@ _input_data_found(struct sit_protocol_handler *handler, pstring *data) {
   sit_protocol_parser * parser = handler->parser;
   pstring *last_command = parser->data;
   sit_input *input = handler->data;
-  if(last_command == NULL || !cpstrcmp("add", last_command)) {
-    sit_input_consume(input, data);
-  } else if(!cpstrcmp("register", last_command)) {
-    query_parser_consume(input->qparser, data);
-  } else if(!cpstrcmp("query", last_command)) {
-    query_parser_consume(input->qparser, data);
-  } else {
-    // ignore and trust complete to raise the error
-  }
+  sit_input_consume(input, data);
 }
 
 void
 _input_data_complete(struct sit_protocol_handler *handler) {
-  printf("data complete\n");
-  sit_protocol_parser * parser = handler->parser;
-  pstring *last_command = parser->data;
-  sit_input *input = handler->data;
-  pstring semi = {
-    ";", 1
-  };
-  if(last_command == NULL || !cpstrcmp("add", last_command)) {
-    sit_output *output = input->output;
-    pstring *buf = pstring_new(0);
-    PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
-    PV("%ld", sit_engine_last_document_id(input->engine));
-    PC("\"}");
-    output->write(output, buf);
-    pstring_free(buf);    
-  } else if(!cpstrcmp("register", last_command)) {
-    query_parser_consume(input->qparser, &semi);
-  } else if(!cpstrcmp("query", last_command)) {
-    query_parser_consume(input->qparser, &semi);
-  } else if(input->error) {
-    _input_error_found(handler, input->error);
-    input->error = NULL;
-  } else {
-    pstring *buf = pstring_new(0);
-    PV("Unknown context for the given data block [%.*s]", last_command->len, last_command->val);
-    _input_error_found(handler, buf);
-    pstring_free(buf);
-    input->error = NULL;
-  }
 }
 
 sit_protocol_parser *
