@@ -63,6 +63,7 @@ _line_consume(sit_protocol_parser *parser, pstring *pstr) {
     if(tmp.val[0] == '{' || parser->state == FORCE_DATA) {
       handler->data_found(handler, &tmp);
       handler->data_complete(handler);
+      parser->state = COMPLETE;
     } else {
       _parse_command(parser, &tmp);
     }
@@ -74,6 +75,7 @@ _line_consume(sit_protocol_parser *parser, pstring *pstr) {
       handler->error_found(handler, c2pstring("Command was too long"));
     } else {
       handler->data_found(handler, &tmp);
+      parser->state = PARTIAL;
     }
   }
 }
@@ -107,9 +109,11 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, int
     command_ack(handler, command);
   } else if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
+    parser->state = FORCE_DATA;
     command_ack(handler, command);
   } else if(!cpstrcmp("query", command)) {
     input->qparser_mode = QUERYING;
+    parser->state = FORCE_DATA;
     command_ack(handler, command);
   } else if(!cpstrcmp("unregister", command)) {
     //TODO: unregister
@@ -155,6 +159,9 @@ _input_data_complete(struct sit_protocol_handler *handler) {
   sit_protocol_parser * parser = handler->parser;
   pstring *last_command = parser->data;
   sit_input *input = handler->data;
+  pstring semi = {
+    ";", 1
+  };
   if(last_command == NULL || !cpstrcmp("add", last_command)) {
     sit_output *output = input->output;
     pstring *buf = pstring_new(0);
@@ -164,9 +171,9 @@ _input_data_complete(struct sit_protocol_handler *handler) {
     output->write(output, buf);
     pstring_free(buf);    
   } else if(!cpstrcmp("register", last_command)) {
-    //no-op
+    query_parser_consume(input->qparser, &semi);
   } else if(!cpstrcmp("query", last_command)) {
-    //no-op
+    query_parser_consume(input->qparser, &semi);
   } else if(input->error) {
     _input_error_found(handler, input->error);
     input->error = NULL;

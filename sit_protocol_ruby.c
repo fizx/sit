@@ -44,6 +44,26 @@ rbc_protocol_new(VALUE class, VALUE rcommands, VALUE rdatas) {
   return tdata;
 }
 
+VALUE
+rbc_line_protocol_new(VALUE class, VALUE rinput) {
+  sit_input *input;
+	Data_Get_Struct(rinput, sit_input, input);
+	sit_protocol_parser *parser = sit_line_input_protocol_new(input);
+  sit_protocol_handler *handler = parser->handler;
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);
+  return tdata;
+}
+
+VALUE 
+rbc_line_protocol_output(VALUE self) {
+  sit_protocol_parser *parser;
+	Data_Get_Struct(self, sit_protocol_parser, parser);
+  sit_protocol_handler *handler = parser->handler;
+  sit_input *input = handler->data;
+  sit_output *output = input->output;
+  return vunwrap(output->data);
+}
+
 VALUE 
 rbc_protocol_consume(VALUE self, VALUE rstr) {
   sit_protocol_parser *protocol;

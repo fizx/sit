@@ -51,6 +51,7 @@ sit_term SENTINEL = {
 
 int 
 _recurse_add(dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, sit_callback *callback) {
+  assert(term);
 	pstring *tmp;
 	if(!term->hash_code) {
 		sit_term_update_hash(term);
@@ -124,22 +125,22 @@ _get_terms(sit_term **terms, sit_query_node *node, int *term_count) {
 }
 
 void
-_recurse_each(dict *hash, sit_callback *cb) {
+_recurse_each(sit_callback *cb, dict *hash) {
 	dictIterator * iterator = dictGetIterator(hash);
 	dictEntry *next;
 	while((next = dictNext(iterator))) {
 		sit_query_node *node = dictGetVal(next);
-		cb->handler(node, cb->user_data);
+		cb->handler(cb, node);
 		if(node->children) {
-			_recurse_each(node->children, cb);
+			_recurse_each(cb, node->children);
 		}
 	}
 }
 
 void
-_each_query(void *vnode, void *inner) {
+_each_query(sit_callback *cb, void *vnode) {
 	sit_query_node *node = vnode;
-	sit_callback *cb = inner;
+  sit_callback *user_callback = cb->user_data;
 	
 	sit_callback *qc = node->callback;
 	sit_term *terms = NULL;
@@ -151,7 +152,7 @@ _each_query(void *vnode, void *inner) {
     conjunction_t *cjs[1];
     cjs[0] = conjunction_new(&terms, term_count);
 		sit_query *query = sit_query_new(cjs, 1, qc);
-		cb->handler(query, cb->user_data);
+		user_callback->handler(user_callback, query);
 		qc = qc->next;
 	}
 }
@@ -161,12 +162,12 @@ sit_engine_each_query(sit_engine *engine, sit_callback *callback) {
 	sit_callback wrapper;
 	wrapper.user_data = callback;
 	wrapper.handler = _each_query;
-	_recurse_each(engine->queries, &wrapper);
+	sit_engine_each_node(engine, &wrapper);
 }
 
 void 
 sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
-	_recurse_each(engine->queries, callback);
+	_recurse_each(callback, engine->queries);
 }
 
 pstring *
@@ -213,7 +214,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 			sit_query_node *node = dictGetVal(next);
 			sit_callback *cb = node->callback;
 			while(cb) {
-				cb->handler(doc, cb->user_data);
+				cb->handler(cb, doc);
 				cb = cb->next;
 			}
 			if(node->children) {
@@ -228,7 +229,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, pstrin
 		if ((next = dictNext(iterator)) && positive == !!(node = dictFetchValue(query_nodes, dictGetKey(next)))) {
 			sit_callback *cb = node->callback;
 			while(cb) {
-				cb->handler(doc, cb->user_data);
+				cb->handler(cb, doc);
 				cb = cb->next;
 			}
 			if(node->children){
@@ -262,9 +263,9 @@ sit_engine_index(sit_engine *engine, long doc_id) {
 }
 
 void
-_unregister_handler(void *vnode, void *inner) {
+_unregister_handler(sit_callback *cb, void *vnode) {
 	sit_query_node *node = vnode;
-	long query_id = *(long *) inner;
+	long query_id = *(long *) cb->user_data;
 	
 	while (node->callback && node->callback->id == query_id) {
 		sit_callback *old = node->callback;
@@ -416,7 +417,7 @@ sit_result_iterator_prev(sit_result_iterator *iter) {
 
 void
 sit_result_iterator_do_callback(sit_result_iterator *iter) {
-  iter->query->callback->handler(sit_result_iterator_document(iter), iter->query->callback->user_data);
+  iter->query->callback->handler(iter->query->callback, sit_result_iterator_document(iter));
 }
 
 
@@ -435,7 +436,7 @@ sit_engine_unregister(sit_engine *engine, long query_id) {
 	sit_callback unregister;
 	unregister.user_data = &query_id;
 	unregister.handler = _unregister_handler;
-	_recurse_each(engine->queries, &unregister);
+	sit_engine_each_node(engine, &unregister);
 }
 
 void

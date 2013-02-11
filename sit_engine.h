@@ -109,6 +109,9 @@ sit_engine_index(sit_engine *engine, long doc_id);
 long
 sit_engine_register(sit_engine *engine, sit_query *query);
 
+void 
+sit_engine_each_node(sit_engine *engine, sit_callback *cb);
+
 void
 sit_engine_unregister(sit_engine *engine, long query_id);
 

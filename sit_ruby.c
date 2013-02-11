@@ -29,6 +29,7 @@ VALUE rbc_input;
 VALUE rbc_forwardable;
 VALUE rbc_receiver;
 VALUE rbc_protocol;
+VALUE rbc_line_protocol;
 VALUE rbc_server;
 
 void 
@@ -214,4 +215,10 @@ Init_sit() {
   rb_define_singleton_method(rbc_protocol, "new", rbc_protocol_new, 2);
   rb_define_method(rbc_protocol, "consume", rbc_protocol_consume, 1);
   rb_define_method(rbc_protocol, "end_stream", rbc_protocol_end_stream, 0);
+  
+  rbc_line_protocol = rb_define_class_under(m_sit, "LineProtocol", rb_cObject);
+  rb_define_singleton_method(rbc_line_protocol, "new", rbc_line_protocol_new, 1);
+  rb_define_method(rbc_line_protocol, "output", rbc_line_protocol_output, 0);
+  rb_define_method(rbc_line_protocol, "consume", rbc_protocol_consume, 1);
+  rb_define_method(rbc_line_protocol, "end_stream", rbc_protocol_end_stream, 0);
 }

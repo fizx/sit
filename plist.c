@@ -181,8 +181,8 @@ plist_append_entry(plist *pl, plist_entry *entry) {
 }
 
 void
-_count(void *entry, void *user_data) {
-	(*(int *)user_data)++;
+_count(sit_callback *cb, void *entry) {
+	(*(int *)cb->user_data)++;
 	(void) entry;
 }
 
@@ -224,7 +224,7 @@ plist_reach(plist *pl, sit_callback *iterator) {
 		plist_block *block = pl->last_block;
 		while(block) {
 			for (int i = block->entries_count - 1; i >= 0; i--) {
-				iterator->handler(&block->entries[i], iterator->user_data);
+				iterator->handler(iterator, &block->entries[i]);
 			}
 			if(block->prev_version >= min) {
 				block = block->prev;

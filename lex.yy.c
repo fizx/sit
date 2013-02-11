@@ -2510,7 +2510,7 @@ query_parser_construct(query_parser *context, ast_node_t *expression) {
   // printf("%.*s\n", pstr->len, pstr->val);
   
   sit_query * query = make_query_and_callback(context, expression);
-  context->cb->handler(query, context->cb->user_data);
+  context->cb->handler(context->cb, query);
 }
 
 char *

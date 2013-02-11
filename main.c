@@ -10,15 +10,15 @@ sit_query *query = NULL;
 sit_engine *engine = NULL;
 
 void 
-_print_handler(void *sit_data, void *user_data) {
-	(void) user_data;
+_print_handler(sit_callback *cb, void *sit_data) {
+	(void) cb;
 	pstring *pstr = sit_data;
 	printf("%ld\t%.*s\n", sit_engine_last_document_id(engine), pstr->len, pstr->val);
 }
 
 void
-_main_query_handler(void *sit_data, void *user_data) {
-	(void) user_data;
+_main_query_handler(sit_callback *cb, void *sit_data) {
+	(void) cb;
 	query = sit_data;
 	query->callback = sit_callback_new();
 	query->callback->handler = _print_handler;

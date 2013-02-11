@@ -32,7 +32,7 @@ _channel_handler(sit_callback *callback, void *data) {
     node->next = input->query_ids;
     input->query_ids = node;
     pstring *buf = pstring_new(0);
-    PV("{\"status\": \"ok\", \"message\":\"registered\", \"id\": %ld", query_id);
+    PV("{\"status\": \"ok\", \"message\":\"registered\", \"id\": %ld}", query_id);
     input->output->write(input->output, buf);
     pstring_free(buf);
   } else {

@@ -174,6 +174,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	// Start infinite loop
 	printf("Successfully started server.\n");	
   ev_loop(loop, 0);
+  return 0;
 }
 
 

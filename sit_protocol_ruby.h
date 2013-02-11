@@ -10,6 +10,12 @@ VALUE
 rbc_protocol_new(VALUE class, VALUE rcommands, VALUE rdatas);
 
 VALUE
+rbc_line_protocol_new(VALUE class, VALUE rinput);
+
+VALUE
 rbc_protocol_end_stream(VALUE self);
+
+VALUE 
+rbc_line_protocol_output(VALUE self);
 
 #endif

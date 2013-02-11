@@ -75,9 +75,9 @@ rbc_plist_append(VALUE self, VALUE rentry) {
 }
 
 void
-_rb_each(void *ventry, void *data) {	
+_rb_each(sit_callback *cb, void *ventry) {	
 	plist_entry *entry = ventry;
-	(void) data;
+	(void) cb;
 	plist_entry *dup = malloc(sizeof(plist_entry));
 	memcpy(dup, entry, sizeof(plist_entry));
 	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), markall, NULL, dup);

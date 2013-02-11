@@ -167,9 +167,9 @@ rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
 }
 
 
-void _queries_handler(void *vquery, void *data) {
+void _queries_handler(sit_callback *cb, void *vquery) {
 	sit_query *query = vquery;
-	VALUE ary = vunwrap(data);
+	VALUE ary = vunwrap(cb->user_data);
 	VALUE class = rb_eval_string("::Sit::Query");
 	VALUE tdata = Data_Wrap_Struct(class, NULL, free, query);
 	rb_obj_call_init(tdata, 0, NULL);
