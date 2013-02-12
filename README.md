@@ -3,6 +3,18 @@ SIT -- Stream Indexing Toolkit
 
 SIT is a lightweight tcp server that provides realtime full text search over streams of (currently flattened only) json documents.  It's also accessible as a c library, where it can be used to parse any stream using custom parsers.
 
+Why?
+--------
+
+* **Lightweight**    
+  The executable is 228K on my machine.  It only depends on libev and libc.
+* **True realtime**    
+  No garbage collection.  No "commits," "flushes," or fsync requirements.  It's optimized for getting recent documents.
+* **Write then read**    
+  Realtime means that you can trivially support search results that include the document you just added.
+* **Efficient percolation**    
+  SIT is designed to add documents and execute query callbacks efficiently with up to 100k registered queries and/or connections.
+  
 Protocol
 --------
 
