@@ -28,7 +28,7 @@ Commands
         # ...
         < {"status": "ok", "message": "found", "query_id": 29, "doc_id": 500, "doc": {"title": "hello sweet world", "points": 7}}
 
-* **unregister** _QUERYID_
+* **unregister** _QUERYID_    
   Give the id provided in the **register** response, to stop the percolation.
 
   Sample request/response:    
@@ -36,7 +36,7 @@ Commands
         > unregister 29
         < {"status": "ok", "message": "unregistered", "id": 29}
 
-* **query** _QUERY_
+* **query** _QUERY_    
   Do a search.
   
   Sample request/response:
