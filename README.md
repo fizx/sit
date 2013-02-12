@@ -7,7 +7,7 @@ Why?
 --------
 
 * **Lightweight**    
-  The executable is 228K on my machine.  It only depends on libev and libc.
+  The executable is 228K on my machine.  It only depends on libev and libc (I'm temporarily using Ruby for the build and test suite).
 * **True realtime**    
   No garbage collection.  No "commits," "flushes," or fsync requirements.  It's optimized for getting recent documents.
 * **Write then read**    
@@ -15,7 +15,7 @@ Why?
 * **Efficient percolation**    
   SIT is designed to add documents and execute query callbacks efficiently with up to 100k registered queries and/or connections.
 * **Flexible pubsub**    
-  Rather than publishing into channels, publish into a global event stream, and subscribe to dynamic channels defined by search queries.
+  Rather than publishing into channels, you can use SIT to publish into a global event stream, and subscribe to dynamic channels defined by search queries.
   
 Protocol
 --------
