@@ -9,11 +9,11 @@ typedef struct value_holder {
   struct value_holder *next;
 } value_holder;
 
-const void *
+void *
 vwrap(VALUE value);
 
 VALUE
-vunwrap(const void *vp);
+vunwrap(void *vp);
 
 void 
 markall();

@@ -108,3 +108,4 @@ TODO
 * wchar/unicode support
 * facets
 * aggregations
+* quoted/span/proximity queries

@@ -153,6 +153,19 @@ describe "Engine" do
     $events.should == []
   end
   
+  it "should be able to search a numeric term" do
+    term = Term.new_numeric("a", ">", 0)
+    cj = Conjunction.new([term])
+    cb = Callback.new(Numeric, proc{|doc| $events << doc })
+    q = Query.new([cj], cb) 
+    @input.consume("hello\tworld\n")  
+    cursor = @engine.search(q)
+    while cursor.prev!
+      cursor.call
+    end
+    $events.should == []
+  end
+  
   it "should not respond to a miss" do
     term = Term.new("a", "nope", 0, false)
     cj = Conjunction.new([term])

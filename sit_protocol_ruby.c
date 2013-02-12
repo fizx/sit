@@ -18,11 +18,13 @@ _ruby_data_found(struct sit_protocol_handler *handler, pstring *data) {
 
 void
 _ruby_data_complete(struct sit_protocol_handler *handler) {
+  (void) handler;
 }
 
 void
 _proto_ruby_error_found(struct sit_protocol_handler *handler, pstring *message) {
-  rb_raise(rb_eRuntimeError, p2rstring(message));
+  (void) handler;
+  rb_raise(rb_eRuntimeError, "%.*s", message->len, message->val);
 }
 
 VALUE
@@ -46,7 +48,6 @@ rbc_line_protocol_new(VALUE class, VALUE rinput) {
   sit_input *input;
 	Data_Get_Struct(rinput, sit_input, input);
 	sit_protocol_parser *parser = sit_line_input_protocol_new(input);
-  sit_protocol_handler *handler = parser->handler;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);
   return tdata;
 }

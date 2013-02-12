@@ -6,6 +6,9 @@
 VALUE
 rbc_term_new(VALUE class, VALUE field, VALUE text, VALUE offset, VALUE negated);
 
+VALUE 
+rbc_term_new_numeric(VALUE class, VALUE field, VALUE op, VALUE val);
+
 VALUE
 rbc_term_to_s(VALUE self);
 

@@ -9,7 +9,7 @@ value_holder root = {
   NULL
 };
 
-const void *
+void *
 vwrap(VALUE value) {
 	value_holder *h = malloc(sizeof(value_holder));
 	h->val = value;
@@ -19,11 +19,10 @@ vwrap(VALUE value) {
 }
 
 VALUE
-vunwrap(const void *vp) {
+vunwrap(void *vp) {
 	value_holder *h = (value_holder *) vp;
 	return h->val;
 }
-
 
 void 
 markall() {
@@ -36,11 +35,13 @@ markall() {
 
 VALUE
 rbc_isTestMode(VALUE class) {
+  (void) class;
   return isTestMode() ? Qtrue : Qfalse;
 }
 
 VALUE
 rbc_setTestMode(VALUE class, VALUE val) {
+  (void) class;
   setTestMode(val == Qtrue);
   return Qnil;
 }

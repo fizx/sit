@@ -6,9 +6,7 @@
 pstring *
 r2pstring(VALUE rstr) {
 	rstr = StringValue(rstr);
-	pstring *pstr = pstring_new(RSTRING_LEN(rstr));
-	strncpy(pstr->val, RSTRING_PTR(rstr), pstr->len);
-	return pstr;
+  return pstring_new2(RSTRING_PTR(rstr), RSTRING_LEN(rstr));
 }
 
 VALUE
@@ -16,7 +14,7 @@ p2rstring(pstring *pstr) {
 	if(pstr == NULL) {
 		return Qnil;
 	} else {
-		return rb_str_new(pstr->val, pstr->len);
+    return rb_str_new(pstr->val, pstr->len);
 	}
 }
 

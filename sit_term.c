@@ -11,6 +11,7 @@ sit_term_new(pstring *field, pstring *text, int offset, bool negated) {
 	term->text = text;
 	term->offset = offset;
   term->negated = negated;
+  term->numeric = false;
 	sit_term_update_hash(term);
 	return term;
 }

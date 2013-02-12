@@ -98,7 +98,6 @@ command_ack(struct sit_protocol_handler *handler, pstring *cmd) {
 void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
   printf("found cmd:  %.*s\n", command->len, command->val);
-  sit_protocol_parser *parser = handler->parser;
   sit_input *input = handler->data;
   sit_output *output = input->output;
   
@@ -147,14 +146,13 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
 void
 _input_data_found(struct sit_protocol_handler *handler, pstring *data) {
   printf("found data: %.*s\n", data->len, data->val);
-  sit_protocol_parser * parser = handler->parser;
-  pstring *last_command = parser->data;
   sit_input *input = handler->data;
   sit_input_consume(input, data);
 }
 
 void
 _input_data_complete(struct sit_protocol_handler *handler) {
+  (void) handler;
 }
 
 sit_protocol_parser *

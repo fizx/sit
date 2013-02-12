@@ -4,12 +4,19 @@
 #include "pstring.h"
 #include <stdbool.h>
 
+/**
+ * A term is a key:value pair, with some limited metadata.  It's used by 
+ * a bunch of different things, so the meanings are a little overloaded.
+ * The quirkiest thing right now is that points > 1 is a term with
+ * field:points, offset:1, numeric:true, text:>.
+ */
 typedef struct {
   pstring *field;
   pstring *text;
   unsigned int hash_code;
   unsigned int offset;
   bool negated;
+  bool numeric;
 } sit_term;
 
 sit_term *

@@ -105,7 +105,7 @@ VALUE
 rbc_lrw_dict_get(VALUE self, VALUE key) {
 	lrw_dict *dict;
 	Data_Get_Struct(self, lrw_dict, dict);
-	const void *value = lrw_dict_get(dict, vvwrap(key));
+  void *value = lrw_dict_get(dict, vvwrap(key));
 	if(value == NULL) {
 		return Qnil;
 	} else {

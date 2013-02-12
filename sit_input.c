@@ -125,7 +125,7 @@ _ack_doc(sit_callback *cb, void *data) {
   sit_output *output = input->output;
   pstring *buf = pstring_new(0);
   PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
-  PV("%ld", sit_engine_last_document_id(input->engine));
+  PV("%ld", sit_engine_last_document_id(engine));
   PC("\"}");
   output->write(output, buf);
   pstring_free(buf);    

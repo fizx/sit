@@ -46,7 +46,8 @@ sit_term SENTINEL = {
   NULL,
   0,
   0,
-  true
+  true, 
+  false
 };
 
 int 
@@ -315,10 +316,13 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
       sit_term *term = &cj->terms[j];
       plist_cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
-        pstring *t = sit_term_to_s(term);
-        plist *pl = lrw_dict_get(engine->term_dictionary, term);
-        cursor = pl == NULL ? NULL : plist_cursor_new(pl);
-        dictAdd(iter->cursors, term, cursor);
+        if(term->numeric) {
+          
+        } else {
+          plist *pl = lrw_dict_get(engine->term_dictionary, term);
+          cursor = pl == NULL ? NULL : plist_cursor_new(pl);
+          dictAdd(iter->cursors, term, cursor);
+        }
       }
       if(term->negated) {
         iter->subs[i]->negateds[j] = 1;

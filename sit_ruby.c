@@ -84,6 +84,7 @@ Init_sit() {
 	// Term
 	rbc_term = rb_define_class_under(m_sit, "Term", rb_cObject);
 	rb_define_singleton_method(rbc_term, "new", rbc_term_new, 4);
+	rb_define_singleton_method(rbc_term, "new_numeric", rbc_term_new_numeric, 3);
 	rb_define_method(rbc_term, "to_s", rbc_term_to_s, 0);
 	rb_define_method(rbc_term, "<=>", rbc_term_comparator, 1);
 	rb_include_module(rbc_term, rb_mComparable);

@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <netinet/in.h>
 
 #define BUFFER_SIZE 8096
@@ -28,7 +29,7 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
   	perror("read error");
   	return;
 	} else {
-    printf("Read %d bytes\n", read);
+    printf("Read %ld bytes\n", read);
 	}
 	
   printf("FYI: %d\n", watcher->fd);
@@ -100,7 +101,6 @@ conn_new(sit_server *server) {
 
 void
 conn_start(conn_t * conn, int revents) {
-	struct ev_io *watcher = (struct ev_io *)conn;
 	struct ev_loop *loop = conn->server->loop;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);

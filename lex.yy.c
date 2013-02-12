@@ -2325,7 +2325,7 @@ merge_bools(query_parser *context, ast_node_t *node, query_node_type type) {
       if(Q(child)->type == type) {
         ast_node_unwrap(child);
         child = node->child;
-        int count = 0;
+        count = 0;
       } else {
         count++;
         child = child->next;
@@ -2373,6 +2373,7 @@ add_token(sit_receiver *receiver, long off, int len, int field_offset) {
   ast_node_t *node = context->tmp;
   pstring *field = Q(node)->field;
   pstring *val = Q(node)->val;
+  Q(node)->num = field_offset;
   pstring *pstr = pstring_new2(val->val + off, len);
   ast_node_t *term = query_node_new(context, TERM);
   Q(term)->cmp = Q(node)->cmp;
@@ -2526,7 +2527,7 @@ query_parser_construct(query_parser *context, ast_node_t *expression, int limit)
   context->cb->handler(context->cb, query);
 }
 
-char *
+const char *
 _s(query_node_type t) {
   switch(t) {
     case UNKNOWN : return "UNKNOWN" ;
@@ -2545,7 +2546,7 @@ _s(query_node_type t) {
   }
 }
 
-char *
+const char *
 _c(cmp_type t) {
   switch(t) {
     case _NA    : return "??";
@@ -2564,7 +2565,6 @@ _c(cmp_type t) {
 
 pstring * 
 query_node_query(ast_node_t *node) {
-  char *tmp;
   pstring *buf = pstring_new(0);
   if(Q(node)->negated) PC("NOT ");
   switch(Q(node)->type) {
@@ -2589,14 +2589,10 @@ query_node_query(ast_node_t *node) {
   case TERM:
     assert(Q(node)->field);
     assert(Q(node)->val);
-    asprintf(&tmp, "%.*s %s %.*s", Q(node)->field->len, Q(node)->field->val, _c(Q(node)->cmp), Q(node)->val->len, Q(node)->val->val);
-    PC(tmp);
-    free(tmp);
+    PV("%.*s %s %.*s", Q(node)->field->len, Q(node)->field->val, _c(Q(node)->cmp), Q(node)->val->len, Q(node)->val->val);
     break;
   case NUM:
-    asprintf(&tmp, "%d", Q(node)->num);
-    PC(tmp);
-    free(tmp);
+    PV("%d", Q(node)->num);
     break;
   case MODSTR:
     P(Q(node)->val);
@@ -2604,30 +2600,32 @@ query_node_query(ast_node_t *node) {
     PQ(node->next);
     PC(")");
     break;
-  case ANDS:
-    tmp = "first";
+  case ANDS: {
+    bool first = true;
     node = node->child;
     PC("(");
     while(node) {
-      if(!tmp) PC(" AND ");
-      tmp = NULL;
+      if(!first) PC(" AND ");
+      first = false;
       PQ(node);
       node = node->next;
     }
     PC(")");
     break;
-  case ORS:
-    tmp = "first";
+  }
+  case ORS: {
+    bool first = true;
     node = node->child;
     PC("(");
     while(node) {
-      if(!tmp) PC(" OR ");
-      tmp = NULL;
+      if(!first) PC(" OR ");
+      first = false;
       PQ(node);
       node = node->next;
     }
     PC(")");
     break;
+  }
   }
   return buf;
 }
@@ -2652,16 +2650,13 @@ query_node_ast_to_s(ast_node_t *node) {
 
 pstring * 
 query_node_to_s(query_node *node) {
-  char *str;
+  pstring *buf = pstring_new(0);
   int len = 4;
-  char *val = "NULL";
+  const char *val = "NULL";
   if(node->val) {
     len = node->val->len;
     val = node->val->val;
   }
-  asprintf(&str, "[%s %.*s %d %s %s]", _s(node->type), len, val, node->num, _c(node->cmp), node->negated ? "true" : "false");
-  pstring *pstr = malloc(sizeof(*pstr));
-  pstr->val = str;
-  pstr->len = strlen(str);
-  return pstr;
+  PV("[%s %.*s %d %s %s %s]", _s(node->type), len, val, node->num, _c(node->cmp), node->negated ? "true" : "false");
+  return buf;
 }

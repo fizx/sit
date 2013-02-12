@@ -66,7 +66,7 @@ ring_buffer_get(ring_buffer *rb, long off, int len) {
 void
 ring_buffer_append_pstring(void *data, pstring *pstr) {
   ring_buffer *rb = data;
-	ring_buffer_append(rb, pstr->val, pstr->len);
+	ring_buffer_append(rb, (void *)pstr->val, pstr->len);
 }
 
 pstring *

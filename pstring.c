@@ -16,18 +16,16 @@ pstring_new(int len) {
 
 pstring *
 c2pstring(const char *cstr) {
-  pstring *pstr = pstring_new(strlen(cstr));
-  strncpy(pstr->val, cstr, pstr->len);
-  return pstr;
+  return pstring_new2(cstr, strlen(cstr));
 }
 
-char *
+const char *
 p2cstring(pstring *pstr) {
   return cstring_new(pstr->val, pstr->len);
 }
 
 char *
-cstring_new(char *cstr, int len) {
+cstring_new(const char *cstr, int len) {
   char *new = malloc(len + 1);
   memcpy(new, cstr, len);
   new[len] = 0;
@@ -36,9 +34,7 @@ cstring_new(char *cstr, int len) {
 
 pstring *
 pcpy(pstring *pstr) {
-  pstring *cpy = pstring_new(pstr->len);
-  memcpy(cpy->val, pstr->val, pstr->len);
-  return cpy;
+  return pstring_new2(pstr->val, pstr->len);
 }
 
 void
@@ -47,13 +43,13 @@ padd(pstring *pstr, pstring *append) {
   char *nbuf = malloc(nlen);
   memcpy(nbuf, pstr->val, pstr->len);
   memcpy(nbuf + pstr->len, append->val, append->len);
-  free(pstr->val);
+  free((void*)pstr->val);
   pstr->val = nbuf;
   pstr->len = nlen;
 }
 
 void
-paddv(pstring *pstr, char *fmt, ...) {
+paddv(pstring *pstr, const char *fmt, ...) {
 	va_list args;
   va_start(args, fmt);
 	char *tmp;
@@ -63,7 +59,7 @@ paddv(pstring *pstr, char *fmt, ...) {
 }
 
 void
-paddc(pstring *pstr, char *cstr) {
+paddc(pstring *pstr, const char *cstr) {
   pstring tmp = {
     cstr,
     strlen(cstr)
@@ -72,16 +68,16 @@ paddc(pstring *pstr, char *cstr) {
 }
 
 pstring *
-pstring_new2(char *cstr, int len) {
+pstring_new2(const char *cstr, int len) {
   pstring *pstr = pstring_new(len);
-  memcpy(pstr->val, cstr, len);
+  memcpy((void *)pstr->val, cstr, len);
   return pstr;
 }
 
 pstring *
 qc2pstring(const char *cstr) {
   pstring *pstr = pstring_new(strlen(cstr));
-  char *val = pstr->val;
+  char *val = (char*)pstr->val;
   int len = strlen(cstr);
   for(int i = 1; i < len - 1; i++) {
     if(cstr[i] == '\\') {
@@ -98,14 +94,14 @@ void
 pstring_free(pstring *pstr) {
 	if(pstr != NULL) {
 		if(pstr->val != NULL) {
-			free(pstr->val);
+			free((void*) pstr->val);
 		}
 		free(pstr);
 	}
 }
 
 int
-cpstrcmp(char *a, pstring *b) {
+cpstrcmp(const char *a, pstring *b) {
   pstring ap;
   ap.val = a;
   ap.len = strlen(a);

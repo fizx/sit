@@ -1,5 +1,5 @@
 require 'mkmf'
-
+CONFIG['CC'] = ENV['CC'] if ENV['CC']
 CONFIG['optflags'] = "-O0"
 $CFLAGS << ' -g -std=c99 
              -pedantic -Wall -Wextra 
@@ -10,6 +10,7 @@ $CFLAGS << ' -g -std=c99
              -Wno-shorten-64-to-32 
              -Wno-switch-enum 
              -Wno-switch
+						 -Wno-variadic-macros
              -o sit'.gsub(/\s+/, " ")
 
 find_library('ev', 'ev_default_loop') && have_header("ev.h")

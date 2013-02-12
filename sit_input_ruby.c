@@ -11,6 +11,7 @@ _append_buf(struct sit_output *output, pstring *message) {
 
 void 
 _no_op(struct sit_output *output) {  
+  (void) output;
 }
 
 VALUE
