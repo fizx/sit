@@ -106,3 +106,5 @@ TODO
 * Nested json support
 * replace 
 * wchar/unicode support
+* facets
+* aggregations
