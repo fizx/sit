@@ -4,6 +4,13 @@ API
   Single-threaded string chunk stream writes
   Pluggable SAXish document parser
   
+Nestedness
+  docs have names.. __field:root, __field:root.inner, etc
+  does that mean INSIDE is an operator?
+  does that mean that there should be push/pop stack commands?
+    what about fragmented/interleaved docs?  
+      stop/resume doc?
+  
 Ruby
   Tests are in Ruby
   A network api is provided in eventmachine (want to port to mbuf/c)

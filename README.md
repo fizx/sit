@@ -98,3 +98,11 @@ What is the tilde?
 ------------------
 
 Tilde means full-text search.  In the simplest case, `title ~ hello` means to match the document if the document has a key called title, it points to the string, and string.split(/\s+/).include?("hello").  `title ~ "hello world"` will be transformed into `(title ~ hello AND title ~ world)`
+
+TODO
+----
+
+* Persistance
+* Nested json support
+* replace 
+* wchar/unicode support
