@@ -14,6 +14,8 @@ Why?
   Realtime means that you can trivially support search results that include the document you just added.
 * **Efficient percolation**    
   SIT is designed to add documents and execute query callbacks efficiently with up to 100k registered queries and/or connections.
+* **Flexible pubsub**    
+  Rather than publishing into channels, publish into a global event stream, and subscribe to dynamic channels defined by search queries.
   
 Protocol
 --------
