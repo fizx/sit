@@ -57,7 +57,7 @@ ring_cursor_seek_lte(sit_cursor *cursor, long value) {
 }
 
 //!ruby
-//!indent -5
+//!undent 5
 // <% 
 //   $ops = [%w[= == eq], %w[> > gt ], %w[< < lt], %w[! != ne], %w[. >= gte], %w[, <= lte]]
 //   $ops.each do |char, operator, prefix| 
@@ -76,6 +76,7 @@ ring_cursor_seek_lte(sit_cursor *cursor, long value) {
 //   <% end %>
 // <% end %>
 
+
 bool                                                                       
 eq_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -86,7 +87,7 @@ eq_predicate_ring_cursor_prev(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }                                                                   
-
+   
 bool                                                                       
 eq_predicate_ring_cursor_next(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -96,7 +97,7 @@ eq_predicate_ring_cursor_next(sit_cursor *scursor) {
     }                                                                      
   }                                                                        
   return false;                                                            
-}
+}                                                                   
 
 bool                                                                       
 gt_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
@@ -108,7 +109,7 @@ gt_predicate_ring_cursor_prev(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }                                                                   
-
+   
 bool                                                                       
 gt_predicate_ring_cursor_next(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -130,7 +131,7 @@ lt_predicate_ring_cursor_prev(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }                                                                   
-
+   
 bool                                                                       
 lt_predicate_ring_cursor_next(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -152,7 +153,7 @@ ne_predicate_ring_cursor_prev(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }                                                                   
-
+   
 bool                                                                       
 ne_predicate_ring_cursor_next(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -174,7 +175,7 @@ gte_predicate_ring_cursor_prev(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }                                                                   
-
+   
 bool                                                                       
 gte_predicate_ring_cursor_next(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -196,7 +197,7 @@ lte_predicate_ring_cursor_prev(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }                                                                   
-
+   
 bool                                                                       
 lte_predicate_ring_cursor_next(sit_cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
@@ -207,8 +208,7 @@ lte_predicate_ring_cursor_next(sit_cursor *scursor) {
   }                                                                        
   return false;                                                            
 }
-
-//!end generated code
+//!end
 
 ring_buffer_cursor *
 ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator, int predicate) {
@@ -221,7 +221,37 @@ ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator,
   //     cursor->as_cursor.next = <%=prefix%>_predicate_ring_cursor_next;
   //     break;
   // <% end %>
-  //
+
+
+  case '=':
+    cursor->as_cursor.prev = eq_predicate_ring_cursor_prev;
+    cursor->as_cursor.next = eq_predicate_ring_cursor_next;
+    break;
+
+  case '>':
+    cursor->as_cursor.prev = gt_predicate_ring_cursor_prev;
+    cursor->as_cursor.next = gt_predicate_ring_cursor_next;
+    break;
+
+  case '<':
+    cursor->as_cursor.prev = lt_predicate_ring_cursor_prev;
+    cursor->as_cursor.next = lt_predicate_ring_cursor_next;
+    break;
+
+  case '!':
+    cursor->as_cursor.prev = ne_predicate_ring_cursor_prev;
+    cursor->as_cursor.next = ne_predicate_ring_cursor_next;
+    break;
+
+  case '.':
+    cursor->as_cursor.prev = gte_predicate_ring_cursor_prev;
+    cursor->as_cursor.next = gte_predicate_ring_cursor_next;
+    break;
+
+  case ',':
+    cursor->as_cursor.prev = lte_predicate_ring_cursor_prev;
+    cursor->as_cursor.next = lte_predicate_ring_cursor_next;
+    break;
   //!end
   }
   cursor->operator = operator;
