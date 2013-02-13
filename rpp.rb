@@ -2,7 +2,7 @@
 require "erb"
 
 START = %r[(\s*)//!ruby]
-END = %r[//!end]
+FIN = %r[//!end]
 DIRECTIVE = %r[^\s*//!(\S+)]
 COMMENT = %r[^\s*//(.*)]
 
@@ -13,20 +13,24 @@ Dir["*.[ch]"].each do |file|
   state = :default
   if contents =~ START
     out = []
-    erbbuf = []
     replacing = false
-    lines = File.readlines
+    lines = File.readlines(file)
     while line = lines.shift
       case state
       when :default  
         out << line.chomp
         if(line =~ START)
           state = :erb 
+          erbbuf = []
           comment_indent = $1
         end
       when :erb  
         out << line.chomp
         if line =~ DIRECTIVE
+          directive, *args = $1.split(/\s+/)
+          if directive == "indent"
+            indent = args.first.to_i
+          end
         elsif line =~ COMMENT
           erbbuf << $1
         else
@@ -39,9 +43,10 @@ Dir["*.[ch]"].each do |file|
           state = :looking_for_end
         end
       when :looking_for_end
-        state = :default if line =~ END
+        state = :default if line =~ FIN
       end
     end
+    
+    File.open(file, "w") {|h| h.print(out.join("\n"))}
   end
-  File.open(file, "w") {|h| h.print(out.join("\n"))}
 end

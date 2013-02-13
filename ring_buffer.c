@@ -215,13 +215,14 @@ ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator,
   ring_buffer_cursor *cursor = ring_buffer_cursor_new(rb, width);
   switch (operator) {    
   //!ruby
-  // <% op_pairs.each do |char, operator, prefix| %>
+  // <% $ops.each do |char, operator, prefix| %>
   //   case '<%=char%>':
   //     cursor->as_cursor.prev = <%=prefix%>_predicate_ring_cursor_prev;
   //     cursor->as_cursor.next = <%=prefix%>_predicate_ring_cursor_next;
   //     break;
   // <% end %>
   //
+  //!end
   }
   cursor->operator = operator;
   cursor->predicate = predicate;
