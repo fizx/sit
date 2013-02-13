@@ -38,31 +38,35 @@ plist_cursor_prev(sit_cursor *scursor) {
   }
   plist *pl = cursor->plist;
   plist_pool *pool = pl->pool;
+  plist_entry * entry = cursor->as_cursor.data;
   
   if(cursor->block == NULL) {
     if(pl->last_block && pl->last_version >= pool->min_version) {
       cursor->block = pl->last_block;
     } else {
       cursor->exhausted = true;
+      cursor->as_cursor.data = NULL;
       return false;
     }
   }
   
-  if(cursor->as_cursor.data == NULL) {
+  if(entry == NULL) {
     int size = cursor->block->entries_count;
     if (size == 0) {
       cursor->exhausted = true;
+      cursor->as_cursor.data = NULL;
       return false;
     } else {
       cursor->as_cursor.data = &cursor->block->entries[size - 1];
       return true;
     }
-  } else if (cursor->as_cursor.data == &cursor->block->entries[0]) {
+  } else if (entry == &cursor->block->entries[0]) {
     if(cursor->block->prev && cursor->block->prev_version >= pool->min_version) {
       cursor->block = cursor->block->prev;
       int size = cursor->block->entries_count;
       if (size == 0) {
         cursor->exhausted = true;
+        cursor->as_cursor.data = NULL;
         return false;
       } else {
         cursor->as_cursor.data = &cursor->block->entries[size - 1];
@@ -70,11 +74,11 @@ plist_cursor_prev(sit_cursor *scursor) {
       }      
     } else {
       cursor->exhausted = true;
+      cursor->as_cursor.data = NULL;
       return false;
     }
   } else {
-    plist_entry * entry = cursor->as_cursor.data;
-    entry--;
+    cursor->as_cursor.data = ((plist_entry*) cursor->as_cursor.data) - 1;
     return true;
   }
 }
