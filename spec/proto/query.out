@@ -9,11 +9,11 @@
 {"status": "ok", "message": "added", "doc_id": 8"}
 {"status": "ok", "message": "added", "doc_id": 9"}
 {"status": "ok", "message": "added", "doc_id": 10"}
-{"status": "ok", "message": "querying", "id": 27}
-{"status": "ok", "message": "found", "query_id": 27, "doc_id": 9, "doc": {"hello":"world 9"}}
-{"status": "ok", "message": "found", "query_id": 27, "doc_id": 8, "doc": {"hello":"world 8"}}
-{"status": "ok", "message": "found", "query_id": 27, "doc_id": 7, "doc": {"hello":"world 7"}}
-{"status": "ok", "message": "found", "query_id": 27, "doc_id": 6, "doc": {"hello":"world 6"}}
-{"status": "ok", "message": "found", "query_id": 27, "doc_id": 5, "doc": {"hello":"world 5"}}
-{"status": "ok", "message": "complete", "id": 27}
+{"status": "ok", "message": "querying", "id": 0}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 9, "doc": {"hello":"world 9"}}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 8, "doc": {"hello":"world 8"}}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 7, "doc": {"hello":"world 7"}}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 6, "doc": {"hello":"world 6"}}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 5, "doc": {"hello":"world 5"}}
+{"status": "ok", "message": "complete", "id": 0}
 {"status": "ok", "message": "ack", "command": "query"}

@@ -14,7 +14,7 @@ describe "Query" do
     cj = Conjunction.new([term])
     cb = Callback.new(String, proc{})
     q = Query.new([cj], cb)
-    q.to_s.should =~ /<\(hello ~ world\) cb:\d+>/
+    q.to_s.should =~ /<\(hello ~ world\) cb:-?\d+>/
   end
   
   it "should be sorted" do
@@ -30,7 +30,7 @@ describe "Query" do
     qa = Query.new([cj1], cb)
     qb = Query.new([cj2], cb)
     qa.to_s.should == qb.to_s
-    qa.to_s.should =~ /<\(goodbye ~ world AND hello ~ world\) cb:\d+>/
+    qa.to_s.should =~ /<\(goodbye ~ world AND hello ~ world\) cb:-?\d+>/
   end
   
 	it "should sort nots last" do

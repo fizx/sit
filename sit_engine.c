@@ -84,7 +84,7 @@ _recurse_add(sit_engine *engine, dict *hash, sit_query_node *parent, sit_term *t
 		sit_callback *next = node->callback;
 		node->callback = callback;
 		callback->next = next;
-    if(!callback->id) callback->id = engine->query_id++;
+    if(callback->id < 0) callback->id = engine->query_id++;
 		return callback->id;
 	} else {
 		if(node->children == NULL) {
@@ -297,6 +297,7 @@ sit_result_iterator *
 sit_engine_search(sit_engine *engine, sit_query *query) {
   sit_result_iterator *iter = malloc(sizeof(sit_result_iterator));
   iter->query = query;
+  if(query->callback->id < 0) query->callback->id = engine->query_id++;
   iter->engine = engine;
   iter->doc_id = LONG_MAX;
   iter->initialized = false;
