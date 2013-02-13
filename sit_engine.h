@@ -5,19 +5,21 @@
 #include "dict.h"
 #include "lrw_dict.h"
 #include "plist.h"
-#include "sit_term.h"
+#include "sit_cursor.h"
 #include "sit_input.h"
 #include "sit_parser.h"
 #include "sit_query.h"
+
+struct plist_pool;
 
 typedef struct sit_engine {
 	struct sit_receiver as_receiver;
   // Data structures & indexes
   dict           *queries;  // Registered for percolation
   sit_parser     *parser;
-  ring_buffer    *stream;
-  lrw_dict       *term_dictionary;
-  plist_pool     *postings;
+  struct ring_buffer    *stream;
+  struct lrw_dict       *term_dictionary;
+  struct plist_pool     *postings;
 
   dict           *ints;
   long            ints_capacity;
@@ -27,7 +29,7 @@ typedef struct sit_engine {
   int              term_count;
   pstring         *field;
   int              term_capacity;
-  ring_buffer     *docs;
+  struct ring_buffer     *docs;
 	sit_input       *current_input;
 
   // User-settable
@@ -48,7 +50,7 @@ typedef struct {
   int count;
   long doc_id;
   bool initialized;
-  plist_cursor **cursors;
+  sit_cursor **cursors;
   long *state;
   int *negateds;
 } sub_iterator;

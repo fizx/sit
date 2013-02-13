@@ -2,9 +2,7 @@
 #define SIT_INPUT_H_INCLUDED
 
 #include "sit.h"
-
-struct sit_engine;
-struct query_parser;
+#include "sit_term.h"
 
 typedef struct sit_output {
 	void *data;
@@ -32,7 +30,7 @@ typedef struct sit_input {
   int              term_capacity;
 	dict            *ints;
   
-  ring_buffer     *stream;
+  struct ring_buffer     *stream;
   
   query_parser_mode qparser_mode;
   query_id_node    *query_ids;
@@ -42,7 +40,7 @@ typedef struct sit_input {
 
 	void *data;
 
-	sit_term         terms[1];
+	struct sit_term         terms[1];
 } sit_input;
 
 sit_input *

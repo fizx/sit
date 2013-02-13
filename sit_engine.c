@@ -317,7 +317,8 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
       plist_cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
-          
+          ring_buffer *rb = dictFetchValue(engine->ints, term->field);
+          cursor = rb == NULL ? NULL : ring_buffer_cursor_new(rb, sizeof(int));
         } else {
           plist *pl = lrw_dict_get(engine->term_dictionary, term);
           cursor = pl == NULL ? NULL : plist_cursor_new(pl);

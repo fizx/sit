@@ -1,14 +1,26 @@
 #ifndef RING_BUFFER_H_INCLUDED
 #define RING_BUFFER_H_INCLUDED
 
-#include "pstring.h"
+#include <stdbool.h>
+#include "sit.h"
+#include "sit_cursor.h"
 
-typedef struct {
+typedef struct ring_buffer {
 	long capacity;
 	long offset;
 	long written;
 	char *buffer;
 } ring_buffer;
+
+typedef struct ring_buffer_cursor {
+  struct sit_cursor as_cursor;
+  ring_buffer *rb;
+  long width;
+  long pos;
+} ring_buffer_cursor;
+
+ring_buffer_cursor *
+ring_buffer_cursor_new(ring_buffer *rb, long width);
 
 ring_buffer *
 ring_buffer_new(long size);

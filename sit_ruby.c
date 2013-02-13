@@ -31,6 +31,8 @@ VALUE rbc_receiver;
 VALUE rbc_protocol;
 VALUE rbc_line_protocol;
 VALUE rbc_server;
+VALUE rbc_int_ring_buffer;
+VALUE rbc_int_ring_buffer_cursor;
 
 void 
 Init_sit() {
@@ -80,6 +82,19 @@ Init_sit() {
 	rb_define_singleton_method(rbc_ring_buffer, "new", rbc_ring_buffer_new, 1);
 	rb_define_method(rbc_ring_buffer, "append", rbc_ring_buffer_append, 1);
 	rb_define_method(rbc_ring_buffer, "get", rbc_ring_buffer_get, 2);
+	
+	// IntRingBuffer
+	rbc_int_ring_buffer = rb_define_class_under(m_sit, "IntRingBuffer", rb_cObject);
+	rb_define_singleton_method(rbc_int_ring_buffer, "new", rbc_int_ring_buffer_new, 1);
+	rb_define_method(rbc_int_ring_buffer, "append", rbc_int_ring_buffer_append, 1);
+	rb_define_method(rbc_int_ring_buffer, "get", rbc_int_ring_buffer_get, 1);
+	
+	// IntRingBufferCursor
+	rbc_int_ring_buffer_cursor = rb_define_class_under(m_sit, "IntRingBufferCursor", rb_cObject);
+	rb_define_singleton_method(rbc_int_ring_buffer_cursor, "new", rbc_int_ring_buffer_cursor_new, 1);
+	rb_define_method(rbc_int_ring_buffer_cursor, "get", rbc_int_ring_buffer_cursor_get, 0);
+	rb_define_method(rbc_int_ring_buffer_cursor, "pos", rbc_int_ring_buffer_cursor_pos, 0);
+	rb_define_method(rbc_int_ring_buffer_cursor, "prev!", rbc_int_ring_buffer_cursor_prev, 0);
 	
 	// Term
 	rbc_term = rb_define_class_under(m_sit, "Term", rb_cObject);

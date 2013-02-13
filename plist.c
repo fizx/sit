@@ -6,14 +6,6 @@
 #include <limits.h>
 #include <assert.h>
 
-
-/**
- * TODO: 
- * - allocate next block if block full
- * - resize blocks?  Or just maintain count-ish of elements and add bigger blocks
- * - increment version numbers across regions
- */
-
 plist_pool *
 plist_pool_new(long size) {
 	plist_pool *pool = malloc(sizeof(plist_pool));
@@ -27,6 +19,93 @@ plist_pool_new(long size) {
 	pool->min_version = 0;
 	return pool;
 }
+
+long
+plist_cursor_document_id(sit_cursor *scursor) {
+  plist_cursor *cursor = (plist_cursor *)scursor;
+  if(cursor->as_cursor.data != NULL) {
+    return ((plist_entry *)cursor->as_cursor.data)->doc;
+  } else {
+    return -1;
+  }
+}
+
+bool
+plist_cursor_prev(sit_cursor *scursor) {
+  plist_cursor *cursor = (plist_cursor *)scursor;
+  if(cursor->exhausted) {
+    return false;
+  }
+  plist *pl = cursor->plist;
+  plist_pool *pool = pl->pool;
+  
+  if(cursor->block == NULL) {
+    if(pl->last_block && pl->last_version >= pool->min_version) {
+      cursor->block = pl->last_block;
+    } else {
+      cursor->exhausted = true;
+      return false;
+    }
+  }
+  
+  if(cursor->as_cursor.data == NULL) {
+    int size = cursor->block->entries_count;
+    if (size == 0) {
+      cursor->exhausted = true;
+      return false;
+    } else {
+      cursor->as_cursor.data = &cursor->block->entries[size - 1];
+      return true;
+    }
+  } else if (cursor->as_cursor.data == &cursor->block->entries[0]) {
+    if(cursor->block->prev && cursor->block->prev_version >= pool->min_version) {
+      cursor->block = cursor->block->prev;
+      int size = cursor->block->entries_count;
+      if (size == 0) {
+        cursor->exhausted = true;
+        return false;
+      } else {
+        cursor->as_cursor.data = &cursor->block->entries[size - 1];
+        return true;
+      }      
+    } else {
+      cursor->exhausted = true;
+      return false;
+    }
+  } else {
+    plist_entry * entry = cursor->as_cursor.data;
+    entry--;
+    return true;
+  }
+}
+
+bool
+plist_cursor_next(sit_cursor *scursor) {
+  plist_cursor *cursor = (plist_cursor *)scursor;
+  (void) cursor;
+  return false;
+}
+
+plist_entry *
+plist_cursor_entry(sit_cursor *scursor) {
+  plist_cursor *cursor = (plist_cursor *)scursor;
+  return cursor->exhausted ? NULL : cursor->as_cursor.data;
+}
+
+
+long 
+plist_cursor_seek_lte(sit_cursor *scursor, long value) {
+  plist_cursor *cursor = (plist_cursor *)scursor;
+	long doc;
+	while((doc = plist_cursor_document_id(&cursor->as_cursor)) > value) {
+		if(!plist_cursor_prev(&cursor->as_cursor)) {
+			doc = -1;
+			break;
+		}
+	}	
+	return doc;
+}
+
 
 plist *
 plist_new(plist_pool *pool) {
@@ -48,80 +127,16 @@ plist_cursor *
 plist_cursor_new(plist *pl) {
   assert(pl);
   plist_cursor *cursor = malloc(sizeof(plist_cursor));
+  cursor->as_cursor.prev = plist_cursor_prev;
+  cursor->as_cursor.next = plist_cursor_next;
+  cursor->as_cursor.id = plist_cursor_document_id;
+  cursor->as_cursor.seek_lte = plist_cursor_seek_lte;
+  cursor->as_cursor.data = NULL;
   cursor->plist = pl;
   cursor->block = NULL;
-  cursor->entry = NULL;
   cursor->exhausted = false;
   return cursor;
 }
-
-long
-plist_cursor_document_id(plist_cursor *cursor) {
-  if(cursor->entry != NULL) {
-    return cursor->entry->doc;
-  } else {
-    return -1;
-  }
-}
-
-bool
-plist_cursor_prev(plist_cursor *cursor) {
-  if(cursor->exhausted) {
-    return false;
-  }
-  plist *pl = cursor->plist;
-  plist_pool *pool = pl->pool;
-  
-  if(cursor->block == NULL) {
-    if(pl->last_block && pl->last_version >= pool->min_version) {
-      cursor->block = pl->last_block;
-    } else {
-      cursor->exhausted = true;
-      return false;
-    }
-  }
-  
-  if(cursor->entry == NULL) {
-    int size = cursor->block->entries_count;
-    if (size == 0) {
-      cursor->exhausted = true;
-      return false;
-    } else {
-      cursor->entry = &cursor->block->entries[size - 1];
-      return true;
-    }
-  } else if (cursor->entry == &cursor->block->entries[0]) {
-    if(cursor->block->prev && cursor->block->prev_version >= pool->min_version) {
-      cursor->block = cursor->block->prev;
-      int size = cursor->block->entries_count;
-      if (size == 0) {
-        cursor->exhausted = true;
-        return false;
-      } else {
-        cursor->entry = &cursor->block->entries[size - 1];
-        return true;
-      }      
-    } else {
-      cursor->exhausted = true;
-      return false;
-    }
-  } else {
-    cursor->entry--;
-    return true;
-  }
-}
-
-bool
-plist_cursor_next(plist_cursor *cursor) {
-  (void) cursor;
-  return false;
-}
-
-plist_entry *
-plist_cursor_entry(plist_cursor *cursor) {
-  return cursor->exhausted ? NULL : cursor->entry;
-}
-
 
 plist_block *
 plist_append_block(plist *pl) {
@@ -194,18 +209,6 @@ plist_size(plist *plist) {
 	counter.user_data = &count;
 	plist_reach(plist, &counter);
 	return count;
-}
-
-long 
-plist_cursor_seek_lte(plist_cursor *cursor, long value) {
-	long doc;
-	while((doc = plist_cursor_document_id(cursor)) > value) {
-		if(!plist_cursor_prev(cursor)) {
-			doc = -1;
-			break;
-		}
-	}	
-	return doc;
 }
 
 

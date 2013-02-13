@@ -10,7 +10,7 @@
  * The quirkiest thing right now is that points > 1 is a term with
  * field:points, offset:1, numeric:true, text:>.
  */
-typedef struct {
+typedef struct sit_term {
   pstring *field;
   pstring *text;
   unsigned int hash_code;
