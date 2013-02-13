@@ -154,7 +154,7 @@ describe "Engine" do
   end
   
   it "should be able to search a numeric term" do
-    term = Term.new_numeric("a", ">", 0)
+    term = Term.new_numeric("columns", ">", 1)
     cj = Conjunction.new([term])
     cb = Callback.new(Numeric, proc{|doc| $events << doc })
     q = Query.new([cj], cb) 
@@ -163,7 +163,7 @@ describe "Engine" do
     while cursor.prev!
       cursor.call
     end
-    $events.should == []
+    $events.should == [0]
   end
   
   it "should not respond to a miss" do

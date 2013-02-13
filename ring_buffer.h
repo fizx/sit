@@ -17,6 +17,8 @@ typedef struct ring_buffer_cursor {
   ring_buffer *rb;
   long width;
   long pos;
+  char operator;
+  int predicate;
 } ring_buffer_cursor;
 
 ring_buffer_cursor *

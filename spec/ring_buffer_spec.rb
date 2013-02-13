@@ -60,4 +60,26 @@ describe "RingBuffer" do
 		end
 		$foo.should == 11
 	end
+	
+	it "should ring with ints" do
+		buf = IntRingBuffer.new(10)
+		(0..20).each do |i|
+		  buf.append(i)
+	  end
+    buf.get(0).should == nil
+    buf.get(1).should == nil
+		buf.get(18).should == 18
+		
+		cursor = IntPredicateRingBufferCursor.new(buf, ">", 17)
+		cursor.get.should == nil
+		cursor.prev!.should == true
+		cursor.pos.should == 20
+		cursor.get.should == 20
+		cursor.prev!.should == true
+		cursor.get.should == 19
+		while(cursor.prev!) do
+      $foo = cursor.get
+		end
+		$foo.should == 18
+	end
 end

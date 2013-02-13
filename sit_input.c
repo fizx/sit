@@ -147,15 +147,19 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
     -1,
     NULL
   };
+  dictIterator *iter = dictGetIterator(input->ints);
+  dictEntry *entry;
+
+  //FIXME
+  while ((entry = dictNext(iter))) {
+    engine->field = dictGetKey(entry);
+    sit_engine_int_found(&engine->as_receiver, dictGetSignedIntegerVal(entry));
+  }
+  
   engine->on_document_found = &cb;
 	sit_engine_document_found(&engine->as_receiver, engine->stream->written - len, len);
   engine->on_document_found = old;
   long doc_id = sit_engine_last_document_id(engine);
-  dictIterator *iter = dictGetIterator(input->ints);
-  dictEntry *entry;
-  while ((entry = dictNext(iter))) {
-    sit_engine_set_int(engine, doc_id, dictGetKey(entry), dictGetSignedIntegerVal(entry));
-  }
   dictReleaseIterator(iter);
   input->term_count = 0;
 	dictEmpty(input->term_index);

@@ -318,7 +318,9 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
       sit_cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
+          printf("WEWT?? %.*s\n", term->field->len, term->field->val);
           ring_buffer *rb = dictFetchValue(engine->ints, term->field);
+          if(rb) printf("YES\n");
           cursor = rb == NULL ? NULL : &ring_buffer_cursor_new(rb, sizeof(int))->as_cursor;
         } else {
           plist *pl = lrw_dict_get(engine->term_dictionary, term);
@@ -513,6 +515,7 @@ sit_engine_get_int(sit_engine *engine, long doc_id, pstring *field) {
 
 void
 sit_engine_set_int(sit_engine *engine, long doc_id, pstring *field, int value) {
+  //FIXME?!
   ring_buffer *rb = dictFetchValue(engine->ints, field);
   assert(field);
   if(rb == NULL) {
