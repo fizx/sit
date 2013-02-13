@@ -120,21 +120,24 @@ VALUE
 rbc_plist_cursor_prev(VALUE self) {
   plist_cursor *cursor;
 	Data_Get_Struct(self, plist_cursor, cursor);
-  return plist_cursor_prev(cursor) ? Qtrue : Qfalse;
+  sit_cursor *sc = &cursor->as_cursor;
+  return sc->prev(sc) ? Qtrue : Qfalse;
 }
 
 VALUE
 rbc_plist_cursor_next(VALUE self) {
   plist_cursor *cursor;
 	Data_Get_Struct(self, plist_cursor, cursor);
-  return plist_cursor_next(cursor) ? Qtrue : Qfalse;
+	sit_cursor *sc = &cursor->as_cursor;
+  return sc->next(sc) ? Qtrue : Qfalse;
 }
 
 VALUE
 rbc_plist_cursor_entry(VALUE self) {
   plist_cursor *cursor;
 	Data_Get_Struct(self, plist_cursor, cursor);
-  plist_entry *entry = plist_cursor_entry(cursor);
+	sit_cursor *sc = &cursor->as_cursor;
+  plist_entry *entry = sc->data;
   if(entry == NULL) {
     return Qnil;
   } else {

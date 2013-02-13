@@ -314,14 +314,14 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
     iter->subs[i]->count = cj->count;
     for(int j = 0; j < cj->count; j++) {
       sit_term *term = &cj->terms[j];
-      plist_cursor *cursor = dictFetchValue(iter->cursors, term);
+      sit_cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
           ring_buffer *rb = dictFetchValue(engine->ints, term->field);
-          cursor = rb == NULL ? NULL : ring_buffer_cursor_new(rb, sizeof(int));
+          cursor = rb == NULL ? NULL : &ring_buffer_cursor_new(rb, sizeof(int))->as_cursor;
         } else {
           plist *pl = lrw_dict_get(engine->term_dictionary, term);
-          cursor = pl == NULL ? NULL : plist_cursor_new(pl);
+          cursor = pl == NULL ? NULL : &plist_cursor_new(pl)->as_cursor;
           dictAdd(iter->cursors, term, cursor);
         }
       }
@@ -344,7 +344,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
   while (min >= 0) {
     long max = -1;
     for (int i = 0; i < size; i++) {
-      plist_cursor *cursor = iter->cursors[i];
+      sit_cursor *cursor = iter->cursors[i];
       int negated = iter->negateds[i];
 
       if (cursor == NULL) {
@@ -358,14 +358,14 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
 
       if(!iter->initialized) {
         iter->state[i] = LONG_MAX;
-        plist_cursor_prev(cursor);
+        cursor->prev(cursor);
       }
       
       if (negated) {
         long lower;
-        while((lower = plist_cursor_document_id(cursor)) >= min || iter->state[i] >= min) {
+        while((lower = cursor->id(cursor)) >= min || iter->state[i] >= min) {
           iter->state[i] = lower;
-          if(!plist_cursor_prev(cursor)) {
+          if(!cursor->prev(cursor)) {
             lower = -1;
             break;
           }
@@ -375,7 +375,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
         if(min > max) max = min;
       } else {
         
-        long doc = plist_cursor_seek_lte(cursor, min);
+        long doc = cursor->seek_lte(cursor, min);
         if(doc < min) min = doc;
         if(doc > max) max = doc;
       }

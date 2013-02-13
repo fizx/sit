@@ -9,7 +9,7 @@ typedef struct lrw_type {
 	long (*version)(dictEntry *entry);
 } lrw_type;
 
-typedef struct {
+typedef struct lrw_dict {
 	dict *dict;
 	dictType *dict_type;
 	lrw_type *lrw_type;
