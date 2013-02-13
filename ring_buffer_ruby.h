@@ -23,7 +23,7 @@ VALUE
 rbc_int_ring_buffer_get(VALUE self, VALUE off);
 
 VALUE
-rbc_int_ring_buffer_cursor_new(VALUE class, VALUE buffer);
+rbc_int_ring_buffer_cursor_new(VALUE class, VALUE buffer, VALUE operator, VALUE predicate);
 
 VALUE
 rbc_int_ring_buffer_cursor_get(VALUE self);

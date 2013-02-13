@@ -91,7 +91,7 @@ Init_sit() {
 	
 	// IntRingBufferCursor
 	rbc_int_ring_buffer_cursor = rb_define_class_under(m_sit, "IntRingBufferCursor", rb_cObject);
-	rb_define_singleton_method(rbc_int_ring_buffer_cursor, "new", rbc_int_ring_buffer_cursor_new, 1);
+	rb_define_singleton_method(rbc_int_ring_buffer_cursor, "new", rbc_int_ring_buffer_cursor_new, 3);
 	rb_define_method(rbc_int_ring_buffer_cursor, "get", rbc_int_ring_buffer_cursor_get, 0);
 	rb_define_method(rbc_int_ring_buffer_cursor, "pos", rbc_int_ring_buffer_cursor_pos, 0);
 	rb_define_method(rbc_int_ring_buffer_cursor, "prev!", rbc_int_ring_buffer_cursor_prev, 0);

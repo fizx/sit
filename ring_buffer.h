@@ -48,4 +48,7 @@ ring_buffer_append_pstring(void *rb, pstring *pstr);
 pstring *
 ring_buffer_get_pstring(void *rb, long off, int len);
 
+ring_buffer_cursor *
+ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator, int predicate);
+
 #endif

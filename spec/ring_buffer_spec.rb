@@ -28,7 +28,7 @@ describe "RingBuffer" do
     buf.get(1).should == 1
 		buf.get(18).should == 18
 		
-		cursor = IntRingBufferCursor.new(buf)
+		cursor = IntRingBufferCursor.new(buf, nil, nil)
 		cursor.get.should == nil
 		cursor.prev!.should == true
 		cursor.pos.should == n
@@ -48,7 +48,7 @@ describe "RingBuffer" do
     buf.get(1).should == nil
 		buf.get(18).should == 18
 		
-		cursor = IntRingBufferCursor.new(buf)
+		cursor = IntRingBufferCursor.new(buf, nil, nil)
 		cursor.get.should == nil
 		cursor.prev!.should == true
 		cursor.pos.should == 20
@@ -70,7 +70,7 @@ describe "RingBuffer" do
     buf.get(1).should == nil
 		buf.get(18).should == 18
 		
-		cursor = IntPredicateRingBufferCursor.new(buf, ">", 17)
+		cursor = IntRingBufferCursor.new(buf, ">", 17)
 		cursor.get.should == nil
 		cursor.prev!.should == true
 		cursor.pos.should == 20

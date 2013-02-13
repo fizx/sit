@@ -66,10 +66,18 @@ rbc_int_ring_buffer_get(VALUE self, VALUE roff) {
 }
 
 VALUE
-rbc_int_ring_buffer_cursor_new(VALUE class, VALUE buffer) {
+rbc_int_ring_buffer_cursor_new(VALUE class, VALUE buffer, VALUE operator, VALUE rpredicate) {
   ring_buffer *rb;
 	Data_Get_Struct(buffer, ring_buffer, rb);
-	ring_buffer_cursor *rbc = ring_buffer_cursor_new(rb, sizeof(int));
+  ring_buffer_cursor *rbc;
+  if (operator == Qnil) {
+    rbc = ring_buffer_cursor_new(rb, sizeof(int));
+  } else {
+    operator = StringValue(operator);
+    char op = *RSTRING_PTR(operator);
+    int predicate = NUM2INT(rpredicate);
+    rbc = ring_buffer_predicate_int_cursor_new(rb, sizeof(int), op, predicate);
+  }
 	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, rbc);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
