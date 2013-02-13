@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+
+# This runs an erb code generator that I occasionally use when I want to generate code
+# that's too much of a pita to generate with the ordinary CPP.
+#
+# You'll see it marked up as comments starting with //!ruby, and the generated code will
+# go until //!end.
+
 require "erb"
 
 START = %r[(\s*)//!ruby]
