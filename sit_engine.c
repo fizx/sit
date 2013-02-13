@@ -295,11 +295,12 @@ _unregister_handler(sit_callback *cb, void *vnode) {
 
 sit_result_iterator *
 sit_engine_search(sit_engine *engine, sit_query *query) {
+  long max = sit_engine_last_document_id(engine)+1;
   sit_result_iterator *iter = malloc(sizeof(sit_result_iterator));
   iter->query = query;
   if(query->callback->id < 0) query->callback->id = engine->query_id++;
   iter->engine = engine;
-  iter->doc_id = LONG_MAX;
+  iter->doc_id = max;
   iter->initialized = false;
   iter->cursors = dictCreate(getTermDict(), 0);
   iter->subs = malloc(sizeof(sub_iterator*) * query->count);
@@ -307,7 +308,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
   for(int i = 0; i < query->count; i++) {
     conjunction_t *cj = query->conjunctions[i];
     iter->subs[i] = malloc(sizeof(sub_iterator));
-    iter->subs[i]->doc_id = LONG_MAX;
+    iter->subs[i]->doc_id = max;
     iter->subs[i]->cursors = malloc(sizeof(plist_cursor*) * cj->count);
     iter->subs[i]->negateds = malloc(cj->count);
     iter->subs[i]->state = malloc(sizeof(long) * cj->count);
@@ -318,10 +319,8 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
       sit_cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
-          printf("WEWT?? %.*s\n", term->field->len, term->field->val);
           ring_buffer *rb = dictFetchValue(engine->ints, term->field);
-          if(rb) printf("YES\n");
-          cursor = rb == NULL ? NULL : &ring_buffer_cursor_new(rb, sizeof(int))->as_cursor;
+          cursor = rb == NULL ? NULL : &ring_buffer_predicate_int_cursor_new(rb, sizeof(int), term->text->val[0], term->offset)->as_cursor;
         } else {
           plist *pl = lrw_dict_get(engine->term_dictionary, term);
           cursor = pl == NULL ? NULL : &plist_cursor_new(pl)->as_cursor;
@@ -332,7 +331,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
         iter->subs[i]->negateds[j] = 1;
       }
       iter->subs[i]->cursors[j] = cursor;
-      iter->subs[i]->state[j] = LONG_MAX;
+      iter->subs[i]->state[j] = max;
     }
   }
   return iter; 

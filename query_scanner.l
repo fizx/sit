@@ -314,6 +314,8 @@ expand_clauses(query_parser *context, ast_node_t *node) {
       context->tokenizer->end_stream(context->tokenizer);
     } else if(Q(op)->cmp != _TILDE && Q(val)->type == NUM) {
       Q(node)->type = NUMTERM;
+      Q(node)->cmp = Q(op)->cmp;
+      Q(node)->num = Q(val)->num;
       node->child = NULL;
     } else {
       assert(0);
@@ -326,6 +328,7 @@ expand_clauses(query_parser *context, ast_node_t *node) {
 void *
 to_conjunction(ast_node_t *node, void *obj) {
   switch(Q(node)->type) {
+  case NUMTERM:
   case TERM: {
     conjunction_t *con = malloc(sizeof(conjunction_t));
     memcpy(&con->terms[0], obj, sizeof(sit_term));
@@ -343,6 +346,7 @@ to_conjunction(ast_node_t *node, void *obj) {
 void *
 to_query(ast_node_t *node, void *obj) {
   switch(Q(node)->type) {
+  case NUMTERM:
   case TERM: {
     obj = to_conjunction(node, obj);
     // fall-through
@@ -361,9 +365,115 @@ to_query(ast_node_t *node, void *obj) {
   }
 }
 
+
+//!ruby
+// <% ops = ["_NA"   ,'?'],
+// ["_EQ"   ,'='],
+// ["_GT"   ,'>'],
+// ["_LT"   ,'<'],
+// ["_GTE"  ,'.'],
+// ["_LTE"  ,','],
+// ["_TILDE",'~'],
+// ["_NEQ"  ,'!'] %>
+// <% ops.each do |name, char| %>
+// pstring <%=name.downcase%> = {
+//   "<%=char%>",
+//   1
+// };
+// <% end%>
+// 
+// pstring * 
+// cmpmap(cmp_type t) {
+//   switch(t) {
+//   <% ops.each do |name, char| -%>
+//     case <%=name%>: return &<%=name.downcase%>;
+//   <% end -%>
+//   }
+//   return '?';
+// }
+
+
+pstring _na = {
+  "?",
+  1
+};
+
+pstring _eq = {
+  "=",
+  1
+};
+
+pstring _gt = {
+  ">",
+  1
+};
+
+pstring _lt = {
+  "<",
+  1
+};
+
+pstring _gte = {
+  ".",
+  1
+};
+
+pstring _lte = {
+  ",",
+  1
+};
+
+pstring _tilde = {
+  "~",
+  1
+};
+
+pstring _neq = {
+  "!",
+  1
+};
+
+pstring * 
+cmpmap(cmp_type t) {
+  switch(t) {
+       case _NA: return &_na;
+       case _EQ: return &_eq;
+       case _GT: return &_gt;
+       case _LT: return &_lt;
+       case _GTE: return &_gte;
+       case _LTE: return &_lte;
+       case _TILDE: return &_tilde;
+       case _NEQ: return &_neq;
+     }
+  return '?';
+}
+//!end
+
+pstring * 
+_negate(pstring *t) {
+  switch(*t->val) {
+    case '?': return &_na;
+    case '=': return &_neq;
+    case '>': return &_lte;
+    case '<': return &_gte;
+    case '.': return &_lt;
+    case ',': return &_gt;
+    case '~': return &_na;
+    case '!': return &_eq;
+  }
+  return &_na;
+}
+
 void *
 make_query_and_callback(query_parser *context, ast_node_t *node) {
   switch(Q(node)->type) {
+  case NUMTERM: {
+    pstring *c = cmpmap(Q(node)->cmp);
+    if(Q(node)->negated) c = _negate(c);
+    sit_term *term = sit_term_new(Q(node)->field, c, Q(node)->num, false);
+    term->numeric = true;
+    return term;
+  }
   case TERM:
     return sit_term_new(Q(node)->field, Q(node)->val, Q(node)->num, Q(node)->negated);
   case ANDS: {

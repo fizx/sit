@@ -163,7 +163,22 @@ describe "Engine" do
     while cursor.prev!
       cursor.call
     end
+    @engine.last_document_id.should == 0
     $events.should == [0]
+  end
+  
+  it "should be able to miss a numeric term" do
+    term = Term.new_numeric("columns", "=", 100000)
+    cj = Conjunction.new([term])
+    cb = Callback.new(Numeric, proc{|doc| $events << doc })
+    q = Query.new([cj], cb) 
+    @input.consume("hello\tworld\n")  
+    cursor = @engine.search(q)
+    while cursor.prev!
+      cursor.call
+    end
+    @engine.last_document_id.should == 0
+    $events.should == []
   end
   
   it "should not respond to a miss" do

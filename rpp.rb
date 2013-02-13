@@ -15,7 +15,7 @@ COMMENT = %r[^\s*//(.*)]
 
 undent = 0
 comment_indent = ""
-Dir["*.[ch]"].each do |file|
+Dir["*.[chly]"].each do |file|
   contents = File.read(file)
   state = :default
   if contents =~ START
@@ -43,7 +43,7 @@ Dir["*.[ch]"].each do |file|
         elsif line =~ COMMENT
           erbbuf << $1
         else
-          template = ERB.new(erbbuf.join("\n"))
+          template = ERB.new(erbbuf.join("\n"), nil, '-')
           erbout = template.result(binding)
           erbout.gsub!(/\n[ \t]*\n[ \t]*\n/, "\n\n")
           erbout.gsub!(/\n[ \t]*\n[ \t]*\n/, "\n\n")
