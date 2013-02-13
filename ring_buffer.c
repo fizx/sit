@@ -25,9 +25,8 @@ ring_cursor_prev(sit_cursor *scursor) {
   if(cursor->pos > max) {
     cursor->pos = max;
   }
-  bool out = --cursor->pos >= (cursor->rb->written - cursor->rb->capacity) / cursor->width;
-  cursor->as_cursor.data = ring_buffer_get(cursor->rb, cursor->pos * cursor->width, cursor->width);
-  return out;
+  cursor->pos--;
+  return (cursor->as_cursor.data = ring_buffer_get(cursor->rb, cursor->pos * cursor->width, cursor->width));
 }
 
 bool
@@ -110,7 +109,7 @@ void *
 ring_buffer_get(ring_buffer *rb, long off, int len) {
 	if(off + len > rb->written ||
 		 off < rb->written - rb->capacity ||
-		 len > rb->capacity) {
+		 len > rb->capacity || off < 0) {
 		return NULL;
 	} else {
 		off = off % rb->capacity;

@@ -20,7 +20,8 @@ describe "RingBuffer" do
 	
 	it "should work with ints" do
 		buf = IntRingBuffer.new(100)
-		(0..20).each do |i|
+		n = 20
+		(0..n).each do |i|
 		  buf.append(i)
 	  end
     buf.get(0).should == 0
@@ -30,14 +31,12 @@ describe "RingBuffer" do
 		cursor = IntRingBufferCursor.new(buf)
 		cursor.get.should == nil
 		cursor.prev!.should == true
-		cursor.pos.should == 20
-		cursor.get.should == 20
-		cursor.prev!.should == true
-		cursor.get.should == 19
+		cursor.pos.should == n
+		cursor.get.should == n
 		while(cursor.prev!) do
-		  $foo = cursor.get
+		  cursor.get.should == n -= 1
 		end
-		$foo.should == 0
+		n.should == 0
 	end
 	
 	it "should ring with ints" do
