@@ -39,18 +39,24 @@ _jsonsl_stack_callback(
   int off;
   int len;
   int end;
+  char *ptr = at;
 	sit_parser *parser = jsn->data;
 	json_state *sit_state = parser->state;
 	switch (action) {
 	case JSONSL_ACTION_PUSH: 
 		switch (state->type) {
+	  case JSONSL_T_SPECIAL:
+	    if(!(state->special_flags & JSONSL_SPECIALf_NUMERIC)) {
+        break;
+      }
+      ptr--; //no opening quote
 		case JSONSL_T_HKEY:
 		case JSONSL_T_STRING:	  
       sit_state->buffering = true;                                            
-      off = at + 1 - sit_state->active->val;   
+      off = ptr + 1 - sit_state->active->val;   
       sit_state->start_off = sit_state->active_off + off;
       len = sit_state->active->len - off;      
-      sit_state->buf = pstring_new2(at + 1, len);
+      sit_state->buf = pstring_new2(ptr + 1, len);
 			break;
 		}  
 		case JSONSL_T_OBJECT:
@@ -61,6 +67,14 @@ _jsonsl_stack_callback(
 		break;
 	case JSONSL_ACTION_POP: 
 		switch (state->type) {
+	  case JSONSL_T_SPECIAL:  
+  	  if(!(state->special_flags & JSONSL_SPECIALf_NUMERIC)) {
+        break;
+      }
+      len = state->pos_cur - state->pos_begin;
+      sit_state->buf->len = len;
+      parser->receiver->int_found(parser->receiver, strtol(sit_state->buf->val, NULL, 10));
+      break;
 		case JSONSL_T_HKEY:
       len = state->pos_cur - state->pos_begin - 1;
       sit_state->buf->len = len;

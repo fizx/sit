@@ -310,7 +310,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
     iter->subs[i] = malloc(sizeof(sub_iterator));
     iter->subs[i]->doc_id = max;
     iter->subs[i]->cursors = malloc(sizeof(plist_cursor*) * cj->count);
-    iter->subs[i]->negateds = malloc(cj->count);
+    iter->subs[i]->negateds = malloc(cj->count * sizeof(int));
     iter->subs[i]->state = malloc(sizeof(long) * cj->count);
     iter->subs[i]->initialized = false;
     iter->subs[i]->count = cj->count;
@@ -327,9 +327,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
           dictAdd(iter->cursors, term, cursor);
         }
       }
-      if(term->negated) {
-        iter->subs[i]->negateds[j] = 1;
-      }
+      iter->subs[i]->negateds[j] = (int) term->negated;
       iter->subs[i]->cursors[j] = cursor;
       iter->subs[i]->state[j] = max;
     }
@@ -364,6 +362,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
       }
       
       if (negated) {
+        printf("WAT\n");
         long lower;
         while((lower = cursor->id(cursor)) >= min || iter->state[i] >= min) {
           iter->state[i] = lower;

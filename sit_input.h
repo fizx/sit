@@ -50,6 +50,9 @@ void
 sit_input_consume(struct sit_input *input, pstring *pstr);
 
 void 
+sit_input_error_found(sit_receiver *receiver, pstring *name);
+
+void 
 sit_input_end_stream(struct sit_input *input);
 
 void 

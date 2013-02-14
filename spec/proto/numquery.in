@@ -1,0 +1,12 @@
+{"hello":"world 0", "points": 9}
+{"hello":"world 1", "points": 8}
+{"hello":"world 2", "points": 7}
+{"hello":"world 3"}
+{"hello":"world 4", "points": 5}
+{"hello":"world 5", "points": 4}
+{"hello":"world 6", "points": 2}
+{"hello":"world 7", "points": 3}
+{"hello":"world 8", "points": 0}
+{"hello":"world 9", "points": 1}
+{"goodbye":"world"}
+query hello ~ world AND points = 5 LIMIT 5;

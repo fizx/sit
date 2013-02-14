@@ -71,6 +71,7 @@ sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
 	input->as_receiver.document_found = sit_input_document_found;
 	input->as_receiver.field_found    = sit_input_field_found;
 	input->as_receiver.int_found      = sit_input_int_found;
+	input->as_receiver.error_found     = sit_input_error_found;
 	input->stream = ring_buffer_new(buffer_size);
 	input->term_index = dictCreate(getTermDict(), 0);
 	input->ints = dictCreate(getPstrDict(), 0);
@@ -103,6 +104,18 @@ sit_input_term_found(sit_receiver *receiver, long off, int len, int field_offset
 void 
 sit_input_end_stream(struct sit_input *input) {
   input->parser->end_stream(input->parser);
+}
+
+void 
+sit_input_error_found(sit_receiver *receiver, pstring *message) {
+	sit_input *input = (sit_input *)receiver;
+  sit_output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PC("{\"status\": \"error\", \"message\": \"");
+  P(message);
+  PC("\"}");
+  output->write(output, buf);
+  pstring_free(buf);
 }
 
 void 
@@ -159,7 +172,6 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
   engine->on_document_found = &cb;
 	sit_engine_document_found(&engine->as_receiver, engine->stream->written - len, len);
   engine->on_document_found = old;
-  long doc_id = sit_engine_last_document_id(engine);
   dictReleaseIterator(iter);
   input->term_count = 0;
 	dictEmpty(input->term_index);

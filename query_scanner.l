@@ -314,6 +314,7 @@ expand_clauses(query_parser *context, ast_node_t *node) {
       context->tokenizer->end_stream(context->tokenizer);
     } else if(Q(op)->cmp != _TILDE && Q(val)->type == NUM) {
       Q(node)->type = NUMTERM;
+      Q(node)->field = Q(field)->val;
       Q(node)->cmp = Q(op)->cmp;
       Q(node)->num = Q(val)->num;
       node->child = NULL;
@@ -389,7 +390,7 @@ to_query(ast_node_t *node, void *obj) {
 //     case <%=name%>: return &<%=name.downcase%>;
 //   <% end -%>
 //   }
-//   return '?';
+//   return NULL;
 // }
 
 
@@ -445,7 +446,7 @@ cmpmap(cmp_type t) {
        case _TILDE: return &_tilde;
        case _NEQ: return &_neq;
      }
-  return '?';
+  return NULL;
 }
 //!end
 
