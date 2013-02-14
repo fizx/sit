@@ -2,50 +2,76 @@
 #include <sys/socket.h>
 #include <stdio.h>
 #include <netinet/in.h>
-
+#include <getopt.h>
 
 #define BUF_SIZE 65536
 
-sit_query *query = NULL;
-sit_engine *engine = NULL;
-
-void 
-_print_handler(sit_callback *cb, void *sit_data) {
-	(void) cb;
-  long id = *(long*)sit_data;
-  pstring *pstr = sit_engine_get_document(engine, id);
-	printf("%ld\t%.*s\n", id, pstr->len, pstr->val);
+void
+usage() {
+  puts("Usage: sit [--mem-size=<bytes>] [--log-file=<path>]");
+  puts("           [--data-dir=<path>][--port=<num>] [--help]");
 }
 
 void
-_main_query_handler(sit_callback *cb, void *sit_data) {
-	(void) cb;
-	query = sit_data;
-	query->callback = sit_callback_new();
-	query->callback->handler = _print_handler;
+stdout_write(sit_output *output, pstring *data) {
+  (void) output;
+  printf("%.*s\n", data->len, data->val);
+}
+
+void 
+stdout_close(sit_output *output) {
+  (void) output;
 }
 
 int 
 main(int argc, char **argv) {
-	if(argc != 3) {
-		printf("Usage: sit FILE QUERY \n");
-		printf("Usage: sit --server PORT \n");
-		return 1;
-	}
-	
-	char *filename = argv[1];
-	char *str = argv[2];
-	
-	sit_parser *parser = json_parser_new(white_parser_new());
-	engine = sit_engine_new(parser, 100000);
-#ifdef HAVE_EV_H
-	if(!strcmp(filename, "--server")) {
-		int port = atoi(str);
-		if(!port) {
-			perror("invalid port");
-		  return -1;
-		}
+  int c;	
+  
+  int port = -1;
+  const char *logfile = "/dev/stderr";
+  // const char *data    = NULL;
+  long ram            = 10000000; // 10mb
+  
+  while (1) {
+    static struct option long_options[] = {
+      {"help",    no_argument,       0, 'h'},
+      {"port",    required_argument, 0, 'p'},
+      {"log-file",     required_argument, 0, 'l'},
+      {"data-dir",    required_argument, 0, 'd'},
+      {"mem-size",     required_argument, 0, 'm'},
+      {0, 0, 0, 0}
+    };
+    
+    int option_index = 0;
+    c = getopt_long(argc, argv, "hp:l:d:r:", long_options, &option_index);
+    if (c == -1) break;
+    
+    switch (c) {
+    case 'h':
+    case '?':
+      usage();
+      break;
+    case 'p':
+      port = strtol(optarg, NULL, 10);
+      break;
+    case 'l':
+      logfile = optarg;
+      break;
+    case 'd':
+      // TODO: care about persistance.
+      break;
+    case 'm':
+      ram = strtol(optarg, NULL, 10);  
+    }
+  }
+  set_logger(fopen(logfile, "a"));
+  
+  sit_parser *parser = json_parser_new(white_parser_new());
+  sit_engine *engine = sit_engine_new(parser, ram);
 
+#ifdef HAVE_EV_H
+  
+	if(port > 0) {
 		struct sockaddr_in addr;
 		bzero(&addr, sizeof(addr));
 		addr.sin_family = AF_INET;
@@ -58,39 +84,20 @@ main(int argc, char **argv) {
 #else
   {
 #endif
-    query_parser *qparser = query_parser_new();
-  	qparser->cb = sit_callback_new();
-  	qparser->cb->handler = _main_query_handler;
-  	query_parser_consume(qparser, c2pstring(str));
+  
+  	sit_input *input = sit_input_new(engine, engine->term_capacity, BUF_SIZE);
+    input->output = malloc(sizeof(sit_output));
+    input->output->write = stdout_write;
+    input->output->close = stdout_close;
+    sit_protocol_parser *pparser = sit_line_input_protocol_new(input);
+  
+    char buffer[BUF_SIZE];
+    pstring pstr;
+    pstr.val = buffer;
 
-		if(!query) {
-			if(qparser->error) {
-				printf("Could not recognize your query: %.*s\n", qparser->error->len, qparser->error->val);
-			} else {
-				printf("Could not recognize your query: unknown error\n");
-			}
-			return 2;
-		}
-	
-		pstring *ps = sit_query_to_s(query);
-		fprintf(stderr, "query: %.*s\n", ps->len, ps->val);
-	
-		sit_engine_register(engine, query);
-
-		pstring pstr;
-		char buffer[BUF_SIZE];	
-		pstr.val = buffer;
-	
-		FILE *file;
-		if(!strcmp(filename, "-")) {
-			file = stdin;
-		} else {
-			file = fopen(filename, "r");
-		}
-	
-		while(fgets(buffer, BUF_SIZE, file)) {
-			pstr.len = strlen(buffer);
-			sit_engine_consume(engine, &pstr);
-		}
-	}
+    while(fgets(buffer, BUF_SIZE, stdin)) {
+  		pstr.len = strlen(buffer);
+      pparser->consume(pparser, &pstr);
+  	}
+  }
 }

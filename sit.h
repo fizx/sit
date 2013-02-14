@@ -12,6 +12,7 @@ struct lrw_type;
 #include "ast.h"
 #include "dict.h"
 #include "dict_types.h"
+#include "logger.h"
 #include "json_parser.h"
 #include "jsonsl.h"
 #include "lrw_dict.h"

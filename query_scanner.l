@@ -366,73 +366,14 @@ to_query(ast_node_t *node, void *obj) {
   }
 }
 
-
-//!ruby
-// <% ops = ["_NA"   ,'?'],
-// ["_EQ"   ,'='],
-// ["_GT"   ,'>'],
-// ["_LT"   ,'<'],
-// ["_GTE"  ,'.'],
-// ["_LTE"  ,','],
-// ["_TILDE",'~'],
-// ["_NEQ"  ,'!'] %>
-// <% ops.each do |name, char| %>
-// pstring <%=name.downcase%> = {
-//   "<%=char%>",
-//   1
-// };
-// <% end%>
-// 
-// pstring * 
-// cmpmap(cmp_type t) {
-//   switch(t) {
-//   <% ops.each do |name, char| -%>
-//     case <%=name%>: return &<%=name.downcase%>;
-//   <% end -%>
-//   }
-//   return NULL;
-// }
-
-
-pstring _na = {
-  "?",
-  1
-};
-
-pstring _eq = {
-  "=",
-  1
-};
-
-pstring _gt = {
-  ">",
-  1
-};
-
-pstring _lt = {
-  "<",
-  1
-};
-
-pstring _gte = {
-  ".",
-  1
-};
-
-pstring _lte = {
-  ",",
-  1
-};
-
-pstring _tilde = {
-  "~",
-  1
-};
-
-pstring _neq = {
-  "!",
-  1
-};
+pstring _na = { "?", 1 };
+pstring _eq = { "=", 1 };
+pstring _gt = { ">", 1 };
+pstring _lt = { "<", 1 };
+pstring _gte = { ".", 1 };
+pstring _lte = { ",", 1 };
+pstring _tilde = { "~", 1 };
+pstring _neq = { "!", 1 };
 
 pstring * 
 cmpmap(cmp_type t) {
@@ -448,7 +389,6 @@ cmpmap(cmp_type t) {
      }
   return NULL;
 }
-//!end
 
 pstring * 
 _negate(pstring *t) {
