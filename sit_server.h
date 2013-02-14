@@ -32,6 +32,9 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr);
 conn_t *
 conn_new(sit_server *server);
 
+void 
+conn_close(conn_t *conn);
+
 void
 conn_start(conn_t * conn, int revents);
 

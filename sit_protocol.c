@@ -97,13 +97,13 @@ command_ack(struct sit_protocol_handler *handler, pstring *cmd) {
 
 void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
-  INFO("found cmd:  %.*s\n", command->len, command->val);
+  DEBUG("found cmd:  %.*s", command->len, command->val);
   sit_input *input = handler->data;
   sit_output *output = input->output;
   
   if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
-    INFO("registering: %.*s\n", more->len, more->val);
+    INFO("registering: %.*s", more->len, more->val);
     query_parser_consume(input->qparser, more);
     command_ack(handler, command);
   } else if(!cpstrcmp("query", command)) {

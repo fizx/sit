@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <netinet/in.h>
 
@@ -29,16 +30,11 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
   	PERROR("read error");
   	return;
 	} else {
-    DEBUG("Read %ld bytes\n", read);
+    DEBUG("Read %ld bytes", read);
 	}
 
 	if(read == 0) {
-	  // Stop and free watchet if client socket is closing
-  	ev_io_stop(loop, watcher);
-  	conn->server->total_clients --; // Decrement total_clients count
-		conn_free(conn);
-  	PERROR("closing connection");
-  	INFO("%d client(s) connected.\n", conn->server->total_clients);
+    conn_close(conn);
   	return;
 	} else {
 		pstring pstr;
@@ -71,16 +67,21 @@ conn_write(sit_output *output, pstring *data) {
 }
 
 void 
-out_conn_close(sit_output *output) {
-  errno = 0;
-  conn_t *conn = output->data;
-  DEBUG("closing: %d\n",conn->as_io.fd);
+conn_close(conn_t *conn) {
+  DEBUG("closing: %d",conn->as_io.fd);
   ev_io_stop(ev_default_loop(0), &conn->as_io);
   close(conn->as_io.fd);
 	conn->server->total_clients--;
 	conn_free(conn);
-	INFO("closing connection per request\n");
-	INFO("%d client(s) connected.\n", conn->server->total_clients);
+	INFO("closing connection");
+	INFO("%d client(s) connected.", conn->server->total_clients);
+}
+
+void 
+out_conn_close(sit_output *output) {
+  errno = 0;
+  conn_t *conn = output->data;
+  conn_cluse(conn);
 }
 
 conn_t *
@@ -121,8 +122,8 @@ conn_start(conn_t * conn, int revents) {
 
   ev_io_init((struct ev_io *) conn, read_cb, client_sd, EV_READ);
   ev_io_start(loop, (struct ev_io *) conn);
-	INFO("Successfully connected with client.\n");
-	INFO("%d client(s) connected.\n", conn->server->total_clients);
+	INFO("Successfully connected with client.");
+	INFO("%d client(s) connected.", conn->server->total_clients);
 }
 
 sit_server *
@@ -168,7 +169,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	ev_io_start(loop, (struct ev_io *) server);
 
 	// Start infinite loop
-	INFO("Successfully started server.\n");	
+	INFO("Successfully started server.");	
   ev_loop(loop, 0);
   return 0;
 }
