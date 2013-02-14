@@ -14,7 +14,6 @@ ring_buffer_new(long capacity) {
 
 long
 ring_cursor_document_id(sit_cursor *scursor) {
-  printf("WAT\n");
   ring_buffer_cursor *cursor = (ring_buffer_cursor *)scursor;
   return cursor->pos;
 }
