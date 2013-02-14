@@ -56,7 +56,7 @@ void
 sit_input_end_stream(struct sit_input *input);
 
 void 
-sit_input_term_found(sit_receiver *input, long off, int len, int field_offset);
+sit_input_term_found(sit_receiver *input, pstring *pstr, int field_offset);
 
 void 
 sit_input_document_found(sit_receiver *input, long off, int len);

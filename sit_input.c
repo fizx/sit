@@ -91,11 +91,11 @@ sit_input_consume(struct sit_input *input, pstring *pstr) {
 }
 
 void 
-sit_input_term_found(sit_receiver *receiver, long off, int len, int field_offset) {
+sit_input_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
 	sit_input *input = (sit_input *)receiver;
 	sit_term *term = &input->terms[input->term_count++];
 	term->field = input->field;
-	term->text = ring_buffer_get_pstring(input->stream, off, len);
+  term->text = pcpy(pstr);
 	term->offset = field_offset;
 	sit_term_update_hash(term);
 	dictAdd(input->term_index, term, term);

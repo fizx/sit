@@ -5,12 +5,11 @@
 #include <stdlib.h>
 
 void 
-_ruby_term_found(struct sit_receiver *receiver, long off, int len, int field_offset) {  
+_ruby_term_found(struct sit_receiver *receiver, pstring *pstr, int field_offset) {  
   VALUE rreceiver = vunwrap(receiver->data);
-  VALUE roff = LONG2NUM(off);
-  VALUE rlen = INT2NUM(len);
+  VALUE rstr = p2rstring(pstr);
   VALUE rfield_offset = INT2NUM(field_offset);
-  rb_funcall(rreceiver, rb_intern("term_found"), 3, roff, rlen, rfield_offset);
+  rb_funcall(rreceiver, rb_intern("term_found"), 2, rstr, rfield_offset);
 }
 
 void 

@@ -6,12 +6,14 @@
 FILE *logfile;
 
 void
-sit_log(char *level, char *format, ...) {
+sit_log(const char *level, const char *format, ...) {
 	va_list args;
   va_start(args, format);
-  fprintf(logfile, "%s ", level);
-  vfprintf(logfile, format, args);
-  fprintf(logfile, "\n");
+  if(logfile) {
+    fprintf(logfile, "%s ", level);
+    vfprintf(logfile, format, args);
+    fprintf(logfile, "\n");
+  }
 }
 
 void

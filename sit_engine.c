@@ -362,7 +362,6 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
       }
       
       if (negated) {
-        printf("WAT\n");
         long lower;
         while((lower = cursor->id(cursor)) >= min || iter->state[i] >= min) {
           iter->state[i] = lower;
@@ -456,11 +455,11 @@ sit_engine_consume(sit_engine *engine, pstring *pstr) {
 }
 
 void 
-sit_engine_term_found(sit_receiver *receiver, long off, int len, int field_offset) {
+sit_engine_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
   sit_engine *engine = (sit_engine *)receiver;
 	sit_term *term = &engine->terms[engine->term_count++];
 	term->field = engine->field;
-	term->text = ring_buffer_get_pstring(engine->stream, off, len);
+	term->text = pcpy(pstr);
 	term->offset = field_offset;
 	sit_term_update_hash(term);
 	dictAdd(engine->term_index, term, term);

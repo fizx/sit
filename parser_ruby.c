@@ -109,13 +109,12 @@ rbc_parser_consume(VALUE self, VALUE rstr) {
 }
 
 VALUE
-rbc_parser_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset) { 
+rbc_parser_term_found(VALUE self, VALUE rstr, VALUE rfield_offset) { 
 	sit_parser *parser;
 	Data_Get_Struct(self, sit_parser, parser);
-  long off = NUM2LONG(roff);
-  int len = NUM2INT(rlen);
+  pstring *pstr = r2pstring(rstr);
   int field_offset = NUM2INT(rfield_offset);
-  parser->receiver->term_found(parser->receiver, off, len, field_offset);
+  parser->receiver->term_found(parser->receiver, pstr, field_offset);
 	return Qnil;
 }
 

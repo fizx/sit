@@ -22,7 +22,7 @@ describe "Parser" do
     @parser.consume(str)
     $events.should == [
       [:field, "hello"],
-      [:term, str.index("w"), 5, 0],
+      [:term, "world", 0],
       [:doc, 0, str.length],
     ]
   end
@@ -34,7 +34,7 @@ describe "Parser" do
     @parser.consume(str)
     $events.should == [
       [:field, "hello"],
-      [:term, str.index("w"), 5, 0],
+      [:term, "world", 0],
       [:doc, 2, str.length - 2],
     ]
   end
@@ -47,11 +47,11 @@ describe "Parser" do
     start = str.index("{", 10)
     $events.should == [
       [:field, "hello"],
-      [:term, str.index("w"), 5, 0],
+      [:term, "world", 0],
       [:doc, 0, str.index("}") + 1],      
       [:field, "wha"],
-      [:term, str.index("g"), 7, 0],
-      [:term, str.index("t"), 6, 1],
+      [:term, "goodbye", 0],
+      [:term, "thanks", 1],
       [:doc, start, str.length - start]
     ]
   end      

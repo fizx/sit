@@ -6,7 +6,7 @@
 struct sit_parser;
 
 typedef struct sit_receiver {
-	void (*term_found)(struct sit_receiver *receiver, long off, int len, int field_offset);
+	void (*term_found)(struct sit_receiver *receiver, pstring *pstr, int field_offset);
   void (*document_found)(struct sit_receiver *receiver, long off, int len);
   void (*field_found)(struct sit_receiver *receiver, pstring *name);
   void (*error_found)(struct sit_receiver *receiver, pstring *message);

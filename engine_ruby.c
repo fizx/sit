@@ -226,13 +226,12 @@ rbc_engine_int_found(VALUE self, VALUE rval) {
 }
 
 VALUE 
-rbc_engine_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset) {
+rbc_engine_term_found(VALUE self, VALUE rstr, VALUE rfield_offset) {
   sit_engine *engine;
 	Data_Get_Struct(self, sit_engine, engine);
-  long off = NUM2LONG(roff);
-  int len = NUM2INT(rlen);
+  pstring *str = r2pstring(rstr);
   int field_offset = NUM2INT(rfield_offset);
-  sit_engine_term_found((sit_receiver*)engine, off, len, field_offset);
+  sit_engine_term_found((sit_receiver*)engine, str, field_offset);
 	return Qnil;
 }
 

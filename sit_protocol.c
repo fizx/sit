@@ -97,13 +97,13 @@ command_ack(struct sit_protocol_handler *handler, pstring *cmd) {
 
 void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
-  printf("found cmd:  %.*s\n", command->len, command->val);
+  INFO("found cmd:  %.*s\n", command->len, command->val);
   sit_input *input = handler->data;
   sit_output *output = input->output;
   
   if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
-    printf("registering: %.*s\n", more->len, more->val);
+    INFO("registering: %.*s\n", more->len, more->val);
     query_parser_consume(input->qparser, more);
     command_ack(handler, command);
   } else if(!cpstrcmp("query", command)) {
@@ -131,9 +131,9 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
     command_ack(handler, command);
-    printf("stopping now!\n");
+    INFO("stopping now!\n");
     ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
-    printf("stopped\n");
+    INFO("stopped\n");
 #endif
   } else {
     pstring *buf = pstring_new(0);
@@ -145,7 +145,7 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
 
 void
 _input_data_found(struct sit_protocol_handler *handler, pstring *data) {
-  printf("found data: %.*s\n", data->len, data->val);
+  DEBUG("found data: %.*s\n", data->len, data->val);
   sit_input *input = handler->data;
   sit_input_consume(input, data);
 }

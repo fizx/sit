@@ -73,7 +73,7 @@ sit_result_iterator *
 sit_engine_search(sit_engine *engine, sit_query *query);
 
 void 
-sit_engine_term_found(sit_receiver *receiver, long off, int len, int field_offset);
+sit_engine_term_found(sit_receiver *receiver, pstring *pstr, int field_offset);
 
 void 
 sit_engine_document_found(sit_receiver *receiver, long off, int len);

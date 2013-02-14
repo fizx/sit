@@ -67,6 +67,6 @@ VALUE
 rbc_engine_int_found(VALUE self, VALUE rval);
 
 VALUE 
-rbc_engine_term_found(VALUE self, VALUE roff, VALUE rlen, VALUE rfield_offset);
+rbc_engine_term_found(VALUE self, VALUE rstr, VALUE rfield_offset);
 
 #endif

@@ -41,7 +41,8 @@ _white_consume(struct sit_parser *parser, pstring *str) {
     
     if(iswhite != waswhite) {
       if(iswhite) {
-        parser->receiver->term_found(parser->receiver, state->off + off, i - off, state->token++);
+        pstring *term = pstring_new2(str->val + off, i-off);
+        parser->receiver->term_found(parser->receiver, term, state->token++);
       } else {
         off = i;
       }
@@ -63,7 +64,7 @@ void white_end_stream(struct sit_parser *parser) {
   assert(parser->state);
   white_state *state = parser->state;
   if(state->remaining && state->remaining->len > 0) {
-    parser->receiver->term_found(parser->receiver, state->off, state->remaining->len, state->token);
+    parser->receiver->term_found(parser->receiver, state->remaining, state->token);
   }
   state->off = 0;
   state->token = 0;

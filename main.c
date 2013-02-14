@@ -30,7 +30,7 @@ main(int argc, char **argv) {
   int c;	
   
   int port = -1;
-  const char *logfile = "/dev/stderr";
+  const char *logfile = NULL;
   // const char *data    = NULL;
   long ram            = 10000000; // 10mb
   
@@ -66,7 +66,7 @@ main(int argc, char **argv) {
       ram = strtol(optarg, NULL, 10);  
     }
   }
-  set_logger(fopen(logfile, "a"));
+  set_logger(logfile ? fopen(logfile, "a") : stderr);
   
   sit_parser *parser = json_parser_new(white_parser_new());
   sit_engine *engine = sit_engine_new(parser, ram);

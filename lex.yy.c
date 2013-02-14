@@ -2368,17 +2368,15 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
-add_token(sit_receiver *receiver, long off, int len, int field_offset) {
+add_token(sit_receiver *receiver, pstring *val, int field_offset) {
   query_parser *context = receiver->data;
   ast_node_t *node = context->tmp;
   pstring *field = Q(node)->field;
-  pstring *val = Q(node)->val;
   Q(node)->num = field_offset;
-  pstring *pstr = pstring_new2(val->val + off, len);
   ast_node_t *term = query_node_new(context, TERM);
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
-  Q(term)->val = pstr;
+  Q(term)->val = val;
   ast_node_append_child(node, term);
 }
 
@@ -2466,73 +2464,14 @@ to_query(ast_node_t *node, void *obj) {
   }
 }
 
-
-//!ruby
-// <% ops = ["_NA"   ,'?'],
-// ["_EQ"   ,'='],
-// ["_GT"   ,'>'],
-// ["_LT"   ,'<'],
-// ["_GTE"  ,'.'],
-// ["_LTE"  ,','],
-// ["_TILDE",'~'],
-// ["_NEQ"  ,'!'] %>
-// <% ops.each do |name, char| %>
-// pstring <%=name.downcase%> = {
-//   "<%=char%>",
-//   1
-// };
-// <% end%>
-// 
-// pstring * 
-// cmpmap(cmp_type t) {
-//   switch(t) {
-//   <% ops.each do |name, char| -%>
-//     case <%=name%>: return &<%=name.downcase%>;
-//   <% end -%>
-//   }
-//   return NULL;
-// }
-
-
-pstring _na = {
-  "?",
-  1
-};
-
-pstring _eq = {
-  "=",
-  1
-};
-
-pstring _gt = {
-  ">",
-  1
-};
-
-pstring _lt = {
-  "<",
-  1
-};
-
-pstring _gte = {
-  ".",
-  1
-};
-
-pstring _lte = {
-  ",",
-  1
-};
-
-pstring _tilde = {
-  "~",
-  1
-};
-
-pstring _neq = {
-  "!",
-  1
-};
+pstring _na = { "?", 1 };
+pstring _eq = { "=", 1 };
+pstring _gt = { ">", 1 };
+pstring _lt = { "<", 1 };
+pstring _gte = { ".", 1 };
+pstring _lte = { ",", 1 };
+pstring _tilde = { "~", 1 };
+pstring _neq = { "!", 1 };
 
 pstring * 
 cmpmap(cmp_type t) {
@@ -2548,7 +2487,6 @@ cmpmap(cmp_type t) {
      }
   return NULL;
 }
-//!end
 
 pstring * 
 _negate(pstring *t) {

@@ -18,7 +18,7 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 	ssize_t read;
 
 	if(EV_ERROR & revents) {
-  	perror("got invalid event");
+  	PERROR("got invalid event");
   	return;
 	}
 
@@ -26,21 +26,19 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 	read = recv(watcher->fd, buffer, BUFFER_SIZE, 0);
 
 	if(read < 0) {
-  	perror("read error");
+  	PERROR("read error");
   	return;
 	} else {
-    printf("Read %ld bytes\n", read);
+    DEBUG("Read %ld bytes\n", read);
 	}
-	
-  printf("FYI: %d\n", watcher->fd);
 
 	if(read == 0) {
 	  // Stop and free watchet if client socket is closing
   	ev_io_stop(loop, watcher);
   	conn->server->total_clients --; // Decrement total_clients count
 		conn_free(conn);
-  	perror("closing connection");
-  	printf("%d client(s) connected.\n", conn->server->total_clients);
+  	PERROR("closing connection");
+  	INFO("%d client(s) connected.\n", conn->server->total_clients);
   	return;
 	} else {
 		pstring pstr;
@@ -67,7 +65,7 @@ conn_free(conn_t * conn) {
 void
 conn_write(sit_output *output, pstring *data) {
   paddc(data, "\n");
-  printf("writing back: %.*s", data->len, data->val);
+  DEBUG("writing back: %.*s", data->len, data->val);
   conn_t *conn = output->data;
   send(conn->as_io.fd, data->val, data->len, 0);
 }
@@ -76,13 +74,13 @@ void
 out_conn_close(sit_output *output) {
   errno = 0;
   conn_t *conn = output->data;
-  printf("closing: %d\n",conn->as_io.fd);
+  DEBUG("closing: %d\n",conn->as_io.fd);
   ev_io_stop(ev_default_loop(0), &conn->as_io);
   close(conn->as_io.fd);
 	conn->server->total_clients--;
 	conn_free(conn);
-	printf("closing connection per request\n");
-	printf("%d client(s) connected.\n", conn->server->total_clients);
+	INFO("closing connection per request\n");
+	INFO("%d client(s) connected.\n", conn->server->total_clients);
 }
 
 conn_t *
@@ -107,7 +105,7 @@ conn_start(conn_t * conn, int revents) {
   int client_sd;
 	
 	if(EV_ERROR & revents) {
-  	perror("got invalid event");
+  	PERROR("got invalid event");
 		conn_free(conn);
   	return;
 	}
@@ -115,7 +113,7 @@ conn_start(conn_t * conn, int revents) {
 	client_sd = accept(conn->server->as_io.fd, (struct sockaddr *)&client_addr, &client_len);
 	
 	if (client_sd < 0) {
-	  perror("accept error");
+	  PERROR("accept error");
 		conn_free(conn);
 	  return;
 	}
@@ -123,8 +121,8 @@ conn_start(conn_t * conn, int revents) {
 
   ev_io_init((struct ev_io *) conn, read_cb, client_sd, EV_READ);
   ev_io_start(loop, (struct ev_io *) conn);
-	printf("Successfully connected with client.\n");
-	printf("%d client(s) connected.\n", conn->server->total_clients);
+	INFO("Successfully connected with client.\n");
+	INFO("%d client(s) connected.\n", conn->server->total_clients);
 }
 
 sit_server *
@@ -146,7 +144,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 
 	// Create server socket
 	if( (sd = socket(PF_INET, SOCK_STREAM, 0)) < 0 ) {
-	  perror("socket error");
+	  PERROR("socket error");
 	  return -1;
 	}
 	
@@ -155,15 +153,13 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 
 	// Bind socket to address
 	if (bind(sd, (struct sockaddr*) addr, sizeof(*addr)) != 0) {
-	  perror("bind error");
+	  PERROR("bind error");
+	  return -1;
 	}
 	
-	
-	
-
 	// Start listing on the socket
 	if (listen(sd, 2) < 0) {
-	  perror("listen error");
+	  PERROR("listen error");
 	  return -1;
 	}
 
@@ -172,7 +168,7 @@ sit_server_start(sit_server *server, struct sockaddr_in *addr) {
 	ev_io_start(loop, (struct ev_io *) server);
 
 	// Start infinite loop
-	printf("Successfully started server.\n");	
+	INFO("Successfully started server.\n");	
   ev_loop(loop, 0);
   return 0;
 }

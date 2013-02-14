@@ -268,17 +268,15 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
-add_token(sit_receiver *receiver, long off, int len, int field_offset) {
+add_token(sit_receiver *receiver, pstring *val, int field_offset) {
   query_parser *context = receiver->data;
   ast_node_t *node = context->tmp;
   pstring *field = Q(node)->field;
-  pstring *val = Q(node)->val;
   Q(node)->num = field_offset;
-  pstring *pstr = pstring_new2(val->val + off, len);
   ast_node_t *term = query_node_new(context, TERM);
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
-  Q(term)->val = pstr;
+  Q(term)->val = val;
   ast_node_append_child(node, term);
 }
 

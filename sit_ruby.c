@@ -138,7 +138,7 @@ Init_sit() {
 	rb_define_singleton_method(rbc_parser, "new_whitespace", rbc_parser_new_whitespace, 0);
 	rb_define_method(rbc_parser, "receiver=", rbc_parser_set_receiver, 1);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
-	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 3);
+	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 2);
 	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
 	rb_define_method(rbc_parser, "int_found", rbc_parser_int_found, 1);
@@ -164,7 +164,7 @@ Init_sit() {
 	rb_define_method(rbc_engine, "document_found", rbc_engine_document_found, 2);
 	rb_define_method(rbc_engine, "field_found", rbc_engine_field_found, 1);
 	rb_define_method(rbc_engine, "int_found", rbc_engine_int_found, 1);
-	rb_define_method(rbc_engine, "term_found", rbc_engine_term_found, 3);
+	rb_define_method(rbc_engine, "term_found", rbc_engine_term_found, 2);
 	rb_include_module(rbc_engine, rbc_forwardable);
 
 	// LrwDict

@@ -23,7 +23,7 @@ class AbcTsvParser < Sit::Parser
 			when 10, "\n"
 				size = sep - @offset
 				doc_size = sep - @doc_start + 1 # include the newline
-				term_found(@offset, size, @field_offset) if size > 0
+				term_found(@buffer[@offset, size], @field_offset) if size > 0
 			  field_found("columns")
 			  int_found(@field.getbyte(0) - "a".getbyte(0) + 1)
 				document_found(@doc_start, doc_size)
@@ -37,7 +37,7 @@ class AbcTsvParser < Sit::Parser
 				end
 				size = sep - @offset
 				if size > 0
-					term_found(@offset, size, @field_offset)
+					term_found(@buffer[@offset, size], @field_offset)
 				end
 				@field.succ!
 				field_found(@field.dup)
@@ -49,7 +49,7 @@ class AbcTsvParser < Sit::Parser
 				end
 				size = sep - @offset
 				if size > 0
-					term_found(@offset, size, @field_offset)
+					term_found(@buffer[@offset, size], @field_offset)
 					@field_offset += 1 
 				end
 			end

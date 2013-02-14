@@ -5,10 +5,12 @@
 
 #define WARN(x, ...)   sit_log("[WARN]", x,  ##__VA_ARGS__)
 #define INFO(x, ...)   sit_log("[INFO]", x,  ##__VA_ARGS__)
-#define ERR(x, ...)    sit_log("[ERR]", x,  ##__VA_ARGS__)
+#define ERR(x, ...)    sit_log("[ERROR]", x,  ##__VA_ARGS__)
+#define DEBUG(x, ...)    sit_log("[DEBUG]", x,  ##__VA_ARGS__)
+#define PERROR(x)    sit_log("[ERROR]", "%s: %s", x, strerr(errno))
 
 void
-sit_log(char *level, char *format, ...);
+sit_log(const char *level, const char *format, ...);
 
 void
 set_logger(FILE *file);
