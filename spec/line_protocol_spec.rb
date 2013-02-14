@@ -16,8 +16,8 @@ describe "integration" do
   end
   
   it "should be able to handle a lot of lines" do
-    1000.times do
-      @proto.consume("{\"hello\":\"world\"}\n" * 100)
+    10.times do
+      @proto.consume("{\"hello\":\"world\"}\n" * 10000)
     end
   end
   

@@ -30,7 +30,7 @@ typedef struct sit_input {
   int              term_capacity;
 	dict            *ints;
   
-  struct ring_buffer     *stream;
+  pstring *stream;
   
   query_parser_mode qparser_mode;
   query_id_node    *query_ids;

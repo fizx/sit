@@ -72,7 +72,7 @@ sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
 	input->as_receiver.field_found    = sit_input_field_found;
 	input->as_receiver.int_found      = sit_input_int_found;
 	input->as_receiver.error_found     = sit_input_error_found;
-	input->stream = ring_buffer_new(buffer_size);
+	input->stream = pstring_new(0);
 	input->term_index = dictCreate(getTermDict(), 0);
 	input->ints = dictCreate(getPstrDict(), 0);
 	input->term_count = 0;
@@ -85,7 +85,7 @@ sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
 
 void
 sit_input_consume(struct sit_input *input, pstring *pstr) {
-	ring_buffer_append_pstring(input->stream, pstr);
+  padd(input->stream, pstr);
   assert(input->parser->receiver == &input->as_receiver);
 	input->parser->consume(input->parser, pstr);
 }
@@ -150,7 +150,7 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
 	assert(off >= 0);
 	assert(len > 0);
 	sit_engine *engine = input->engine;
-	ring_buffer_append(engine->stream, input->stream->buffer + off, len);
+	ring_buffer_append(engine->stream, (void*)input->stream->val, len);
 	engine->current_input = input;
   sit_callback *old = engine->on_document_found;
   sit_callback cb = {
@@ -163,7 +163,6 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
   dictIterator *iter = dictGetIterator(input->ints);
   dictEntry *entry;
 
-  //FIXME
   while ((entry = dictNext(iter))) {
     engine->field = dictGetKey(entry);
     sit_engine_int_found(&engine->as_receiver, dictGetSignedIntegerVal(entry));
@@ -173,6 +172,7 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
 	sit_engine_document_found(&engine->as_receiver, engine->stream->written - len, len);
   engine->on_document_found = old;
   dictReleaseIterator(iter);
+	input->stream = pstring_new(0);
   input->term_count = 0;
 	dictEmpty(input->term_index);
 	engine->current_input = NULL;

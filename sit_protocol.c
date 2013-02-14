@@ -58,7 +58,7 @@ _line_consume(sit_protocol_parser *parser, pstring *pstr) {
   };
   while ((buf = memchr(tmp.val, '\n', tmp.len))) {
     tmp.len = buf - tmp.val;
-    if(tmp.val[0] == '{' || parser->state == FORCE_DATA) {
+    if(tmp.val[0] == '{' || parser->state == PARTIAL) {
       handler->data_found(handler, &tmp);
       handler->data_complete(handler);
       parser->state = COMPLETE;
