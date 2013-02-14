@@ -9,7 +9,9 @@
 void
 usage() {
   puts("Usage: sit [--mem-size=<bytes>] [--log-file=<path>]");
-  puts("           [--data-dir=<path>][--port=<num>] [--help]");
+  puts("           [--data-dir=<path>]  [--port=<num>]");
+  puts("           [--help]");
+  exit(1);
 }
 
 void
