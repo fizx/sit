@@ -1,4 +1,5 @@
 #include "sit.h"
+#include "logger.h"
 #include <sys/socket.h>
 #include <stdio.h>
 #include <netinet/in.h>
@@ -10,7 +11,7 @@ void
 usage() {
   puts("Usage: sit [--mem-size=<bytes>] [--log-file=<path>]");
   puts("           [--data-dir=<path>]  [--port=<num>]");
-  puts("           [--help]");
+  puts("           [--help] [--test-mode]");
   exit(1);
 }
 
@@ -34,18 +35,21 @@ main(int argc, char **argv) {
   // const char *data    = NULL;
   long ram            = 10000000; // 10mb
   
+  set_logger(stderr);
+  
   while (1) {
     static struct option long_options[] = {
-      {"help",    no_argument,       0, 'h'},
-      {"port",    required_argument, 0, 'p'},
-      {"log-file",     required_argument, 0, 'l'},
-      {"data-dir",    required_argument, 0, 'd'},
-      {"mem-size",     required_argument, 0, 'm'},
+      {"help",      no_argument,       0, 'h'},
+      {"port",      required_argument, 0, 'p'},
+      {"log-file",  required_argument, 0, 'l'},
+      {"data-dir",  required_argument, 0, 'd'},
+      {"mem-size",  required_argument, 0, 'm'},
+      {"test-mode", no_argument,       0, 't'},
       {0, 0, 0, 0}
     };
     
     int option_index = 0;
-    c = getopt_long(argc, argv, "hp:l:d:r:", long_options, &option_index);
+    c = getopt_long(argc, argv, "hp:l:d:r:t", long_options, &option_index);
     if (c == -1) break;
     
     switch (c) {
@@ -58,6 +62,10 @@ main(int argc, char **argv) {
       break;
     case 'l':
       logfile = optarg;
+      break;
+    case 't':
+      setTestMode(true);
+      DEBUG("test-mode is engaged");
       break;
     case 'd':
       // TODO: care about persistance.
