@@ -1,0 +1,6 @@
+register hello ~ world;
+{"hello":"world"}
+register hello ~ "sweet world";
+{"hello":"sweet crazy world"}
+unregister 0
+{"hello":"sweet crazy world"}
