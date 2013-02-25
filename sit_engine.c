@@ -14,6 +14,11 @@ typedef struct sit_query_node {
 	sit_callback 				   *callback;
 } sit_query_node;
 
+typedef struct unregister_data {
+  long query_id;
+  bool success;
+} unregister_data;
+
 sit_engine *
 sit_engine_new(sit_parser *parser, long size) {
 	int tc = size / 64;
@@ -269,24 +274,33 @@ sit_engine_index(sit_engine *engine, long doc_id) {
 void
 _unregister_handler(sit_callback *cb, void *vnode) {
 	sit_query_node *node = vnode;
-	long query_id = *(long *) cb->user_data;
+	unregister_data *data = cb->user_data;
 	
-	while (node->callback && node->callback->id == query_id) {
+	if(data->success) {
+    return;
+	}
+	
+	// handle the first case
+	while (node->callback && node->callback->id == data->query_id) {
 		sit_callback *old = node->callback;
 		node->callback = old->next;
 		if(old->free) {
 			old->free(old);
 		}
+    data->success = true;
+    return;
 	}
 	
 	sit_callback *prev = node->callback;
 	sit_callback *qc = node->callback;
 	while(qc) {
-		if(qc->id == query_id) {
+		if(qc->id == data->query_id) {
 			prev->next = qc->next;
 			if(qc->free) {
 				qc->free(qc);
 			}
+			data->success = true;
+      return;
 		}
 		prev = qc;
 		qc = qc->next;
@@ -440,12 +454,17 @@ sit_result_iterator_document_id(sit_result_iterator *iter) {
   return iter->doc_id;
 }
 
-void
+bool
 sit_engine_unregister(sit_engine *engine, long query_id) {
+  unregister_data data = {
+    query_id,
+    false
+  };
 	sit_callback unregister;
-	unregister.user_data = &query_id;
+	unregister.user_data = &data;
 	unregister.handler = _unregister_handler;
 	sit_engine_each_node(engine, &unregister);
+  return data.success;
 }
 
 void

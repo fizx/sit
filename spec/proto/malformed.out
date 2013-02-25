@@ -11,4 +11,3 @@
 {"status": "error", "message": "CANT_INSERT"}
 {"status": "ok", "message": "querying", "id": 0}
 {"status": "ok", "message": "complete", "id": 0}
-{"status": "ok", "message": "ack", "command": "query"}

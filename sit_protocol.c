@@ -83,18 +83,6 @@ _line_end_stream(sit_protocol_parser *parser) {
   (void) parser;
 }
 
-void 
-command_ack(struct sit_protocol_handler *handler, pstring *cmd) {
-  sit_protocol_parser *parser = handler->parser;
-  sit_input *input = handler->data;
-  sit_output *output = input->output;
-  parser->data = pcpy(cmd);
-  pstring *buf = pstring_new(0);
-  PV("{\"status\": \"ok\", \"message\": \"ack\", \"command\": \"%.*s\"}", cmd->len, cmd->val);
-  output->write(output, buf);
-  pstring_free(buf);    
-}
-
 void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
@@ -105,14 +93,20 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
     input->qparser_mode = REGISTERING;
     INFO("registering: %.*s", more->len, more->val);
     query_parser_consume(input->qparser, more);
-    command_ack(handler, command);
   } else if(!cpstrcmp("query", command)) {
     input->qparser_mode = QUERYING;
     query_parser_consume(input->qparser, more);
-    command_ack(handler, command);
   } else if(!cpstrcmp("unregister", command)) {
-    sit_engine_unregister(input->engine, strtol(more->val, NULL, 10));
-    command_ack(handler, command);
+    long query_id = strtol(more->val, NULL, 10);
+    bool success = sit_engine_unregister(input->engine, query_id);
+    pstring *buf = pstring_new(0);
+    if(success) {
+      PV("{\"status\": \"ok\", \"message\": \"unregistered\", \"query_id\": %ld}", query_id);
+    } else {
+      PV("{\"status\": \"error\", \"message\": \"not found\", \"query_id\": %ld}", query_id);
+    }
+    output->write(output, buf);
+    pstring_free(buf);
   } else if(!cpstrcmp("get", command)) {
     long doc_id = strtol(more->val, NULL, 10);
     pstring *doc = sit_engine_get_document(input->engine, doc_id);
@@ -124,13 +118,10 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
     }
     output->write(output, buf);
     pstring_free(buf);
-    command_ack(handler, command);
   } else if(!cpstrcmp("close", command)) {
-    command_ack(handler, command);
     input->output->close(input->output);
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
-    command_ack(handler, command);
     INFO("stopping now!\n");
     ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
     INFO("stopped\n");

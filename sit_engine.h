@@ -117,7 +117,7 @@ sit_engine_register(sit_engine *engine, sit_query *query);
 void 
 sit_engine_each_node(sit_engine *engine, sit_callback *cb);
 
-void
+bool
 sit_engine_unregister(sit_engine *engine, long query_id);
 
 void 
