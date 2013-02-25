@@ -1,4 +1,3 @@
-
 %token_table
 %debug
 %locations
@@ -23,7 +22,6 @@
 }
 
 %{
-
 #include "query_parser.h"
 #include "sit_callback.h"
 #include "pstring.h"
@@ -31,6 +29,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+
+// extern int yydebug;
+// yydebug = 1;
 
 int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
 

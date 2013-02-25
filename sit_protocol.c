@@ -93,9 +93,11 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
     input->qparser_mode = REGISTERING;
     INFO("registering: %.*s", more->len, more->val);
     query_parser_consume(input->qparser, more);
+    query_parser_reset(input->qparser);
   } else if(!cpstrcmp("query", command)) {
     input->qparser_mode = QUERYING;
     query_parser_consume(input->qparser, more);
+    query_parser_reset(input->qparser);
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = sit_engine_unregister(input->engine, query_id);

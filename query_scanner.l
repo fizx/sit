@@ -94,6 +94,13 @@ query_parser_new(sit_callback *cb) {
   return parser;
 }
 
+void
+query_parser_reset(query_parser *parser) {
+  parser->push_state = yypstate_new();
+  yylex_init(&parser->scanner);
+  yyset_extra(parser, parser->scanner);
+}
+
 int
 query_parser_consume(query_parser *parser, pstring *pstr) {
   assert(pstr);

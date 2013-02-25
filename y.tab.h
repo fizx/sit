@@ -41,7 +41,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2065 of yacc.c  */
-#line 14 "query_parser.y"
+#line 13 "query_parser.y"
 
   #include "query_parser.h"
 
@@ -103,7 +103,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2065 of yacc.c  */
-#line 19 "query_parser.y"
+#line 18 "query_parser.y"
  
   ast_node_t *node;
   int         num;
