@@ -206,6 +206,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, void *
   if(positive) {
     sit_query_node *n = dictFetchValue(query_nodes, &SENTINEL);
     if (n) {
+      DEBUG("recursing SENTINEL");
       callback_recurse(engine, term_index, n->children, doc, false);
     }
   }
@@ -213,31 +214,39 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, void *
 		dictIterator *iterator = dictGetIterator(query_nodes);
 		dictEntry *next;
 	
-		if ((next = dictNext(iterator)) && positive == !!dictFetchValue(term_index, dictGetKey(next))) {
-			sit_query_node *node = dictGetVal(next);
-			sit_callback *cb = node->callback;
-			while(cb) {
-				cb->handler(cb, doc);
-				cb = cb->next;
-			}
-			if(node->children) {
-				callback_recurse(engine, term_index, node->children, doc, positive);
-			}
+    while ((next = dictNext(iterator))) {
+      if (positive == !!dictFetchValue(term_index, dictGetKey(next))) {
+		  	sit_query_node *node = dictGetVal(next);
+  			sit_callback *cb = node->callback;
+        DEBUG("perc'd %.*s:%.*s", node->term->field->len, node->term->field->val, node->term->text->len, node->term->text->val);
+  			while(cb) {
+  			  DEBUG("running callback %d", cb->id);
+  				cb->handler(cb, doc);
+  				cb = cb->next;
+  			}
+  			if(node->children) {
+  				callback_recurse(engine, term_index, node->children, doc, positive);
+  			}
+  		}
 		}
 	} else {
 		dictIterator *iterator = dictGetIterator(term_index);
 		dictEntry *next;
 		sit_query_node *node;
 
-		if ((next = dictNext(iterator)) && positive == !!(node = dictFetchValue(query_nodes, dictGetKey(next)))) {
-			sit_callback *cb = node->callback;
-			while(cb) {
-				cb->handler(cb, doc);
-				cb = cb->next;
-			}
-			if(node->children){
-				callback_recurse(engine, term_index, node->children, doc,positive);
-			}
+    while ((next = dictNext(iterator))) {
+      if(positive == !!(node = dictFetchValue(query_nodes, dictGetKey(next)))) {
+  			sit_callback *cb = node->callback;
+  			DEBUG("perc'd %.*s:%.*s", node->term->field->len, node->term->field->val, node->term->text->len, node->term->text->val);
+  			while(cb) {
+  			  DEBUG("running callback %d", cb->id);
+  				cb->handler(cb, doc);
+  				cb = cb->next;
+  			}
+  			if(node->children){
+  				callback_recurse(engine, term_index, node->children, doc,positive);
+  			}
+  		}
 		}
 	}
 }
