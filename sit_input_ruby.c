@@ -25,7 +25,6 @@ rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size)
   VALUE buf = rb_ary_new();
   sit_output *output = malloc(sizeof(*output));
   output->data = vwrap(buf);
-  printf("<- output->data %ld %ld\n", output->data, (long)buf);
   output->write = _append_buf;
   output->close = _no_op;
   input->output = output;

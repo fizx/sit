@@ -2,7 +2,5 @@ register hello ~ world;
 {"hello":"world"}
 register hello ~ "sweet world";
 {"hello":"sweet crazy world"}
-dump
 unregister 0
-dump
 {"hello":"sweet crazy world"}

@@ -27,7 +27,6 @@ vunwrap(void *vp) {
 
 void 
 markall() {
-  printf("markall\n");
   value_holder *h = &root;
   while(h->val) {
     rb_gc_mark(h->val);
