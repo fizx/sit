@@ -91,19 +91,21 @@ sit_input_consume(struct sit_input *input, pstring *pstr) {
 }
 
 void 
-sit_input_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
-	sit_input *input = (sit_input *)receiver;
-	sit_term *term = &input->terms[input->term_count++];
-	term->field = input->field;
-  term->text = pcpy(pstr);
-	term->offset = field_offset;
-	sit_term_update_hash(term);
-	dictAdd(input->term_index, term, term);
+sit_input_end_stream(struct sit_input *input) {
+  input->parser->end_stream(input->parser);
 }
 
 void 
-sit_input_end_stream(struct sit_input *input) {
-  input->parser->end_stream(input->parser);
+_ack_doc(sit_callback *cb, void *data) {
+  sit_engine *engine = data;
+  sit_input *input = cb->user_data;
+  sit_output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
+  PV("%ld", sit_engine_last_document_id(engine));
+  PC("\"}");
+  output->write(output, buf);
+  pstring_free(buf);    
 }
 
 void 
@@ -125,23 +127,21 @@ sit_input_field_found(sit_receiver *receiver, pstring *name) {
 }
 
 void 
+sit_input_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
+	sit_input *input = (sit_input *)receiver;
+	sit_term *term = &input->terms[input->term_count++];
+	term->field = input->field;
+  term->text = pcpy(pstr);
+	term->offset = field_offset;
+	sit_term_update_hash(term);
+	dictAdd(input->term_index, term, term);
+}
+
+void 
 sit_input_int_found(sit_receiver *receiver, int value) {
 	sit_input *input = (sit_input *)receiver;
 	dictEntry *entry = dictReplaceRaw(input->ints, input->field);
 	dictSetSignedIntegerVal(entry, value);
-}
-
-void 
-_ack_doc(sit_callback *cb, void *data) {
-  sit_engine *engine = data;
-  sit_input *input = cb->user_data;
-  sit_output *output = input->output;
-  pstring *buf = pstring_new(0);
-  PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
-  PV("%ld", sit_engine_last_document_id(engine));
-  PC("\"}");
-  output->write(output, buf);
-  pstring_free(buf);    
 }
 
 void 

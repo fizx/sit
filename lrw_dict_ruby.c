@@ -96,7 +96,7 @@ VALUE
 rbc_lrw_dict_new(VALUE class, VALUE rsize) {
 	long size = NUM2LONG(rsize);
 	lrw_dict *dict = lrw_dict_new(&rubyDict, &rubyLRU, size);
-	VALUE tdata = Data_Wrap_Struct(class, _dmark, NULL, dict);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, dict);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }

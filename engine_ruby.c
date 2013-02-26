@@ -171,7 +171,7 @@ void _queries_handler(sit_callback *cb, void *vquery) {
 	sit_query *query = vquery;
 	VALUE ary = vunwrap(cb->user_data);
 	VALUE class = rb_eval_string("::Sit::Query");
-	VALUE tdata = Data_Wrap_Struct(class, NULL, free, query);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);
 	rb_obj_call_init(tdata, 0, NULL);
 	rb_ary_push(ary, tdata);
 }

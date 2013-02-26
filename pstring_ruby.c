@@ -1,4 +1,5 @@
 #include "ruby.h"
+#include "util_ruby.h"
 #include "pstring.h"
 #include "pstring_ruby.h"
 #include <string.h>
@@ -21,7 +22,7 @@ p2rstring(pstring *pstr) {
 VALUE
 rbc_pstring_new(VALUE class, VALUE rstr) {
 	pstring *ptr = r2pstring(rstr);	
-	VALUE tdata = Data_Wrap_Struct(class, NULL, pstring_free, ptr);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, ptr);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }

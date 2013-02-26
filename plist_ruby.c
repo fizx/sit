@@ -23,7 +23,7 @@ rbc_plist_new(VALUE class, VALUE rpool) {
 	plist_pool *pool;
 	Data_Get_Struct(rpool, plist_pool, pool);
 	plist *pl = plist_new(pool);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, plist_free, pl);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, pl);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }

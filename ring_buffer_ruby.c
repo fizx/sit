@@ -1,12 +1,13 @@
 #include "ring_buffer_ruby.h"
 #include "pstring_ruby.h"
+#include "util_ruby.h"
 #include <assert.h>
 
 VALUE
 rbc_ring_buffer_new(VALUE class, VALUE rsize) {
 	long size = NUM2LONG(rsize);
 	ring_buffer *rb = ring_buffer_new(size);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, ring_buffer_free, rb);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, rb);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
@@ -37,7 +38,7 @@ VALUE
 rbc_int_ring_buffer_new(VALUE class, VALUE rsize) {
   long size = NUM2LONG(rsize);
 	ring_buffer *rb = ring_buffer_new(size * sizeof(int));
-	VALUE tdata = Data_Wrap_Struct(class, NULL, ring_buffer_free, rb);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, rb);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
@@ -78,7 +79,7 @@ rbc_int_ring_buffer_cursor_new(VALUE class, VALUE buffer, VALUE operator, VALUE 
     int predicate = NUM2INT(rpredicate);
     rbc = ring_buffer_predicate_int_cursor_new(rb, sizeof(int), op, predicate);
   }
-	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, rbc);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, rbc);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }

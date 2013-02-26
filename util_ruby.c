@@ -3,6 +3,7 @@
 #include "sit.h"
 #include "sit_ruby.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 value_holder root = {
   0, 
@@ -26,6 +27,7 @@ vunwrap(void *vp) {
 
 void 
 markall() {
+  printf("markall\n");
   value_holder *h = &root;
   while(h->val) {
     rb_gc_mark(h->val);

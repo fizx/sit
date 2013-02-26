@@ -37,7 +37,7 @@ _query_handler(sit_callback *cb, void *sit_data) {
 	} else {
     VALUE class = rb_eval_string("::Sit::Query");
 	
-  	VALUE tdata = Data_Wrap_Struct(class, NULL, free, query);
+  	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);
   	rb_obj_call_init(tdata, 0, NULL);
 	
   	rb_funcall(block, rb_intern("call"), 1, tdata);

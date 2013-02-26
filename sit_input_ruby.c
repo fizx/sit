@@ -6,7 +6,8 @@
 void 
 _append_buf(struct sit_output *output, pstring *message) {
   VALUE rstr = p2rstring(message);
-  rb_ary_push(vunwrap(output->data), rstr);
+  VALUE val = vunwrap(output->data);  
+  rb_ary_push(val, rstr);
 }
 
 void 
@@ -24,6 +25,7 @@ rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size)
   VALUE buf = rb_ary_new();
   sit_output *output = malloc(sizeof(*output));
   output->data = vwrap(buf);
+  printf("<- output->data %ld %ld\n", output->data, (long)buf);
   output->write = _append_buf;
   output->close = _no_op;
   input->output = output;

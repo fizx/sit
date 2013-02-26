@@ -69,7 +69,7 @@ rbc_conjunction_new(VALUE class, VALUE rterms) {
 	}
 	conjunction_t *con = conjunction_new(terms, term_count);
 	
-	VALUE tdata = Data_Wrap_Struct(class, NULL, free, con);
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, con);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 	

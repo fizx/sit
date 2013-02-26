@@ -479,6 +479,7 @@ sit_engine_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
 	term->offset = field_offset;
 	sit_term_update_hash(term);
 	dictAdd(engine->term_index, term, term);
+  DEBUG("sit_engine_term_found %.*s->%.*s", term->field->len, term->field->val, term->text->len, term->text->val);
 }
 
 void
