@@ -52,7 +52,7 @@ describe "Parser" do
       [:term, "x", 0],
       [:field, "columns"],
       [:int, 3],
-      [:doc, 0, 9]
+      [:doc, "z\tyyyy\tx\n"]
     ]
     $events.clear
     @parser.consume("y\n\n\nx x\n")
@@ -60,18 +60,18 @@ describe "Parser" do
       [:term, "y", 0],
       [:field, "columns"],
       [:int, 1],
-      [:doc, 9, 2],
+      [:doc, "y\n"],
       [:field, "columns"],
       [:int, 1],
-      [:doc, 11, 1],
+      [:doc, "\n"],
       [:field, "columns"],
       [:int, 1],
-      [:doc, 12, 1],
+      [:doc, "\n"],
       [:term, "x", 0],
       [:term, "x", 1],
       [:field, "columns"],
       [:int, 1],
-      [:doc, 13, 4]
+      [:doc, "x x\n"]
     ]
   end
 end

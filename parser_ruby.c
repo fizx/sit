@@ -118,12 +118,10 @@ rbc_parser_int_found(VALUE self, VALUE rint) {
 }
 
 VALUE
-rbc_parser_document_found(VALUE self, VALUE roff, VALUE rlen) {
+rbc_parser_document_found(VALUE self, VALUE rstr) {
 	Parser *parser;
 	Data_Get_Struct(self, Parser, parser);
-  long off = NUM2LONG(roff);
-  int len = NUM2INT(rlen);
-  parser->receiver->document_found(parser->receiver, off, len);
+  parser->receiver->document_found(parser->receiver, r2pstring(rstr));
 	return Qnil;
 }
 

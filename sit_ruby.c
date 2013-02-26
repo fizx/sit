@@ -138,7 +138,7 @@ Init_sit() {
 	rb_define_method(rbc_parser, "receiver=", rbc_parser_set_receiver, 1);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
 	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 2);
-	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 2);
+	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 1);
 	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
 	rb_define_method(rbc_parser, "int_found", rbc_parser_int_found, 1);
 	rb_define_method(rbc_parser, "end_stream", rbc_parser_end_stream, 0);

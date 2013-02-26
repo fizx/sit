@@ -58,7 +58,7 @@ void
 input_term_found(Receiver *input, pstring *pstr, int field_offset);
 
 void 
-input_document_found(Receiver *input, long off, int len);
+input_document_found(Receiver *input, pstring *pstr);
 
 void 
 input_int_found(Receiver *input, int value);

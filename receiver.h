@@ -7,7 +7,7 @@ struct Parser;
 
 typedef struct Receiver {
 	void (*term_found)(struct Receiver *receiver, pstring *pstr, int field_offset);
-  void (*document_found)(struct Receiver *receiver, long off, int len);
+  void (*document_found)(struct Receiver *receiver, pstring *doc);
   void (*field_found)(struct Receiver *receiver, pstring *name);
   void (*error_found)(struct Receiver *receiver, pstring *message);
   void (*int_found)(struct Receiver *receiver, int val);

@@ -25,7 +25,7 @@ VALUE
 rbc_parser_term_found(VALUE self, VALUE rstr, VALUE field_offset);
 
 VALUE
-rbc_parser_document_found(VALUE self, VALUE off, VALUE len);
+rbc_parser_document_found(VALUE self, VALUE rstr);
 
 VALUE 
 rbc_parser_field_found(VALUE self, VALUE rstr);

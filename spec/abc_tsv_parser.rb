@@ -26,7 +26,7 @@ class AbcTsvParser < Sit::Parser
 				term_found(@buffer[@offset, size], @field_offset) if size > 0
 			  field_found("columns")
 			  int_found(@field.getbyte(0) - "a".getbyte(0) + 1)
-				document_found(@doc_start, doc_size)
+				document_found(@buffer[@doc_start, doc_size])
 				@doc_start = @doc_start + doc_size
 				@field = "a"
 				@field_offset = 0

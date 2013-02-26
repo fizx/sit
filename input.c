@@ -141,12 +141,10 @@ input_int_found(Receiver *receiver, int value) {
 }
 
 void 
-input_document_found(Receiver *receiver, long off, int len) {
+input_document_found(Receiver *receiver, pstring *str) {
 	Input *input = (Input *)receiver;
-	assert(off >= 0);
-	assert(len > 0);
 	Engine *engine = input->engine;
-	ring_buffer_append(engine->stream, (void*)input->stream->val, len);
+	ring_buffer_append_pstring(engine->stream, str);
 	engine->current_input = input;
   Callback *old = engine->on_document_found;
   Callback cb = {
@@ -165,7 +163,7 @@ input_document_found(Receiver *receiver, long off, int len) {
   }
   
   engine->on_document_found = &cb;
-	engine_document_found(&engine->as_receiver, engine->stream->written - len, len);
+	engine_document_found(&engine->as_receiver, str);
   engine->on_document_found = old;
   dictReleaseIterator(iter);
 	input->stream = pstring_new(0);

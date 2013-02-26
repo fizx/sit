@@ -468,7 +468,6 @@ engine_unregister(Engine *engine, long query_id) {
 
 void
 engine_consume(Engine *engine, pstring *pstr) {
-  ring_buffer_append_pstring(engine->stream, pstr);
 	engine->parser->consume(engine->parser, pstr);
 }
 
@@ -498,11 +497,10 @@ engine_zero_ints(Engine *engine) {
 }
 
 void 
-engine_document_found(Receiver *receiver, long off, int len) {
+engine_document_found(Receiver *receiver, pstring *pstr) {  
   Engine *engine = (Engine *)receiver;
-	assert(off >= 0);
-	assert(len > 0);
-  doc_ref dr = { off, len };
+  doc_ref dr = { engine->stream->written, pstr->len };
+  ring_buffer_append_pstring(engine->stream, pstr);
 	ring_buffer_append(engine->docs, &dr, sizeof(dr));
   long doc_id = engine_last_document_id(engine);
   if(engine->on_document_found) {

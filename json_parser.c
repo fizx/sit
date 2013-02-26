@@ -89,7 +89,11 @@ _jsonsl_stack_callback(
 		case JSONSL_T_OBJECT:  
       off = at + 1 - mystate->active->val;
       end = mystate->active_off + off;
-		  parser->receiver->document_found(parser->receiver, mystate->doc_off, end - mystate->doc_off);
+      pstring doc = {
+        mystate->buf->val + mystate->start_off,
+        end - mystate->doc_off
+      };
+		  parser->receiver->document_found(parser->receiver, &doc);
 		  jsonsl_reset(mystate->json_parser);
       break;
 		}
@@ -115,11 +119,7 @@ _json_consume(struct Parser *parser, pstring *str) {
   assert(parser->receiver);
   JSONState *state = parser->state;
   state->active = str;
-  if(state->buffering) {
-    padd(state->buf, str);
-  }
 	jsonsl_feed(state->json_parser, str->val, str->len);
-  state->active_off += str->len;
 }
 
 Parser *

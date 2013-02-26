@@ -71,7 +71,7 @@ void
 engine_term_found(Receiver *receiver, pstring *pstr, int field_offset);
 
 void 
-engine_document_found(Receiver *receiver, long off, int len);
+engine_document_found(Receiver *receiver, pstring *pstr);
 
 void 
 engine_field_found(Receiver *receiver, pstring *name);

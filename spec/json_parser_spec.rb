@@ -23,7 +23,7 @@ describe "Parser" do
     $events.should == [
       [:field, "hello"],
       [:term, "world", 0],
-      [:doc, 0, str.length],
+      [:doc, str],
     ]
   end
   
@@ -35,7 +35,7 @@ describe "Parser" do
     $events.should == [
       [:field, "hello"],
       [:term, "world", 0],
-      [:doc, 2, str.length - 2],
+      [:doc, "{\"hello\":\"world\"}"],
     ]
   end
     
@@ -48,11 +48,11 @@ describe "Parser" do
     $events.should == [
       [:field, "hello"],
       [:term, "world", 0],
-      [:doc, 0, str.index("}") + 1],      
+      [:doc, "{\"hello\":\"world\"}"],      
       [:field, "wha"],
       [:term, "goodbye", 0],
       [:term, "thanks", 1],
-      [:doc, start, str.length - start]
+      [:doc, "{\"wha\":\"goodbye thanks\"}"]
     ]
   end      
 end

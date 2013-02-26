@@ -9,11 +9,9 @@ _ruby_term_found(struct Receiver *receiver, pstring *pstr, int field_offset) {
 }
 
 void 
-_ruby_document_found(struct Receiver *receiver, long off, int len) {
+_ruby_document_found(struct Receiver *receiver, pstring *pstr) {
   VALUE rreceiver = vunwrap(receiver->data);
-  VALUE roff = LONG2NUM(off);
-  VALUE rlen = INT2NUM(len);
-  rb_funcall(rreceiver, rb_intern("document_found"), 2, roff, rlen);
+  rb_funcall(rreceiver, rb_intern("document_found"), 1, p2rstring(pstr));
 }
 
 void 
