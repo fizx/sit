@@ -14,7 +14,7 @@ describe "integration" do
 		it "should run #{path} successfully" do
 			out = path.sub(".in", ".out")
 			File.exists?(out).should == true
-			`cd "#{File.dirname(path)}/../.." && cat #{path} | ./sit 2>/dev/null`.strip.should == File.read(out).strip
+			`cd "#{File.dirname(path)}/../.." && cat #{path} | ./sit --test-mode 2>/dev/null`.strip.should == File.read(out).strip
 		end
 	end
 end

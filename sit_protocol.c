@@ -84,6 +84,13 @@ _line_end_stream(sit_protocol_parser *parser) {
 }
 
 void
+_dump_handler(struct sit_callback *self, void *data) {
+  sit_query *query = data;
+  sit_output *output = self->user_data;
+  output->write(output, sit_query_to_s(query));
+}
+
+void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
   sit_input *input = handler->data;
@@ -122,6 +129,15 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
     pstring_free(buf);
   } else if(!cpstrcmp("close", command)) {
     input->output->close(input->output);
+  } else if(isTestMode() && !cpstrcmp("dump", command)) {
+    sit_callback cb = {
+      _dump_handler,
+      output,
+      NULL,
+      NULL,
+      NULL
+    };
+    sit_engine_each_query(input->engine, &cb);
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");

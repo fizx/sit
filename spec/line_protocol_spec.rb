@@ -8,6 +8,8 @@ require "rr"
 require File.dirname(__FILE__) + "/../sit"
 include Sit
 
+Sit.test_mode = true
+
 describe "integration" do
   before do
     @engine = Engine.new(Parser.new_json, 1_000_000)

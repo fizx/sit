@@ -81,7 +81,7 @@ void
 out_conn_close(sit_output *output) {
   errno = 0;
   conn_t *conn = output->data;
-  conn_cluse(conn);
+  conn_close(conn);
 }
 
 conn_t *

@@ -57,7 +57,7 @@ rbc_query_equals(VALUE self, VALUE other) {
 VALUE
 rbc_conjunction_new(VALUE class, VALUE rterms) {
   int term_count = NUM2INT(rb_funcall(rterms, rb_intern("size"), 0));
-	sit_term **terms = malloc(sizeof(sit_term) * term_count);
+	sit_term **terms = malloc(sizeof(sit_term*) * term_count);
   VALUE term = rb_eval_string("::Sit::Term");
 	for (int i = 0; i < term_count; i++) {
     VALUE rterm = rb_ary_entry(rterms, i);

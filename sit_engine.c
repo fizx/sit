@@ -107,27 +107,24 @@ sit_engine_register(sit_engine *engine, sit_query *query) {
   return query->callback->id;
 }
 
-int
-_get_terms(sit_term **terms, sit_query_node *node, int *term_count) {	 
-  if(node->term == &SENTINEL){
-    if(node->parent) {
-      return _get_terms(terms, node->parent, term_count);
-    } else {
-      *terms = malloc(sizeof(sit_term*) * (*term_count));
-  		return 0;
-    }
-  } else {
+sit_term **
+_get_terms(sit_query_node *node, int *term_count) {	 
+
+  if(node->term != &SENTINEL){
     (*term_count)++;
-  	if(node->parent) {
-  		int off = _get_terms(terms, node->parent, term_count);
-  		terms[off] = node->term;			
-  		return off + 1;
-  	} else {
-  		*terms = malloc(sizeof(sit_term*) * (*term_count));
-  		terms[0] = node->term;
-  		return 1;
-  	}
-	}
+  }    
+  
+  int depth = *term_count;
+
+  if(node->parent) {
+    sit_term **terms = _get_terms(node->parent, term_count);
+    terms[*term_count - depth] = node->term;
+    return terms;
+  } else {
+    sit_term **terms = malloc(sizeof(sit_term*) * (*term_count));
+    terms[0] = node->term;
+    return terms;
+  }
 }
 
 void
@@ -149,14 +146,14 @@ _each_query(sit_callback *cb, void *vnode) {
   sit_callback *user_callback = cb->user_data;
 	
 	sit_callback *qc = node->callback;
-	sit_term *terms = NULL;
+  sit_term **terms = NULL;
 	int term_count = 0;
 	while(qc) {
 		if (terms == NULL) {
-			_get_terms(&terms, node, &term_count);
+			terms = _get_terms(node, &term_count);
 		}
     conjunction_t *cjs[1];
-    cjs[0] = conjunction_new(&terms, term_count);
+    cjs[0] = conjunction_new(terms, term_count);
 		sit_query *query = sit_query_new(cjs, 1, qc);
 		user_callback->handler(user_callback, query);
 		qc = qc->next;
