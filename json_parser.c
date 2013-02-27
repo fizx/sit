@@ -1,9 +1,4 @@
-#include "util.h"
-#include "json_parser.h"
-#include "jsonsl.h"
-#include "white_parser.h"
-#include "white_parser.h"
-#include <assert.h>
+#include "sit.h"
 
 typedef struct {
   jsonsl_t    json_parser;

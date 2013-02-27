@@ -1,11 +1,4 @@
-#include "protocol.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include "util_ruby.h"
-#ifdef HAVE_EV_H
-#include <ev.h>
-#endif
+#include "sit.h"
 
 #define COMMAND_LIMIT 16
 

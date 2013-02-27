@@ -1,10 +1,4 @@
-#include "plist.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <assert.h>
+#include "sit.h"
 
 plist_pool *
 plist_pool_new(long size) {

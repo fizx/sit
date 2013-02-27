@@ -1,6 +1,4 @@
-#include "lrw_dict_ruby.h"
-#include "util_ruby.h"
-#include "lrw_dict.h"
+#include "sit_ruby.h"
 
 typedef struct {
 	void *pointer;

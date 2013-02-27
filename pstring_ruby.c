@@ -1,8 +1,4 @@
-#include "ruby.h"
-#include "util_ruby.h"
-#include "pstring.h"
-#include "pstring_ruby.h"
-#include <string.h>
+#include "sit_ruby.h"
 
 pstring *
 r2pstring(VALUE rstr) {

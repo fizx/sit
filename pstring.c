@@ -1,9 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-#include "pstring.h"
-#include "dict.h"
+#include "sit.h"
 
 pstring *
 pstring_new(int len) {

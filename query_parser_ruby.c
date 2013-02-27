@@ -1,11 +1,4 @@
-#include "query_parser_ruby.h"
-#include "query_parser.h"
-#include "callback_ruby.h"
-#include "callback.h"
-#include "pstring_ruby.h"
-#include "ruby.h"
-#include "util_ruby.h"
-#include <assert.h>
+#include "sit_ruby.h"
 
 #define rbpush(cstr)    rb_ary_push(buf, rb_str_new2(cstr));
 

@@ -1,9 +1,4 @@
-#include "server_ruby.h"
-#include "util_ruby.h"
-#include "sit.h"
-#include <sys/socket.h>
-#include <stdio.h>
-#include <netinet/in.h>
+#include "sit_ruby.h"
 
 VALUE
 rbc_server_new(VALUE class, VALUE rengine) {  

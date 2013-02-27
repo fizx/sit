@@ -1,14 +1,4 @@
-#include "util.h"
-#include "parser_ruby.h"
-#include "pstring.h"
-#include "pstring_ruby.h"
-#include <assert.h>
-#include "ruby.h"
-#include "engine.h"
-#include "parser.h"
-#include "json_parser.h"
-#include "util_ruby.h"
-#include "white_parser.h"
+#include "sit_ruby.h"
 
 void 
 rbc_consume(sit_parser *parser, pstring *pstr) {  

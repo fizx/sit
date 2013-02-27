@@ -1,10 +1,4 @@
-#include "term_ruby.h"
-#include "term.h"
-#include "util_ruby.h"
-#include "pstring.h"
-#include "pstring_ruby.h"
-#include <assert.h>
-#include <stdbool.h>
+#include "sit_ruby.h"
 
 VALUE
 rbc_term_new(VALUE class, VALUE rfield, VALUE rtext, VALUE roff, VALUE rnegated) {

@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include "term.h"
-#include "dict.h"
-#include "pstring.h"
-#include <assert.h>
+#include "sit.h"
 
 sit_term *
 sit_term_new(pstring *field, pstring *text, int offset, bool negated) {

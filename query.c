@@ -1,9 +1,4 @@
-#include "query.h"
-#include "term.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include "sit.h"
 
 int
 qsit_termcmp(const void *a, const void *b) {

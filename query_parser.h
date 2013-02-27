@@ -1,12 +1,7 @@
 #ifndef QUERY_PARSER_H_INCLUDED
 #define QUERY_PARSER_H_INCLUDED
 
-#include "query.h"
-#include "parser.h"
-#include "callback.h"
-#include "pstring.h"
-#include <stdbool.h>
-#include "ast.h"
+#include "sit.h"
 
 typedef enum { UNKNOWN, NUM, EXPR, CLAUSE, CMP, STR, MODSTR, BAND, BOR, ANDS, ORS, TERM, NUMTERM } query_node_type;
 typedef enum { _NA, _EQ, _GT, _LT, _GTE, _LTE, _TILDE, _NEQ } cmp_type;

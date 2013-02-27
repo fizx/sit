@@ -1,6 +1,4 @@
-#include "ring_buffer.h"
-#include <stdlib.h>
-#include <limits.h>
+#include "sit.h"
 
 ring_buffer *
 ring_buffer_new(long capacity) {

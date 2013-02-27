@@ -1,11 +1,4 @@
-#include "engine.h"
-#include "ring_buffer.h"
-#include "dict.h"
-#include "dict_types.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <limits.h>
-#include <assert.h>
+#include "sit.h"
 
 typedef struct sit_query_node {
 	dict                   *children;

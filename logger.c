@@ -1,8 +1,4 @@
-#include <stdarg.h>
-#include "logger.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include "sit.h"
 
 FILE *logfile;
 

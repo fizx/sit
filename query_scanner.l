@@ -10,15 +10,8 @@ H			[a-fA-F0-9]
 NS    [^ \t\n\r,?*();:\^"]
 
 %{
-#include "y.tab.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include "util.h"
-#include <string.h>
-#include "query_parser.h"
-#include "white_parser.h"
-#include "pstring.h"
-#include <assert.h>
+
+#include "sit.h"
 
 #define YY_EXTRA_TYPE query_parser*
 #define YY_USER_ACTION yylloc->first_line = yylineno;

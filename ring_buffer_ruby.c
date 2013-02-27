@@ -1,7 +1,4 @@
-#include "ring_buffer_ruby.h"
-#include "pstring_ruby.h"
-#include "util_ruby.h"
-#include <assert.h>
+#include "sit_ruby.h"
 
 VALUE
 rbc_ring_buffer_new(VALUE class, VALUE rsize) {

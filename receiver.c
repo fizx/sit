@@ -1,5 +1,4 @@
-#include "receiver.h"
-#include <stdlib.h>
+#include "sit.h"
 
 sit_receiver *
 sit_receiver_new() {

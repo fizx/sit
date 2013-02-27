@@ -1,10 +1,4 @@
-#include "parser.h"
-#include "engine.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
-#include "util.h"
+#include "sit.h"
 
 sit_parser *
 default_fresh_copy(sit_parser *parser) {

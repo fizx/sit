@@ -1,8 +1,4 @@
-#include "query_ruby.h"
-#include "query.h"
-#include "util_ruby.h"
-#include "ruby.h"
-#include <stdlib.h>
+#include "sit_ruby.h"
 
 VALUE
 rbc_query_new(VALUE class, VALUE rconjunctions, VALUE rcallback) {

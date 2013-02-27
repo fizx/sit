@@ -1,9 +1,4 @@
 #include "sit.h"
-#include "logger.h"
-#include <sys/socket.h>
-#include <stdio.h>
-#include <netinet/in.h>
-#include <getopt.h>
 
 #define BUF_SIZE 65536
 

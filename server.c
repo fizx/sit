@@ -1,13 +1,5 @@
 #ifdef HAVE_EV_H
-#include <errno.h>
-#include "server.h"
-#include <ev.h>
-#include <assert.h>
-#include <sys/socket.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <netinet/in.h>
+#include "sit.h"
 
 #define BUFFER_SIZE 8096
 #define STREAM_BUFFER_SIZE 1048576

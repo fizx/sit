@@ -1,6 +1,4 @@
-#include "plist_ruby.h"
-#include "util_ruby.h"
-#include <assert.h>
+#include "sit_ruby.h"
 
 VALUE
 rbc_plist_pool_new(VALUE class, VALUE rsize) {

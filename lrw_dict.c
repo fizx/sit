@@ -1,8 +1,4 @@
-#include "lrw_dict.h"
-#include "term.h"
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
+#include "sit.h"
 
 lrw_dict *
 lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity) {

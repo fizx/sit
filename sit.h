@@ -10,8 +10,21 @@ struct query_parser;
 struct lrw_type;
 
 #include <assert.h>
+#include <errno.h>
+#ifdef HAVE_EV_H
+#include <ev.h>
+#endif
+#include <getopt.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "ast.h"
 #include "dict.h"
