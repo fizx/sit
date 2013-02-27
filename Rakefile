@@ -14,20 +14,6 @@ task :test => :spec
 
 task :default => :make
 
-task :node => "binding.gyp" do
-	sys! "node-gyp configure build"
-end
-
-file "binding.gyp" do
-	hash = { "targets" => [
-   { "target_name"=> "sit",
-	    "sources"=> Dir["node/*"] + Dir["*.c"].reject{|path| path =~ /ruby/ }
-	   }
-	 ]
-	}
-	File.open("binding.gyp", "w") {|f| f.puts hash.to_json }
-end
-
 task :make => "Makefile" do
 	sys!("make")
 end
@@ -46,5 +32,4 @@ task :clean do
   rm Dir["*.yy.c"]
   rm Dir["*.tab.*"]
 	rm_f "Makefile"
-	rm_f "binding.gyp"
 end
