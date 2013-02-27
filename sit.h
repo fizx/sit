@@ -9,6 +9,10 @@ struct sit_term;
 struct query_parser;
 struct lrw_type;
 
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "ast.h"
 #include "dict.h"
 #include "dict_types.h"

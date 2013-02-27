@@ -1,5 +1,4 @@
-#include "ruby.h"
-#include "sit.h"
+#include "sit_ruby.h"
 
 void
 _ruby_command_found(struct sit_protocol_handler *handler, pstring *command, pstring* more) {

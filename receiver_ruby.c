@@ -1,8 +1,4 @@
-#include "receiver_ruby.h"
-#include "ruby.h"
-#include "receiver.h"
-#include "util.h"
-#include <stdlib.h>
+#include "sit_ruby.h"
 
 void 
 _ruby_term_found(struct sit_receiver *receiver, pstring *pstr, int field_offset) {  

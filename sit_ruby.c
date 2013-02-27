@@ -3,8 +3,7 @@
  * are either in Ruby inlined here (if they're really simple), or in <class>_ruby.c
  */
 
-#include "ruby.h"
-#include "ruby.h"
+#include "sit_ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ast;

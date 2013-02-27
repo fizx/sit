@@ -1,7 +1,4 @@
-#include "input_ruby.h"
-#include "ruby.h"
-#include "sit.h"
-#include <assert.h>
+#include "sit_ruby.h"
 
 void 
 _append_buf(struct sit_output *output, pstring *message) {
