@@ -1,15 +1,14 @@
 #include "sit.h"
 
+#define MAX_DEPTH 10
+
 typedef struct JSONState {
   jsonsl_t    json_parser;
   Parser     *tokenizer;
-  pstring    *active;
-  long        active_off;
-  long        start_off;
-  long        doc_off;
-  pstring    *buf;
-  int         token;
-  bool        buffering;
+  DocBuf     *buffers[MAX_DEPTH];
+  pstring    *working;      // the live window we care about
+  long        working_pos;  // the offset of working relative to the stream start
+  pstring    *delta;        // the string passed with consume
 } JSONState;
 
 int 
@@ -31,72 +30,57 @@ _jsonsl_stack_callback(
         jsonsl_action_t action,
         struct jsonsl_state_st* state,
         const jsonsl_char_t *at) {
-  int off;
-  int len;
-  int end;
-  char *ptr = at;
 	Parser *parser = jsn->data;
 	JSONState *mystate = parser->state;
+  pstring *working = mystate->working;
+  long working_pos = mystate->working_pos;
+  Receiver *buf = &mystate->buffers[state->level]->as_receiver;
 	switch (action) {
-	case JSONSL_ACTION_PUSH: 
-		switch (state->type) {
-	  case JSONSL_T_SPECIAL:
-	    if(!(state->special_flags & JSONSL_SPECIALf_NUMERIC)) {
-        break;
-      }
-      ptr--; //no opening quote
-		case JSONSL_T_HKEY:
-		case JSONSL_T_STRING:	  
-      mystate->buffering = true;                                            
-      off = ptr + 1 - mystate->active->val;   
-      mystate->start_off = mystate->active_off + off;
-      len = mystate->active->len - off;      
-      mystate->buf = pstring_new2(ptr + 1, len);
-			break;
-		}  
-		case JSONSL_T_OBJECT:
-		  if (*at == '{') {
-  		  off = at - mystate->active->val;
-  		  mystate->doc_off = mystate->active_off + off;
-      }
-		break;
 	case JSONSL_ACTION_POP: 
 		switch (state->type) {
-	  case JSONSL_T_SPECIAL:  
+	  case JSONSL_T_SPECIAL: {
   	  if(!(state->special_flags & JSONSL_SPECIALf_NUMERIC)) {
         break;
       }
-      len = state->pos_cur - state->pos_begin;
-      mystate->buf->len = len;
-      parser->receiver->int_found(parser->receiver, strtol(mystate->buf->val, NULL, 10));
+      const char *string = working->val + state->pos_begin - working_pos;
+      buf->int_found(buf, strtol(string, NULL, 10));
       break;
-		case JSONSL_T_HKEY:
-      len = state->pos_cur - state->pos_begin - 1;
-      mystate->buf->len = len;
-      parser->receiver->field_found(parser->receiver, mystate->buf);
-      mystate->buffering = false;
+    }
+		case JSONSL_T_HKEY: {
+      long off = state->pos_cur - working_pos + 1;
+      int len = state->pos_cur - state->pos_begin - 2;
+      pstring pstr = {
+        working->val + off,
+        len
+      };
+      buf->field_found(buf, &pstr);
 			break;
-		case JSONSL_T_STRING:
-      len = state->pos_cur - state->pos_begin - 1;
-      mystate->buf->len = len;
+		}
+		case JSONSL_T_STRING: {
+  		long off = state->pos_cur - working_pos + 1;
+      int len = state->pos_cur - state->pos_begin - 2;
+      pstring pstr = {
+        working->val + off,
+        len
+      };
+
       mystate->tokenizer->data = parser->data;
 			mystate->tokenizer->receiver = parser->receiver;
-      mystate->tokenizer->set_offset(mystate->tokenizer, mystate->start_off);
-      mystate->tokenizer->consume(mystate->tokenizer, mystate->buf);
+      mystate->tokenizer->consume(mystate->tokenizer, &pstr);
       mystate->tokenizer->end_stream(mystate->tokenizer);
-      mystate->buffering = false;
+
 			break;
-		case JSONSL_T_OBJECT:  
-      off = at + 1 - mystate->active->val;
-      end = mystate->active_off + off;
+    }
+		case JSONSL_T_OBJECT: {
+     	long off = state->pos_cur - working_pos;
+      int len = state->pos_cur - state->pos_begin;
       pstring doc = {
-        mystate->active->val,// + mystate->doc_off,
-        end - mystate->doc_off
+        working->val + off,
+        len
       };
-		  parser->receiver->document_found(parser->receiver, &doc);
-		  jsonsl_reset(mystate->json_parser);
+		  buf->document_found(parser->receiver, &doc);
       break;
-		}
+		}}
 		break;
 	case JSONSL_ACTION_ERROR: 
 		break;
@@ -118,12 +102,9 @@ void
 _json_consume(struct Parser *parser, pstring *str) {
   assert(parser->receiver);
   JSONState *state = parser->state;
-  state->active = str;
-  if(state->buffering) {
-    padd(state->buf, str);
-  }
+  padd(state->working, str);
+  state->delta = str;
 	jsonsl_feed(state->json_parser, str->val, str->len);
-  state->active_off += str->len;
 }
 
 Parser *
@@ -131,18 +112,19 @@ json_parser_new(Parser *tokenizer) {
   Parser *parser = parser_new();
   parser->state = malloc(sizeof(JSONState));
   JSONState *state = parser->state;
-  state->json_parser = jsonsl_new(100);
+  state->json_parser = jsonsl_new(MAX_DEPTH);
   jsonsl_enable_all_callbacks(state->json_parser);
   jsonsl_reset(state->json_parser);
   state->tokenizer = tokenizer;
-  state->active_off = 0;
-  state->token = 0;
-	state->buf = pstring_new(0);
   state->json_parser->action_callback = _jsonsl_stack_callback;
 	state->json_parser->error_callback = _jsonsl_error_callback;
 	SET_ONCE(state->json_parser->data, parser);
 	parser->fresh_copy = json_fresh_copy;
   parser->consume = _json_consume;
+  state->working = pstring_new(0);
+  state->working_pos = 0;
+  for(int i =0; i < MAX_DEPTH; i++) {
+    state->buffers[i] = doc_buf_new(10000);
+  }
   return parser;
 }
-
