@@ -8,7 +8,7 @@ rbc_term_new(VALUE class, VALUE rfield, VALUE rtext, VALUE roff, VALUE rnegated)
 	int off = NUM2INT(roff);
 	assert(field);
 	assert(text);
-	sit_term *term = sit_term_new(field, text, off, negated);
+	Term *term = term_new(field, text, off, negated);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, term);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -21,7 +21,7 @@ rbc_term_new_numeric(VALUE class, VALUE rfield, VALUE op, VALUE val) {
 	int off = NUM2INT(val);
 	assert(field);
 	assert(text);
-	sit_term *term = sit_term_new(field, text, off, false);
+	Term *term = term_new(field, text, off, false);
   term->numeric = true;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, term);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -30,8 +30,8 @@ rbc_term_new_numeric(VALUE class, VALUE rfield, VALUE op, VALUE val) {
 
 VALUE
 rbc_term_to_s(VALUE self) {
-	sit_term *term;
-	Data_Get_Struct(self, sit_term, term);
+	Term *term;
+	Data_Get_Struct(self, Term, term);
 	char *str;
 	asprintf(&str, "[%.*s:%.*s %d]", 
 		term->field->len, term->field->val, 
@@ -44,9 +44,9 @@ rbc_term_to_s(VALUE self) {
 
 VALUE
 rbc_term_comparator(VALUE self, VALUE other) {
-	sit_term *a;
-	sit_term *b;
-	Data_Get_Struct(self, sit_term, a);
-	Data_Get_Struct(other, sit_term, b);
-	return INT2NUM(sit_termcmp(a, b));	
+	Term *a;
+	Term *b;
+	Data_Get_Struct(self, Term, a);
+	Data_Get_Struct(other, Term, b);
+	return INT2NUM(termcmp(a, b));	
 }

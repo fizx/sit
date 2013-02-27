@@ -4,7 +4,7 @@ VALUE
 rbc_server_new(VALUE class, VALUE rengine) {  
   Engine *engine;
   Data_Get_Struct(rengine, Engine, engine);
-  sit_server *server = sit_server_new(engine);
+  Server *server = server_new(engine);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, server);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
@@ -12,8 +12,8 @@ rbc_server_new(VALUE class, VALUE rengine) {
 
 VALUE 
 rbc_server_start(VALUE self, VALUE rport) {
-  sit_server *server;
-  Data_Get_Struct(self, sit_server, server);
+  Server *server;
+  Data_Get_Struct(self, Server, server);
   int port = NUM2INT(rport);
   
 	struct sockaddr_in addr;
@@ -22,6 +22,6 @@ rbc_server_start(VALUE self, VALUE rport) {
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
 	
-  sit_server_start(server, &addr);
+  server_start(server, &addr);
   return Qnil;
 }

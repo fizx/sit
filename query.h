@@ -9,7 +9,7 @@ typedef struct {
 	void         *data;				
 
   int           count;	
-  sit_term      terms[1];
+  Term      terms[1];
 } conjunction_t;
 
 typedef struct {
@@ -23,19 +23,19 @@ typedef struct {
 } Query;
 
 int
-qsit_termcmp(const void *a, const void *b);
+qtermcmp(const void *a, const void *b);
 
 Query *
-sit_query_new(conjunction_t **conjunctions, int count, Callback *callback);
+query_new(conjunction_t **conjunctions, int count, Callback *callback);
 
 conjunction_t *
-conjunction_new(sit_term **terms, int count);
+conjunction_new(Term **terms, int count);
 
 void 
-sit_query_free(Query *query);
+query_free(Query *query);
 
 pstring *
-sit_query_to_s(Query *query);
+query_to_s(Query *query);
 
 pstring *
 conjunction_to_s(conjunction_t *cj);

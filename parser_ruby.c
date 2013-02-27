@@ -43,7 +43,7 @@ rbc_white_fresh_copy(Parser *parser) {
 
 VALUE 
 rbc_parser_new(VALUE class) {
-	Parser *parser = sit_parser_new();
+	Parser *parser = parser_new();
 	parser->consume = rbc_consume;
 	parser->fresh_copy = rbc_default_fresh_copy;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);

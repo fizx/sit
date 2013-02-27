@@ -1,19 +1,19 @@
 #include "sit.h"
 
-sit_term *
-sit_term_new(pstring *field, pstring *text, int offset, bool negated) {
- 	sit_term *term = malloc(sizeof(sit_term));
+Term *
+term_new(pstring *field, pstring *text, int offset, bool negated) {
+ 	Term *term = malloc(sizeof(Term));
 	term->field = field;
 	term->text = text;
 	term->offset = offset;
   term->negated = negated;
   term->numeric = false;
-	sit_term_update_hash(term);
+	term_update_hash(term);
 	return term;
 }
 
 void 
-sit_term_free(sit_term *term) {
+term_free(Term *term) {
 	if(term != NULL) {
 		pstring_free(term->field);
 		pstring_free(term->text);
@@ -21,19 +21,19 @@ sit_term_free(sit_term *term) {
 	}
 }
 
-sit_term *
-sit_term_copy(sit_term *term) {	
- 	sit_term *copy = malloc(sizeof(sit_term));
+Term *
+term_copy(Term *term) {	
+ 	Term *copy = malloc(sizeof(Term));
   copy->field = pcpy(term->field);
   copy->text = pcpy(term->text);
   copy->offset = term->offset;
   copy->negated = term->negated;
-	sit_term_update_hash(copy);
+	term_update_hash(copy);
   return copy;
 }
 
 pstring *
-sit_term_to_s(sit_term *term) {	
+term_to_s(Term *term) {	
 	assert(term->field);
 	assert(term->text);
 	pstring *buf = pstring_new(0);
@@ -43,9 +43,9 @@ sit_term_to_s(sit_term *term) {
 }
 
 int
-sit_termcmp(const void *a, const void *b) {
-	sit_term *ta = (sit_term *) a;
-	sit_term *tb = (sit_term *) b;
+termcmp(const void *a, const void *b) {
+	Term *ta = (Term *) a;
+	Term *tb = (Term *) b;
 	
   // int out = ta->negated - tb->negated;
   int out = 0;
@@ -60,7 +60,7 @@ sit_termcmp(const void *a, const void *b) {
 }
 
 void 
-sit_term_update_hash(sit_term *term) {
+term_update_hash(Term *term) {
 	assert(term->field);
 	assert(term->text);
 	term->hash_code = pstrhash(term->field);

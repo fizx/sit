@@ -1,18 +1,18 @@
 #include "sit.h"
 
 int
-qsit_termcmp(const void *a, const void *b) {
-	const sit_term *ta = a;
-	const sit_term *tb = b;
+qtermcmp(const void *a, const void *b) {
+	const Term *ta = a;
+	const Term *tb = b;
   int out = ta->negated - tb->negated;
   if(!out) {
-	  out = sit_termcmp(ta, tb);
+	  out = termcmp(ta, tb);
   }
   return out;
 }
 
 Query *
-sit_query_new(conjunction_t **conjunctions, int count, Callback *callback) {
+query_new(conjunction_t **conjunctions, int count, Callback *callback) {
   Query *query = malloc(sizeof(*query));
   query->conjunctions = malloc(sizeof(conjunction_t*) * count);
   memcpy(query->conjunctions, conjunctions, sizeof(conjunction_t*) * count);
@@ -23,25 +23,25 @@ sit_query_new(conjunction_t **conjunctions, int count, Callback *callback) {
 }
 
 conjunction_t *
-conjunction_new(sit_term **terms, int count) {
-  conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(sit_term));
+conjunction_new(Term **terms, int count) {
+  conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(Term));
 	for(int i = 0	; i < count; i++) {
-		memcpy(&con->terms[i], terms[i], sizeof(sit_term));
+		memcpy(&con->terms[i], terms[i], sizeof(Term));
 	}
-	qsort(con->terms, count, sizeof(sit_term), qsit_termcmp);	
+	qsort(con->terms, count, sizeof(Term), qtermcmp);	
 	con->count = count;
 	con->data = NULL;
 	return con;
 }
 
 void 
-sit_query_free(Query *query) {
+query_free(Query *query) {
 	callback_free(query->callback);
 	free(query);
 }
 
 pstring *
-sit_query_to_s(Query *query) {
+query_to_s(Query *query) {
 	pstring *buf = pstring_new(0);
 	PC("<");
 	for(int i = 0; i < query->count; i++) {
@@ -69,11 +69,11 @@ conjunction_to_s(conjunction_t *con) {
 	  if(i > 0) {
 			PC(" AND ");
     }
-		sit_term *term = &con->terms[i];
+		Term *term = &con->terms[i];
 		if(term->negated) {
 			PC("NOT ");
 		}
-		P(sit_term_to_s(term));
+		P(term_to_s(term));
 	}
 	PC(")");
 	

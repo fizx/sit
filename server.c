@@ -40,7 +40,7 @@ read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 void 
 accept_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 	(void) loop;
-	sit_server *server = (sit_server *) watcher;
+	Server *server = (Server *) watcher;
 	conn_t *conn = conn_new(server);
 	conn_start(conn, revents);
 }
@@ -77,16 +77,16 @@ out_conn_close(Output *output) {
 }
 
 conn_t *
-conn_new(sit_server *server) {
+conn_new(Server *server) {
   assert(server->engine);
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
-	Input *input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+	Input *input = input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
   input->output = malloc(sizeof(Output));
   input->output->data = conn;
   input->output->write = conn_write;
   input->output->close = out_conn_close;
-  conn->parser = sit_line_input_protocol_new(input);
+  conn->parser = line_input_protocol_new(input);
 	return conn;
 }
 
@@ -118,9 +118,9 @@ conn_start(conn_t * conn, int revents) {
 	INFO("%d client(s) connected.", conn->server->total_clients);
 }
 
-sit_server *
-sit_server_new(Engine *engine) {
-	sit_server *server = malloc(sizeof(*server));
+Server *
+server_new(Engine *engine) {
+	Server *server = malloc(sizeof(*server));
 	server->engine = engine;
 	server->loop = ev_default_loop (0);
 	server->addr = NULL;
@@ -131,7 +131,7 @@ sit_server_new(Engine *engine) {
 int reuse = 1;
 
 int
-sit_server_start(sit_server *server, struct sockaddr_in *addr) {
+server_start(Server *server, struct sockaddr_in *addr) {
 	struct ev_loop *loop = ev_default_loop(0);
 	int sd;
 

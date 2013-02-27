@@ -6,26 +6,25 @@ void _cb_mark(void *data) {
 }
 
 void 
-_string_handler(Callback *cb, void *sit_data) {
+_string_handler(Callback *cb, void *data) {
 	VALUE block = vunwrap(cb->user_data);
-	pstring *pstr = sit_data;
+	pstring *pstr = data;
 	VALUE rstr = p2rstring(pstr);
 	rb_funcall(block, rb_intern("call"), 1, rstr);
 }
 
 void 
-_numeric_handler(Callback *cb, void *sit_data) {
-  long val = *(long*)sit_data;
+_numeric_handler(Callback *cb, void *data) {
+  long val = *(long*)data;
   VALUE rval = LONG2NUM(val);
 	VALUE block = vunwrap(cb->user_data);
   rb_funcall(block, rb_intern("call"), 1, rval);
 }
 
-
 void 
-_query_handler(Callback *cb, void *sit_data) {
+_query_handler(Callback *cb, void *data) {
 	VALUE block = vunwrap(cb->user_data);
-	Query *query = sit_data;
+	Query *query = data;
 	if (query == NULL) {
     rb_funcall(block, rb_intern("call"), 1, Qnil);
 	} else {
@@ -39,9 +38,9 @@ _query_handler(Callback *cb, void *sit_data) {
 }
 
 void 
-_pointer_handler(Callback *cb, void *sit_data) {
+_pointer_handler(Callback *cb, void *data) {
 	VALUE block = vunwrap(cb->user_data);
-  long addr = (long) sit_data;
+  long addr = (long) data;
 	rb_funcall(block, rb_intern("call"), 1, LONG2NUM(addr));
 }
 

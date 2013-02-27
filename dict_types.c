@@ -2,7 +2,7 @@
 
 static unsigned int 
 _term_hash(const void *key) {
-  return ((sit_term *) key)->hash_code;
+  return ((Term *) key)->hash_code;
 }
 
 static int 
@@ -13,13 +13,13 @@ _term_compare(void *privdata, const void *key1, const void *key2) {
 
 static void
 _term_bump(dictEntry *entry, long value) {
-	sit_term *term = dictGetKey(entry);
+	Term *term = dictGetKey(entry);
 	term->offset = value;
 }
 
 static long
 _term_version(dictEntry *entry) {
-	sit_term *term = dictGetKey(entry);
+	Term *term = dictGetKey(entry);
 	return term->offset;
 }
 

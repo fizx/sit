@@ -18,7 +18,7 @@ rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size,
 	Data_Get_Struct(rengine, Engine, engine);
 	long term_capacity = NUM2LONG(rterm_capacity);
 	long buf_size = NUM2LONG(rbuf_size);
-	Input *input = sit_input_new(engine, term_capacity, buf_size);
+	Input *input = input_new(engine, term_capacity, buf_size);
   Output *output = malloc(sizeof(*output));
   output->data = vwrap(buf);
   output->write = _append_buf;
@@ -42,7 +42,7 @@ rbc_input_consume(VALUE self, VALUE rstr) {
 	Data_Get_Struct(self, Input, input);
 	pstring *pstr = r2pstring(rstr);
   assert(input->parser->receiver == &input->as_receiver);
-	sit_input_consume(input, pstr);
+	input_consume(input, pstr);
 	pstring_free(pstr);
 	return Qnil;
 }
@@ -51,6 +51,6 @@ VALUE
 rbc_input_end_stream(VALUE self) {
 	Input *input;
 	Data_Get_Struct(self, Input, input);
-	sit_input_end_stream(input);
+	input_end_stream(input);
 	return Qnil;
 }

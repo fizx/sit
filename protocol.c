@@ -3,7 +3,7 @@
 #define COMMAND_LIMIT 16
 
 void
-_input_error_found(struct sit_protocol_handler *handler, pstring *message) {
+_input_error_found(struct ProtocolHandler *handler, pstring *message) {
   Input *input = handler->data;
   Output *output = input->output;
   pstring *buf = pstring_new(0);
@@ -30,7 +30,7 @@ extract_string(pstring *target, pstring *haystack, int off) {
 }
 
 void 
-_parse_command(sit_protocol_parser *parser, pstring *pstr) {
+_parse_command(ProtocolParser *parser, pstring *pstr) {
   pstring cmd;
   pstring more;
   int off = 0;
@@ -42,8 +42,8 @@ _parse_command(sit_protocol_parser *parser, pstring *pstr) {
 }
 
 void 
-_line_consume(sit_protocol_parser *parser, pstring *pstr) {
-  sit_protocol_handler *handler = parser->handler;
+_line_consume(ProtocolParser *parser, pstring *pstr) {
+  ProtocolHandler *handler = parser->handler;
   char *buf;
   pstring tmp = {
     pstr->val,
@@ -72,7 +72,7 @@ _line_consume(sit_protocol_parser *parser, pstring *pstr) {
 }
 
 void
-_line_end_stream(sit_protocol_parser *parser) {
+_line_end_stream(ProtocolParser *parser) {
   (void) parser;
 }
 
@@ -80,11 +80,11 @@ void
 _dump_handler(struct Callback *self, void *data) {
   Query *query = data;
   Output *output = self->user_data;
-  output->write(output, sit_query_to_s(query));
+  output->write(output, query_to_s(query));
 }
 
 void
-_input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
+_input_command_found(struct ProtocolHandler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
   Input *input = handler->data;
   Output *output = input->output;
@@ -100,7 +100,7 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
     query_parser_reset(input->qparser);
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
-    bool success = sit_engine_unregister(input->engine, query_id);
+    bool success = engine_unregister(input->engine, query_id);
     pstring *buf = pstring_new(0);
     if(success) {
       PV("{\"status\": \"ok\", \"message\": \"unregistered\", \"query_id\": %ld}", query_id);
@@ -111,7 +111,7 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
     pstring_free(buf);
   } else if(!cpstrcmp("get", command)) {
     long doc_id = strtol(more->val, NULL, 10);
-    pstring *doc = sit_engine_get_document(input->engine, doc_id);
+    pstring *doc = engine_get_document(input->engine, doc_id);
     pstring *buf = pstring_new(0);
     if(doc) {
       PV("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": %.*s}", doc->len, doc->val);
@@ -130,7 +130,7 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
       NULL,
       NULL
     };
-    sit_engine_each_query(input->engine, &cb);
+    engine_each_query(input->engine, &cb);
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");
@@ -146,21 +146,21 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
 }
 
 void
-_input_data_found(struct sit_protocol_handler *handler, pstring *data) {
+_input_data_found(struct ProtocolHandler *handler, pstring *data) {
   DEBUG("found data: %.*s\n", data->len, data->val);
   Input *input = handler->data;
-  sit_input_consume(input, data);
+  input_consume(input, data);
 }
 
 void
-_input_data_complete(struct sit_protocol_handler *handler) {
+_input_data_complete(struct ProtocolHandler *handler) {
   (void) handler;
 }
 
-sit_protocol_parser *
-sit_line_input_protocol_new(Input *input) {
-  sit_protocol_parser * parser = sit_line_protocol_new();
-  sit_protocol_handler *handler = parser->handler;
+ProtocolParser *
+line_input_protocol_new(Input *input) {
+  ProtocolParser * parser = line_protocol_new();
+  ProtocolHandler *handler = parser->handler;
   parser->data = NULL;
   handler->data = input;
   handler->command_found = _input_command_found;
@@ -170,10 +170,10 @@ sit_line_input_protocol_new(Input *input) {
   return parser;
 }
 
-sit_protocol_parser *
-sit_line_protocol_new() {
-  sit_protocol_parser *parser = malloc(sizeof(sit_protocol_parser));
-  sit_protocol_handler *handler = malloc(sizeof(sit_protocol_handler));
+ProtocolParser *
+line_protocol_new() {
+  ProtocolParser *parser = malloc(sizeof(ProtocolParser));
+  ProtocolHandler *handler = malloc(sizeof(ProtocolHandler));
   parser->handler = handler;
   handler->parser = parser;
   parser->consume = _line_consume;

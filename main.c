@@ -72,7 +72,7 @@ main(int argc, char **argv) {
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
   Parser *parser = json_parser_new(white_parser_new());
-  Engine *engine = sit_engine_new(parser, ram);
+  Engine *engine = engine_new(parser, ram);
 
 #ifdef HAVE_EV_H
   
@@ -83,18 +83,18 @@ main(int argc, char **argv) {
 		addr.sin_port = htons(port);
 		addr.sin_addr.s_addr = INADDR_ANY;
 		
-		sit_server *server = sit_server_new(engine);
-		sit_server_start(server, &addr);
+		Server *server = server_new(engine);
+		server_start(server, &addr);
 	} else {
 #else
   {
 #endif
   
-  	Input *input = sit_input_new(engine, engine->term_capacity, BUF_SIZE);
+  	Input *input = input_new(engine, engine->term_capacity, BUF_SIZE);
     input->output = malloc(sizeof(Output));
     input->output->write = stdout_write;
     input->output->close = stdout_close;
-    sit_protocol_parser *pparser = sit_line_input_protocol_new(input);
+    ProtocolParser *pparser = line_input_protocol_new(input);
   
     char buffer[BUF_SIZE];
     pstring pstr;

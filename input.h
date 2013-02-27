@@ -39,31 +39,31 @@ typedef struct Input {
 
 	void *data;
 
-	struct sit_term         terms[1];
+	struct Term         terms[1];
 } Input;
 
 Input *
-sit_input_new(struct Engine *engine, int term_capacity, long buffer_size);
+input_new(struct Engine *engine, int term_capacity, long buffer_size);
 
 void
-sit_input_consume(struct Input *input, pstring *pstr);
+input_consume(struct Input *input, pstring *pstr);
 
 void 
-sit_input_error_found(Receiver *receiver, pstring *name);
+input_error_found(Receiver *receiver, pstring *name);
 
 void 
-sit_input_end_stream(struct Input *input);
+input_end_stream(struct Input *input);
 
 void 
-sit_input_term_found(Receiver *input, pstring *pstr, int field_offset);
+input_term_found(Receiver *input, pstring *pstr, int field_offset);
 
 void 
-sit_input_document_found(Receiver *input, long off, int len);
+input_document_found(Receiver *input, long off, int len);
 
 void 
-sit_input_int_found(Receiver *input, int value);
+input_int_found(Receiver *input, int value);
 
 void 
-sit_input_field_found(Receiver *input, pstring *name);
+input_field_found(Receiver *input, pstring *name);
 
 #endif

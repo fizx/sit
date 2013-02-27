@@ -330,7 +330,7 @@ to_conjunction(ASTNode *node, void *obj) {
   case NUMTERM:
   case TERM: {
     conjunction_t *con = malloc(sizeof(conjunction_t));
-    memcpy(&con->terms[0], obj, sizeof(sit_term));
+    memcpy(&con->terms[0], obj, sizeof(Term));
   	con->count = 1;
   	con->data = NULL;
     return con;
@@ -409,21 +409,21 @@ make_query_and_callback(query_parser *context, ASTNode *node) {
   case NUMTERM: {
     pstring *c = cmpmap(Q(node)->cmp);
     if(Q(node)->negated) c = _negate(c);
-    sit_term *term = sit_term_new(Q(node)->field, c, Q(node)->num, false);
+    Term *term = term_new(Q(node)->field, c, Q(node)->num, false);
     term->numeric = true;
     return term;
   }
   case TERM:
-    return sit_term_new(Q(node)->field, Q(node)->val, Q(node)->num, Q(node)->negated);
+    return term_new(Q(node)->field, Q(node)->val, Q(node)->num, Q(node)->negated);
   case ANDS: {
     int count = ast_node_child_count(node);
-    conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(sit_term));
+    conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(Term));
     ASTNode *child = node->child;
   	for(int i = 0	; i < count; i++) {
-  		memcpy(&con->terms[i], make_query_and_callback(context, child), sizeof(sit_term));
+  		memcpy(&con->terms[i], make_query_and_callback(context, child), sizeof(Term));
   		child = child->next;
   	}
-  	qsort(con->terms, count, sizeof(sit_term), qsit_termcmp);	
+  	qsort(con->terms, count, sizeof(Term), qtermcmp);	
   	con->count = count;
   	con->data = NULL;
   	return con;

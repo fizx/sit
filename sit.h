@@ -5,7 +5,7 @@ struct PlistPool;
 struct Cursor;
 struct Callback; 
 struct Engine;
-struct sit_term;
+struct Term;
 struct query_parser;
 struct lrw_type;
 

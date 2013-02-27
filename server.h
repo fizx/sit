@@ -14,23 +14,23 @@ typedef struct {
 	struct Engine  *engine;
 	struct sockaddr_in *addr;
 	int                 total_clients;
-} sit_server;
+} Server;
 
 typedef struct {
 	struct ev_io        as_io;
-	sit_server         *server;
+	Server         *server;
 	struct sockaddr_in *addr;
-	struct sit_protocol_parser   *parser;
+	struct ProtocolParser   *parser;
 } conn_t;
 
-sit_server *
-sit_server_new(struct Engine *engine);
+Server *
+server_new(struct Engine *engine);
 
 int
-sit_server_start(sit_server *server, struct sockaddr_in *addr);
+server_start(Server *server, struct sockaddr_in *addr);
 
 conn_t *
-conn_new(sit_server *server);
+conn_new(Server *server);
 
 void 
 conn_close(conn_t *conn);

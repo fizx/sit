@@ -15,7 +15,7 @@ rbc_query_new(VALUE class, VALUE rconjunctions, VALUE rcallback) {
 	}
 	Callback *cb;
 	Data_Get_Struct(rcallback, Callback, cb);
-	Query *query = sit_query_new(conjunctions, count, cb);
+	Query *query = query_new(conjunctions, count, cb);
 	
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -53,7 +53,7 @@ rbc_query_equals(VALUE self, VALUE other) {
 VALUE
 rbc_conjunction_new(VALUE class, VALUE rterms) {
   int term_count = NUM2INT(rb_funcall(rterms, rb_intern("size"), 0));
-	sit_term **terms = malloc(sizeof(sit_term*) * term_count);
+	Term **terms = malloc(sizeof(Term*) * term_count);
   VALUE term = rb_eval_string("::Sit::Term");
 	for (int i = 0; i < term_count; i++) {
     VALUE rterm = rb_ary_entry(rterms, i);
@@ -61,7 +61,7 @@ rbc_conjunction_new(VALUE class, VALUE rterms) {
       rb_raise(rb_eTypeError, "Conjunction constructor expects an array of terms");
       return Qnil;
 		}
-		Data_Get_Struct(rterm, sit_term, terms[i]);
+		Data_Get_Struct(rterm, Term, terms[i]);
 	}
 	conjunction_t *con = conjunction_new(terms, term_count);
 	
@@ -81,7 +81,7 @@ rbc_conjunction_to_s(VALUE self) {
 	  if(i > 0) {
 	    rb_ary_push(buf, rb_str_new2(" AND "));
     }
-		sit_term *term = &con->terms[i];
+		Term *term = &con->terms[i];
 		if(term->negated) {
 		  rb_ary_push(buf, rb_str_new2("NOT "));
 		}

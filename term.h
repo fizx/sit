@@ -10,31 +10,31 @@
  * The quirkiest thing right now is that points > 1 is a term with
  * field:points, offset:1, numeric:true, text:>.
  */
-typedef struct sit_term {
+typedef struct Term {
   pstring *field;
   pstring *text;
   unsigned int hash_code;
   unsigned int offset;
   bool negated;
   bool numeric;
-} sit_term;
+} Term;
 
-sit_term *
-sit_term_new(pstring *field, pstring *text, int offset, bool negated);
+Term *
+term_new(pstring *field, pstring *text, int offset, bool negated);
 
 pstring *
-sit_term_to_s(sit_term *term);
+term_to_s(Term *term);
 
-sit_term *
-sit_term_copy(sit_term *term);
-
-void 
-sit_term_free(sit_term *term);
+Term *
+term_copy(Term *term);
 
 void 
-sit_term_update_hash(sit_term *term);
+term_free(Term *term);
+
+void 
+term_update_hash(Term *term);
 
 int
-sit_termcmp(const void *a, const void *b);
+termcmp(const void *a, const void *b);
 
 #endif

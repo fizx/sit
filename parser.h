@@ -16,7 +16,7 @@ typedef struct Parser {
 } Parser;
 
 Parser *
-sit_parser_new();
+parser_new();
 
 
 Parser *
