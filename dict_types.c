@@ -1,17 +1,14 @@
 #include "sit.h"
 
 static unsigned int 
-_term_hash(const void *key)
-{
-    return ((sit_term *) key)->hash_code;
+_term_hash(const void *key) {
+  return ((sit_term *) key)->hash_code;
 }
 
 static int 
-_term_compare(void *privdata, const void *key1,
-        const void *key2)
-{
-    DICT_NOTUSED(privdata);
-    return _term_hash(key1) == _term_hash(key2);
+_term_compare(void *privdata, const void *key1, const void *key2) {
+  (void) privdata;
+  return _term_hash(key1) == _term_hash(key2);
 }
 
 static void
