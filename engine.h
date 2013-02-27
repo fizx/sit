@@ -50,7 +50,7 @@ typedef struct {
   int count;
   long doc_id;
   bool initialized;
-  sit_cursor **cursors;
+  Cursor **cursors;
   long *state;
   int *negateds;
 } sub_iterator;

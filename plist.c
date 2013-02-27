@@ -15,7 +15,7 @@ plist_pool_new(long size) {
 }
 
 long
-plist_cursor_document_id(sit_cursor *scursor) {
+plist_cursor_document_id(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;
   if(cursor->as_cursor.data != NULL) {
     return ((plist_entry *)cursor->as_cursor.data)->doc;
@@ -25,7 +25,7 @@ plist_cursor_document_id(sit_cursor *scursor) {
 }
 
 bool
-plist_cursor_prev(sit_cursor *scursor) {
+plist_cursor_prev(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;
   if(cursor->exhausted) {
     return false;
@@ -78,21 +78,21 @@ plist_cursor_prev(sit_cursor *scursor) {
 }
 
 bool
-plist_cursor_next(sit_cursor *scursor) {
+plist_cursor_next(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;
   (void) cursor;
   return false;
 }
 
 plist_entry *
-plist_cursor_entry(sit_cursor *scursor) {
+plist_cursor_entry(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;
   return cursor->exhausted ? NULL : cursor->as_cursor.data;
 }
 
 
 long 
-plist_cursor_seek_lte(sit_cursor *scursor, long value) {
+plist_cursor_seek_lte(Cursor *scursor, long value) {
   plist_cursor *cursor = (plist_cursor *)scursor;
 	long doc;
 	while((doc = plist_cursor_document_id(&cursor->as_cursor)) > value) {

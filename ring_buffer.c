@@ -11,13 +11,13 @@ ring_buffer_new(long capacity) {
 }
 
 long
-ring_cursor_document_id(sit_cursor *scursor) {
+ring_cursor_document_id(Cursor *scursor) {
   ring_buffer_cursor *cursor = (ring_buffer_cursor *)scursor;
   return cursor->pos;
 }
 
 bool
-ring_cursor_prev(sit_cursor *scursor) {
+ring_cursor_prev(Cursor *scursor) {
   ring_buffer_cursor *cursor = (ring_buffer_cursor *)scursor;
   long max = cursor->rb->written / cursor->width;
   if(cursor->pos > max) {
@@ -28,7 +28,7 @@ ring_cursor_prev(sit_cursor *scursor) {
 }
 
 bool
-ring_cursor_next(sit_cursor *scursor) {
+ring_cursor_next(Cursor *scursor) {
   ring_buffer_cursor *cursor = (ring_buffer_cursor *)scursor;
   bool out = ++cursor->pos < (cursor->rb->written - cursor->rb->capacity);
   cursor->as_cursor.data = ring_buffer_get(cursor->rb, cursor->pos * cursor->width, cursor->width);
@@ -36,13 +36,13 @@ ring_cursor_next(sit_cursor *scursor) {
 }
 
 void *
-ring_cursor_entry(sit_cursor *scursor) {
+ring_cursor_entry(Cursor *scursor) {
   ring_buffer_cursor *cursor = (ring_buffer_cursor *)scursor;
   return ring_buffer_get(cursor->rb, cursor->pos * cursor->width, cursor->width);
 }
 
 long 
-ring_cursor_seek_lte(sit_cursor *cursor, long value) {
+ring_cursor_seek_lte(Cursor *cursor, long value) {
   long doc;
 	while((doc = cursor->id(cursor)) > value) {
 		if(!cursor->prev(cursor)) {
@@ -61,7 +61,7 @@ ring_cursor_seek_lte(sit_cursor *cursor, long value) {
 // %>
 //   <% %w[prev next].each do |direction| %>
 //     bool                                                                       
-//     <%=prefix%>_predicate_ring_cursor_<%=direction%>(sit_cursor *scursor) {                   
+//     <%=prefix%>_predicate_ring_cursor_<%=direction%>(Cursor *scursor) {                   
 //       ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
 //       while(ring_cursor_<%=direction%>(scursor)){                                        
 //         if((*(int*)ring_cursor_entry(scursor)) <%=operator%> cursor->predicate) {  
@@ -75,7 +75,7 @@ ring_cursor_seek_lte(sit_cursor *cursor, long value) {
 
 
 bool                                                                       
-eq_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
+eq_predicate_ring_cursor_prev(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_prev(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) == cursor->predicate) {  
@@ -86,7 +86,7 @@ eq_predicate_ring_cursor_prev(sit_cursor *scursor) {
 }                                                                   
    
 bool                                                                       
-eq_predicate_ring_cursor_next(sit_cursor *scursor) {                   
+eq_predicate_ring_cursor_next(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_next(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) == cursor->predicate) {  
@@ -97,7 +97,7 @@ eq_predicate_ring_cursor_next(sit_cursor *scursor) {
 }                                                                   
 
 bool                                                                       
-gt_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
+gt_predicate_ring_cursor_prev(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_prev(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) > cursor->predicate) {  
@@ -108,7 +108,7 @@ gt_predicate_ring_cursor_prev(sit_cursor *scursor) {
 }                                                                   
    
 bool                                                                       
-gt_predicate_ring_cursor_next(sit_cursor *scursor) {                   
+gt_predicate_ring_cursor_next(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_next(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) > cursor->predicate) {  
@@ -119,7 +119,7 @@ gt_predicate_ring_cursor_next(sit_cursor *scursor) {
 }                                                                   
 
 bool                                                                       
-lt_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
+lt_predicate_ring_cursor_prev(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_prev(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) < cursor->predicate) {  
@@ -130,7 +130,7 @@ lt_predicate_ring_cursor_prev(sit_cursor *scursor) {
 }                                                                   
    
 bool                                                                       
-lt_predicate_ring_cursor_next(sit_cursor *scursor) {                   
+lt_predicate_ring_cursor_next(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_next(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) < cursor->predicate) {  
@@ -141,7 +141,7 @@ lt_predicate_ring_cursor_next(sit_cursor *scursor) {
 }                                                                   
 
 bool                                                                       
-ne_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
+ne_predicate_ring_cursor_prev(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_prev(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) != cursor->predicate) {  
@@ -152,7 +152,7 @@ ne_predicate_ring_cursor_prev(sit_cursor *scursor) {
 }                                                                   
    
 bool                                                                       
-ne_predicate_ring_cursor_next(sit_cursor *scursor) {                   
+ne_predicate_ring_cursor_next(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_next(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) != cursor->predicate) {  
@@ -163,7 +163,7 @@ ne_predicate_ring_cursor_next(sit_cursor *scursor) {
 }                                                                   
 
 bool                                                                       
-gte_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
+gte_predicate_ring_cursor_prev(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_prev(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) >= cursor->predicate) {  
@@ -174,7 +174,7 @@ gte_predicate_ring_cursor_prev(sit_cursor *scursor) {
 }                                                                   
    
 bool                                                                       
-gte_predicate_ring_cursor_next(sit_cursor *scursor) {                   
+gte_predicate_ring_cursor_next(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_next(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) >= cursor->predicate) {  
@@ -185,7 +185,7 @@ gte_predicate_ring_cursor_next(sit_cursor *scursor) {
 }                                                                   
 
 bool                                                                       
-lte_predicate_ring_cursor_prev(sit_cursor *scursor) {                   
+lte_predicate_ring_cursor_prev(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_prev(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) <= cursor->predicate) {  
@@ -196,7 +196,7 @@ lte_predicate_ring_cursor_prev(sit_cursor *scursor) {
 }                                                                   
    
 bool                                                                       
-lte_predicate_ring_cursor_next(sit_cursor *scursor) {                   
+lte_predicate_ring_cursor_next(Cursor *scursor) {                   
   ring_buffer_cursor *cursor = (ring_buffer_cursor *) scursor;             
   while(ring_cursor_next(scursor)){                                        
     if((*(int*)ring_cursor_entry(scursor)) <= cursor->predicate) {  

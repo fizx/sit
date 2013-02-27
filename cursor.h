@@ -1,14 +1,14 @@
-#ifndef SIT_CURSOR_H_INCLUDED
-#define SIT_CURSOR_H_INCLUDED
+#ifndef CURSOR_H_INCLUDED
+#define CURSOR_H_INCLUDED
 
-#include <stdbool.h>
+#include "sit.h"
 
-typedef struct sit_cursor {
-  bool  (*prev)(struct sit_cursor *cursor);
-  bool  (*next)(struct sit_cursor *cursor);
-  long  (*id)(struct sit_cursor *cursor);
-  long  (*seek_lte)(struct sit_cursor *cursor, long id);
+typedef struct Cursor {
+  bool  (*prev)(struct Cursor *cursor);
+  bool  (*next)(struct Cursor *cursor);
+  long  (*id)(struct Cursor *cursor);
+  long  (*seek_lte)(struct Cursor *cursor, long id);
   void   *data;
-} sit_cursor;
+} Cursor;
   
 #endif

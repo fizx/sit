@@ -43,7 +43,7 @@ typedef struct plist_pool {
 } plist_pool;
 
 typedef struct plist_cursor {
-  struct sit_cursor as_cursor;
+  struct Cursor as_cursor;
   plist *plist;
   plist_block *block;
   bool exhausted;

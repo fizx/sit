@@ -13,7 +13,7 @@ typedef struct ring_buffer {
 } ring_buffer;
 
 typedef struct ring_buffer_cursor {
-  struct sit_cursor as_cursor;
+  struct Cursor as_cursor;
   ring_buffer *rb;
   long width;
   long pos;

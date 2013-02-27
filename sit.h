@@ -2,7 +2,7 @@
 #define SIT_H_INCLUDED
 
 struct plist_pool;
-struct sit_cursor;
+struct Cursor;
 struct Callback; 
 struct sit_engine;
 struct sit_term;

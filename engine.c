@@ -329,7 +329,7 @@ sit_engine_search(sit_engine *engine, sit_query *query) {
     iter->subs[i]->count = cj->count;
     for(int j = 0; j < cj->count; j++) {
       sit_term *term = &cj->terms[j];
-      sit_cursor *cursor = dictFetchValue(iter->cursors, term);
+      Cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
           ring_buffer *rb = dictFetchValue(engine->ints, term->field);
@@ -357,7 +357,7 @@ sit_result_sub_iterator_prev(sub_iterator *iter) {
   while (min >= 0) {
     long max = -1;
     for (int i = 0; i < size; i++) {
-      sit_cursor *cursor = iter->cursors[i];
+      Cursor *cursor = iter->cursors[i];
       int negated = iter->negateds[i];
 
       if (cursor == NULL) {

@@ -104,6 +104,6 @@ VALUE
 rbc_int_ring_buffer_cursor_prev(VALUE self) {
   ring_buffer_cursor *rbc;
 	Data_Get_Struct(self, ring_buffer_cursor, rbc);
-	sit_cursor *cursor = &rbc->as_cursor;
+	Cursor *cursor = &rbc->as_cursor;
   return cursor->prev(cursor) ? Qtrue : Qfalse;
 }
