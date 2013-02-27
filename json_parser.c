@@ -2,7 +2,7 @@
 
 typedef struct {
   jsonsl_t    json_parser;
-  sit_parser *tokenizer;
+  Parser *tokenizer;
   pstring    *active;
   long        active_off;
   long        start_off;
@@ -20,7 +20,7 @@ _jsonsl_error_callback(
         jsonsl_char_t *at) {
   (void) state;
   (void) at;
-	sit_parser *parser = jsn->data;
+	Parser *parser = jsn->data;
   parser->receiver->error_found(parser->receiver, c2pstring(jsonsl_strerror(error)));
 	return 0;
 }
@@ -35,7 +35,7 @@ _jsonsl_stack_callback(
   int len;
   int end;
   char *ptr = at;
-	sit_parser *parser = jsn->data;
+	Parser *parser = jsn->data;
 	json_state *sit_state = parser->state;
 	switch (action) {
 	case JSONSL_ACTION_PUSH: 
@@ -99,19 +99,19 @@ _jsonsl_stack_callback(
 	}
 }
 
-sit_parser *
+Parser *
 json_white_parser_new() {
   return json_parser_new(white_parser_new());
 }
 
-sit_parser *
-json_fresh_copy(sit_parser *parser) {
+Parser *
+json_fresh_copy(Parser *parser) {
 	json_state *state = parser->state;
 	return json_parser_new(state->tokenizer->fresh_copy(state->tokenizer));
 }
 
 void 
-_json_consume(struct sit_parser *parser, pstring *str) {
+_json_consume(struct Parser *parser, pstring *str) {
   assert(parser->receiver);
   json_state *state = parser->state;
   state->active = str;
@@ -122,9 +122,9 @@ _json_consume(struct sit_parser *parser, pstring *str) {
   state->active_off += str->len;
 }
 
-sit_parser *
-json_parser_new(sit_parser *tokenizer) {
-  sit_parser *parser = sit_parser_new();
+Parser *
+json_parser_new(Parser *tokenizer) {
+  Parser *parser = sit_parser_new();
   parser->state = malloc(sizeof(json_state));
   json_state *state = parser->state;
   state->json_parser = jsonsl_new(100);

@@ -8,7 +8,7 @@ void
 _perc_found_handler(Callback *callback, void *data) {
   long doc_id = *(long*)data;
   sit_input *input = callback->user_data;
-  sit_engine *engine = input->engine;
+  Engine *engine = input->engine;
   pstring *doc = sit_engine_get_document(engine, doc_id);
   long query_id = callback->id;
   pstring *buf = pstring_new(0);
@@ -19,9 +19,9 @@ _perc_found_handler(Callback *callback, void *data) {
 
 void
 _channel_handler(Callback *callback, void *data) {
-  sit_query *query = data;
+  Query *query = data;
   sit_input *input = callback->user_data;
-  sit_engine * engine = input->engine;
+  Engine * engine = input->engine;
   if(input->qparser_mode == REGISTERING) {
     query->callback = callback_new();
     query->callback->user_data = input;
@@ -55,7 +55,7 @@ _channel_handler(Callback *callback, void *data) {
 }
 
 sit_input *
-sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
+sit_input_new(struct Engine *engine, int term_capacity, long buffer_size) {
 	assert(engine);
 	assert(engine->parser);
  	sit_input *input = calloc(1, sizeof(sit_input) + (term_capacity - 1) * (sizeof(sit_term)));
@@ -97,7 +97,7 @@ sit_input_end_stream(struct sit_input *input) {
 
 void 
 _ack_doc(Callback *cb, void *data) {
-  sit_engine *engine = data;
+  Engine *engine = data;
   sit_input *input = cb->user_data;
   sit_output *output = input->output;
   pstring *buf = pstring_new(0);
@@ -109,7 +109,7 @@ _ack_doc(Callback *cb, void *data) {
 }
 
 void 
-sit_input_error_found(sit_receiver *receiver, pstring *message) {
+sit_input_error_found(Receiver *receiver, pstring *message) {
 	sit_input *input = (sit_input *)receiver;
   sit_output *output = input->output;
   pstring *buf = pstring_new(0);
@@ -121,13 +121,13 @@ sit_input_error_found(sit_receiver *receiver, pstring *message) {
 }
 
 void 
-sit_input_field_found(sit_receiver *receiver, pstring *name) {
+sit_input_field_found(Receiver *receiver, pstring *name) {
 	sit_input *input = (sit_input *)receiver;
 	input->field = name;
 }
 
 void 
-sit_input_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
+sit_input_term_found(Receiver *receiver, pstring *pstr, int field_offset) {
 	sit_input *input = (sit_input *)receiver;
 	sit_term *term = &input->terms[input->term_count++];
 	term->field = input->field;
@@ -138,18 +138,18 @@ sit_input_term_found(sit_receiver *receiver, pstring *pstr, int field_offset) {
 }
 
 void 
-sit_input_int_found(sit_receiver *receiver, int value) {
+sit_input_int_found(Receiver *receiver, int value) {
 	sit_input *input = (sit_input *)receiver;
 	dictEntry *entry = dictReplaceRaw(input->ints, input->field);
 	dictSetSignedIntegerVal(entry, value);
 }
 
 void 
-sit_input_document_found(sit_receiver *receiver, long off, int len) {
+sit_input_document_found(Receiver *receiver, long off, int len) {
 	sit_input *input = (sit_input *)receiver;
 	assert(off >= 0);
 	assert(len > 0);
-	sit_engine *engine = input->engine;
+	Engine *engine = input->engine;
 	ring_buffer_append(engine->stream, (void*)input->stream->val, len);
 	engine->current_input = input;
   Callback *old = engine->on_document_found;

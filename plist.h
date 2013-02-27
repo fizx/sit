@@ -20,7 +20,7 @@ typedef struct plist_block {
 } plist_block;
 
 typedef struct plist {
-	struct plist_pool  *pool;
+	struct PlistPool  *pool;
 	plist_block *last_block;
 	int last_version;
 } plist;
@@ -29,7 +29,7 @@ typedef struct free_list {
 	struct free_list *next;
 } free_list;
 
-typedef struct plist_pool {
+typedef struct PlistPool {
 	void         *buffer;
 	long          capacity;
 	int           current_version;
@@ -40,7 +40,7 @@ typedef struct plist_pool {
 	plist        *lowest_plist;
   free_list    *free_list;
  	void         *next_block;
-} plist_pool;
+} PlistPool;
 
 typedef struct plist_cursor {
   struct Cursor as_cursor;
@@ -49,14 +49,14 @@ typedef struct plist_cursor {
   bool exhausted;
 } plist_cursor;
 
-plist_pool *
+PlistPool *
 plist_pool_new(long size);
 
 plist_cursor *
 plist_cursor_new(plist *plist);
 
 plist *
-plist_new(plist_pool *pool);
+plist_new(PlistPool *pool);
 
 long
 plist_size(plist *plist);

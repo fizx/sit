@@ -15,7 +15,7 @@ rbc_query_new(VALUE class, VALUE rconjunctions, VALUE rcallback) {
 	}
 	Callback *cb;
 	Data_Get_Struct(rcallback, Callback, cb);
-	sit_query *query = sit_query_new(conjunctions, count, cb);
+	Query *query = sit_query_new(conjunctions, count, cb);
 	
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -24,8 +24,8 @@ rbc_query_new(VALUE class, VALUE rconjunctions, VALUE rcallback) {
 
 VALUE 
 rbc_query_to_s(VALUE self) {
-	sit_query *query;
-	Data_Get_Struct(self, sit_query, query);
+	Query *query;
+	Data_Get_Struct(self, Query, query);
 	VALUE buf = rb_ary_new();
 	rb_ary_push(buf, rb_str_new2("<"));
 	for(int i = 0; i < query->count; i++) {

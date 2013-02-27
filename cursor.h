@@ -1,8 +1,6 @@
 #ifndef CURSOR_H_INCLUDED
 #define CURSOR_H_INCLUDED
 
-#include "sit.h"
-
 typedef struct Cursor {
   bool  (*prev)(struct Cursor *cursor);
   bool  (*next)(struct Cursor *cursor);

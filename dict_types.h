@@ -1,7 +1,8 @@
 #ifndef DICT_TYPES_H_INCLUDED
 #define DICT_TYPES_H_INCLUDED
 
-#include "sit.h"
+#include "dict.h"
+#include "lrw_dict.h"
 
 dictType *
 getPstrDict();

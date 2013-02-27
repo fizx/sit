@@ -3,19 +3,19 @@
 
 #include "pstring.h"
 
-struct sit_parser;
+struct Parser;
 
-typedef struct sit_receiver {
-	void (*term_found)(struct sit_receiver *receiver, pstring *pstr, int field_offset);
-  void (*document_found)(struct sit_receiver *receiver, long off, int len);
-  void (*field_found)(struct sit_receiver *receiver, pstring *name);
-  void (*error_found)(struct sit_receiver *receiver, pstring *message);
-  void (*int_found)(struct sit_receiver *receiver, int val);
+typedef struct Receiver {
+	void (*term_found)(struct Receiver *receiver, pstring *pstr, int field_offset);
+  void (*document_found)(struct Receiver *receiver, long off, int len);
+  void (*field_found)(struct Receiver *receiver, pstring *name);
+  void (*error_found)(struct Receiver *receiver, pstring *message);
+  void (*int_found)(struct Receiver *receiver, int val);
 	void *data;  // for user purposes, e.g. the ruby bindings keep the ruby object here.
-} sit_receiver;
+} Receiver;
 
 
-sit_receiver *
+Receiver *
 sit_receiver_new();
 
 #endif

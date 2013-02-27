@@ -7,13 +7,13 @@ typedef struct {
 } white_state;
 
 void 
-_white_set_off(struct sit_parser *parser, long off) {
+_white_set_off(struct Parser *parser, long off) {
   white_state *state = parser->state;
   state->off = off;
 }
 
 void
-_white_consume(struct sit_parser *parser, pstring *str) {
+_white_consume(struct Parser *parser, pstring *str) {
   white_state *state = parser->state;
   padd(state->remaining, str);
   str = state->remaining;
@@ -55,7 +55,7 @@ _white_consume(struct sit_parser *parser, pstring *str) {
   }
 }
 
-void white_end_stream(struct sit_parser *parser) {
+void white_end_stream(struct Parser *parser) {
   assert(parser);
   assert(parser->state);
   white_state *state = parser->state;
@@ -67,15 +67,15 @@ void white_end_stream(struct sit_parser *parser) {
   state->remaining = pstring_new(0);
 }
 
-sit_parser *
-white_fresh_copy(sit_parser *parser) {
+Parser *
+white_fresh_copy(Parser *parser) {
 	(void) parser;
 	return white_parser_new();
 }
 
-sit_parser *
+Parser *
 white_parser_new() {
-  sit_parser *parser = malloc(sizeof(*parser));
+  Parser *parser = malloc(sizeof(*parser));
   parser->consume = _white_consume;
   parser->set_offset = _white_set_off;
   parser->state = malloc(sizeof(white_state));

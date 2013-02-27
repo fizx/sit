@@ -119,7 +119,7 @@ conn_start(conn_t * conn, int revents) {
 }
 
 sit_server *
-sit_server_new(sit_engine *engine) {
+sit_server_new(Engine *engine) {
 	sit_server *server = malloc(sizeof(*server));
 	server->engine = engine;
 	server->loop = ev_default_loop (0);

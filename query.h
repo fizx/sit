@@ -20,22 +20,22 @@ typedef struct {
   int           limit;
   int           count;	
   conjunction_t **conjunctions;
-} sit_query;
+} Query;
 
 int
 qsit_termcmp(const void *a, const void *b);
 
-sit_query *
+Query *
 sit_query_new(conjunction_t **conjunctions, int count, Callback *callback);
 
 conjunction_t *
 conjunction_new(sit_term **terms, int count);
 
 void 
-sit_query_free(sit_query *query);
+sit_query_free(Query *query);
 
 pstring *
-sit_query_to_s(sit_query *query);
+sit_query_to_s(Query *query);
 
 pstring *
 conjunction_to_s(conjunction_t *cj);

@@ -1,8 +1,8 @@
 #include "sit.h"
 
-lrw_dict *
+LRWDict *
 lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity) {
-	lrw_dict *dict = malloc(sizeof(lrw_dict));
+	LRWDict *dict = malloc(sizeof(LRWDict));
 	dict->capacity = capacity;
 	dict->dict_type = dt;
 	dict->lrw_type = lrwt;
@@ -12,7 +12,7 @@ lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity) {
 }
 
 void *
-lrw_dict_get(lrw_dict *d, const void *key) {
+lrw_dict_get(LRWDict *d, const void *key) {
 	dictEntry *entry = dictFind(d->dict, key);
 	if(entry == NULL) {
 		return NULL;
@@ -22,14 +22,14 @@ lrw_dict_get(lrw_dict *d, const void *key) {
 }
 
 void
-lrw_dict_tap(lrw_dict *d, const void *key) {
+lrw_dict_tap(LRWDict *d, const void *key) {
   assert(key);
   dictEntry *entry = dictFind(d->dict, key);
 	d->lrw_type->bump(entry, d->written);
 }
 
 void 
-_truncate(lrw_dict *d) {
+_truncate(LRWDict *d) {
 	bool success = false;
 	dictIterator *iter = dictGetIterator(d->dict);
 	dictEntry *entry;
@@ -62,7 +62,7 @@ _truncate(lrw_dict *d) {
 }
 
 void
-lrw_dict_put(lrw_dict *d, const void *key, const void *value) {
+lrw_dict_put(LRWDict *d, const void *key, const void *value) {
 	dictEntry *entry = dictFind(d->dict, key);
 	if(entry == NULL) {
 		if(dictSize(d->dict) >= d->capacity) {

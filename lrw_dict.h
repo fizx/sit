@@ -9,25 +9,25 @@ typedef struct lrw_type {
 	long (*version)(dictEntry *entry);
 } lrw_type;
 
-typedef struct lrw_dict {
+typedef struct LRWDict {
 	dict *dict;
 	dictType *dict_type;
 	lrw_type *lrw_type;
 	long capacity;
 	long written;
-} lrw_dict;
+} LRWDict;
 
-lrw_dict *
+LRWDict *
 lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity);
 
 void *
-lrw_dict_get(lrw_dict *d, const void *key);
+lrw_dict_get(LRWDict *d, const void *key);
 
 void
-lrw_dict_put(lrw_dict *d, const void *key, const void *value);
+lrw_dict_put(LRWDict *d, const void *key, const void *value);
 
 void
-lrw_dict_tap(lrw_dict *d, const void *key);
+lrw_dict_tap(LRWDict *d, const void *key);
 
 
 #endif

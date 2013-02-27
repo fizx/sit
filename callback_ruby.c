@@ -25,7 +25,7 @@ _numeric_handler(Callback *cb, void *sit_data) {
 void 
 _query_handler(Callback *cb, void *sit_data) {
 	VALUE block = vunwrap(cb->user_data);
-	sit_query *query = sit_data;
+	Query *query = sit_data;
 	if (query == NULL) {
     rb_funcall(block, rb_intern("call"), 1, Qnil);
 	} else {

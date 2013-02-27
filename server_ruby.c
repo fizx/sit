@@ -2,8 +2,8 @@
 
 VALUE
 rbc_server_new(VALUE class, VALUE rengine) {  
-  sit_engine *engine;
-  Data_Get_Struct(rengine, sit_engine, engine);
+  Engine *engine;
+  Data_Get_Struct(rengine, Engine, engine);
   sit_server *server = sit_server_new(engine);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, server);
 	rb_obj_call_init(tdata, 0, NULL);

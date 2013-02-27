@@ -2375,7 +2375,7 @@ bubble_ors(query_parser *context, ASTNode *node) {
 }
 
 void
-add_token(sit_receiver *receiver, pstring *val, int field_offset) {
+add_token(Receiver *receiver, pstring *val, int field_offset) {
   query_parser *context = receiver->data;
   ASTNode *node = context->tmp;
   pstring *field = Q(node)->field;
@@ -2387,7 +2387,7 @@ add_token(sit_receiver *receiver, pstring *val, int field_offset) {
   ast_node_append_child(node, term);
 }
 
-sit_receiver token_receiver = {
+Receiver token_receiver = {
   add_token,
   NULL,
   NULL,
@@ -2458,7 +2458,7 @@ to_query(ASTNode *node, void *obj) {
     // fall-through
   }
   case ANDS: {
-    sit_query *query = malloc(sizeof(sit_query));
+    Query *query = malloc(sizeof(Query));
     query->count = 1;
     query->conjunctions = malloc(sizeof(conjunction_t*));
     query->conjunctions[0] = obj;
@@ -2537,7 +2537,7 @@ make_query_and_callback(query_parser *context, ASTNode *node) {
   } 
   case ORS: {
     int count = ast_node_child_count(node);
-    sit_query *query = malloc(sizeof(sit_query));
+    Query *query = malloc(sizeof(Query));
     query->count = count;
     query->conjunctions = malloc(count * sizeof(conjunction_t*));
     ASTNode *child = node->child;
@@ -2578,7 +2578,7 @@ query_parser_construct(query_parser *context, ASTNode *expression, int limit) {
   // pstr = query_node_ast_to_s(expression);
   // printf("%.*s\n", pstr->len, pstr->val);
   
-  sit_query * query = make_query_and_callback(context, expression);
+  Query * query = make_query_and_callback(context, expression);
   query->limit = limit;
   context->cb->handler(context->cb, query);
 }

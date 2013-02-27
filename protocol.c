@@ -78,7 +78,7 @@ _line_end_stream(sit_protocol_parser *parser) {
 
 void
 _dump_handler(struct Callback *self, void *data) {
-  sit_query *query = data;
+  Query *query = data;
   sit_output *output = self->user_data;
   output->write(output, sit_query_to_s(query));
 }

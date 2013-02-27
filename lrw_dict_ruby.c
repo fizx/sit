@@ -16,8 +16,8 @@ _rb_hash(const void *key) {
 
 VALUE
 rbc_lrw_dict_each(VALUE self) {
-	lrw_dict *d;
-	Data_Get_Struct(self, lrw_dict, d);	
+	LRWDict *d;
+	Data_Get_Struct(self, LRWDict, d);	
 	dictIterator *iter = dictGetSafeIterator(d->dict);
 	if (rb_block_given_p()) {
 		dictEntry *entry;
@@ -79,7 +79,7 @@ dictType rubyDict = {
 
 void
 _dmark(void *data) {
-	lrw_dict *d = data;
+	LRWDict *d = data;
 	dictIterator *iter = dictGetSafeIterator(d->dict);
 	dictEntry *entry;
 	while ((entry = dictNext(iter)) != NULL) {
@@ -93,7 +93,7 @@ _dmark(void *data) {
 VALUE
 rbc_lrw_dict_new(VALUE class, VALUE rsize) {
 	long size = NUM2LONG(rsize);
-	lrw_dict *dict = lrw_dict_new(&rubyDict, &rubyLRU, size);
+	LRWDict *dict = lrw_dict_new(&rubyDict, &rubyLRU, size);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, dict);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -101,8 +101,8 @@ rbc_lrw_dict_new(VALUE class, VALUE rsize) {
 
 VALUE
 rbc_lrw_dict_get(VALUE self, VALUE key) {
-	lrw_dict *dict;
-	Data_Get_Struct(self, lrw_dict, dict);
+	LRWDict *dict;
+	Data_Get_Struct(self, LRWDict, dict);
   void *value = lrw_dict_get(dict, vvwrap(key));
 	if(value == NULL) {
 		return Qnil;
@@ -113,22 +113,22 @@ rbc_lrw_dict_get(VALUE self, VALUE key) {
 
 VALUE
 rbc_lrw_dict_put(VALUE self, VALUE key, VALUE value) {
-	lrw_dict *dict;
-	Data_Get_Struct(self, lrw_dict, dict);
+	LRWDict *dict;
+	Data_Get_Struct(self, LRWDict, dict);
 	lrw_dict_put(dict, vvwrap(key), vwrap(value));
 	return Qnil;
 }
 
 VALUE
 rbc_lrw_dict_size(VALUE self) {
-	lrw_dict *dict;
-	Data_Get_Struct(self, lrw_dict, dict);	
+	LRWDict *dict;
+	Data_Get_Struct(self, LRWDict, dict);	
 	return INT2NUM(dictSize(dict->dict));
 }
 
 VALUE
 rbc_lrw_dict_capacity(VALUE self) {
-	lrw_dict *dict;
-	Data_Get_Struct(self, lrw_dict, dict);
+	LRWDict *dict;
+	Data_Get_Struct(self, LRWDict, dict);
 	return LONG2NUM(dict->capacity);
 }

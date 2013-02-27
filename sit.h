@@ -1,10 +1,10 @@
 #ifndef SIT_H_INCLUDED
 #define SIT_H_INCLUDED
 
-struct plist_pool;
+struct PlistPool;
 struct Cursor;
 struct Callback; 
-struct sit_engine;
+struct Engine;
 struct sit_term;
 struct query_parser;
 struct lrw_type;

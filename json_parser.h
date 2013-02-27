@@ -5,12 +5,12 @@
 #include "engine.h"
 #include "callback.h"
 
-sit_parser *
+Parser *
 json_white_parser_new();
 
-sit_parser *
-json_parser_new(sit_parser *tokenizer);
+Parser *
+json_parser_new(Parser *tokenizer);
 
-sit_parser *
-json_fresh_copy(sit_parser *parser);
+Parser *
+json_fresh_copy(Parser *parser);
 #endif

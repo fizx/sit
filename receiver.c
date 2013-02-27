@@ -1,6 +1,6 @@
 #include "sit.h"
 
-sit_receiver *
+Receiver *
 sit_receiver_new() {
-  return calloc(1, sizeof(sit_receiver));
+  return calloc(1, sizeof(Receiver));
 }

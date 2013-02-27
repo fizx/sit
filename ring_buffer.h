@@ -2,8 +2,8 @@
 #define RING_BUFFER_H_INCLUDED
 
 #include <stdbool.h>
-#include "sit.h"
 #include "cursor.h"
+#include "pstring.h"
 
 typedef struct ring_buffer {
 	long capacity;

@@ -3,7 +3,7 @@
 VALUE
 rbc_plist_pool_new(VALUE class, VALUE rsize) {
 	long size = NUM2LONG(rsize);
-	plist_pool *pool = plist_pool_new(size);
+	PlistPool *pool = plist_pool_new(size);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, pool);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -11,15 +11,15 @@ rbc_plist_pool_new(VALUE class, VALUE rsize) {
 
 VALUE
 rbc_plist_pool_capacity(VALUE self) {	
-	plist_pool *pool;
-	Data_Get_Struct(self, plist_pool, pool);
+	PlistPool *pool;
+	Data_Get_Struct(self, PlistPool, pool);
 	return LONG2NUM(pool->capacity);
 }
 
 VALUE 
 rbc_plist_new(VALUE class, VALUE rpool) {
-	plist_pool *pool;
-	Data_Get_Struct(rpool, plist_pool, pool);
+	PlistPool *pool;
+	Data_Get_Struct(rpool, PlistPool, pool);
 	plist *pl = plist_new(pool);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, pl);
 	rb_obj_call_init(tdata, 0, NULL);

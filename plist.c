@@ -1,8 +1,8 @@
 #include "sit.h"
 
-plist_pool *
+PlistPool *
 plist_pool_new(long size) {
-	plist_pool *pool = malloc(sizeof(plist_pool));
+	PlistPool *pool = malloc(sizeof(PlistPool));
 	pool->capacity = size;
 	pool->buffer = malloc(size);
 	pool->next_block = (plist_block *)pool->buffer;
@@ -31,7 +31,7 @@ plist_cursor_prev(Cursor *scursor) {
     return false;
   }
   plist *pl = cursor->plist;
-  plist_pool *pool = pl->pool;
+  PlistPool *pool = pl->pool;
   plist_entry * entry = cursor->as_cursor.data;
   
   if(cursor->block == NULL) {
@@ -106,7 +106,7 @@ plist_cursor_seek_lte(Cursor *scursor, long value) {
 
 
 plist *
-plist_new(plist_pool *pool) {
+plist_new(PlistPool *pool) {
 	assert(pool);
 	plist *pl = malloc(sizeof(plist));
 	pl->pool = pool;
@@ -138,7 +138,7 @@ plist_cursor_new(plist *pl) {
 
 plist_block *
 plist_append_block(plist *pl) {
-	plist_pool *pool = pl->pool;
+	PlistPool *pool = pl->pool;
 	char *next_block = pool->next_block;
 	int current_region = pool->current_version % pool->region_count;
 	char *region_cutoff = ((char*)pool->buffer) + current_region * pool->region_size;

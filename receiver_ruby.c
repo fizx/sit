@@ -1,7 +1,7 @@
 #include "sit_ruby.h"
 
 void 
-_ruby_term_found(struct sit_receiver *receiver, pstring *pstr, int field_offset) {  
+_ruby_term_found(struct Receiver *receiver, pstring *pstr, int field_offset) {  
   VALUE rreceiver = vunwrap(receiver->data);
   VALUE rstr = p2rstring(pstr);
   VALUE rfield_offset = INT2NUM(field_offset);
@@ -9,7 +9,7 @@ _ruby_term_found(struct sit_receiver *receiver, pstring *pstr, int field_offset)
 }
 
 void 
-_ruby_document_found(struct sit_receiver *receiver, long off, int len) {
+_ruby_document_found(struct Receiver *receiver, long off, int len) {
   VALUE rreceiver = vunwrap(receiver->data);
   VALUE roff = LONG2NUM(off);
   VALUE rlen = INT2NUM(len);
@@ -17,21 +17,21 @@ _ruby_document_found(struct sit_receiver *receiver, long off, int len) {
 }
 
 void 
-_ruby_field_found(struct sit_receiver *receiver, pstring *name) {
+_ruby_field_found(struct Receiver *receiver, pstring *name) {
   VALUE rreceiver = vunwrap(receiver->data);
   VALUE rstr = p2rstring(name);
   rb_funcall(rreceiver, rb_intern("field_found"), 1, rstr);
 }
 
 void 
-_ruby_error_found(struct sit_receiver *receiver, pstring *message) {
+_ruby_error_found(struct Receiver *receiver, pstring *message) {
   VALUE rreceiver = vunwrap(receiver->data);
   VALUE rstr = p2rstring(message);
   rb_funcall(rreceiver, rb_intern("error_found"), 1, rstr);
 }
 
 void 
-_ruby_int_found(struct sit_receiver *receiver, int val) {
+_ruby_int_found(struct Receiver *receiver, int val) {
   VALUE rreceiver = vunwrap(receiver->data);
   VALUE rval = INT2NUM(val);
   rb_funcall(rreceiver, rb_intern("int_found"), 1, rval);
@@ -39,7 +39,7 @@ _ruby_int_found(struct sit_receiver *receiver, int val) {
 
 VALUE 
 rbc_receiver_new(VALUE class) {
-  sit_receiver *receiver = sit_receiver_new();
+  Receiver *receiver = sit_receiver_new();
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, receiver);
   SET_ONCE(receiver->data, vwrap(tdata));
   receiver->term_found = _ruby_term_found;

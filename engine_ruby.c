@@ -7,10 +7,10 @@
 
 VALUE
 rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
-	sit_parser *parser;
-	Data_Get_Struct(rparser, sit_parser, parser);
+	Parser *parser;
+	Data_Get_Struct(rparser, Parser, parser);
 	long size = NUM2LONG(rsize);
-	sit_engine *engine = sit_engine_new(parser, size);
+	Engine *engine = sit_engine_new(parser, size);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
 	rb_funcall(rparser, rb_intern("receiver="), 1, tdata);
@@ -21,8 +21,8 @@ rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
 
 VALUE
 rbc_engine_last_document(VALUE self) {
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   pstring *pstr = sit_engine_last_document(engine);
   VALUE rstr = p2rstring(pstr);
   pstring_free(pstr);
@@ -31,10 +31,10 @@ rbc_engine_last_document(VALUE self) {
 
 VALUE 
 rbc_engine_search(VALUE self, VALUE rquery) {
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
-  sit_query *query;
-	Data_Get_Struct(rquery, sit_query, query);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  Query *query;
+	Data_Get_Struct(rquery, Query, query);
   sit_result_iterator *iter = sit_engine_search(engine, query);
   assert(iter);
 	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ResultIterator"), markall, NULL, iter);
@@ -68,8 +68,8 @@ rbc_result_iterator_document_id(VALUE self) {
 
 VALUE
 rbc_engine_last_document_id(VALUE self) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   long id = sit_engine_last_document_id(engine);
   return LONG2NUM(id);
 }
@@ -84,8 +84,8 @@ rbc_result_iterator_call(VALUE self) {
 
 VALUE
 rbc_engine_get_document(VALUE self, VALUE rid) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   long id = NUM2LONG(rid);
   pstring *pstr = sit_engine_get_document(engine, id);
   VALUE rstr = p2rstring(pstr);
@@ -95,16 +95,16 @@ rbc_engine_get_document(VALUE self, VALUE rid) {
 
 VALUE
 rbc_engine_parser(VALUE self) {	
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
-	sit_parser *parser = engine->parser;
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+	Parser *parser = engine->parser;
 	return vunwrap(parser->data);
 }
 
 VALUE 
 rbc_engine_consume(VALUE self, VALUE rstr) {
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
 	pstring *pstr = r2pstring(rstr);
 	sit_engine_consume(engine, pstr);
 	pstring_free(pstr);
@@ -113,8 +113,8 @@ rbc_engine_consume(VALUE self, VALUE rstr) {
 
 VALUE
 rbc_engine_terms(VALUE self) {
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
 	VALUE ary = rb_ary_new();
 	for (int i = 0; i < engine->term_count; i++) {
 		sit_term *term = &engine->terms[i];
@@ -132,8 +132,8 @@ rbc_engine_terms(VALUE self) {
 
 VALUE 
 rbc_engine_get_int(VALUE self, VALUE rid, VALUE rfield) {
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   pstring *pstr = r2pstring(rfield);
   long id = NUM2LONG(rid);
   int *ptr = sit_engine_get_int(engine, id, pstr);
@@ -146,8 +146,8 @@ rbc_engine_get_int(VALUE self, VALUE rid, VALUE rfield) {
 
 VALUE 
 rbc_engine_set_int(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   pstring *pstr = r2pstring(rfield);
   long id = NUM2LONG(rid);
   int value = NUM2INT(rvalue);
@@ -157,8 +157,8 @@ rbc_engine_set_int(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
 
 VALUE 
 rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   pstring *pstr = r2pstring(rfield);
   long id = NUM2LONG(rid);
   int value = NUM2INT(rvalue);
@@ -168,7 +168,7 @@ rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
 
 
 void _queries_handler(Callback *cb, void *vquery) {
-	sit_query *query = vquery;
+	Query *query = vquery;
 	VALUE ary = vunwrap(cb->user_data);
 	VALUE class = rb_eval_string("::Sit::Query");
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);
@@ -178,8 +178,8 @@ void _queries_handler(Callback *cb, void *vquery) {
 
 VALUE 
 rbc_engine_queries(VALUE self){
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
 	Callback cb;
 	VALUE ary = rb_ary_new();
 	cb.user_data = (void *) vwrap(ary);
@@ -191,57 +191,57 @@ rbc_engine_queries(VALUE self){
 
 VALUE 
 rbc_engine_unregister(VALUE self, VALUE id) {
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
 	sit_engine_unregister(engine, NUM2LONG(id));
 	return Qnil;
 }
 
 VALUE 
 rbc_engine_document_found(VALUE self, VALUE roff, VALUE rlen) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   long off = NUM2LONG(roff);
   int len = NUM2INT(rlen);
-  sit_engine_document_found((sit_receiver*)engine, off, len);
+  sit_engine_document_found((Receiver*)engine, off, len);
 	return Qnil;
 }
 
 VALUE 
 rbc_engine_field_found(VALUE self, VALUE rstr) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   pstring *pstr = r2pstring(rstr);
-  sit_engine_field_found((sit_receiver*)engine, pstr);
+  sit_engine_field_found((Receiver*)engine, pstr);
 	return Qnil;
 }
 
 VALUE 
 rbc_engine_int_found(VALUE self, VALUE rval) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   int val = NUM2INT(rval);
-  sit_engine_int_found((sit_receiver*)engine, val);
+  sit_engine_int_found((Receiver*)engine, val);
 	return Qnil;
 }
 
 VALUE 
 rbc_engine_term_found(VALUE self, VALUE rstr, VALUE rfield_offset) {
-  sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
   pstring *str = r2pstring(rstr);
   int field_offset = NUM2INT(rfield_offset);
-  sit_engine_term_found((sit_receiver*)engine, str, field_offset);
+  sit_engine_term_found((Receiver*)engine, str, field_offset);
 	return Qnil;
 }
 
 VALUE 
 rbc_engine_register(VALUE self, VALUE rquery) {
-	sit_query *query;
-	Data_Get_Struct(rquery, sit_query, query);
+	Query *query;
+	Data_Get_Struct(rquery, Query, query);
 	
-	sit_engine *engine;
-	Data_Get_Struct(self, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
 	
 	int cb = sit_engine_register(engine, query);
 	

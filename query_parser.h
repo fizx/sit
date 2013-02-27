@@ -26,7 +26,7 @@ typedef struct query_parser {
   void         *llocp;
   void         *tmp;
   char         *ptr;
-  sit_parser   *tokenizer;
+  Parser   *tokenizer;
   AST        *ast;
   ASTNode   *root;
 } query_parser;

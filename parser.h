@@ -5,22 +5,22 @@
 #include "receiver.h"
 
 
-typedef struct sit_parser {
-	struct sit_parser *(*fresh_copy)(struct sit_parser *parser);
-  void (*set_offset)(struct sit_parser *parser, long off);
-  void (*end_stream)(struct sit_parser *parser);
-	void (*consume)(struct sit_parser *parser, pstring *str);
+typedef struct Parser {
+	struct Parser *(*fresh_copy)(struct Parser *parser);
+  void (*set_offset)(struct Parser *parser, long off);
+  void (*end_stream)(struct Parser *parser);
+	void (*consume)(struct Parser *parser, pstring *str);
 	void *state; // for internal parser state
-	sit_receiver *receiver;  // if this parser forwards events to another object (usually engine)
+	Receiver *receiver;  // if this parser forwards events to another object (usually engine)
 	void *data;  // for user purposes, e.g. the ruby bindings keep the ruby object here.
-} sit_parser;
+} Parser;
 
-sit_parser *
+Parser *
 sit_parser_new();
 
 
-sit_parser *
-default_fresh_copy(sit_parser *parser);
+Parser *
+default_fresh_copy(Parser *parser);
 
 #endif
 

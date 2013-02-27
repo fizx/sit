@@ -5,13 +5,13 @@
 #include <ev.h>
 #include "engine.h"
 #include "input.h"
-struct sit_engine;
+struct Engine;
 struct sit_input;
 
 typedef struct {
 	struct ev_io        as_io;
 	struct ev_loop     *loop;
-	struct sit_engine  *engine;
+	struct Engine  *engine;
 	struct sockaddr_in *addr;
 	int                 total_clients;
 } sit_server;
@@ -24,7 +24,7 @@ typedef struct {
 } conn_t;
 
 sit_server *
-sit_server_new(struct sit_engine *engine);
+sit_server_new(struct Engine *engine);
 
 int
 sit_server_start(sit_server *server, struct sockaddr_in *addr);

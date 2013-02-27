@@ -14,8 +14,8 @@ _no_op(struct sit_output *output) {
 
 VALUE
 rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size, VALUE buf) {
-	sit_engine *engine;
-	Data_Get_Struct(rengine, sit_engine, engine);
+	Engine *engine;
+	Data_Get_Struct(rengine, Engine, engine);
 	long term_capacity = NUM2LONG(rterm_capacity);
 	long buf_size = NUM2LONG(rbuf_size);
 	sit_input *input = sit_input_new(engine, term_capacity, buf_size);
