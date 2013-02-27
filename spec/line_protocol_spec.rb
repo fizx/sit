@@ -13,7 +13,8 @@ Sit.test_mode = true
 describe "integration" do
   before do
     @engine = Engine.new(Parser.new_json, 1_000_000)
-    @input = Input.new(@engine, 1 << 10, 1 << 20)
+    @output = []
+    @input = Input.new(@engine, 1 << 10, 1 << 20, @output)
     @proto = LineProtocol.new(@input)
   end
   
@@ -29,7 +30,7 @@ describe "integration" do
       File.exists?(out).should == true
       @proto.consume(File.read(path))
       expected = File.readlines(out)
-      actual = @proto.output
+      actual = @output
       actual.zip(expected).each do |a,e|
         a.should == e.chomp
       end

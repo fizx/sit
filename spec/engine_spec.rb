@@ -12,7 +12,7 @@ include Sit
 describe "Engine" do
   before do
     @engine = Engine.new(AbcTsvParser.new, 1_000_000)
- 		@input = Input.new(@engine, 1 << 10, 1 << 20)
+ 		@input = Input.new(@engine, 1 << 10, 1 << 20, [])
     $events = []
   end
   

@@ -221,7 +221,7 @@ Init_sit() {
 	
 	// Input
 	rbc_input = rb_define_class_under(m_sit, "Input", rb_cObject);
-	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 3);
+	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 4);
 	rb_define_method(rbc_input, "consume", rbc_input_consume, 1);
 	rb_define_method(rbc_input, "end_stream", rbc_input_end_stream, 0);
 	rb_include_module(rbc_input, rbc_forwardable);
@@ -234,7 +234,6 @@ Init_sit() {
   
   rbc_line_protocol = rb_define_class_under(m_sit, "LineProtocol", rb_cObject);
   rb_define_singleton_method(rbc_line_protocol, "new", rbc_line_protocol_new, 1);
-  rb_define_method(rbc_line_protocol, "output", rbc_line_protocol_output, 0);
   rb_define_method(rbc_line_protocol, "consume", rbc_protocol_consume, 1);
   rb_define_method(rbc_line_protocol, "end_stream", rbc_protocol_end_stream, 0);
 }
