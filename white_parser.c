@@ -4,17 +4,17 @@ typedef struct {
   int token;
   long off; // relative to global stream
   pstring *remaining;
-} white_state;
+} WhiteState;
 
 void 
 _white_set_off(struct Parser *parser, long off) {
-  white_state *state = parser->state;
+  WhiteState *state = parser->state;
   state->off = off;
 }
 
 void
 _white_consume(struct Parser *parser, pstring *str) {
-  white_state *state = parser->state;
+  WhiteState *state = parser->state;
   padd(state->remaining, str);
   str = state->remaining;
   long off = 0;
@@ -58,7 +58,7 @@ _white_consume(struct Parser *parser, pstring *str) {
 void white_end_stream(struct Parser *parser) {
   assert(parser);
   assert(parser->state);
-  white_state *state = parser->state;
+  WhiteState *state = parser->state;
   if(state->remaining && state->remaining->len > 0) {
     parser->receiver->term_found(parser->receiver, state->remaining, state->token);
   }
@@ -78,8 +78,8 @@ white_parser_new() {
   Parser *parser = malloc(sizeof(*parser));
   parser->consume = _white_consume;
   parser->set_offset = _white_set_off;
-  parser->state = malloc(sizeof(white_state));
-  white_state *state = parser->state;
+  parser->state = malloc(sizeof(WhiteState));
+  WhiteState *state = parser->state;
   state->remaining = NULL;
   parser->end_stream = white_end_stream;
   parser->end_stream(parser);
