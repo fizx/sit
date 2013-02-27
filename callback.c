@@ -1,8 +1,8 @@
 #include "sit.h"
 
-sit_callback *
-sit_callback_new() {
-	sit_callback *cb = malloc(sizeof(sit_callback));
+Callback *
+callback_new() {
+	Callback *cb = malloc(sizeof(Callback));
 	cb->id = -1;
 	cb->next = NULL;
 	cb->user_data = NULL;
@@ -11,7 +11,7 @@ sit_callback_new() {
 }
 
 void
-sit_callback_free(sit_callback *cb) {
+callback_free(Callback *cb) {
 	if(cb->free == NULL) {
 	} else {
 		cb->free(cb);

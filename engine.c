@@ -4,7 +4,7 @@ typedef struct sit_query_node {
 	dict                   *children;
 	sit_term							 *term;
 	struct sit_query_node  *parent;
-	sit_callback 				   *callback;
+	Callback 				   *callback;
 } sit_query_node;
 
 typedef struct unregister_data {
@@ -49,7 +49,7 @@ sit_term SENTINEL = {
 };
 
 int 
-_recurse_add(sit_engine *engine, dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, sit_callback *callback) {
+_recurse_add(sit_engine *engine, dict *hash, sit_query_node *parent, sit_term *term, int remaining, bool negated_yet, Callback *callback) {
   assert(term);
 	pstring *tmp;
 	if(!term->hash_code) {
@@ -79,7 +79,7 @@ _recurse_add(sit_engine *engine, dict *hash, sit_query_node *parent, sit_term *t
 		tmp = sit_term_to_s(term);
 	}
 	if (remaining == 1) {
-		sit_callback *next = node->callback;
+		Callback *next = node->callback;
 		node->callback = callback;
 		callback->next = next;
     if(callback->id < 0) callback->id = engine->query_id++;
@@ -121,7 +121,7 @@ _get_terms(sit_query_node *node, int *term_count) {
 }
 
 void
-_recurse_each(sit_callback *cb, dict *hash) {
+_recurse_each(Callback *cb, dict *hash) {
 	dictIterator * iterator = dictGetIterator(hash);
 	dictEntry *next;
 	while((next = dictNext(iterator))) {
@@ -134,11 +134,11 @@ _recurse_each(sit_callback *cb, dict *hash) {
 }
 
 void
-_each_query(sit_callback *cb, void *vnode) {
+_each_query(Callback *cb, void *vnode) {
 	sit_query_node *node = vnode;
-  sit_callback *user_callback = cb->user_data;
+  Callback *user_callback = cb->user_data;
 	
-	sit_callback *qc = node->callback;
+	Callback *qc = node->callback;
   sit_term **terms = NULL;
 	int term_count = 0;
 	while(qc) {
@@ -154,15 +154,15 @@ _each_query(sit_callback *cb, void *vnode) {
 }
 
 void 
-sit_engine_each_query(sit_engine *engine, sit_callback *callback) {
-	sit_callback wrapper;
+sit_engine_each_query(sit_engine *engine, Callback *callback) {
+	Callback wrapper;
 	wrapper.user_data = callback;
 	wrapper.handler = _each_query;
 	sit_engine_each_node(engine, &wrapper);
 }
 
 void 
-sit_engine_each_node(sit_engine *engine, sit_callback *callback) {
+sit_engine_each_node(sit_engine *engine, Callback *callback) {
 	_recurse_each(callback, engine->queries);
 }
 
@@ -210,7 +210,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, void *
     while ((next = dictNext(iterator))) {
       if (positive == !!dictFetchValue(term_index, dictGetKey(next))) {
 		  	sit_query_node *node = dictGetVal(next);
-  			sit_callback *cb = node->callback;
+  			Callback *cb = node->callback;
         DEBUG("perc'd %.*s:%.*s", node->term->field->len, node->term->field->val, node->term->text->len, node->term->text->val);
   			while(cb) {
   			  DEBUG("running callback %d", cb->id);
@@ -229,7 +229,7 @@ callback_recurse(sit_engine *engine, dict *term_index, dict *query_nodes, void *
 
     while ((next = dictNext(iterator))) {
       if(positive == !!(node = dictFetchValue(query_nodes, dictGetKey(next)))) {
-  			sit_callback *cb = node->callback;
+  			Callback *cb = node->callback;
   			DEBUG("perc'd %.*s:%.*s", node->term->field->len, node->term->field->val, node->term->text->len, node->term->text->val);
   			while(cb) {
   			  DEBUG("running callback %d", cb->id);
@@ -271,7 +271,7 @@ sit_engine_index(sit_engine *engine, long doc_id) {
 }
 
 void
-_unregister_handler(sit_callback *cb, void *vnode) {
+_unregister_handler(Callback *cb, void *vnode) {
 	sit_query_node *node = vnode;
 	unregister_data *data = cb->user_data;
 	
@@ -281,7 +281,7 @@ _unregister_handler(sit_callback *cb, void *vnode) {
 	
 	// handle the first case
 	while (node->callback && node->callback->id == data->query_id) {
-		sit_callback *old = node->callback;
+		Callback *old = node->callback;
 		node->callback = old->next;
 		if(old->free) {
 			old->free(old);
@@ -290,8 +290,8 @@ _unregister_handler(sit_callback *cb, void *vnode) {
     return;
 	}
 	
-	sit_callback *prev = node->callback;
-	sit_callback *qc = node->callback;
+	Callback *prev = node->callback;
+	Callback *qc = node->callback;
 	while(qc) {
 		if(qc->id == data->query_id) {
 			prev->next = qc->next;
@@ -459,7 +459,7 @@ sit_engine_unregister(sit_engine *engine, long query_id) {
     query_id,
     false
   };
-	sit_callback unregister;
+	Callback unregister;
 	unregister.user_data = &data;
 	unregister.handler = _unregister_handler;
 	sit_engine_each_node(engine, &unregister);

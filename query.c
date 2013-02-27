@@ -12,7 +12,7 @@ qsit_termcmp(const void *a, const void *b) {
 }
 
 sit_query *
-sit_query_new(conjunction_t **conjunctions, int count, sit_callback *callback) {
+sit_query_new(conjunction_t **conjunctions, int count, Callback *callback) {
   sit_query *query = malloc(sizeof(*query));
   query->conjunctions = malloc(sizeof(conjunction_t*) * count);
   memcpy(query->conjunctions, conjunctions, sizeof(conjunction_t*) * count);
@@ -36,7 +36,7 @@ conjunction_new(sit_term **terms, int count) {
 
 void 
 sit_query_free(sit_query *query) {
-	sit_callback_free(query->callback);
+	callback_free(query->callback);
 	free(query);
 }
 

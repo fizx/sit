@@ -3,7 +3,7 @@
 
 struct plist_pool;
 struct sit_cursor;
-struct sit_callback; 
+struct Callback; 
 struct sit_engine;
 struct sit_term;
 struct query_parser;

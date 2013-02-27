@@ -13,7 +13,7 @@ typedef struct {
 } conjunction_t;
 
 typedef struct {
-  sit_callback *callback;
+  Callback *callback;
 
 	// for random user state
 	void         *data;				
@@ -26,7 +26,7 @@ int
 qsit_termcmp(const void *a, const void *b);
 
 sit_query *
-sit_query_new(conjunction_t **conjunctions, int count, sit_callback *callback);
+sit_query_new(conjunction_t **conjunctions, int count, Callback *callback);
 
 conjunction_t *
 conjunction_new(sit_term **terms, int count);

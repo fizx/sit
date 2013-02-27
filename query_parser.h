@@ -19,7 +19,7 @@ typedef struct query_parser {
   pstring      *buf;
   pstring      *error;
   int          done;
-  sit_callback *cb;
+  Callback *cb;
   void         *scanner;
   void         *push_state;
   void         *lvalp;

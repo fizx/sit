@@ -167,7 +167,7 @@ rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue) {
 }
 
 
-void _queries_handler(sit_callback *cb, void *vquery) {
+void _queries_handler(Callback *cb, void *vquery) {
 	sit_query *query = vquery;
 	VALUE ary = vunwrap(cb->user_data);
 	VALUE class = rb_eval_string("::Sit::Query");
@@ -180,7 +180,7 @@ VALUE
 rbc_engine_queries(VALUE self){
 	sit_engine *engine;
 	Data_Get_Struct(self, sit_engine, engine);
-	sit_callback cb;
+	Callback cb;
 	VALUE ary = rb_ary_new();
 	cb.user_data = (void *) vwrap(ary);
 	cb.handler = _queries_handler;

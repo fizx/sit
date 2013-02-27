@@ -1,12 +1,12 @@
 #include "sit_ruby.h"
 
 void _cb_mark(void *data) {
-	sit_callback *cb = (sit_callback *)data;
+	Callback *cb = (Callback *)data;
 	rb_gc_mark(vunwrap(cb->user_data));
 }
 
 void 
-_string_handler(sit_callback *cb, void *sit_data) {
+_string_handler(Callback *cb, void *sit_data) {
 	VALUE block = vunwrap(cb->user_data);
 	pstring *pstr = sit_data;
 	VALUE rstr = p2rstring(pstr);
@@ -14,7 +14,7 @@ _string_handler(sit_callback *cb, void *sit_data) {
 }
 
 void 
-_numeric_handler(sit_callback *cb, void *sit_data) {
+_numeric_handler(Callback *cb, void *sit_data) {
   long val = *(long*)sit_data;
   VALUE rval = LONG2NUM(val);
 	VALUE block = vunwrap(cb->user_data);
@@ -23,7 +23,7 @@ _numeric_handler(sit_callback *cb, void *sit_data) {
 
 
 void 
-_query_handler(sit_callback *cb, void *sit_data) {
+_query_handler(Callback *cb, void *sit_data) {
 	VALUE block = vunwrap(cb->user_data);
 	sit_query *query = sit_data;
 	if (query == NULL) {
@@ -39,7 +39,7 @@ _query_handler(sit_callback *cb, void *sit_data) {
 }
 
 void 
-_pointer_handler(sit_callback *cb, void *sit_data) {
+_pointer_handler(Callback *cb, void *sit_data) {
 	VALUE block = vunwrap(cb->user_data);
   long addr = (long) sit_data;
 	rb_funcall(block, rb_intern("call"), 1, LONG2NUM(addr));
@@ -47,7 +47,7 @@ _pointer_handler(sit_callback *cb, void *sit_data) {
 
 VALUE
 rbc_callback_new(VALUE class, VALUE klass, VALUE block) {
-	sit_callback *cb = sit_callback_new();
+	Callback *cb = callback_new();
 	cb->user_data = (void *) vwrap(block);
 	
 	if (rb_equal(klass, rb_eval_string("::String"))) {
@@ -67,8 +67,8 @@ rbc_callback_new(VALUE class, VALUE klass, VALUE block) {
 
 VALUE
 rbc_callback_call(VALUE self) {
-	sit_callback *cb;
-	Data_Get_Struct(self, sit_callback, cb);
+	Callback *cb;
+	Data_Get_Struct(self, Callback, cb);
 	
 	cb->handler(cb, NULL);
 	return Qnil;
@@ -76,8 +76,8 @@ rbc_callback_call(VALUE self) {
 
 VALUE
 rbc_callback_to_s(VALUE self){
-	sit_callback *cb;
-	Data_Get_Struct(self, sit_callback, cb);
+	Callback *cb;
+	Data_Get_Struct(self, Callback, cb);
 	char *str;
 	asprintf(&str, "[Callback %ld]", cb->id);
 	VALUE rstr = rb_str_new2(str);

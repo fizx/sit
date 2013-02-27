@@ -35,7 +35,7 @@ typedef struct sit_engine {
   // User-settable
   void *data;
   
-  sit_callback *on_document_found;
+  Callback *on_document_found;
   
   long                query_id;
   sit_term    terms[1];
@@ -115,13 +115,13 @@ long
 sit_engine_register(sit_engine *engine, sit_query *query);
 
 void 
-sit_engine_each_node(sit_engine *engine, sit_callback *cb);
+sit_engine_each_node(sit_engine *engine, Callback *cb);
 
 bool
 sit_engine_unregister(sit_engine *engine, long query_id);
 
 void 
-sit_engine_each_query(sit_engine *engine, sit_callback *callback);
+sit_engine_each_query(sit_engine *engine, Callback *callback);
 
 bool
 sit_result_iterator_prev(sit_result_iterator *iter);

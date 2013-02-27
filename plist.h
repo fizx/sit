@@ -65,10 +65,10 @@ void
 plist_free(plist *plist);
 
 void
-plist_each(plist *plist, struct sit_callback *handler);
+plist_each(plist *plist, struct Callback *handler);
 
 void
-plist_reach(plist *plist, struct sit_callback *handler);
+plist_reach(plist *plist, struct Callback *handler);
 
 void
 plist_append_entry(plist *pl, plist_entry *entry);

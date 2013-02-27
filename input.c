@@ -5,7 +5,7 @@
 #include "util_ruby.h"
 
 void
-_perc_found_handler(sit_callback *callback, void *data) {
+_perc_found_handler(Callback *callback, void *data) {
   long doc_id = *(long*)data;
   sit_input *input = callback->user_data;
   sit_engine *engine = input->engine;
@@ -18,12 +18,12 @@ _perc_found_handler(sit_callback *callback, void *data) {
 }
 
 void
-_channel_handler(sit_callback *callback, void *data) {
+_channel_handler(Callback *callback, void *data) {
   sit_query *query = data;
   sit_input *input = callback->user_data;
   sit_engine * engine = input->engine;
   if(input->qparser_mode == REGISTERING) {
-    query->callback = sit_callback_new();
+    query->callback = callback_new();
     query->callback->user_data = input;
     query->callback->handler = _perc_found_handler;
     long query_id = sit_engine_register(engine, query);
@@ -36,7 +36,7 @@ _channel_handler(sit_callback *callback, void *data) {
     input->output->write(input->output, buf);
     pstring_free(buf);
   } else {
-    query->callback = sit_callback_new();
+    query->callback = callback_new();
     query->callback->user_data = input;
     query->callback->handler = _perc_found_handler;
     sit_result_iterator *iter = sit_engine_search(engine, query);
@@ -62,7 +62,7 @@ sit_input_new(struct sit_engine *engine, int term_capacity, long buffer_size) {
 	input->engine = engine;
   input->qparser_mode = REGISTERING;
 	input->qparser = query_parser_new();
-	input->qparser->cb = sit_callback_new();
+	input->qparser->cb = callback_new();
 	input->qparser->cb->handler = _channel_handler;
   input->qparser->cb->user_data = input;
 	input->parser = engine->parser->fresh_copy(engine->parser);
@@ -96,7 +96,7 @@ sit_input_end_stream(struct sit_input *input) {
 }
 
 void 
-_ack_doc(sit_callback *cb, void *data) {
+_ack_doc(Callback *cb, void *data) {
   sit_engine *engine = data;
   sit_input *input = cb->user_data;
   sit_output *output = input->output;
@@ -152,8 +152,8 @@ sit_input_document_found(sit_receiver *receiver, long off, int len) {
 	sit_engine *engine = input->engine;
 	ring_buffer_append(engine->stream, (void*)input->stream->val, len);
 	engine->current_input = input;
-  sit_callback *old = engine->on_document_found;
-  sit_callback cb = {
+  Callback *old = engine->on_document_found;
+  Callback cb = {
     _ack_doc,
     input,
     NULL,

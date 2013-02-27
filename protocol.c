@@ -77,7 +77,7 @@ _line_end_stream(sit_protocol_parser *parser) {
 }
 
 void
-_dump_handler(struct sit_callback *self, void *data) {
+_dump_handler(struct Callback *self, void *data) {
   sit_query *query = data;
   sit_output *output = self->user_data;
   output->write(output, sit_query_to_s(query));
@@ -123,7 +123,7 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
   } else if(!cpstrcmp("close", command)) {
     input->output->close(input->output);
   } else if(isTestMode() && !cpstrcmp("dump", command)) {
-    sit_callback cb = {
+    Callback cb = {
       _dump_handler,
       output,
       NULL,

@@ -13,8 +13,8 @@ rbc_query_new(VALUE class, VALUE rconjunctions, VALUE rcallback) {
 		}
 		Data_Get_Struct(rcon, conjunction_t, conjunctions[i]);
 	}
-	sit_callback *cb;
-	Data_Get_Struct(rcallback, sit_callback, cb);
+	Callback *cb;
+	Data_Get_Struct(rcallback, Callback, cb);
 	sit_query *query = sit_query_new(conjunctions, count, cb);
 	
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, query);

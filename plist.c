@@ -194,14 +194,14 @@ plist_append_entry(plist *pl, plist_entry *entry) {
 }
 
 void
-_count(sit_callback *cb, void *entry) {
+_count(Callback *cb, void *entry) {
 	(*(int *)cb->user_data)++;
 	(void) entry;
 }
 
 long
 plist_size(plist *plist) {
-	sit_callback counter;
+	Callback counter;
 	int count = 0;
 	counter.handler = _count;
 	counter.user_data = &count;
@@ -212,14 +212,14 @@ plist_size(plist *plist) {
 
 
 void
-plist_each(plist *pl, sit_callback *iterator) {
+plist_each(plist *pl, Callback *iterator) {
 	//TODO: impl
 	(void) pl;
 	(void) iterator;
 }
 
 void
-plist_reach(plist *pl, sit_callback *iterator) {
+plist_reach(plist *pl, Callback *iterator) {
 	int min = pl->pool->min_version;
 	if(pl->last_version >= min) {
 		plist_block *block = pl->last_block;

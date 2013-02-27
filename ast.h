@@ -4,7 +4,7 @@
 struct AST;
 
 typedef struct ASTNode {
-  struct AST      *ast;
+  struct AST     *ast;
   struct ASTNode *child;
   struct ASTNode *parent;
   struct ASTNode *prev;

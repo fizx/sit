@@ -2178,7 +2178,7 @@ query_node_new(query_parser *qp, query_node_type type) {
 }
 
 query_parser *
-query_parser_new(sit_callback *cb) {
+query_parser_new(Callback *cb) {
   query_parser *parser = malloc(sizeof(query_parser));
   parser->buf = NULL;
   parser->error = NULL;
