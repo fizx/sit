@@ -4,8 +4,8 @@
 #include "pstring_ruby.h"
 #include <assert.h>
 #include "ruby.h"
-#include "sit_engine.h"
-#include "sit_parser.h"
+#include "engine.h"
+#include "parser.h"
 #include "json_parser.h"
 #include "util_ruby.h"
 #include "white_parser.h"

@@ -1,4 +1,4 @@
-#include "sit_receiver.h"
+#include "receiver.h"
 #include <stdlib.h>
 
 sit_receiver *

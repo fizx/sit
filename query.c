@@ -1,5 +1,5 @@
-#include "sit_query.h"
-#include "sit_term.h"
+#include "query.h"
+#include "term.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

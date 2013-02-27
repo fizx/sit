@@ -1,7 +1,7 @@
 #ifndef SERVER_RUBY_H_INCLUDED
 #define SERVER_RUBY_H_INCLUDED
 
-#include "sit_server.h"
+#include "server.h"
 #include "ruby.h"
 
 VALUE

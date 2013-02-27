@@ -5,10 +5,10 @@
 #include "dict.h"
 #include "lrw_dict.h"
 #include "plist.h"
-#include "sit_cursor.h"
-#include "sit_input.h"
-#include "sit_parser.h"
-#include "sit_query.h"
+#include "cursor.h"
+#include "input.h"
+#include "parser.h"
+#include "query.h"
 
 struct plist_pool;
 

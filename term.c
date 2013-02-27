@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "sit_term.h"
+#include "term.h"
 #include "dict.h"
 #include "pstring.h"
 #include <assert.h>

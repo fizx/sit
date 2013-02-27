@@ -1,5 +1,5 @@
 #include "query_ruby.h"
-#include "sit_query.h"
+#include "query.h"
 #include "util_ruby.h"
 #include "ruby.h"
 #include <stdlib.h>

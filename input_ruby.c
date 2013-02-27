@@ -1,5 +1,5 @@
-#include "sit_input_ruby.h"
-#include "sit_ruby.h"
+#include "input_ruby.h"
+#include "ruby.h"
 #include "sit.h"
 #include <assert.h>
 

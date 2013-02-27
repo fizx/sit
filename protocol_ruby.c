@@ -1,4 +1,4 @@
-#include "sit_ruby.h"
+#include "ruby.h"
 #include "sit.h"
 
 void

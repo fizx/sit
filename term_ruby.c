@@ -1,5 +1,5 @@
 #include "term_ruby.h"
-#include "sit_term.h"
+#include "term.h"
 #include "util_ruby.h"
 #include "pstring.h"
 #include "pstring_ruby.h"

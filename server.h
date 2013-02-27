@@ -3,8 +3,8 @@
 #ifdef HAVE_EV_H
 
 #include <ev.h>
-#include "sit_engine.h"
-#include "sit_input.h"
+#include "engine.h"
+#include "input.h"
 struct sit_engine;
 struct sit_input;
 

@@ -2,7 +2,7 @@
 #define SIT_PARSER_H_INCLUDED
 
 #include "pstring.h"
-#include "sit_receiver.h"
+#include "receiver.h"
 
 
 typedef struct sit_parser {

@@ -1,8 +1,8 @@
-#include "sit_callback.h"
+#include "callback.h"
 #include "callback_ruby.h"
 #include "pstring_ruby.h"
 #include "util_ruby.h"
-#include "sit_query.h"
+#include "query.h"
 #include "query_ruby.h"
 #include <assert.h>
 

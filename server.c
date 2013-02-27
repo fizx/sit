@@ -1,6 +1,6 @@
 #ifdef HAVE_EV_H
 #include <errno.h>
-#include "sit_server.h"
+#include "server.h"
 #include <ev.h>
 #include <assert.h>
 #include <sys/socket.h>

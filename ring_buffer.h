@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "sit.h"
-#include "sit_cursor.h"
+#include "cursor.h"
 
 typedef struct ring_buffer {
 	long capacity;

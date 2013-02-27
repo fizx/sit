@@ -1,7 +1,7 @@
 #include "util_ruby.h"
 #include "dict.h"
 #include "sit.h"
-#include "sit_ruby.h"
+#include "ruby.h"
 #include <stdbool.h>
 #include <stdio.h>
 

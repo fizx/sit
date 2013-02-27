@@ -1,6 +1,6 @@
 #include "receiver_ruby.h"
-#include "sit_ruby.h"
-#include "sit_receiver.h"
+#include "ruby.h"
+#include "receiver.h"
 #include "util.h"
 #include <stdlib.h>
 

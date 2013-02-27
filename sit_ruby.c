@@ -4,7 +4,7 @@
  */
 
 #include "ruby.h"
-#include "sit_ruby.h"
+#include "ruby.h"
 
 VALUE rbc_pstring;
 VALUE rbc_ast;

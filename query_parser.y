@@ -23,7 +23,7 @@
 
 %{
 #include "query_parser.h"
-#include "sit_callback.h"
+#include "callback.h"
 #include "pstring.h"
 #include "util.h"
 #include <stdlib.h>

@@ -1,7 +1,7 @@
 #include "query_parser_ruby.h"
 #include "query_parser.h"
 #include "callback_ruby.h"
-#include "sit_callback.h"
+#include "callback.h"
 #include "pstring_ruby.h"
 #include "ruby.h"
 #include "util_ruby.h"

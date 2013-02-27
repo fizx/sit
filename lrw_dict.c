@@ -1,5 +1,5 @@
 #include "lrw_dict.h"
-#include "sit_term.h"
+#include "term.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>

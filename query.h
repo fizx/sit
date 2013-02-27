@@ -1,8 +1,8 @@
 #ifndef SIT_QUERY_H_INCLUDED
 #define SIT_QUERY_H_INCLUDED
 
-#include "sit_term.h"
-#include "sit_callback.h"
+#include "term.h"
+#include "callback.h"
 
 typedef struct {
 	// for random user state

@@ -2,7 +2,7 @@
 #define PLIST_H_INCLUDED
 
 #include "sit.h"
-#include "sit_cursor.h"
+#include "cursor.h"
 #include <stdbool.h>
 
 typedef struct plist_entry {

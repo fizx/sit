@@ -2,7 +2,7 @@
 #define SIT_INPUT_H_INCLUDED
 
 #include "sit.h"
-#include "sit_term.h"
+#include "term.h"
 
 typedef struct sit_output {
 	void *data;

@@ -1,5 +1,5 @@
-#include "sit_parser.h"
-#include "sit_engine.h"
+#include "parser.h"
+#include "engine.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
