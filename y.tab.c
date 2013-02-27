@@ -159,7 +159,7 @@ typedef union YYSTYPE
 /* Line 387 of yacc.c  */
 #line 18 "query_parser.y"
  
-  ast_node_t *node;
+  ASTNode *node;
   int         num;
   char       *cptr;
 
@@ -246,53 +246,53 @@ void yyerror(YYLTYPE* locp, query_parser *parser, const char* err) {
 #define scanner context->scanner
 #define Q(node)   ((query_node *)(node->data))
 
-ast_node_t *
+ASTNode *
 int_node(query_parser *context) {
-  ast_node_t *node = query_node_new(context, NUM);
+  ASTNode *node = query_node_new(context, NUM);
   Q(node)->num = atoi(context->ptr);
   return node;
 }
 
-ast_node_t *
+ASTNode *
 str_node(query_parser *context) {
-  ast_node_t *node = query_node_new(context, STR);
+  ASTNode *node = query_node_new(context, STR);
   Q(node)->val = c2pstring(context->ptr);
   return node;
 }
 
-ast_node_t *
+ASTNode *
 qstr_node(query_parser *context) {
-  ast_node_t *node = query_node_new(context, STR);
+  ASTNode *node = query_node_new(context, STR);
   Q(node)->val = qc2pstring(context->ptr);
   return node;
 }
 
-ast_node_t *
+ASTNode *
 expr_node(query_parser *context) {
   return query_node_new(context, EXPR);
 }
 
-ast_node_t *
+ASTNode *
 clause_node(query_parser *context) {
   return query_node_new(context, CLAUSE);
 }
 
-ast_node_t *
+ASTNode *
 mstr_node(query_parser *context) {
   return query_node_new(context, MODSTR);
 }
 
-ast_node_t *
+ASTNode *
 cmp_node(query_parser *context, cmp_type c) {
-  ast_node_t *node = query_node_new(context, CMP);
+  ASTNode *node = query_node_new(context, CMP);
   Q(node)->cmp = c;
   return node;
 }
 
-ast_node_t *
-query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
+ASTNode *
+query_node_copy_subtree(query_parser *context, ASTNode *subtree) {
   if(!subtree) return NULL;
-  ast_node_t *cp = query_node_new(context, Q(subtree)->type);
+  ASTNode *cp = query_node_new(context, Q(subtree)->type);
   Q(cp)->num = Q(subtree)->num;
   Q(cp)->cmp = Q(subtree)->cmp;
   Q(cp)->negated = Q(subtree)->negated;
@@ -303,7 +303,7 @@ query_node_copy_subtree(query_parser *context, ast_node_t *subtree) {
   cp->next = query_node_copy_subtree(context, subtree->next);
   if(cp->next) cp->next->prev = cp;
   cp->child = query_node_copy_subtree(context, subtree->child);
-  ast_node_t *child = cp->child;
+  ASTNode *child = cp->child;
   while(child) {
     child->parent = cp;
     child = child->next;

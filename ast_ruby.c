@@ -7,7 +7,7 @@ wrapnil() {
 
 VALUE 
 rbc_ast_new(VALUE class) {	
-  ast_t *ast = ast_new(wrapnil, free);
+  AST *ast = ast_new(wrapnil, free);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, ast);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
@@ -15,9 +15,9 @@ rbc_ast_new(VALUE class) {
 
 VALUE 
 rbc_ast_node_new(VALUE class, VALUE rast, VALUE rdata) {
-  ast_t *ast;
-  Data_Get_Struct(rast, ast_t, ast);
-  ast_node_t *node = ast_node_new(ast);  
+  AST *ast;
+  Data_Get_Struct(rast, AST, ast);
+  ASTNode *node = ast_node_new(ast);  
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, node);
 	rb_obj_call_init(tdata, 0, NULL);
   rbc_ast_node_set_data(tdata, rdata);
@@ -26,23 +26,23 @@ rbc_ast_node_new(VALUE class, VALUE rast, VALUE rdata) {
 
 VALUE
 rbc_ast_node_get_data(VALUE self) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   return vunwrap(node->data);
 }
 
 VALUE
 rbc_ast_node_set_data(VALUE self, VALUE rdata) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   ((value_holder *)node->data)->val = rdata;
   return rdata;
 }
 
 VALUE 
 rbc_ast_node_next(VALUE self) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   if(node->next == NULL) return Qnil;
   VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->next);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -51,8 +51,8 @@ rbc_ast_node_next(VALUE self) {
 
 VALUE 
 rbc_ast_node_prev(VALUE self) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   if(node->prev == NULL) return Qnil;
   VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->prev);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -61,8 +61,8 @@ rbc_ast_node_prev(VALUE self) {
 
 VALUE 
 rbc_ast_node_parent(VALUE self) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   if(node->parent == NULL) return Qnil;
   VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->parent);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -71,8 +71,8 @@ rbc_ast_node_parent(VALUE self) {
 
 VALUE 
 rbc_ast_node_child(VALUE self) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   if(node->child == NULL) return Qnil;
   VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ASTNode"), markall, NULL, node->child);
 	rb_obj_call_init(tdata, 0, NULL);
@@ -81,20 +81,20 @@ rbc_ast_node_child(VALUE self) {
 
 VALUE
 rbc_ast_node_equals(VALUE ra, VALUE rb) {
-  ast_node_t *a;
-  Data_Get_Struct(ra, ast_node_t, a);
-  ast_node_t *b;
-  Data_Get_Struct(rb, ast_node_t, b);
+  ASTNode *a;
+  Data_Get_Struct(ra, ASTNode, a);
+  ASTNode *b;
+  Data_Get_Struct(rb, ASTNode, b);
   return rb_equal(((value_holder *)a->data)->val, ((value_holder *)b->data)->val);
 }
 
 VALUE
 rbc_ast_node_insert_before(VALUE class, VALUE self, VALUE other) {
   (void) class;
-  ast_node_t *s;
-  Data_Get_Struct(self, ast_node_t, s);
-  ast_node_t *o;
-  Data_Get_Struct(other, ast_node_t, o);
+  ASTNode *s;
+  Data_Get_Struct(self, ASTNode, s);
+  ASTNode *o;
+  Data_Get_Struct(other, ASTNode, o);
   ast_node_insert_before(s, o);
   return Qnil;
 }
@@ -102,10 +102,10 @@ rbc_ast_node_insert_before(VALUE class, VALUE self, VALUE other) {
 VALUE
 rbc_ast_node_insert_after(VALUE class, VALUE self, VALUE other) {
   (void) class;
-  ast_node_t *s;
-  Data_Get_Struct(self, ast_node_t, s);
-  ast_node_t *o;
-  Data_Get_Struct(other, ast_node_t, o);
+  ASTNode *s;
+  Data_Get_Struct(self, ASTNode, s);
+  ASTNode *o;
+  Data_Get_Struct(other, ASTNode, o);
   ast_node_insert_after(s, o);
   return Qnil;
 }
@@ -113,10 +113,10 @@ rbc_ast_node_insert_after(VALUE class, VALUE self, VALUE other) {
 VALUE
 rbc_ast_node_prepend_child(VALUE class, VALUE self, VALUE other) {
   (void) class;
-  ast_node_t *s;
-  Data_Get_Struct(self, ast_node_t, s);
-  ast_node_t *o;
-  Data_Get_Struct(other, ast_node_t, o);
+  ASTNode *s;
+  Data_Get_Struct(self, ASTNode, s);
+  ASTNode *o;
+  Data_Get_Struct(other, ASTNode, o);
   ast_node_prepend_child(s, o);
   return Qnil;
 }
@@ -124,16 +124,16 @@ rbc_ast_node_prepend_child(VALUE class, VALUE self, VALUE other) {
 VALUE
 rbc_ast_node_remove(VALUE class, VALUE self) {
   (void) class;
-  ast_node_t *s;
-  Data_Get_Struct(self, ast_node_t, s);
+  ASTNode *s;
+  Data_Get_Struct(self, ASTNode, s);
   ast_node_remove(s);
   return Qnil;
 }
 
 VALUE 
 rbc_ast_node_to_s(VALUE self) {
-  ast_node_t *node;
-  Data_Get_Struct(self, ast_node_t, node);
+  ASTNode *node;
+  Data_Get_Struct(self, ASTNode, node);
   VALUE inner = ((value_holder *)node->data)->val;
   return rb_funcall(inner, rb_intern("to_s"), 0);
 }
@@ -142,10 +142,10 @@ rbc_ast_node_to_s(VALUE self) {
 VALUE
 rbc_ast_node_wrap(VALUE class, VALUE self, VALUE other) {
   (void) class;
-  ast_node_t *s;
-  Data_Get_Struct(self, ast_node_t, s);
-  ast_node_t *o;
-  Data_Get_Struct(other, ast_node_t, o);
+  ASTNode *s;
+  Data_Get_Struct(self, ASTNode, s);
+  ASTNode *o;
+  Data_Get_Struct(other, ASTNode, o);
   ast_node_wrap(s, o);
   return Qnil;
 }

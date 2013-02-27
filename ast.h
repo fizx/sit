@@ -1,56 +1,56 @@
 #ifndef AST_H_INCLUDED
 #define AST_H_INCLUDED
 
-struct ast_s;
+struct AST;
 
-typedef struct ast_node_s {
-  struct ast_s      *ast;
-  struct ast_node_s *child;
-  struct ast_node_s *parent;
-  struct ast_node_s *prev;
-  struct ast_node_s *next;
+typedef struct ASTNode {
+  struct AST      *ast;
+  struct ASTNode *child;
+  struct ASTNode *parent;
+  struct ASTNode *prev;
+  struct ASTNode *next;
   void *data;
   void *internal;
-} ast_node_t;
+} ASTNode;
 
-typedef struct ast_s {
+typedef struct AST {
   void *(*make_data)();
   void  (*free_data)(void *data);
-  ast_node_t *nodes;
-} ast_t;
+  ASTNode *nodes;
+} AST;
 
 
-ast_t *
+AST *
 ast_new(void *(*fmake)(), void (*ffree)(void *));
 
-ast_node_t *
-ast_node_new(ast_t *ast); 
+ASTNode *
+ast_node_new(AST *ast); 
 
 int
-ast_node_child_count(ast_node_t *self);
+ast_node_child_count(ASTNode *self);
 
 void
-ast_node_insert_before(ast_node_t *self, ast_node_t *other);
+ast_node_insert_before(ASTNode *self, ASTNode *other);
 
 void
-ast_node_insert_after(ast_node_t *self, ast_node_t *other);
+ast_node_insert_after(ASTNode *self, ASTNode *other);
 
 void
-ast_node_prepend_child(ast_node_t *self, ast_node_t *other);
+ast_node_prepend_child(ASTNode *self, ASTNode *other);
 
 void
-ast_node_append_child(ast_node_t *self, ast_node_t *other);
+ast_node_append_child(ASTNode *self, ASTNode *other);
 
 void
-ast_node_remove(ast_node_t *self);
+ast_node_remove(ASTNode *self);
 
 void
-ast_node_replace(ast_node_t *self, ast_node_t *other);
+ast_node_replace(ASTNode *self, ASTNode *other);
 
 void
-ast_node_wrap(ast_node_t *self, ast_node_t *other);
+ast_node_wrap(ASTNode *self, ASTNode *other);
 
 void
-ast_node_unwrap(ast_node_t *self);
+ast_node_unwrap(ASTNode *self);
 
 #endif

@@ -1,16 +1,16 @@
 #include "sit.h"
 
-ast_t *
+AST *
 ast_new(void *(*fmake)(), void (*ffree)(void *)) {
-  ast_t *ast = malloc(sizeof(ast_t));
+  AST *ast = malloc(sizeof(AST));
   ast->make_data = fmake;
   ast->free_data = ffree;
   return ast;
 }
 
-ast_node_t *
-ast_node_new(ast_t *ast) {
-  ast_node_t *node = malloc(sizeof(ast_node_t));
+ASTNode *
+ast_node_new(AST *ast) {
+  ASTNode *node = malloc(sizeof(ASTNode));
   node->parent = NULL;
   node->child = NULL;
   node->next = NULL;
@@ -25,8 +25,8 @@ ast_node_new(ast_t *ast) {
 }
 
 int
-ast_node_child_count(ast_node_t *self) {
-	ast_node_t *child = self->child;
+ast_node_child_count(ASTNode *self) {
+	ASTNode *child = self->child;
 	int i = 0;
 	while(child) {
 		child = child->next;
@@ -36,13 +36,13 @@ ast_node_child_count(ast_node_t *self) {
 }
 
 void
-ast_node_replace(ast_node_t *self, ast_node_t *other) {
+ast_node_replace(ASTNode *self, ASTNode *other) {
   ast_node_insert_before(self, other);
   ast_node_remove(self);
 }
 
 void
-ast_node_insert_before(ast_node_t *self, ast_node_t *other) {
+ast_node_insert_before(ASTNode *self, ASTNode *other) {
   ast_node_remove(other);
 
   other->prev = self->prev;
@@ -55,7 +55,7 @@ ast_node_insert_before(ast_node_t *self, ast_node_t *other) {
 }
 
 void
-ast_node_insert_after(ast_node_t *self, ast_node_t *other) {
+ast_node_insert_after(ASTNode *self, ASTNode *other) {
   ast_node_remove(other);
 
   other->next = self->next;
@@ -67,10 +67,10 @@ ast_node_insert_after(ast_node_t *self, ast_node_t *other) {
 }
 
 void
-ast_node_prepend_child(ast_node_t *self, ast_node_t *other) {
+ast_node_prepend_child(ASTNode *self, ASTNode *other) {
   ast_node_remove(other);
 
-  ast_node_t *child = self->child;
+  ASTNode *child = self->child;
   if(child == NULL) {
     self->child = other;
     other->parent = self;
@@ -80,10 +80,10 @@ ast_node_prepend_child(ast_node_t *self, ast_node_t *other) {
 }
 
 void
-ast_node_append_child(ast_node_t *self, ast_node_t *other) {
+ast_node_append_child(ASTNode *self, ASTNode *other) {
   ast_node_remove(other);
 
-  ast_node_t *child = self->child;
+  ASTNode *child = self->child;
   if(child == NULL) {
     self->child = other;
     other->parent = self;
@@ -96,7 +96,7 @@ ast_node_append_child(ast_node_t *self, ast_node_t *other) {
 }
 
 void
-ast_node_remove(ast_node_t *self) {
+ast_node_remove(ASTNode *self) {
   if(self->parent && self->parent->child == self) {
     self->parent->child = self->next;
   }
@@ -109,7 +109,7 @@ ast_node_remove(ast_node_t *self) {
 }
 
 void
-ast_node_wrap(ast_node_t *self, ast_node_t *other) {
+ast_node_wrap(ASTNode *self, ASTNode *other) {
   other->prev = self->prev;
   other->next = self->next;
   other->parent = self->parent;
@@ -122,7 +122,7 @@ ast_node_wrap(ast_node_t *self, ast_node_t *other) {
 }
 
 void
-ast_node_unwrap(ast_node_t *self) {
+ast_node_unwrap(ASTNode *self) {
   while(self->child) {
     ast_node_insert_before(self, self->child);
   }

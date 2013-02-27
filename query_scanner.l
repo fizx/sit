@@ -55,7 +55,7 @@ L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); return(S
 
 %%
 
-ast_node_t *
+ASTNode *
 query_node_new(query_parser *qp, query_node_type type) {
   query_node *node = malloc(sizeof(query_node));
   node->type     = type;
@@ -64,7 +64,7 @@ query_node_new(query_parser *qp, query_node_type type) {
   node->num      = 0;
   node->negated  = false;
   
-  ast_node_t *ast_node = ast_node_new(qp->ast);
+  ASTNode *ast_node = ast_node_new(qp->ast);
   ast_node->data = node;
   
   return ast_node;
@@ -115,13 +115,13 @@ query_parser_consume(query_parser *parser, pstring *pstr) {
 #define Q(node)     ((query_node *)(node->data))
 #define NEXT(obj)   (obj ? obj->next : NULL)
 void 
-associate_ands(query_parser *context, ast_node_t *node) {
+associate_ands(query_parser *context, ASTNode *node) {
   if(!node) return;
-  ast_node_t *op    = node->next;
-  ast_node_t *other = NEXT(op);
+  ASTNode *op    = node->next;
+  ASTNode *other = NEXT(op);
   
   if(op && Q(op)->type == BAND) {
-    ast_node_t *wrapper = query_node_new(context, ANDS); 
+    ASTNode *wrapper = query_node_new(context, ANDS); 
     ast_node_insert_before(op, wrapper);
     ast_node_prepend_child(wrapper, other);
     ast_node_prepend_child(wrapper, node);
@@ -133,13 +133,13 @@ associate_ands(query_parser *context, ast_node_t *node) {
 }
 
 void 
-combine_ors(query_parser *context, ast_node_t *node) {
+combine_ors(query_parser *context, ASTNode *node) {
   if(!node) return;
-  ast_node_t *op    = node->next;
-  ast_node_t *other = NEXT(op);
+  ASTNode *op    = node->next;
+  ASTNode *other = NEXT(op);
   
   if(op && Q(op)->type == BOR) {
-    ast_node_t *wrapper = query_node_new(context, ORS); 
+    ASTNode *wrapper = query_node_new(context, ORS); 
     ast_node_insert_before(op, wrapper);
     ast_node_prepend_child(wrapper, other);
     ast_node_prepend_child(wrapper, node);
@@ -151,9 +151,9 @@ combine_ors(query_parser *context, ast_node_t *node) {
 }
 
 void
-demorgans(query_parser *context, ast_node_t *node) {
+demorgans(query_parser *context, ASTNode *node) {
   if(!node) return;
-  ast_node_t *tmp;
+  ASTNode *tmp;
   
   if(Q(node)->negated) {
     switch(Q(node)->type) {
@@ -204,7 +204,7 @@ demorgans(query_parser *context, ast_node_t *node) {
 
 
 void
-unwrap_exprs(query_parser *context, ast_node_t *node) {
+unwrap_exprs(query_parser *context, ASTNode *node) {
   if(!node) return;
   unwrap_exprs(context, node->next);
   unwrap_exprs(context, node->child);
@@ -214,12 +214,12 @@ unwrap_exprs(query_parser *context, ast_node_t *node) {
 }
 
 void 
-merge_bools(query_parser *context, ast_node_t *node, query_node_type type) {
+merge_bools(query_parser *context, ASTNode *node, query_node_type type) {
   if(!node) return;
   merge_bools(context, node->next, type);
   merge_bools(context, node->child, type);
   if(Q(node)->type == type) {
-    ast_node_t *child = node->child;
+    ASTNode *child = node->child;
     int count = 0;
     while(child) {
       if(Q(child)->type == type) {
@@ -238,17 +238,17 @@ merge_bools(query_parser *context, ast_node_t *node, query_node_type type) {
 }
 
 void 
-bubble_ors(query_parser *context, ast_node_t *node) {
+bubble_ors(query_parser *context, ASTNode *node) {
   if(!node) return;
 
-  ast_node_t *parent = node->parent;
+  ASTNode *parent = node->parent;
   if(Q(node)->type == ORS && Q(parent)->type != EXPR) {
-    ast_node_t *gp = query_node_new(context, ORS);
-    ast_node_t *child = node->child;
+    ASTNode *gp = query_node_new(context, ORS);
+    ASTNode *child = node->child;
     for (int i = 0; child; i++, child = child->next) {
-      ast_node_t *cp = query_node_copy_subtree(context, parent);
+      ASTNode *cp = query_node_copy_subtree(context, parent);
       ast_node_append_child(gp, cp);
-      ast_node_t *cpkid = cp->child;
+      ASTNode *cpkid = cp->child;
       while(cpkid) {
         if(Q(cpkid)->type == ORS) {
           ast_node_insert_before(cpkid, query_node_copy_subtree(context, child));
@@ -270,10 +270,10 @@ bubble_ors(query_parser *context, ast_node_t *node) {
 void
 add_token(sit_receiver *receiver, pstring *val, int field_offset) {
   query_parser *context = receiver->data;
-  ast_node_t *node = context->tmp;
+  ASTNode *node = context->tmp;
   pstring *field = Q(node)->field;
   Q(node)->num = field_offset;
-  ast_node_t *term = query_node_new(context, TERM);
+  ASTNode *term = query_node_new(context, TERM);
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
   Q(term)->val = val;
@@ -290,13 +290,13 @@ sit_receiver token_receiver = {
 };
 
 void
-expand_clauses(query_parser *context, ast_node_t *node) {
+expand_clauses(query_parser *context, ASTNode *node) {
   if(!node) return;
 
   if(Q(node)->type == CLAUSE) {
-    ast_node_t *field = node->child;
-    ast_node_t *op  = node->child->next;
-    ast_node_t *val = node->child->next->next;
+    ASTNode *field = node->child;
+    ASTNode *op  = node->child->next;
+    ASTNode *val = node->child->next->next;
     if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
       Q(node)->type = ANDS;
       context->tokenizer->receiver = &token_receiver;
@@ -325,7 +325,7 @@ expand_clauses(query_parser *context, ast_node_t *node) {
 }
 
 void *
-to_conjunction(ast_node_t *node, void *obj) {
+to_conjunction(ASTNode *node, void *obj) {
   switch(Q(node)->type) {
   case NUMTERM:
   case TERM: {
@@ -343,7 +343,7 @@ to_conjunction(ast_node_t *node, void *obj) {
 }
 
 void *
-to_query(ast_node_t *node, void *obj) {
+to_query(ASTNode *node, void *obj) {
   switch(Q(node)->type) {
   case NUMTERM:
   case TERM: {
@@ -404,7 +404,7 @@ _negate(pstring *t) {
 }
 
 void *
-make_query_and_callback(query_parser *context, ast_node_t *node) {
+make_query_and_callback(query_parser *context, ASTNode *node) {
   switch(Q(node)->type) {
   case NUMTERM: {
     pstring *c = cmpmap(Q(node)->cmp);
@@ -418,7 +418,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
   case ANDS: {
     int count = ast_node_child_count(node);
     conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(sit_term));
-    ast_node_t *child = node->child;
+    ASTNode *child = node->child;
   	for(int i = 0	; i < count; i++) {
   		memcpy(&con->terms[i], make_query_and_callback(context, child), sizeof(sit_term));
   		child = child->next;
@@ -433,7 +433,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
     sit_query *query = malloc(sizeof(sit_query));
     query->count = count;
     query->conjunctions = malloc(count * sizeof(conjunction_t*));
-    ast_node_t *child = node->child;
+    ASTNode *child = node->child;
     for(int i = 0	; i < count; i++) {
       query->conjunctions[i] = to_conjunction(child, make_query_and_callback(context, child));
   		child = child->next;
@@ -448,7 +448,7 @@ make_query_and_callback(query_parser *context, ast_node_t *node) {
 }
 
 void
-query_parser_construct(query_parser *context, ast_node_t *expression, int limit) {
+query_parser_construct(query_parser *context, ASTNode *expression, int limit) {
   pstring *pstr;
   (void) pstr;
   context->root = expression;
@@ -513,7 +513,7 @@ _c(cmp_type t) {
 #define PQ(x)  padd(buf, query_node_query(x))
 
 pstring * 
-query_node_query(ast_node_t *node) {
+query_node_query(ASTNode *node) {
   pstring *buf = pstring_new(0);
   if(Q(node)->negated) PC("NOT ");
   switch(Q(node)->type) {
@@ -580,7 +580,7 @@ query_node_query(ast_node_t *node) {
 }
 
 pstring * 
-_query_node_ast_to_s(ast_node_t *node, int level) {
+_query_node_ast_to_s(ASTNode *node, int level) {
   pstring *buf = pstring_new(0);
   if(!node) return buf;
   assert(node->ast);
@@ -593,7 +593,7 @@ _query_node_ast_to_s(ast_node_t *node, int level) {
 }
 
 pstring * 
-query_node_ast_to_s(ast_node_t *node) {
+query_node_ast_to_s(ASTNode *node) {
   return _query_node_ast_to_s(node, 0);
 }
 

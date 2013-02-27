@@ -46,7 +46,7 @@ rbc_query_parser_last_error(VALUE self) {
 }
 
 void
-_ast_to_s_recurse(ast_node_t* node, VALUE buf, int n) {
+_ast_to_s_recurse(ASTNode* node, VALUE buf, int n) {
   if(node == NULL) return;
   for(int i =0; i < n; i++) {
     rb_ary_push(buf, rb_str_new2("\t"));
@@ -61,7 +61,7 @@ VALUE
 rbc_query_parser_last_ast_to_s(VALUE self) {
 	query_parser *qp;
 	Data_Get_Struct(self, query_parser, qp);
-  ast_node_t* node = qp->root;
+  ASTNode* node = qp->root;
   return p2rstring(query_node_ast_to_s(node));
 }
 
@@ -69,6 +69,6 @@ VALUE
 rbc_query_parser_last_query_to_s(VALUE self) {
   query_parser *qp;
 	Data_Get_Struct(self, query_parser, qp);
-	ast_node_t* node = qp->root;
+	ASTNode* node = qp->root;
   return p2rstring(query_node_query(node));
 }

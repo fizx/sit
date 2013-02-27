@@ -27,27 +27,27 @@ typedef struct query_parser {
   void         *tmp;
   char         *ptr;
   sit_parser   *tokenizer;
-  ast_t        *ast;
-  ast_node_t   *root;
+  AST        *ast;
+  ASTNode   *root;
 } query_parser;
 
 query_parser *
 query_parser_new();
 
-ast_node_t *
+ASTNode *
 query_node_new(query_parser *qp, query_node_type type);
 
-ast_node_t *
-query_node_copy_subtree(query_parser *parser, ast_node_t *subtree);
+ASTNode *
+query_node_copy_subtree(query_parser *parser, ASTNode *subtree);
 
 pstring * 
 query_node_to_s(query_node *node);
 
 pstring * 
-query_node_query(ast_node_t *node);
+query_node_query(ASTNode *node);
 
 pstring * 
-query_node_ast_to_s(ast_node_t *node);
+query_node_ast_to_s(ASTNode *node);
 
 void
 query_parser_reset(query_parser *parser);
@@ -56,6 +56,6 @@ int
 query_parser_consume(query_parser *parser, pstring *pstr);
 
 void
-query_parser_construct(query_parser *context, ast_node_t *root, int limit);
+query_parser_construct(query_parser *context, ASTNode *root, int limit);
 
 #endif

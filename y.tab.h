@@ -105,7 +105,7 @@ typedef union YYSTYPE
 /* Line 2065 of yacc.c  */
 #line 18 "query_parser.y"
  
-  ast_node_t *node;
+  ASTNode *node;
   int         num;
   char       *cptr;
 
