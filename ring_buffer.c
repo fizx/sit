@@ -1,8 +1,8 @@
 #include "sit.h"
 
-ring_buffer *
+RingBuffer *
 ring_buffer_new(long capacity) {
-	ring_buffer *buffer = malloc(sizeof(ring_buffer));
+	RingBuffer *buffer = malloc(sizeof(RingBuffer));
 	buffer->buffer = calloc(1, capacity);
 	buffer->capacity = capacity;
 	buffer->offset = 0;
@@ -208,7 +208,7 @@ lte_predicate_ring_cursor_next(Cursor *scursor) {
 //!end
 
 ring_buffer_cursor *
-ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator, int predicate) {
+ring_buffer_predicate_int_cursor_new(RingBuffer *rb, long width, char operator, int predicate) {
   ring_buffer_cursor *cursor = ring_buffer_cursor_new(rb, width);
   switch (operator) {    
   //!ruby
@@ -257,7 +257,7 @@ ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator,
 }
 
 ring_buffer_cursor *
-ring_buffer_cursor_new(ring_buffer *rb, long width) {
+ring_buffer_cursor_new(RingBuffer *rb, long width) {
   ring_buffer_cursor *cursor = malloc(sizeof(*cursor));
   cursor->rb = rb;
   cursor->as_cursor.prev = ring_cursor_prev;
@@ -271,24 +271,24 @@ ring_buffer_cursor_new(ring_buffer *rb, long width) {
 }
 
 void
-ring_buffer_free(ring_buffer *rb) {
+ring_buffer_free(RingBuffer *rb) {
 	free(rb->buffer);
 	free(rb);
 }
 
 void
-ring_buffer_reset(ring_buffer *rb) {
+ring_buffer_reset(RingBuffer *rb) {
 	rb->offset = 0;
 	rb->written = 0;	
 }
 
 void
-ring_buffer_append(ring_buffer *rb, void *obj, int len) {	
+ring_buffer_append(RingBuffer *rb, void *obj, int len) {	
   ring_buffer_put(rb, rb->written, obj, len);
 }
 
 void
-ring_buffer_put(ring_buffer *rb, long off, void *obj, int len) {
+ring_buffer_put(RingBuffer *rb, long off, void *obj, int len) {
   if(off < rb->written - rb->capacity) {
     return;
   }
@@ -307,7 +307,7 @@ ring_buffer_put(ring_buffer *rb, long off, void *obj, int len) {
 }
 
 void *
-ring_buffer_get(ring_buffer *rb, long off, int len) {
+ring_buffer_get(RingBuffer *rb, long off, int len) {
 	if(off + len > rb->written ||
 		 off < rb->written - rb->capacity ||
 		 len > rb->capacity || off < 0) {
@@ -324,13 +324,13 @@ ring_buffer_get(ring_buffer *rb, long off, int len) {
 
 void
 ring_buffer_append_pstring(void *data, pstring *pstr) {
-  ring_buffer *rb = data;
+  RingBuffer *rb = data;
 	ring_buffer_append(rb, (void *)pstr->val, pstr->len);
 }
 
 pstring *
 ring_buffer_get_pstring(void *data, long off, int len) {
-  ring_buffer *rb = data;
+  RingBuffer *rb = data;
 	char *val = ring_buffer_get(rb, off, len);
 	if(val == NULL) {
 		return NULL;

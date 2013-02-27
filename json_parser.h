@@ -13,4 +13,5 @@ json_parser_new(Parser *tokenizer);
 
 Parser *
 json_fresh_copy(Parser *parser);
+
 #endif

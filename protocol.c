@@ -4,8 +4,8 @@
 
 void
 _input_error_found(struct sit_protocol_handler *handler, pstring *message) {
-  sit_input *input = handler->data;
-  sit_output *output = input->output;
+  Input *input = handler->data;
+  Output *output = input->output;
   pstring *buf = pstring_new(0);
   PC("{\"status\": \"error\", \"message\": \"");
   P(message);
@@ -79,15 +79,15 @@ _line_end_stream(sit_protocol_parser *parser) {
 void
 _dump_handler(struct Callback *self, void *data) {
   Query *query = data;
-  sit_output *output = self->user_data;
+  Output *output = self->user_data;
   output->write(output, sit_query_to_s(query));
 }
 
 void
 _input_command_found(struct sit_protocol_handler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
-  sit_input *input = handler->data;
-  sit_output *output = input->output;
+  Input *input = handler->data;
+  Output *output = input->output;
   
   if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
@@ -148,7 +148,7 @@ _input_command_found(struct sit_protocol_handler *handler, pstring *command, pst
 void
 _input_data_found(struct sit_protocol_handler *handler, pstring *data) {
   DEBUG("found data: %.*s\n", data->len, data->val);
-  sit_input *input = handler->data;
+  Input *input = handler->data;
   sit_input_consume(input, data);
 }
 
@@ -158,7 +158,7 @@ _input_data_complete(struct sit_protocol_handler *handler) {
 }
 
 sit_protocol_parser *
-sit_line_input_protocol_new(sit_input *input) {
+sit_line_input_protocol_new(Input *input) {
   sit_protocol_parser * parser = sit_line_protocol_new();
   sit_protocol_handler *handler = parser->handler;
   parser->data = NULL;

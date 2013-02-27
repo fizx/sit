@@ -8,7 +8,7 @@ typedef enum {
   COMPLETE, PARTIAL, FORCE_DATA
 } sit_proto_state;
 
-struct sit_input;
+struct Input;
 struct sit_protocol_handler;
 
 typedef struct sit_protocol_parser {
@@ -32,6 +32,6 @@ sit_protocol_parser *
 sit_line_protocol_new();
 
 sit_protocol_parser *
-sit_line_input_protocol_new(struct sit_input *input);
+sit_line_input_protocol_new(struct Input *input);
 
 #endif

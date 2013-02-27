@@ -51,7 +51,7 @@ conn_free(conn_t * conn) {
 }
 
 void
-conn_write(sit_output *output, pstring *data) {
+conn_write(Output *output, pstring *data) {
   paddc(data, "\n");
   DEBUG("writing back: %.*s", data->len, data->val);
   conn_t *conn = output->data;
@@ -70,7 +70,7 @@ conn_close(conn_t *conn) {
 }
 
 void 
-out_conn_close(sit_output *output) {
+out_conn_close(Output *output) {
   errno = 0;
   conn_t *conn = output->data;
   conn_close(conn);
@@ -81,8 +81,8 @@ conn_new(sit_server *server) {
   assert(server->engine);
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
-	sit_input *input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
-  input->output = malloc(sizeof(sit_output));
+	Input *input = sit_input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+  input->output = malloc(sizeof(Output));
   input->output->data = conn;
   input->output->write = conn_write;
   input->output->close = out_conn_close;

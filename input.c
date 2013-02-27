@@ -1,13 +1,9 @@
 #include "sit.h"
-#include <assert.h>
-#include <stdbool.h>
-#include "ruby.h"
-#include "util_ruby.h"
 
 void
 _perc_found_handler(Callback *callback, void *data) {
   long doc_id = *(long*)data;
-  sit_input *input = callback->user_data;
+  Input *input = callback->user_data;
   Engine *engine = input->engine;
   pstring *doc = sit_engine_get_document(engine, doc_id);
   long query_id = callback->id;
@@ -20,14 +16,14 @@ _perc_found_handler(Callback *callback, void *data) {
 void
 _channel_handler(Callback *callback, void *data) {
   Query *query = data;
-  sit_input *input = callback->user_data;
+  Input *input = callback->user_data;
   Engine * engine = input->engine;
   if(input->qparser_mode == REGISTERING) {
     query->callback = callback_new();
     query->callback->user_data = input;
     query->callback->handler = _perc_found_handler;
     long query_id = sit_engine_register(engine, query);
-    query_id_node *node = malloc(sizeof(*node));
+    QueryIdNode *node = malloc(sizeof(*node));
     node->query_id = query_id;
     node->next = input->query_ids;
     input->query_ids = node;
@@ -54,11 +50,11 @@ _channel_handler(Callback *callback, void *data) {
   } 
 }
 
-sit_input *
+Input *
 sit_input_new(struct Engine *engine, int term_capacity, long buffer_size) {
 	assert(engine);
 	assert(engine->parser);
- 	sit_input *input = calloc(1, sizeof(sit_input) + (term_capacity - 1) * (sizeof(sit_term)));
+ 	Input *input = calloc(1, sizeof(Input) + (term_capacity - 1) * (sizeof(sit_term)));
 	input->engine = engine;
   input->qparser_mode = REGISTERING;
 	input->qparser = query_parser_new();
@@ -84,22 +80,22 @@ sit_input_new(struct Engine *engine, int term_capacity, long buffer_size) {
 }
 
 void
-sit_input_consume(struct sit_input *input, pstring *pstr) {
+sit_input_consume(struct Input *input, pstring *pstr) {
   padd(input->stream, pstr);
   assert(input->parser->receiver == &input->as_receiver);
 	input->parser->consume(input->parser, pstr);
 }
 
 void 
-sit_input_end_stream(struct sit_input *input) {
+sit_input_end_stream(struct Input *input) {
   input->parser->end_stream(input->parser);
 }
 
 void 
 _ack_doc(Callback *cb, void *data) {
   Engine *engine = data;
-  sit_input *input = cb->user_data;
-  sit_output *output = input->output;
+  Input *input = cb->user_data;
+  Output *output = input->output;
   pstring *buf = pstring_new(0);
   PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
   PV("%ld", sit_engine_last_document_id(engine));
@@ -110,8 +106,8 @@ _ack_doc(Callback *cb, void *data) {
 
 void 
 sit_input_error_found(Receiver *receiver, pstring *message) {
-	sit_input *input = (sit_input *)receiver;
-  sit_output *output = input->output;
+	Input *input = (Input *)receiver;
+  Output *output = input->output;
   pstring *buf = pstring_new(0);
   PC("{\"status\": \"error\", \"message\": \"");
   P(message);
@@ -122,13 +118,13 @@ sit_input_error_found(Receiver *receiver, pstring *message) {
 
 void 
 sit_input_field_found(Receiver *receiver, pstring *name) {
-	sit_input *input = (sit_input *)receiver;
+	Input *input = (Input *)receiver;
 	input->field = name;
 }
 
 void 
 sit_input_term_found(Receiver *receiver, pstring *pstr, int field_offset) {
-	sit_input *input = (sit_input *)receiver;
+	Input *input = (Input *)receiver;
 	sit_term *term = &input->terms[input->term_count++];
 	term->field = input->field;
   term->text = pcpy(pstr);
@@ -139,14 +135,14 @@ sit_input_term_found(Receiver *receiver, pstring *pstr, int field_offset) {
 
 void 
 sit_input_int_found(Receiver *receiver, int value) {
-	sit_input *input = (sit_input *)receiver;
+	Input *input = (Input *)receiver;
 	dictEntry *entry = dictReplaceRaw(input->ints, input->field);
 	dictSetSignedIntegerVal(entry, value);
 }
 
 void 
 sit_input_document_found(Receiver *receiver, long off, int len) {
-	sit_input *input = (sit_input *)receiver;
+	Input *input = (Input *)receiver;
 	assert(off >= 0);
 	assert(len > 0);
 	Engine *engine = input->engine;

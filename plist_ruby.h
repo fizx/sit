@@ -2,7 +2,7 @@
 #define PLIST_RUBY_H_INCLUDED
 
 #include "ruby.h"
-#include "plist.h"
+#include "Plist.h"
 
 VALUE
 rbc_plist_pool_new(VALUE class, VALUE rsize);

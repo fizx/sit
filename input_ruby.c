@@ -1,14 +1,14 @@
 #include "sit_ruby.h"
 
 void 
-_append_buf(struct sit_output *output, pstring *message) {
+_append_buf(struct Output *output, pstring *message) {
   VALUE rstr = p2rstring(message);
   VALUE val = vunwrap(output->data);  
   rb_ary_push(val, rstr);
 }
 
 void 
-_no_op(struct sit_output *output) {  
+_no_op(struct Output *output) {  
   (void) output;
 }
 
@@ -18,8 +18,8 @@ rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size,
 	Data_Get_Struct(rengine, Engine, engine);
 	long term_capacity = NUM2LONG(rterm_capacity);
 	long buf_size = NUM2LONG(rbuf_size);
-	sit_input *input = sit_input_new(engine, term_capacity, buf_size);
-  sit_output *output = malloc(sizeof(*output));
+	Input *input = sit_input_new(engine, term_capacity, buf_size);
+  Output *output = malloc(sizeof(*output));
   output->data = vwrap(buf);
   output->write = _append_buf;
   output->close = _no_op;
@@ -30,16 +30,16 @@ rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size,
 
 VALUE 
 rbc_input_output(VALUE self) {
-	sit_input *input;
-	Data_Get_Struct(self, sit_input, input);
-  sit_output *output = input->output;
+	Input *input;
+	Data_Get_Struct(self, Input, input);
+  Output *output = input->output;
   return vunwrap(output->data);
 }
 
 VALUE 
 rbc_input_consume(VALUE self, VALUE rstr) {
-	sit_input *input;
-	Data_Get_Struct(self, sit_input, input);
+	Input *input;
+	Data_Get_Struct(self, Input, input);
 	pstring *pstr = r2pstring(rstr);
   assert(input->parser->receiver == &input->as_receiver);
 	sit_input_consume(input, pstr);
@@ -49,8 +49,8 @@ rbc_input_consume(VALUE self, VALUE rstr) {
 
 VALUE
 rbc_input_end_stream(VALUE self) {
-	sit_input *input;
-	Data_Get_Struct(self, sit_input, input);
+	Input *input;
+	Data_Get_Struct(self, Input, input);
 	sit_input_end_stream(input);
 	return Qnil;
 }

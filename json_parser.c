@@ -1,8 +1,8 @@
 #include "sit.h"
 
-typedef struct {
+typedef struct JSONState {
   jsonsl_t    json_parser;
-  Parser *tokenizer;
+  Parser     *tokenizer;
   pstring    *active;
   long        active_off;
   long        start_off;
@@ -10,7 +10,7 @@ typedef struct {
   pstring    *buf;
   int         token;
   bool        buffering;
-} json_state;
+} JSONState;
 
 int 
 _jsonsl_error_callback(
@@ -36,7 +36,7 @@ _jsonsl_stack_callback(
   int end;
   char *ptr = at;
 	Parser *parser = jsn->data;
-	json_state *sit_state = parser->state;
+	JSONState *sit_state = parser->state;
 	switch (action) {
 	case JSONSL_ACTION_PUSH: 
 		switch (state->type) {
@@ -106,14 +106,14 @@ json_white_parser_new() {
 
 Parser *
 json_fresh_copy(Parser *parser) {
-	json_state *state = parser->state;
+	JSONState *state = parser->state;
 	return json_parser_new(state->tokenizer->fresh_copy(state->tokenizer));
 }
 
 void 
 _json_consume(struct Parser *parser, pstring *str) {
   assert(parser->receiver);
-  json_state *state = parser->state;
+  JSONState *state = parser->state;
   state->active = str;
   if(state->buffering) {
     padd(state->buf, str);
@@ -125,8 +125,8 @@ _json_consume(struct Parser *parser, pstring *str) {
 Parser *
 json_parser_new(Parser *tokenizer) {
   Parser *parser = sit_parser_new();
-  parser->state = malloc(sizeof(json_state));
-  json_state *state = parser->state;
+  parser->state = malloc(sizeof(JSONState));
+  JSONState *state = parser->state;
   state->json_parser = jsonsl_new(100);
   jsonsl_enable_all_callbacks(state->json_parser);
   jsonsl_reset(state->json_parser);

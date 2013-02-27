@@ -3,7 +3,7 @@
 VALUE
 rbc_ring_buffer_new(VALUE class, VALUE rsize) {
 	long size = NUM2LONG(rsize);
-	ring_buffer *rb = ring_buffer_new(size);
+	RingBuffer *rb = ring_buffer_new(size);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, rb);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -11,8 +11,8 @@ rbc_ring_buffer_new(VALUE class, VALUE rsize) {
 
 VALUE 
 rbc_ring_buffer_append(VALUE self, VALUE rstr) {
- 	ring_buffer *rb;
-	Data_Get_Struct(self, ring_buffer, rb);
+ 	RingBuffer *rb;
+	Data_Get_Struct(self, RingBuffer, rb);
 	pstring *pstr = r2pstring(rstr);
 	ring_buffer_append_pstring(rb, pstr);
 	pstring_free(pstr);
@@ -23,8 +23,8 @@ VALUE
 rbc_ring_buffer_get(VALUE self, VALUE roff, VALUE rlen) {
 	long off = NUM2LONG(roff);
 	int len = NUM2INT(rlen);
- 	ring_buffer *rb;
-	Data_Get_Struct(self, ring_buffer, rb);
+ 	RingBuffer *rb;
+	Data_Get_Struct(self, RingBuffer, rb);
 	pstring *pstr = ring_buffer_get_pstring(rb, off, len);
 	VALUE rstr = p2rstring(pstr);
 	pstring_free(pstr);
@@ -34,7 +34,7 @@ rbc_ring_buffer_get(VALUE self, VALUE roff, VALUE rlen) {
 VALUE
 rbc_int_ring_buffer_new(VALUE class, VALUE rsize) {
   long size = NUM2LONG(rsize);
-	ring_buffer *rb = ring_buffer_new(size * sizeof(int));
+	RingBuffer *rb = ring_buffer_new(size * sizeof(int));
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, rb);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -43,8 +43,8 @@ rbc_int_ring_buffer_new(VALUE class, VALUE rsize) {
 VALUE 
 rbc_int_ring_buffer_append(VALUE self, VALUE rint) {
   int val = NUM2INT(rint);
-	ring_buffer *rb;
-	Data_Get_Struct(self, ring_buffer, rb);
+	RingBuffer *rb;
+	Data_Get_Struct(self, RingBuffer, rb);
 	ring_buffer_append(rb, &val, sizeof(int));
   return Qnil;
 }
@@ -53,8 +53,8 @@ VALUE
 rbc_int_ring_buffer_get(VALUE self, VALUE roff) {
   int len = sizeof(int);
   long off = NUM2LONG(roff) * len;
- 	ring_buffer *rb;
-	Data_Get_Struct(self, ring_buffer, rb);
+ 	RingBuffer *rb;
+	Data_Get_Struct(self, RingBuffer, rb);
   int *val = (int*) ring_buffer_get(rb, off, len);
   if(val) {
 	  return INT2NUM(*val); 
@@ -65,8 +65,8 @@ rbc_int_ring_buffer_get(VALUE self, VALUE roff) {
 
 VALUE
 rbc_int_ring_buffer_cursor_new(VALUE class, VALUE buffer, VALUE operator, VALUE rpredicate) {
-  ring_buffer *rb;
-	Data_Get_Struct(buffer, ring_buffer, rb);
+  RingBuffer *rb;
+	Data_Get_Struct(buffer, RingBuffer, rb);
   ring_buffer_cursor *rbc;
   if (operator == Qnil) {
     rbc = ring_buffer_cursor_new(rb, sizeof(int));

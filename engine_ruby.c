@@ -1,9 +1,4 @@
-#include "util.h"
-#include "engine_ruby.h"
-#include "engine.h"
-#include "util_ruby.h"
-#include "pstring_ruby.h"
-#include <assert.h>
+#include "sit_ruby.h"
 
 VALUE
 rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {

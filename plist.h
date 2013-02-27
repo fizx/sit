@@ -5,25 +5,25 @@
 #include "cursor.h"
 #include <stdbool.h>
 
-typedef struct plist_entry {
+typedef struct PlistEntry {
 	int doc;
 	int pos;
-} plist_entry;
+} PlistEntry;
 
-typedef struct plist_block {
-	struct plist_block *prev;
-	struct plist_block *next;
+typedef struct PlistBlock {
+	struct PlistBlock *prev;
+	struct PlistBlock *next;
  	int size;
 	int prev_version;
 	int entries_count;
-	plist_entry entries[];
-} plist_block;
+	PlistEntry entries[];
+} PlistBlock;
 
-typedef struct plist {
+typedef struct Plist {
 	struct PlistPool  *pool;
-	plist_block *last_block;
+	PlistBlock *last_block;
 	int last_version;
-} plist;
+} Plist;
 
 typedef struct free_list {
 	struct free_list *next;
@@ -37,15 +37,15 @@ typedef struct PlistPool {
 	long          region_size;
 	int          	region_count;
 	int 					default_block_size;
-	plist        *lowest_plist;
+	Plist        *lowest_plist;
   free_list    *free_list;
  	void         *next_block;
 } PlistPool;
 
 typedef struct plist_cursor {
   struct Cursor as_cursor;
-  plist *plist;
-  plist_block *block;
+  Plist *Plist;
+  PlistBlock *block;
   bool exhausted;
 } plist_cursor;
 
@@ -53,24 +53,24 @@ PlistPool *
 plist_pool_new(long size);
 
 plist_cursor *
-plist_cursor_new(plist *plist);
+plist_cursor_new(Plist *Plist);
 
-plist *
+Plist *
 plist_new(PlistPool *pool);
 
 long
-plist_size(plist *plist);
+plist_size(Plist *Plist);
 
 void
-plist_free(plist *plist);
+plist_free(Plist *Plist);
 
 void
-plist_each(plist *plist, struct Callback *handler);
+plist_each(Plist *Plist, struct Callback *handler);
 
 void
-plist_reach(plist *plist, struct Callback *handler);
+plist_reach(Plist *Plist, struct Callback *handler);
 
 void
-plist_append_entry(plist *pl, plist_entry *entry);
+plist_append_entry(Plist *pl, PlistEntry *entry);
 
 #endif

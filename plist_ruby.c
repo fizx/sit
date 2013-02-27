@@ -20,7 +20,7 @@ VALUE
 rbc_plist_new(VALUE class, VALUE rpool) {
 	PlistPool *pool;
 	Data_Get_Struct(rpool, PlistPool, pool);
-	plist *pl = plist_new(pool);
+	Plist *pl = plist_new(pool);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, pl);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
@@ -28,8 +28,8 @@ rbc_plist_new(VALUE class, VALUE rpool) {
 
 VALUE
 rbc_plist_free(VALUE self) {
-	plist *pl;
-	Data_Get_Struct(self, plist, pl);
+	Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
 	plist_free(pl);
 	rb_iv_set(self, "freed", Qtrue);
 	return Qnil;	
@@ -41,8 +41,8 @@ rbc_plist_size(VALUE self) {
 		rb_raise(rb_eRuntimeError, "already freed");
 		return Qnil;
 	}
-	plist *pl;
-	Data_Get_Struct(self, plist, pl);
+	Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
 	return INT2NUM(plist_size(pl));
 }
 
@@ -50,7 +50,7 @@ VALUE
 rbc_plist_entry_new(VALUE class, VALUE rdoc, VALUE rpos) {
 	int doc = NUM2INT(rdoc);
 	int pos = NUM2INT(rpos);
-	plist_entry *entry = malloc(sizeof(plist_entry));
+	PlistEntry *entry = malloc(sizeof(PlistEntry));
 	entry->doc = doc;
 	entry->pos = pos;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, entry);
@@ -64,20 +64,20 @@ rbc_plist_append(VALUE self, VALUE rentry) {
 		rb_raise(rb_eRuntimeError, "already freed");
 		return Qnil;
 	}
-	plist_entry *entry;
-	Data_Get_Struct(rentry, plist_entry, entry);
-	plist *pl;
-	Data_Get_Struct(self, plist, pl);
+	PlistEntry *entry;
+	Data_Get_Struct(rentry, PlistEntry, entry);
+	Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
 	plist_append_entry(pl, entry);
 	return Qnil;
 }
 
 void
 _rb_each(Callback *cb, void *ventry) {	
-	plist_entry *entry = ventry;
+	PlistEntry *entry = ventry;
 	(void) cb;
-	plist_entry *dup = malloc(sizeof(plist_entry));
-	memcpy(dup, entry, sizeof(plist_entry));
+	PlistEntry *dup = malloc(sizeof(PlistEntry));
+	memcpy(dup, entry, sizeof(PlistEntry));
 	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), markall, NULL, dup);
 	rb_obj_call_init(tdata, 0, NULL);
 	rb_yield(tdata);
@@ -90,8 +90,8 @@ rbc_plist_each(VALUE self) {
 		return Qnil;
 	}
 	if (rb_block_given_p()) { 
-		plist *pl;
-		Data_Get_Struct(self, plist, pl);
+		Plist *pl;
+		Data_Get_Struct(self, Plist, pl);
 		Callback iterator;
 		iterator.handler = _rb_each;
 		plist_reach(pl, &iterator);
@@ -101,8 +101,8 @@ rbc_plist_each(VALUE self) {
 
 VALUE
 rbc_plist_new_cursor(VALUE self) {
-  plist *pl;
-	Data_Get_Struct(self, plist, pl);
+  Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
   assert(pl);
   plist_cursor *cursor = plist_cursor_new(pl);
   if (cursor == NULL) {
@@ -135,12 +135,12 @@ rbc_plist_cursor_entry(VALUE self) {
   plist_cursor *cursor;
 	Data_Get_Struct(self, plist_cursor, cursor);
 	Cursor *sc = &cursor->as_cursor;
-  plist_entry *entry = sc->data;
+  PlistEntry *entry = sc->data;
   if(entry == NULL) {
     return Qnil;
   } else {
-    plist_entry *dup = malloc(sizeof(plist_entry));
-  	memcpy(dup, entry, sizeof(plist_entry));
+    PlistEntry *dup = malloc(sizeof(PlistEntry));
+  	memcpy(dup, entry, sizeof(PlistEntry));
     VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::PlistEntry"), markall, NULL, dup);
   	rb_obj_call_init(tdata, 0, NULL);
     return tdata;
@@ -149,8 +149,8 @@ rbc_plist_cursor_entry(VALUE self) {
 
 VALUE 
 rbc_plist_entry_to_s(VALUE self) {
-	plist_entry *entry;
-	Data_Get_Struct(self, plist_entry, entry);
+	PlistEntry *entry;
+	Data_Get_Struct(self, PlistEntry, entry);
 	char *val;
 	asprintf(&val, "<%d:%d>", entry->doc, entry->pos);
 	VALUE out = rb_str_new2(val);
@@ -160,10 +160,10 @@ rbc_plist_entry_to_s(VALUE self) {
 
 VALUE 
 rbc_plist_entry_equals(VALUE self, VALUE other) {
-	plist_entry *a;
-	Data_Get_Struct(self, plist_entry, a);
-	plist_entry *b;
-	Data_Get_Struct(other, plist_entry, b);
+	PlistEntry *a;
+	Data_Get_Struct(self, PlistEntry, a);
+	PlistEntry *b;
+	Data_Get_Struct(other, PlistEntry, b);
 	return (a->doc == b->doc && a->pos == b->pos) ? Qtrue : Qfalse;
 }
 
@@ -173,8 +173,8 @@ rbc_plist_ptr(VALUE self) {
 		rb_raise(rb_eRuntimeError, "already freed");
 		return Qnil;
 	}
-	plist *pl;
-	Data_Get_Struct(self, plist, pl);
+	Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
 	return LONG2NUM((long) pl);
 }
 
@@ -184,8 +184,8 @@ rbc_plist_region(VALUE self) {
 		rb_raise(rb_eRuntimeError, "already freed");
 		return Qnil;
 	}
-	plist *pl;
-	Data_Get_Struct(self, plist, pl);
+	Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
 	if(plist_size(pl) == 0) {
 		return Qnil;
 	} else {
@@ -201,12 +201,12 @@ rbc_plist_blocks_count(VALUE self) {
 		rb_raise(rb_eRuntimeError, "already freed");
 		return Qnil;
 	}
-	plist *pl;
-	Data_Get_Struct(self, plist, pl);
+	Plist *pl;
+	Data_Get_Struct(self, Plist, pl);
 	int min = pl->pool->min_version;
 	int count = 0;
 	if(pl->last_version >= min) {
-		plist_block *block = pl->last_block;
+		PlistBlock *block = pl->last_block;
 		while(block) {
 			count++;
 			if(block->prev_version >= min) {

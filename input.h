@@ -1,23 +1,22 @@
-#ifndef SIT_INPUT_H_INCLUDED
-#define SIT_INPUT_H_INCLUDED
+#ifndef INPUT_H_INCLUDED
+#define INPUT_H_INCLUDED
 
-#include "sit.h"
 #include "term.h"
 
-typedef struct sit_output {
+typedef struct Output {
 	void *data;
-  void (*write)(struct sit_output *output, pstring *message);
-  void (*close)(struct sit_output *output);
-} sit_output;
+  void (*write)(struct Output *output, pstring *message);
+  void (*close)(struct Output *output);
+} Output;
 
-typedef enum { REGISTERING, QUERYING } query_parser_mode;
+typedef enum { REGISTERING, QUERYING } QueryParserMode;
 
-typedef struct query_id_node {
+typedef struct QueryIdNode {
   long query_id;
-  struct query_id_node *next;
-} query_id_node;
+  struct QueryIdNode *next;
+} QueryIdNode;
 
-typedef struct sit_input {
+typedef struct Input {
 	struct Receiver as_receiver;
   struct Engine *engine;
 	Parser      *parser;
@@ -32,28 +31,28 @@ typedef struct sit_input {
   
   pstring *stream;
   
-  query_parser_mode qparser_mode;
-  query_id_node    *query_ids;
+  QueryParserMode qparser_mode;
+  QueryIdNode    *query_ids;
   
-  sit_output      *output;
+  Output      *output;
   pstring *error;
 
 	void *data;
 
 	struct sit_term         terms[1];
-} sit_input;
+} Input;
 
-sit_input *
+Input *
 sit_input_new(struct Engine *engine, int term_capacity, long buffer_size);
 
 void
-sit_input_consume(struct sit_input *input, pstring *pstr);
+sit_input_consume(struct Input *input, pstring *pstr);
 
 void 
 sit_input_error_found(Receiver *receiver, pstring *name);
 
 void 
-sit_input_end_stream(struct sit_input *input);
+sit_input_end_stream(struct Input *input);
 
 void 
 sit_input_term_found(Receiver *input, pstring *pstr, int field_offset);

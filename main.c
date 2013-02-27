@@ -11,13 +11,13 @@ usage() {
 }
 
 void
-stdout_write(sit_output *output, pstring *data) {
+stdout_write(Output *output, pstring *data) {
   (void) output;
   printf("%.*s\n", data->len, data->val);
 }
 
 void 
-stdout_close(sit_output *output) {
+stdout_close(Output *output) {
   (void) output;
 }
 
@@ -90,8 +90,8 @@ main(int argc, char **argv) {
   {
 #endif
   
-  	sit_input *input = sit_input_new(engine, engine->term_capacity, BUF_SIZE);
-    input->output = malloc(sizeof(sit_output));
+  	Input *input = sit_input_new(engine, engine->term_capacity, BUF_SIZE);
+    input->output = malloc(sizeof(Output));
     input->output->write = stdout_write;
     input->output->close = stdout_close;
     sit_protocol_parser *pparser = sit_line_input_protocol_new(input);

@@ -27,7 +27,7 @@ describe "PlistPool" do
   end
 
   it "should be able to wrap regions" do
-  plist = Plist.new @pool
+    plist = Plist.new @pool
     plist.region.should == nil
     plist.append(PlistEntry.new(1, 2))
     plist.region.should == 0
@@ -43,8 +43,8 @@ describe "PlistPool" do
   end
   
   it "should be able to cursor" do
-  plist = Plist.new @pool
-  100.times do |i|
+    plist = Plist.new @pool
+    100.times do |i|
       plist.append(PlistEntry.new(i, i))
     end
     
@@ -59,36 +59,36 @@ describe "PlistPool" do
 
     cursor.entry.should be_nil
   end
-  #   
-  # 
-  # it "should be able to create plists" do
-  #   a = Plist.new @pool
-  #   a.size.should == 0
-  #   b = Plist.new @pool
-  #   a.should_not == b
-  #   a.ptr.should_not == b.ptr
-  #   end
-  #   
-  #   it "should be able to add to plists" do
-  #   plist = Plist.new @pool
-  #   plist.append(PlistEntry.new(1, 2))
-  #   plist.append(PlistEntry.new(2, 3))
-  #   plist.size.should == 2
-  #   plist.blocks_count.should == 1
-  #   plist.to_a.should == [PlistEntry.new(2, 3), PlistEntry.new(1, 2)]
-  #   plist.to_a.to_s.should == "[<2:3>, <1:2>]"
-  #   end
-  #   
-  #   it "should create more blocks when full" do
-  #     plist = Plist.new @pool
-  #     ary = []
-  #     100.times do |i|
-  #       entry = PlistEntry.new(i, i)
-  #       plist.append(entry)
-  #       ary << entry
-  #   end
-  #   plist.size.should == 100
-  #   plist.blocks_count.should == 2
-  #   plist.to_a.should == ary.reverse
-  #   end
+    
+  
+  it "should be able to create plists" do
+    a = Plist.new @pool
+    a.size.should == 0
+    b = Plist.new @pool
+    a.should_not == b
+    a.ptr.should_not == b.ptr
+  end
+  
+  it "should be able to add to plists" do
+    plist = Plist.new @pool
+    plist.append(PlistEntry.new(1, 2))
+    plist.append(PlistEntry.new(2, 3))
+    plist.size.should == 2
+    plist.blocks_count.should == 1
+    plist.to_a.should == [PlistEntry.new(2, 3), PlistEntry.new(1, 2)]
+    plist.to_a.to_s.should == "[<2:3>, <1:2>]"
+  end
+    
+  it "should create more blocks when full" do
+    Plist = Plist.new @pool
+    ary = []
+    100.times do |i|
+      entry = PlistEntry.new(i, i)
+      Plist.append(entry)
+      ary << entry
+    end
+    Plist.size.should == 100
+    Plist.blocks_count.should == 2
+    Plist.to_a.should == ary.reverse
+  end
 end

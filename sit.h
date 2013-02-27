@@ -38,7 +38,7 @@ struct lrw_type;
 #include "ring_buffer.h"
 #include "callback.h"
 #include "cursor.h"
-#include "plist.h"
+#include "Plist.h"
 #include "input.h"
 #include "engine.h"
 #include "parser.h"

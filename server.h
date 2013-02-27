@@ -6,7 +6,7 @@
 #include "engine.h"
 #include "input.h"
 struct Engine;
-struct sit_input;
+struct Input;
 
 typedef struct {
 	struct ev_io        as_io;

@@ -5,16 +5,16 @@
 #include "cursor.h"
 #include "pstring.h"
 
-typedef struct ring_buffer {
+typedef struct RingBuffer {
 	long capacity;
 	long offset;
 	long written;
 	char *buffer;
-} ring_buffer;
+} RingBuffer;
 
 typedef struct ring_buffer_cursor {
   struct Cursor as_cursor;
-  ring_buffer *rb;
+  RingBuffer *rb;
   long width;
   long pos;
   char operator;
@@ -22,25 +22,25 @@ typedef struct ring_buffer_cursor {
 } ring_buffer_cursor;
 
 ring_buffer_cursor *
-ring_buffer_cursor_new(ring_buffer *rb, long width);
+ring_buffer_cursor_new(RingBuffer *rb, long width);
 
-ring_buffer *
+RingBuffer *
 ring_buffer_new(long size);
 
 void
-ring_buffer_free(ring_buffer *rb);
+ring_buffer_free(RingBuffer *rb);
 
 void
-ring_buffer_append(ring_buffer *rb, void *obj, int len);
+ring_buffer_append(RingBuffer *rb, void *obj, int len);
 
 void
-ring_buffer_reset(ring_buffer *rb);
+ring_buffer_reset(RingBuffer *rb);
 
 void *
-ring_buffer_get(ring_buffer *rb, long off, int len);
+ring_buffer_get(RingBuffer *rb, long off, int len);
 
 void
-ring_buffer_put(ring_buffer *rb, long off, void *obj, int len);
+ring_buffer_put(RingBuffer *rb, long off, void *obj, int len);
 
 void
 ring_buffer_append_pstring(void *rb, pstring *pstr);
@@ -49,6 +49,6 @@ pstring *
 ring_buffer_get_pstring(void *rb, long off, int len);
 
 ring_buffer_cursor *
-ring_buffer_predicate_int_cursor_new(ring_buffer *rb, long width, char operator, int predicate);
+ring_buffer_predicate_int_cursor_new(RingBuffer *rb, long width, char operator, int predicate);
 
 #endif

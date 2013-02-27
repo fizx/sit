@@ -12,20 +12,20 @@ typedef struct Engine {
   // Data structures & indexes
   dict                  *queries;  // Registered for percolation
   Parser                *parser;
-  struct ring_buffer    *stream;
+  struct RingBuffer     *stream;
   struct LRWDict        *term_dictionary;
   struct PlistPool      *postings;
 
-  dict           *ints;
-  long            ints_capacity;
+  dict                  *ints;
+  long                   ints_capacity;
  
   // fields used to manage the current document
-  dict            *term_index;
-  int              term_count;
-  pstring         *field;
-  int              term_capacity;
-  struct ring_buffer     *docs;
-	struct sit_input       *current_input;
+  dict                  *term_index;
+  int                    term_count;
+  pstring               *field;
+  int                    term_capacity;
+  struct RingBuffer     *docs;
+	struct Input      *current_input;
 
   // User-settable
   void *data;

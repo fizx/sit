@@ -5,7 +5,7 @@ plist_pool_new(long size) {
 	PlistPool *pool = malloc(sizeof(PlistPool));
 	pool->capacity = size;
 	pool->buffer = malloc(size);
-	pool->next_block = (plist_block *)pool->buffer;
+	pool->next_block = (PlistBlock *)pool->buffer;
 	pool->default_block_size = 512; // bytes
 	pool->region_size = size / 16;
 	pool->region_count = 16;
@@ -18,7 +18,7 @@ long
 plist_cursor_document_id(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;
   if(cursor->as_cursor.data != NULL) {
-    return ((plist_entry *)cursor->as_cursor.data)->doc;
+    return ((PlistEntry *)cursor->as_cursor.data)->doc;
   } else {
     return -1;
   }
@@ -30,9 +30,9 @@ plist_cursor_prev(Cursor *scursor) {
   if(cursor->exhausted) {
     return false;
   }
-  plist *pl = cursor->plist;
+  Plist *pl = cursor->Plist;
   PlistPool *pool = pl->pool;
-  plist_entry * entry = cursor->as_cursor.data;
+  PlistEntry * entry = cursor->as_cursor.data;
   
   if(cursor->block == NULL) {
     if(pl->last_block && pl->last_version >= pool->min_version) {
@@ -72,7 +72,7 @@ plist_cursor_prev(Cursor *scursor) {
       return false;
     }
   } else {
-    cursor->as_cursor.data = ((plist_entry*) cursor->as_cursor.data) - 1;
+    cursor->as_cursor.data = ((PlistEntry*) cursor->as_cursor.data) - 1;
     return true;
   }
 }
@@ -84,7 +84,7 @@ plist_cursor_next(Cursor *scursor) {
   return false;
 }
 
-plist_entry *
+PlistEntry *
 plist_cursor_entry(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;
   return cursor->exhausted ? NULL : cursor->as_cursor.data;
@@ -105,10 +105,10 @@ plist_cursor_seek_lte(Cursor *scursor, long value) {
 }
 
 
-plist *
+Plist *
 plist_new(PlistPool *pool) {
 	assert(pool);
-	plist *pl = malloc(sizeof(plist));
+	Plist *pl = malloc(sizeof(Plist));
 	pl->pool = pool;
 	pl->last_block = NULL;
 	pl->last_version = INT_MIN;
@@ -116,13 +116,13 @@ plist_new(PlistPool *pool) {
 }
 
 void 
-plist_free(plist *pl) {
+plist_free(Plist *pl) {
   (void) pl;
 	// free(pl);
 }
 
 plist_cursor *
-plist_cursor_new(plist *pl) {
+plist_cursor_new(Plist *pl) {
   assert(pl);
   plist_cursor *cursor = malloc(sizeof(plist_cursor));
   cursor->as_cursor.prev = plist_cursor_prev;
@@ -130,14 +130,14 @@ plist_cursor_new(plist *pl) {
   cursor->as_cursor.id = plist_cursor_document_id;
   cursor->as_cursor.seek_lte = plist_cursor_seek_lte;
   cursor->as_cursor.data = NULL;
-  cursor->plist = pl;
+  cursor->Plist = pl;
   cursor->block = NULL;
   cursor->exhausted = false;
   return cursor;
 }
 
-plist_block *
-plist_append_block(plist *pl) {
+PlistBlock *
+plist_append_block(Plist *pl) {
 	PlistPool *pool = pl->pool;
 	char *next_block = pool->next_block;
 	int current_region = pool->current_version % pool->region_count;
@@ -157,7 +157,7 @@ plist_append_block(plist *pl) {
 		next_block = ((char*)pool->buffer) + current_region * pool->region_size;
 	}
 	
-	plist_block *block = (void *) next_block;
+	PlistBlock *block = (void *) next_block;
 	block->prev = pl->last_block;
 	block->prev_version = pl->last_version;
 	block->entries_count = 0;
@@ -173,7 +173,7 @@ plist_append_block(plist *pl) {
 }
 
 bool
-plist_block_is_full(plist_block *block) {
+plist_block_is_full(PlistBlock *block) {
 	long size = block->size;
 	char *base = (char *) block;
 	char *next = (char *) &block->entries[block->entries_count + 1];
@@ -181,8 +181,8 @@ plist_block_is_full(plist_block *block) {
 }
 
 void
-plist_append_entry(plist *pl, plist_entry *entry) {
-	plist_block *block;
+plist_append_entry(Plist *pl, PlistEntry *entry) {
+	PlistBlock *block;
 	if(pl->last_block == NULL || 
 	   pl->last_version < pl->pool->current_version ||
 	   plist_block_is_full(pl->last_block)) {
@@ -190,7 +190,7 @@ plist_append_entry(plist *pl, plist_entry *entry) {
 	} else {
 		block = pl->last_block;
 	}
-	memcpy(&block->entries[block->entries_count++], entry, sizeof(plist_entry));
+	memcpy(&block->entries[block->entries_count++], entry, sizeof(PlistEntry));
 }
 
 void
@@ -200,29 +200,29 @@ _count(Callback *cb, void *entry) {
 }
 
 long
-plist_size(plist *plist) {
+plist_size(Plist *Plist) {
 	Callback counter;
 	int count = 0;
 	counter.handler = _count;
 	counter.user_data = &count;
-	plist_reach(plist, &counter);
+	plist_reach(Plist, &counter);
 	return count;
 }
 
 
 
 void
-plist_each(plist *pl, Callback *iterator) {
+plist_each(Plist *pl, Callback *iterator) {
 	//TODO: impl
 	(void) pl;
 	(void) iterator;
 }
 
 void
-plist_reach(plist *pl, Callback *iterator) {
+plist_reach(Plist *pl, Callback *iterator) {
 	int min = pl->pool->min_version;
 	if(pl->last_version >= min) {
-		plist_block *block = pl->last_block;
+		PlistBlock *block = pl->last_block;
 		while(block) {
 			for (int i = block->entries_count - 1; i >= 0; i--) {
 				iterator->handler(iterator, &block->entries[i]);

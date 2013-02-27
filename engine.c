@@ -256,7 +256,7 @@ void
 sit_engine_index(Engine *engine, long doc_id) {
 	for (int i = 0; i < INPUTISH(term_count); i++) {
 		sit_term *term = &INPUTISH(terms)[i];
-		plist *value = lrw_dict_get(engine->term_dictionary, term);
+		Plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
 			lrw_dict_put(engine->term_dictionary, sit_term_copy(term), value);
@@ -265,7 +265,7 @@ sit_engine_index(Engine *engine, long doc_id) {
       lrw_dict_tap(engine->term_dictionary, term);
 			assert(lrw_dict_get(engine->term_dictionary, term));
 		}
-    plist_entry entry = { doc_id, term->offset };
+    PlistEntry entry = { doc_id, term->offset };
 		plist_append_entry(value, &entry);
 	}
 }
@@ -332,10 +332,10 @@ sit_engine_search(Engine *engine, Query *query) {
       Cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
-          ring_buffer *rb = dictFetchValue(engine->ints, term->field);
+          RingBuffer *rb = dictFetchValue(engine->ints, term->field);
           cursor = rb == NULL ? NULL : &ring_buffer_predicate_int_cursor_new(rb, sizeof(int), term->text->val[0], term->offset)->as_cursor;
         } else {
-          plist *pl = lrw_dict_get(engine->term_dictionary, term);
+          Plist *pl = lrw_dict_get(engine->term_dictionary, term);
           cursor = pl == NULL ? NULL : &plist_cursor_new(pl)->as_cursor;
           dictAdd(iter->cursors, term, cursor);
         }
@@ -517,7 +517,7 @@ sit_engine_document_found(Receiver *receiver, long off, int len) {
 
 int *
 sit_engine_get_int(Engine *engine, long doc_id, pstring *field) {
-  ring_buffer *rb = dictFetchValue(engine->ints, field);
+  RingBuffer *rb = dictFetchValue(engine->ints, field);
   long off = doc_id * sizeof(int);
   if(rb == NULL ||
     (off + sizeof(int) > rb->written) ||
@@ -532,7 +532,7 @@ sit_engine_get_int(Engine *engine, long doc_id, pstring *field) {
 void
 sit_engine_set_int(Engine *engine, long doc_id, pstring *field, int value) {
   //FIXME?!
-  ring_buffer *rb = dictFetchValue(engine->ints, field);
+  RingBuffer *rb = dictFetchValue(engine->ints, field);
   assert(field);
   if(rb == NULL) {
     rb = ring_buffer_new(engine->ints_capacity);
