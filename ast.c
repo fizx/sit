@@ -1,6 +1,4 @@
-#include "util.h"
-#include "ast.h"
-#include <stdlib.h>
+#include "sit.h"
 
 ast_t *
 ast_new(void *(*fmake)(), void (*ffree)(void *)) {

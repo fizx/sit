@@ -1,6 +1,4 @@
-#include "ast_ruby.h"
-#include "ast.h"
-#include "util_ruby.h"
+#include "sit_ruby.h"
 
 void *
 wrapnil() {

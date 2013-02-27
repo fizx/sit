@@ -1,10 +1,4 @@
-#include "callback.h"
-#include "callback_ruby.h"
-#include "pstring_ruby.h"
-#include "util_ruby.h"
-#include "query.h"
-#include "query_ruby.h"
-#include <assert.h>
+#include "sit_ruby.h"
 
 void _cb_mark(void *data) {
 	sit_callback *cb = (sit_callback *)data;

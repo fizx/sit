@@ -1,5 +1,4 @@
-#include "callback.h"
-#include <stdlib.h>
+#include "sit.h"
 
 sit_callback *
 sit_callback_new() {
