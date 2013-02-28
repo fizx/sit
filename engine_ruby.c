@@ -193,12 +193,10 @@ rbc_engine_unregister(VALUE self, VALUE id) {
 }
 
 VALUE 
-rbc_engine_document_found(VALUE self, VALUE roff, VALUE rlen) {
+rbc_engine_document_found(VALUE self, VALUE rstr) {
   Engine *engine;
 	Data_Get_Struct(self, Engine, engine);
-  long off = NUM2LONG(roff);
-  int len = NUM2INT(rlen);
-  engine_document_found((Receiver*)engine, off, len);
+  engine_document_found((Receiver*)engine, r2pstring(rstr));
 	return Qnil;
 }
 

@@ -58,7 +58,7 @@ VALUE
 rbc_engine_incr(VALUE self, VALUE rid, VALUE rfield, VALUE rvalue);
 
 VALUE 
-rbc_engine_document_found(VALUE self, VALUE roff, VALUE rlen);
+rbc_engine_document_found(VALUE self, VALUE rstr);
 
 VALUE 
 rbc_engine_field_found(VALUE self, VALUE rstr);
