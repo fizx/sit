@@ -16,14 +16,8 @@ typedef struct Engine {
 
   dict                  *ints;
   long                   ints_capacity;
- 
-  // fields used to manage the current document
-  dict                  *term_index;
-  int                    term_count;
-  pstring               *field;
-  int                    term_capacity;
   struct RingBuffer     *docs;
-
+ 
   // User-settable
   void *data;
   
@@ -64,9 +58,6 @@ engine_new(Parser *parser, long size);
 ResultIterator *
 engine_search(Engine *engine, Query *query);
 
-void 
-engine_document_found(Callback *cb, void *data);
-
 int *
 engine_get_int(Engine *engine, long doc_id, pstring *field);
 
@@ -84,9 +75,6 @@ engine_get_document(Engine *engine, long doc_id);
 
 long
 engine_last_document_id(Engine *engine);
-
-void
-engine_consume(Engine *engine, pstring *pstr);
 
 void
 engine_percolate(Engine *engine, DocBuf *buffer, long doc_id);

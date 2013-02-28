@@ -25,7 +25,6 @@ VALUE rbc_result_iterator;
 VALUE rbc_query_parser;
 VALUE rbc_json_parser;
 VALUE rbc_input;
-VALUE rbc_forwardable;
 VALUE rbc_protocol;
 VALUE rbc_line_protocol;
 VALUE rbc_server;
@@ -37,8 +36,6 @@ Init_sit() {
 	VALUE m_sit = rb_define_module("Sit");
 	rb_define_singleton_method(m_sit, "test_mode=", rbc_setTestMode, 1);
 	rb_define_singleton_method(m_sit, "test_mode", rbc_isTestMode, 0);
-	
-	rbc_forwardable = rb_define_module_under(m_sit, "Forwardable");
 	
 	// PString
 	rbc_pstring = rb_define_class_under(m_sit, "PString", rb_cObject);
@@ -128,15 +125,8 @@ Init_sit() {
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
 	rb_define_singleton_method(rbc_parser, "new_json", rbc_parser_new_json, 0);
-	rb_define_singleton_method(rbc_parser, "new_whitespace", rbc_parser_new_whitespace, 0);
-	rb_define_method(rbc_parser, "receiver=", rbc_parser_set_receiver, 1);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
-	rb_define_method(rbc_parser, "term_found", rbc_parser_term_found, 2);
-	rb_define_method(rbc_parser, "document_found", rbc_parser_document_found, 1);
-	rb_define_method(rbc_parser, "field_found", rbc_parser_field_found, 1);
-	rb_define_method(rbc_parser, "int_found", rbc_parser_int_found, 1);
 	rb_define_method(rbc_parser, "end_stream", rbc_parser_end_stream, 0);
-	rb_include_module(rbc_parser, rbc_forwardable);
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
@@ -149,16 +139,10 @@ Init_sit() {
 	rb_define_method(rbc_engine, "queries", rbc_engine_queries, 0);
 	rb_define_method(rbc_engine, "last_document", rbc_engine_last_document, 0);
 	rb_define_method(rbc_engine, "last_document_id", rbc_engine_last_document_id, 0);
-	rb_define_method(rbc_engine, "get_document", rbc_engine_get_document, 1);
 	rb_define_method(rbc_engine, "search", rbc_engine_search, 1);
 	rb_define_method(rbc_engine, "get_int", rbc_engine_get_int, 2);
 	rb_define_method(rbc_engine, "incr", rbc_engine_incr, 3);
 	rb_define_method(rbc_engine, "set_int", rbc_engine_set_int, 3);
-	rb_define_method(rbc_engine, "document_found", rbc_engine_document_found, 2);
-	rb_define_method(rbc_engine, "field_found", rbc_engine_field_found, 1);
-	rb_define_method(rbc_engine, "int_found", rbc_engine_int_found, 1);
-	rb_define_method(rbc_engine, "term_found", rbc_engine_term_found, 2);
-	rb_include_module(rbc_engine, rbc_forwardable);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);
@@ -217,7 +201,6 @@ Init_sit() {
 	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 4);
 	rb_define_method(rbc_input, "consume", rbc_input_consume, 1);
 	rb_define_method(rbc_input, "end_stream", rbc_input_end_stream, 0);
-	rb_include_module(rbc_input, rbc_forwardable);
 
 	// Protocol
   rbc_protocol = rb_define_class_under(m_sit, "Protocol", rb_cObject);

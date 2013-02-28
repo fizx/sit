@@ -14,7 +14,6 @@ typedef struct unregister_data {
 
 Engine *
 engine_new(Parser *parser, long size) {
-	int tc = size / 64;
   Engine *engine = malloc(sizeof(Engine));
 	engine->queries = dictCreate(getTermDict(), 0);
 	engine->parser = parser;
@@ -23,11 +22,7 @@ engine_new(Parser *parser, long size) {
 	engine->stream = ring_buffer_new(size / 4);
 	engine->term_dictionary = lrw_dict_new(getTermDict(), getTermLrw(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
-	engine->term_index = dictCreate(getTermDict(), 0);
-	engine->term_count = 0;
-	engine->field = c2pstring("default");
 	engine->docs = ring_buffer_new((size / 4 / sizeof(doc_ref)) * sizeof(doc_ref));
-	engine->term_capacity = tc;
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
 	engine->ints = dictCreate(getPstrDict(), 0);
@@ -459,17 +454,14 @@ engine_unregister(Engine *engine, long query_id) {
 }
 
 void
-engine_consume(Engine *engine, pstring *pstr) {
-	engine->parser->consume(engine->parser, pstr);
-}
-
-void
 _engine_apply_ints(Engine *engine, DocBuf *buffer, long doc_id) {  
   dictIterator *iter = dictGetIterator(engine->ints);
   dictEntry *entry;
   while ((entry = dictNext(iter))) {
-    engine->field = dictGetKey(entry);
-    engine_set_int(engine, doc_id, dictGetKey(entry), dictGetSignedIntegerVal(entry));
+    pstring *key = dictGetKey(entry);
+    dictEntry *other = dictFind(buffer->ints, key);
+    int val = other ? dictGetSignedIntegerVal(other) : 0;
+    engine_set_int(engine, doc_id, key, val);
   }
   dictReleaseIterator(iter);
 }
