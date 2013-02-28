@@ -193,42 +193,6 @@ rbc_engine_unregister(VALUE self, VALUE id) {
 }
 
 VALUE 
-rbc_engine_document_found(VALUE self, VALUE rstr) {
-  Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-  engine_document_found((Receiver*)engine, r2pstring(rstr));
-	return Qnil;
-}
-
-VALUE 
-rbc_engine_field_found(VALUE self, VALUE rstr) {
-  Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-  pstring *pstr = r2pstring(rstr);
-  engine_field_found((Receiver*)engine, pstr);
-	return Qnil;
-}
-
-VALUE 
-rbc_engine_int_found(VALUE self, VALUE rval) {
-  Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-  int val = NUM2INT(rval);
-  engine_int_found((Receiver*)engine, val);
-	return Qnil;
-}
-
-VALUE 
-rbc_engine_term_found(VALUE self, VALUE rstr, VALUE rfield_offset) {
-  Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-  pstring *str = r2pstring(rstr);
-  int field_offset = NUM2INT(rfield_offset);
-  engine_term_found((Receiver*)engine, str, field_offset);
-	return Qnil;
-}
-
-VALUE 
 rbc_engine_register(VALUE self, VALUE rquery) {
 	Query *query;
 	Data_Get_Struct(rquery, Query, query);

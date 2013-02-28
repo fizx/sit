@@ -26,7 +26,6 @@ VALUE rbc_query_parser;
 VALUE rbc_json_parser;
 VALUE rbc_input;
 VALUE rbc_forwardable;
-VALUE rbc_receiver;
 VALUE rbc_protocol;
 VALUE rbc_line_protocol;
 VALUE rbc_server;
@@ -53,11 +52,6 @@ Init_sit() {
 	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
 	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
 	
-	// Receiver
-	rbc_receiver = rb_define_class_under(m_sit, "Receiver", rb_cObject);
-	rb_define_singleton_method(rbc_receiver, "new", rbc_receiver_new, 0);
-	rb_include_module(rbc_receiver, rbc_forwardable);
-
 	// AST::Node
 	rbc_ast_node = rb_define_class_under(m_sit, "ASTNode", rb_cObject);
 	rb_define_singleton_method(rbc_ast_node, "new", rbc_ast_node_new, 2);

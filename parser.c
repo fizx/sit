@@ -5,7 +5,8 @@ default_fresh_copy(Parser *parser) {
 	Parser *copy = parser_new();
 	copy->consume = parser->consume;
 	SET_ONCE(copy->data, parser->data);
-	SET_ONCE(copy->receiver, parser->receiver);
+	SET_ONCE(copy->on_document, parser->on_document);
+	SET_ONCE(copy->on_error, parser->on_error);
 	return copy;
 }
 

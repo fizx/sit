@@ -493,7 +493,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[23] =
 
 #include "sit.h"
 
-#define YY_EXTRA_TYPE query_parser*
+#define YY_EXTRA_TYPE QueryParser*
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
 #define YY_INPUT(cbuf, offset, max_size)  {                                   \
@@ -2156,8 +2156,8 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 
 ASTNode *
-query_node_new(query_parser *qp, query_node_type type) {
-  query_node *node = malloc(sizeof(query_node));
+query_node_new(QueryParser *qp, QNodeType type) {
+  QNode *node = malloc(sizeof(QNode));
   node->type     = type;
   node->field    = NULL;
   node->val      = NULL;
@@ -2170,15 +2170,15 @@ query_node_new(query_parser *qp, query_node_type type) {
   return ast_node;
 }
 
-query_parser *
+QueryParser *
 query_parser_new(Callback *cb) {
-  query_parser *parser = malloc(sizeof(query_parser));
+  QueryParser *parser = malloc(sizeof(QueryParser));
   parser->buf = NULL;
   parser->error = NULL;
   parser->ast = ast_new(NULL, free);
   parser->root = NULL;
-  parser->cb = cb;
-  parser->tokenizer = white_parser_new();
+  parser->on_query = cb;
+  parser->tokenizer = white_tokenizer_new();
   parser->push_state = yypstate_new();
   parser->lvalp = malloc(sizeof(YYSTYPE));
   parser->llocp = malloc(sizeof(YYLTYPE));
@@ -2188,14 +2188,14 @@ query_parser_new(Callback *cb) {
 }
 
 void
-query_parser_reset(query_parser *parser) {
+query_parser_reset(QueryParser *parser) {
   parser->push_state = yypstate_new();
   yylex_init(&parser->scanner);
   yyset_extra(parser,parser->scanner);
 }
 
 int
-query_parser_consume(query_parser *parser, pstring *pstr) {
+query_parser_consume(QueryParser *parser, pstring *pstr) {
   assert(pstr);
   parser->buf = pstr;
   parser->done = false;
@@ -2212,10 +2212,10 @@ query_parser_consume(query_parser *parser, pstring *pstr) {
   return status;
 }
 
-#define Q(node)     ((query_node *)(node->data))
+#define Q(node)     ((QNode *)(node->data))
 #define NEXT(obj)   (obj ? obj->next : NULL)
 void 
-associate_ands(query_parser *context, ASTNode *node) {
+associate_ands(QueryParser *context, ASTNode *node) {
   if(!node) return;
   ASTNode *op    = node->next;
   ASTNode *other = NEXT(op);
@@ -2233,7 +2233,7 @@ associate_ands(query_parser *context, ASTNode *node) {
 }
 
 void 
-combine_ors(query_parser *context, ASTNode *node) {
+combine_ors(QueryParser *context, ASTNode *node) {
   if(!node) return;
   ASTNode *op    = node->next;
   ASTNode *other = NEXT(op);
@@ -2251,7 +2251,7 @@ combine_ors(query_parser *context, ASTNode *node) {
 }
 
 void
-demorgans(query_parser *context, ASTNode *node) {
+demorgans(QueryParser *context, ASTNode *node) {
   if(!node) return;
   ASTNode *tmp;
   
@@ -2304,7 +2304,7 @@ demorgans(query_parser *context, ASTNode *node) {
 
 
 void
-unwrap_exprs(query_parser *context, ASTNode *node) {
+unwrap_exprs(QueryParser *context, ASTNode *node) {
   if(!node) return;
   unwrap_exprs(context, node->next);
   unwrap_exprs(context, node->child);
@@ -2314,7 +2314,7 @@ unwrap_exprs(query_parser *context, ASTNode *node) {
 }
 
 void 
-merge_bools(query_parser *context, ASTNode *node, query_node_type type) {
+merge_bools(QueryParser *context, ASTNode *node, QNodeType type) {
   if(!node) return;
   merge_bools(context, node->next, type);
   merge_bools(context, node->child, type);
@@ -2338,7 +2338,7 @@ merge_bools(query_parser *context, ASTNode *node, query_node_type type) {
 }
 
 void 
-bubble_ors(query_parser *context, ASTNode *node) {
+bubble_ors(QueryParser *context, ASTNode *node) {
   if(!node) return;
 
   ASTNode *parent = node->parent;
@@ -2368,29 +2368,21 @@ bubble_ors(query_parser *context, ASTNode *node) {
 }
 
 void
-add_token(Receiver *receiver, pstring *val, int field_offset) {
-  query_parser *context = receiver->data;
+add_token(Callback *cb, void *data) {
+  Token *token = data;
+  QueryParser *context = cb->user_data;
   ASTNode *node = context->tmp;
   pstring *field = Q(node)->field;
-  Q(node)->num = field_offset;
+  Q(node)->num = token->offset;
   ASTNode *term = query_node_new(context, TERM);
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
-  Q(term)->val = val;
+  Q(term)->val = pcpy(token->text);
   ast_node_append_child(node, term);
 }
 
-Receiver token_receiver = {
-  add_token,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-	NULL
-};
-
 void
-expand_clauses(query_parser *context, ASTNode *node) {
+expand_clauses(QueryParser *context, ASTNode *node) {
   if(!node) return;
 
   if(Q(node)->type == CLAUSE) {
@@ -2399,8 +2391,7 @@ expand_clauses(query_parser *context, ASTNode *node) {
     ASTNode *val = node->child->next->next;
     if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
       Q(node)->type = ANDS;
-      context->tokenizer->receiver = &token_receiver;
-      context->tokenizer->receiver->data = context;
+      context->tokenizer->on_token = callback_new(add_token, context);
       context->tmp = node;
       Q(node)->field = Q(field)->val;
       Q(node)->cmp = Q(op)->cmp;
@@ -2474,7 +2465,7 @@ pstring _tilde = { "~", 1 };
 pstring _neq = { "!", 1 };
 
 pstring * 
-cmpmap(cmp_type t) {
+cmpmap(CmpType t) {
   switch(t) {
        case _NA: return &_na;
        case _EQ: return &_eq;
@@ -2504,7 +2495,7 @@ _negate(pstring *t) {
 }
 
 void *
-make_query_and_callback(query_parser *context, ASTNode *node) {
+make_query_and_callback(QueryParser *context, ASTNode *node) {
   switch(Q(node)->type) {
   case NUMTERM: {
     pstring *c = cmpmap(Q(node)->cmp);
@@ -2548,7 +2539,7 @@ make_query_and_callback(query_parser *context, ASTNode *node) {
 }
 
 void
-query_parser_construct(query_parser *context, ASTNode *expression, int limit) {
+query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
   pstring *pstr;
   (void) pstr;
   context->root = expression;
@@ -2573,11 +2564,11 @@ query_parser_construct(query_parser *context, ASTNode *expression, int limit) {
   
   Query * query = make_query_and_callback(context, expression);
   query->limit = limit;
-  context->cb->handler(context->cb, query);
+  context->on_query->handler(context->on_query, query);
 }
 
 const char *
-_s(query_node_type t) {
+_s(QNodeType t) {
   switch(t) {
     case UNKNOWN : return "UNKNOWN" ;
     case NUM     : return "NUM"     ;
@@ -2596,7 +2587,7 @@ _s(query_node_type t) {
 }
 
 const char *
-_c(cmp_type t) {
+_c(CmpType t) {
   switch(t) {
     case _NA    : return "??";
     case _EQ    : return "=";
@@ -2698,7 +2689,7 @@ query_node_ast_to_s(ASTNode *node) {
 }
 
 pstring * 
-query_node_to_s(query_node *node) {
+query_node_to_s(QNode *node) {
   pstring *buf = pstring_new(0);
   int len = 4;
   const char *val = "NULL";

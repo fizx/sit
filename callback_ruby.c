@@ -46,8 +46,7 @@ _pointer_handler(Callback *cb, void *data) {
 
 VALUE
 rbc_callback_new(VALUE class, VALUE klass, VALUE block) {
-	Callback *cb = callback_new();
-	cb->user_data = (void *) vwrap(block);
+	Callback *cb = callback_new(NULL, vwrap(block));
 	
 	if (rb_equal(klass, rb_eval_string("::String"))) {
 	  cb->handler = _string_handler;

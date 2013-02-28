@@ -4,7 +4,7 @@
 
 typedef struct JSONState {
   jsonsl_t    json_parser;
-  Parser     *tokenizer;
+  Tokenizer  *tokenizer;
   DocBuf     *buffers[MAX_DEPTH];
   pstring    *working;      // the live window we care about
   long        working_pos;  // the offset of working relative to the stream start
@@ -20,7 +20,7 @@ _jsonsl_error_callback(
   (void) state;
   (void) at;
 	Parser *parser = jsn->data;
-  parser->receiver->error_found(parser->receiver, c2pstring(jsonsl_strerror(error)));
+  parser->on_error->handler(parser->on_error, c2pstring(jsonsl_strerror(error)));
 	return 0;
 }
 
@@ -34,7 +34,7 @@ _jsonsl_stack_callback(
 	JSONState *mystate = parser->state;
   pstring *working = mystate->working;
   long working_pos = mystate->working_pos;
-  Receiver *buf = &mystate->buffers[state->level]->as_receiver;
+  DocBuf *buf = mystate->buffers[state->level];
 	switch (action) {
 	case JSONSL_ACTION_POP: 
 		switch (state->type) {
@@ -43,7 +43,7 @@ _jsonsl_stack_callback(
         break;
       }
       const char *string = working->val + state->pos_begin - working_pos;
-      buf->int_found(buf, strtol(string, NULL, 10));
+      doc_buf_int_found(buf, strtol(string, NULL, 10));
       break;
     }
 		case JSONSL_T_HKEY: {
@@ -53,7 +53,7 @@ _jsonsl_stack_callback(
         working->val + off,
         len
       };
-      buf->field_found(buf, &pstr);
+      doc_buf_field_found(buf, &pstr);
 			break;
 		}
 		case JSONSL_T_STRING: {
@@ -65,7 +65,6 @@ _jsonsl_stack_callback(
       };
 
       mystate->tokenizer->data = parser->data;
-			mystate->tokenizer->receiver = parser->receiver;
       mystate->tokenizer->consume(mystate->tokenizer, &pstr);
       mystate->tokenizer->end_stream(mystate->tokenizer);
 
@@ -78,7 +77,8 @@ _jsonsl_stack_callback(
         working->val + off,
         len
       };
-		  buf->document_found(parser->receiver, &doc);
+		  doc_buf_document_found(buf, &doc);
+		  parser->on_document->handler(parser->on_document, buf);
       break;
 		}}
 		break;
@@ -89,7 +89,7 @@ _jsonsl_stack_callback(
 
 Parser *
 json_white_parser_new() {
-  return json_parser_new(white_parser_new());
+  return json_parser_new(white_tokenizer_new());
 }
 
 Parser *
@@ -100,7 +100,6 @@ json_fresh_copy(Parser *parser) {
 
 void 
 _json_consume(struct Parser *parser, pstring *str) {
-  assert(parser->receiver);
   JSONState *state = parser->state;
   padd(state->working, str);
   state->delta = str;
@@ -108,7 +107,7 @@ _json_consume(struct Parser *parser, pstring *str) {
 }
 
 Parser *
-json_parser_new(Parser *tokenizer) {
+json_parser_new(Tokenizer *tokenizer) {
   Parser *parser = parser_new();
   parser->state = malloc(sizeof(JSONState));
   JSONState *state = parser->state;

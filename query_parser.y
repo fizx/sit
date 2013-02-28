@@ -7,7 +7,7 @@
 %define api.pure full
 %define api.push-pull both
 
-%parse-param { query_parser* context }
+%parse-param { QueryParser* context }
 %lex-param { void* scanner  }
 
 %code requires {
@@ -35,59 +35,59 @@
 
 int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
 
-void yyerror(YYLTYPE* locp, query_parser *parser, const char* err) {
+void yyerror(YYLTYPE* locp, QueryParser *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }
 
 #define scanner context->scanner
-#define Q(node)   ((query_node *)(node->data))
+#define Q(node)   ((QNode *)(node->data))
 
 ASTNode *
-int_node(query_parser *context) {
+int_node(QueryParser *context) {
   ASTNode *node = query_node_new(context, NUM);
   Q(node)->num = atoi(context->ptr);
   return node;
 }
 
 ASTNode *
-str_node(query_parser *context) {
+str_node(QueryParser *context) {
   ASTNode *node = query_node_new(context, STR);
   Q(node)->val = c2pstring(context->ptr);
   return node;
 }
 
 ASTNode *
-qstr_node(query_parser *context) {
+qstr_node(QueryParser *context) {
   ASTNode *node = query_node_new(context, STR);
   Q(node)->val = qc2pstring(context->ptr);
   return node;
 }
 
 ASTNode *
-expr_node(query_parser *context) {
+expr_node(QueryParser *context) {
   return query_node_new(context, EXPR);
 }
 
 ASTNode *
-clause_node(query_parser *context) {
+clause_node(QueryParser *context) {
   return query_node_new(context, CLAUSE);
 }
 
 ASTNode *
-mstr_node(query_parser *context) {
+mstr_node(QueryParser *context) {
   return query_node_new(context, MODSTR);
 }
 
 ASTNode *
-cmp_node(query_parser *context, cmp_type c) {
+cmp_node(QueryParser *context, CmpType c) {
   ASTNode *node = query_node_new(context, CMP);
   Q(node)->cmp = c;
   return node;
 }
 
 ASTNode *
-query_node_copy_subtree(query_parser *context, ASTNode *subtree) {
+query_node_copy_subtree(QueryParser *context, ASTNode *subtree) {
   if(!subtree) return NULL;
   ASTNode *cp = query_node_new(context, Q(subtree)->type);
   Q(cp)->num = Q(subtree)->num;

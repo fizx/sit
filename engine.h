@@ -4,11 +4,9 @@
 #include "term.h"
 #include "query.h"
 #include "input.h"
-#include "receiver.h"
 #include "plist.h"
 
 typedef struct Engine {
-	struct Receiver as_receiver;
   // Data structures & indexes
   dict                  *queries;  // Registered for percolation
   Parser                *parser;
@@ -25,15 +23,14 @@ typedef struct Engine {
   pstring               *field;
   int                    term_capacity;
   struct RingBuffer     *docs;
-	struct Input      *current_input;
 
   // User-settable
   void *data;
   
-  struct Callback *on_document_found;
+  struct Callback    *on_document;
+  Output             *current_output;
   
   long                query_id;
-  Term    terms[1];
 } Engine;
 
 typedef struct doc_ref {
@@ -68,16 +65,7 @@ ResultIterator *
 engine_search(Engine *engine, Query *query);
 
 void 
-engine_term_found(Receiver *receiver, pstring *pstr, int field_offset);
-
-void 
-engine_document_found(Receiver *receiver, pstring *pstr);
-
-void 
-engine_field_found(Receiver *receiver, pstring *name);
-
-void 
-engine_int_found(Receiver *receiver, int value);
+engine_document_found(Callback *cb, void *data);
 
 int *
 engine_get_int(Engine *engine, long doc_id, pstring *field);
@@ -101,10 +89,10 @@ void
 engine_consume(Engine *engine, pstring *pstr);
 
 void
-engine_percolate(Engine *engine);
+engine_percolate(Engine *engine, DocBuf *buffer, long doc_id);
 
 void
-engine_index(Engine *engine, long doc_id);
+engine_index(Engine *engine, DocBuf *buffer, long doc_id);
 
 long
 engine_register(Engine *engine, Query *query);

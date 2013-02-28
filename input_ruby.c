@@ -41,7 +41,6 @@ rbc_input_consume(VALUE self, VALUE rstr) {
 	Input *input;
 	Data_Get_Struct(self, Input, input);
 	pstring *pstr = r2pstring(rstr);
-  assert(input->parser->receiver == &input->as_receiver);
 	input_consume(input, pstr);
 	pstring_free(pstr);
 	return Qnil;

@@ -1,9 +1,9 @@
 #include "sit.h"
 
 typedef struct QueryNode {
-	dict                   *children;
+	dict               *children;
 	Term							 *term;
-	struct QueryNode  *parent;
+	struct QueryNode   *parent;
 	Callback 				   *callback;
 } QueryNode;
 
@@ -15,16 +15,11 @@ typedef struct unregister_data {
 Engine *
 engine_new(Parser *parser, long size) {
 	int tc = size / 64;
- 	Engine *engine = malloc(sizeof(Engine) + (tc - 1) * (sizeof(Term)));
+  Engine *engine = malloc(sizeof(Engine));
 	engine->queries = dictCreate(getTermDict(), 0);
 	engine->parser = parser;
 	engine->query_id = 0;
-	engine->on_document_found = NULL;
-	parser->receiver = &engine->as_receiver;
-  parser->receiver->term_found = engine_term_found;
-  parser->receiver->document_found = engine_document_found;
-  parser->receiver->field_found = engine_field_found;
-  parser->receiver->int_found = engine_int_found;
+	engine->on_document = NULL;
 	engine->stream = ring_buffer_new(size / 4);
 	engine->term_dictionary = lrw_dict_new(getTermDict(), getTermLrw(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
@@ -244,18 +239,15 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
 	}
 }
 
-#define INPUTISH(m) (engine->current_input ? engine->current_input->m : engine->m)
-
 void
-engine_percolate(Engine *engine) {
-  long id = engine_last_document_id(engine);
-	callback_recurse(engine, INPUTISH(term_index), engine->queries, &id, true);
+engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {
+	callback_recurse(engine, buffer->term_index, engine->queries, &doc_id, true);
 }
 
 void
-engine_index(Engine *engine, long doc_id) {
-	for (int i = 0; i < INPUTISH(term_count); i++) {
-		Term *term = &INPUTISH(terms)[i];
+engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
+	for (int i = 0; i < buffer->term_count; i++) {
+		Term *term = &buffer->terms[i];
 		Plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
@@ -471,46 +463,31 @@ engine_consume(Engine *engine, pstring *pstr) {
 	engine->parser->consume(engine->parser, pstr);
 }
 
-void 
-engine_term_found(Receiver *receiver, pstring *pstr, int field_offset) {
-  Engine *engine = (Engine *)receiver;
-	Term *term = &engine->terms[engine->term_count++];
-	term->field = engine->field;
-	term->text = pcpy(pstr);
-	term->offset = field_offset;
-	term_update_hash(term);
-	dictAdd(engine->term_index, term, term);
-  DEBUG("engine_term_found %.*s->%.*s", term->field->len, term->field->val, term->text->len, term->text->val);
-}
-
 void
-engine_zero_ints(Engine *engine) {  
-  pstring *orig_field = engine->field;
+_engine_apply_ints(Engine *engine, DocBuf *buffer, long doc_id) {  
   dictIterator *iter = dictGetIterator(engine->ints);
   dictEntry *entry;
   while ((entry = dictNext(iter))) {
     engine->field = dictGetKey(entry);
-    engine_int_found(&engine->as_receiver, 0);
+    engine_set_int(engine, doc_id, dictGetKey(entry), dictGetSignedIntegerVal(entry));
   }
-  engine->field = orig_field;
   dictReleaseIterator(iter);
 }
 
 void 
-engine_document_found(Receiver *receiver, pstring *pstr) {  
-  Engine *engine = (Engine *)receiver;
-  doc_ref dr = { engine->stream->written, pstr->len };
-  ring_buffer_append_pstring(engine->stream, pstr);
+engine_document_found(Callback *callback, void *data) {  
+  DocBuf *buffer = data;
+  Engine *engine = callback->user_data;
+  doc_ref dr = { engine->stream->written, buffer->doc->len };
+  ring_buffer_append_pstring(engine->stream, buffer->doc);
 	ring_buffer_append(engine->docs, &dr, sizeof(dr));
   long doc_id = engine_last_document_id(engine);
-  if(engine->on_document_found) {
-    engine->on_document_found->handler(engine->on_document_found, engine);
+  _engine_apply_ints(engine, buffer, doc_id);
+  if(engine->on_document) {
+    engine->on_document->handler(engine->on_document, engine);
   }
-	engine_percolate(engine);
-	engine_index(engine, doc_id);
-  engine_zero_ints(engine);
-	engine->term_count = 0;
-	dictEmpty(engine->term_index);
+	engine_percolate(engine, buffer, doc_id);
+	engine_index(engine, buffer, doc_id);
 }
 
 int *
@@ -545,17 +522,4 @@ engine_incr(Engine *engine, long doc_id, pstring *field, int value) {
   if(ptr != NULL) {
     *ptr += value;
   }
-}
-
-void 
-engine_int_found(Receiver *receiver, int value) {
-  Engine *engine = (Engine *)receiver;
-  long doc_id = engine_last_document_id(engine) + 1;
-  engine_set_int(engine, doc_id, engine->field, value);
-}
-
-void 
-engine_field_found(Receiver *receiver, pstring *name) {
-  Engine *engine = (Engine *)receiver;
-	engine->field = name;
 }

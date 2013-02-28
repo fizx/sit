@@ -15,7 +15,6 @@
 #include "pstring_ruby.h"
 #include "query_parser_ruby.h"
 #include "query_ruby.h"
-#include "receiver_ruby.h"
 #include "ring_buffer_ruby.h"
 #include "protocol_ruby.h"
 #include "server_ruby.h"

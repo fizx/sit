@@ -194,17 +194,17 @@ enum { YYPUSH_MORE = 4 };
 typedef struct yypstate yypstate;
 
 #if defined __STDC__ || defined __cplusplus
-int yyparse (query_parser* context);
+int yyparse (QueryParser* context);
 #else
 int yyparse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, query_parser* context);
+int yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, QueryParser* context);
 #else
 int yypush_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int yypull_parse (yypstate *ps, query_parser* context);
+int yypull_parse (yypstate *ps, QueryParser* context);
 #else
 int yypull_parse ();
 #endif
@@ -238,59 +238,59 @@ void yypstate_delete ();
 
 int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
 
-void yyerror(YYLTYPE* locp, query_parser *parser, const char* err) {
+void yyerror(YYLTYPE* locp, QueryParser *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }
 
 #define scanner context->scanner
-#define Q(node)   ((query_node *)(node->data))
+#define Q(node)   ((QNode *)(node->data))
 
 ASTNode *
-int_node(query_parser *context) {
+int_node(QueryParser *context) {
   ASTNode *node = query_node_new(context, NUM);
   Q(node)->num = atoi(context->ptr);
   return node;
 }
 
 ASTNode *
-str_node(query_parser *context) {
+str_node(QueryParser *context) {
   ASTNode *node = query_node_new(context, STR);
   Q(node)->val = c2pstring(context->ptr);
   return node;
 }
 
 ASTNode *
-qstr_node(query_parser *context) {
+qstr_node(QueryParser *context) {
   ASTNode *node = query_node_new(context, STR);
   Q(node)->val = qc2pstring(context->ptr);
   return node;
 }
 
 ASTNode *
-expr_node(query_parser *context) {
+expr_node(QueryParser *context) {
   return query_node_new(context, EXPR);
 }
 
 ASTNode *
-clause_node(query_parser *context) {
+clause_node(QueryParser *context) {
   return query_node_new(context, CLAUSE);
 }
 
 ASTNode *
-mstr_node(query_parser *context) {
+mstr_node(QueryParser *context) {
   return query_node_new(context, MODSTR);
 }
 
 ASTNode *
-cmp_node(query_parser *context, cmp_type c) {
+cmp_node(QueryParser *context, CmpType c) {
   ASTNode *node = query_node_new(context, CMP);
   Q(node)->cmp = c;
   return node;
 }
 
 ASTNode *
-query_node_copy_subtree(query_parser *context, ASTNode *subtree) {
+query_node_copy_subtree(QueryParser *context, ASTNode *subtree) {
   if(!subtree) return NULL;
   ASTNode *cp = query_node_new(context, Q(subtree)->type);
   Q(cp)->num = Q(subtree)->num;
@@ -881,7 +881,7 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, query_parser* context)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, QueryParser* context)
 #else
 static void
 yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, context)
@@ -889,7 +889,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, context)
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
   FILE *yyo = yyoutput;
@@ -919,7 +919,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, context)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, query_parser* context)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, QueryParser* context)
 #else
 static void
 yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, context)
@@ -927,7 +927,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, context)
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -980,14 +980,14 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, query_parser* context)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, QueryParser* context)
 #else
 static void
 yy_reduce_print (yyvsp, yylsp, yyrule, context)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -1289,7 +1289,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, query_parser* context)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, QueryParser* context)
 #else
 static void
 yydestruct (yymsg, yytype, yyvaluep, yylocationp, context)
@@ -1297,7 +1297,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, context)
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
   YYUSE (yyvaluep);
@@ -1362,11 +1362,11 @@ struct yypstate
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (query_parser* context)
+yyparse (QueryParser* context)
 #else
 int
 yyparse (context)
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
   return yypull_parse (YY_NULL, context);
@@ -1375,12 +1375,12 @@ yyparse (context)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yypull_parse (yypstate *yyps, query_parser* context)
+yypull_parse (yypstate *yyps, QueryParser* context)
 #else
 int
 yypull_parse (yyps, context)
     yypstate *yyps;
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
   int yystatus;
@@ -1475,7 +1475,7 @@ yypstate_delete (yyps)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yypush_parse (yypstate *yyps, int yypushed_char, YYSTYPE const *yypushed_val, YYLTYPE *yypushed_loc, query_parser* context)
+yypush_parse (yypstate *yyps, int yypushed_char, YYSTYPE const *yypushed_val, YYLTYPE *yypushed_loc, QueryParser* context)
 #else
 int
 yypush_parse (yyps, yypushed_char, yypushed_val, yypushed_loc, context)
@@ -1483,7 +1483,7 @@ yypush_parse (yyps, yypushed_char, yypushed_val, yypushed_loc, context)
     int yypushed_char;
     YYSTYPE const *yypushed_val;
     YYLTYPE *yypushed_loc;
-    query_parser* context;
+    QueryParser* context;
 #endif
 {
 /* The lookahead symbol.  */

@@ -71,7 +71,7 @@ main(int argc, char **argv) {
   }
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
-  Parser *parser = json_parser_new(white_parser_new());
+  Parser *parser = json_parser_new(white_tokenizer_new());
   Engine *engine = engine_new(parser, ram);
 
 #ifdef HAVE_EV_H

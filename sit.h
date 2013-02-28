@@ -6,7 +6,7 @@ struct Cursor;
 struct Callback; 
 struct Engine;
 struct Term;
-struct query_parser;
+struct QueryParser;
 struct lrw_type;
 
 #include <assert.h>
@@ -47,8 +47,9 @@ struct lrw_type;
 #include "query.h"
 #include "server.h"
 #include "term.h"
+#include "tokenizer.h"
 #include "util.h"
-#include "white_parser.h"
+#include "white_tokenizer.h"
 #include "y.tab.h"
 
 #endif

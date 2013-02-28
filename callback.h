@@ -12,7 +12,7 @@ typedef struct Callback {
 } Callback;
 
 Callback *
-callback_new();
+callback_new(void (*handler)(struct Callback *self, void *data), void *user_data);
 
 void
 callback_free(Callback *);

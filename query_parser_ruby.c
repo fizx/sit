@@ -11,7 +11,7 @@ rbc_query_parser_new(VALUE class) {
   );
 	Callback *cb;
 	Data_Get_Struct(rcb, Callback, cb);
-  query_parser *qp = query_parser_new(cb);
+  QueryParser *qp = query_parser_new(cb);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, qp);
   rb_iv_set(tdata, "@callback", rcb);
   return tdata;
@@ -19,8 +19,8 @@ rbc_query_parser_new(VALUE class) {
 
 VALUE 
 rbc_query_parser_consume(VALUE self, VALUE rstr) {
-	query_parser *qp;
-	Data_Get_Struct(self, query_parser, qp);
+	QueryParser *qp;
+	Data_Get_Struct(self, QueryParser, qp);
   int status = query_parser_consume(qp, r2pstring(rstr));
   VALUE str = rb_str_new2("unknown");
   switch(status) {
@@ -40,8 +40,8 @@ rbc_query_parser_queries(VALUE self) {
 
 VALUE
 rbc_query_parser_last_error(VALUE self) {
-	query_parser *qp;
-	Data_Get_Struct(self, query_parser, qp);
+	QueryParser *qp;
+	Data_Get_Struct(self, QueryParser, qp);
   return p2rstring(qp->error);
 }
 
@@ -59,16 +59,16 @@ _ast_to_s_recurse(ASTNode* node, VALUE buf, int n) {
 
 VALUE 
 rbc_query_parser_last_ast_to_s(VALUE self) {
-	query_parser *qp;
-	Data_Get_Struct(self, query_parser, qp);
+	QueryParser *qp;
+	Data_Get_Struct(self, QueryParser, qp);
   ASTNode* node = qp->root;
   return p2rstring(query_node_ast_to_s(node));
 }
 
 VALUE
 rbc_query_parser_last_query_to_s(VALUE self) {
-  query_parser *qp;
-	Data_Get_Struct(self, query_parser, qp);
+  QueryParser *qp;
+	Data_Get_Struct(self, QueryParser, qp);
 	ASTNode* node = qp->root;
   return p2rstring(query_node_query(node));
 }

@@ -13,15 +13,34 @@ _perc_found_handler(Callback *callback, void *data) {
   pstring_free(buf);
 }
 
+void 
+__input_error_found(Callback *cb, void *data) {
+  Input *input = cb->user_data;
+  pstring *message = data;
+  Output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PC("{\"status\": \"error\", \"message\": \"");
+  P(message);
+  PC("\"}");
+  output->write(output, buf);
+  pstring_free(buf);
+}
+
+void 
+_input_document_found(Callback *cb, void *data) {
+  Input *input = cb->user_data;
+	Engine *engine = input->engine;
+  engine->current_output = input->output;
+  engine->on_document->handler(engine->on_document, data);
+}
+
 void
 _channel_handler(Callback *callback, void *data) {
   Query *query = data;
   Input *input = callback->user_data;
   Engine * engine = input->engine;
   if(input->qparser_mode == REGISTERING) {
-    query->callback = callback_new();
-    query->callback->user_data = input;
-    query->callback->handler = _perc_found_handler;
+    query->callback = callback_new(_perc_found_handler, input);
     long query_id = engine_register(engine, query);
     QueryIdNode *node = malloc(sizeof(*node));
     node->query_id = query_id;
@@ -32,9 +51,7 @@ _channel_handler(Callback *callback, void *data) {
     input->output->write(input->output, buf);
     pstring_free(buf);
   } else {
-    query->callback = callback_new();
-    query->callback->user_data = input;
-    query->callback->handler = _perc_found_handler;
+    query->callback = callback_new(_perc_found_handler, input);
     ResultIterator *iter = engine_search(engine, query);
     pstring *buf = pstring_new(0);
     PV("{\"status\": \"ok\", \"message\": \"querying\", \"id\": %ld}", query->callback->id);
@@ -51,38 +68,24 @@ _channel_handler(Callback *callback, void *data) {
 }
 
 Input *
-input_new(struct Engine *engine, int term_capacity, long buffer_size) {
+input_new(struct Engine *engine, long buffer_size) {
+  (void) buffer_size;
 	assert(engine);
 	assert(engine->parser);
- 	Input *input = calloc(1, sizeof(Input) + (term_capacity - 1) * (sizeof(Term)));
+ 	Input *input = malloc(sizeof(Input));
 	input->engine = engine;
   input->qparser_mode = REGISTERING;
 	input->qparser = query_parser_new();
-	input->qparser->cb = callback_new();
-	input->qparser->cb->handler = _channel_handler;
-  input->qparser->cb->user_data = input;
+	input->qparser->on_query = callback_new(_channel_handler, input);
 	input->parser = engine->parser->fresh_copy(engine->parser);
-	input->parser->receiver = &input->as_receiver;
-	input->as_receiver.term_found     = input_term_found;
-	input->as_receiver.document_found = input_document_found;
-	input->as_receiver.field_found    = input_field_found;
-	input->as_receiver.int_found      = input_int_found;
-	input->as_receiver.error_found     = input_error_found;
-	input->stream = pstring_new(0);
-	input->term_index = dictCreate(getTermDict(), 0);
-	input->ints = dictCreate(getPstrDict(), 0);
-	input->term_count = 0;
-	input->field = c2pstring("default");
-	input->term_capacity = term_capacity;
+	input->parser->on_document = callback_new(_input_document_found, input);
+	input->parser->on_error = callback_new(__input_error_found, input);
 	input->data = NULL;
-	input->error = NULL;
 	return input;	
 }
 
 void
 input_consume(struct Input *input, pstring *pstr) {
-  padd(input->stream, pstr);
-  assert(input->parser->receiver == &input->as_receiver);
 	input->parser->consume(input->parser, pstr);
 }
 
@@ -104,70 +107,3 @@ _ack_doc(Callback *cb, void *data) {
   pstring_free(buf);    
 }
 
-void 
-input_error_found(Receiver *receiver, pstring *message) {
-	Input *input = (Input *)receiver;
-  Output *output = input->output;
-  pstring *buf = pstring_new(0);
-  PC("{\"status\": \"error\", \"message\": \"");
-  P(message);
-  PC("\"}");
-  output->write(output, buf);
-  pstring_free(buf);
-}
-
-void 
-input_field_found(Receiver *receiver, pstring *name) {
-	Input *input = (Input *)receiver;
-	input->field = name;
-}
-
-void 
-input_term_found(Receiver *receiver, pstring *pstr, int field_offset) {
-	Input *input = (Input *)receiver;
-	Term *term = &input->terms[input->term_count++];
-	term->field = input->field;
-  term->text = pcpy(pstr);
-	term->offset = field_offset;
-	term_update_hash(term);
-	dictAdd(input->term_index, term, term);
-}
-
-void 
-input_int_found(Receiver *receiver, int value) {
-	Input *input = (Input *)receiver;
-	dictEntry *entry = dictReplaceRaw(input->ints, input->field);
-	dictSetSignedIntegerVal(entry, value);
-}
-
-void 
-input_document_found(Receiver *receiver, pstring *str) {
-	Input *input = (Input *)receiver;
-	Engine *engine = input->engine;
-	ring_buffer_append_pstring(engine->stream, str);
-	engine->current_input = input;
-  Callback *old = engine->on_document_found;
-  Callback cb = {
-    _ack_doc,
-    input,
-    NULL,
-    -1,
-    NULL
-  };
-  dictIterator *iter = dictGetIterator(input->ints);
-  dictEntry *entry;
-
-  while ((entry = dictNext(iter))) {
-    engine->field = dictGetKey(entry);
-    engine_int_found(&engine->as_receiver, dictGetSignedIntegerVal(entry));
-  }
-  
-  engine->on_document_found = &cb;
-	engine_document_found(&engine->as_receiver, str);
-  engine->on_document_found = old;
-  dictReleaseIterator(iter);
-	input->stream = pstring_new(0);
-  input->term_count = 0;
-	dictEmpty(input->term_index);
-	engine->current_input = NULL;
-}
