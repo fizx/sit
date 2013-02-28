@@ -19,6 +19,7 @@
 #include "protocol_ruby.h"
 #include "server_ruby.h"
 #include "term_ruby.h"
+#include "tokenizer_ruby.h"
 #include "util_ruby.h"
 
 #endif

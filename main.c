@@ -90,7 +90,7 @@ main(int argc, char **argv) {
   {
 #endif
   
-  	Input *input = input_new(engine, engine->term_capacity, BUF_SIZE);
+  	Input *input = input_new(engine, BUF_SIZE);
     input->output = malloc(sizeof(Output));
     input->output->write = stdout_write;
     input->output->close = stdout_close;

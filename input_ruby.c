@@ -18,7 +18,7 @@ rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size,
 	Data_Get_Struct(rengine, Engine, engine);
 	long term_capacity = NUM2LONG(rterm_capacity);
 	long buf_size = NUM2LONG(rbuf_size);
-	Input *input = input_new(engine, term_capacity, buf_size);
+	Input *input = input_new(engine, buf_size);
   Output *output = malloc(sizeof(*output));
   output->data = vwrap(buf);
   output->write = _append_buf;

@@ -81,7 +81,7 @@ conn_new(Server *server) {
   assert(server->engine);
 	conn_t *conn = malloc(sizeof(*conn));
 	conn->server = server;
-	Input *input = input_new(server->engine, server->engine->term_capacity, STREAM_BUFFER_SIZE);
+	Input *input = input_new(server->engine, STREAM_BUFFER_SIZE);
   input->output = malloc(sizeof(Output));
   input->output->data = conn;
   input->output->write = conn_write;

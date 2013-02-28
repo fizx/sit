@@ -8,7 +8,7 @@ rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
 	Engine *engine = engine_new(parser, size);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
-	rb_funcall(rparser, rb_intern("receiver="), 1, tdata);
+  // rb_funcall(rparser, rb_intern("receiver="), 1, tdata);
 	engine->parser = parser;
 	SET_ONCE(engine->data, (void *) vwrap(tdata));
 	return tdata;
@@ -94,35 +94,6 @@ rbc_engine_parser(VALUE self) {
 	Data_Get_Struct(self, Engine, engine);
 	Parser *parser = engine->parser;
 	return vunwrap(parser->data);
-}
-
-VALUE 
-rbc_engine_consume(VALUE self, VALUE rstr) {
-	Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-	pstring *pstr = r2pstring(rstr);
-	engine_consume(engine, pstr);
-	pstring_free(pstr);
-	return Qnil;
-}
-
-VALUE
-rbc_engine_terms(VALUE self) {
-	Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-	VALUE ary = rb_ary_new();
-	for (int i = 0; i < engine->term_count; i++) {
-		Term *term = &engine->terms[i];
-		char *str;
-		asprintf(&str, "[%.*s:%.*s %d]", 
-			term->field->len, term->field->val, 
-			term->text->len, term->text->val, 
-			term->offset);
-		VALUE rstr = rb_str_new2(str);
-		free(str);
-		rb_ary_push(ary, rstr);
-	}
-	return ary;
 }
 
 VALUE 

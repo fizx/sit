@@ -11,6 +11,7 @@ VALUE rbc_ast_node;
 VALUE rbc_ring_buffer;
 VALUE rbc_term;
 VALUE rbc_callback;
+VALUE rbc_doc_buf;
 VALUE rbc_query;
 VALUE rbc_conjunction;
 VALUE rbc_parser;
@@ -30,6 +31,7 @@ VALUE rbc_line_protocol;
 VALUE rbc_server;
 VALUE rbc_int_ring_buffer;
 VALUE rbc_int_ring_buffer_cursor;
+VALUE rbc_tokenizer;
 
 void 
 Init_sit() {
@@ -49,6 +51,13 @@ Init_sit() {
 	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
 	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
 	
+  rbc_doc_buf = rb_define_class_under(m_sit, "DocBuf", rb_cObject);
+	rb_define_singleton_method(rbc_doc_buf, "new", rbc_doc_buf_new, 0);
+	rb_define_method(rbc_doc_buf, "field_found", rbc_doc_buf_field_found, 1);
+	rb_define_method(rbc_doc_buf, "term_found", rbc_doc_buf_term_found, 2);
+	rb_define_method(rbc_doc_buf, "int_found", rbc_doc_buf_int_found, 1);
+	rb_define_method(rbc_doc_buf, "doc_found", rbc_doc_buf_doc_found, 1);
+  
 	// AST::Node
 	rbc_ast_node = rb_define_class_under(m_sit, "ASTNode", rb_cObject);
 	rb_define_singleton_method(rbc_ast_node, "new", rbc_ast_node_new, 2);
@@ -132,8 +141,6 @@ Init_sit() {
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
 	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 2);
 	rb_define_method(rbc_engine, "parser", rbc_engine_parser, 0);
-	rb_define_method(rbc_engine, "consume", rbc_engine_consume, 1);
-	rb_define_method(rbc_engine, "terms", rbc_engine_terms, 0);
 	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
 	rb_define_method(rbc_engine, "unregister", rbc_engine_unregister, 1);
 	rb_define_method(rbc_engine, "queries", rbc_engine_queries, 0);
@@ -212,4 +219,9 @@ Init_sit() {
   rb_define_singleton_method(rbc_line_protocol, "new", rbc_line_protocol_new, 1);
   rb_define_method(rbc_line_protocol, "consume", rbc_protocol_consume, 1);
   rb_define_method(rbc_line_protocol, "end_stream", rbc_protocol_end_stream, 0);
+
+  rbc_tokenizer = rb_define_class_under(m_sit, "Tokenizer", rb_cObject);
+  rb_define_singleton_method(rbc_tokenizer, "new_whitespace", rbc_tokenizer_new_whitespace, 1);
+  rb_define_method(rbc_tokenizer, "consume", rbc_tokenizer_consume, 1);
+  rb_define_method(rbc_tokenizer, "end_stream", rbc_tokenizer_end_stream, 0);
 }

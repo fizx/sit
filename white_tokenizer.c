@@ -75,7 +75,7 @@ white_tokenizer_new() {
   tok->consume = _white_consume;
   tok->state = malloc(sizeof(WhiteState));
   WhiteState *state = tok->state;
-  state->remaining = NULL;
+  state->remaining = pstring_new(0);
   tok->end_stream = white_end_stream;
 	tok->fresh_copy = white_fresh_copy;
   return tok;
