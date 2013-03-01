@@ -18,5 +18,14 @@ rbc_doc_buf_int_found(VALUE self, VALUE rval);
 VALUE
 rbc_doc_buf_doc_found(VALUE self, VALUE rstr);
 
+VALUE
+rbc_doc_buf_ints(VALUE self);
+
+VALUE
+rbc_doc_buf_terms(VALUE self);
+
+VALUE
+rbc_doc_buf_docs(VALUE self);
+
 
 #endif

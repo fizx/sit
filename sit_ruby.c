@@ -50,13 +50,17 @@ Init_sit() {
 	// AST
 	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
 	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
-	
+
+	//DocBuf
   rbc_doc_buf = rb_define_class_under(m_sit, "DocBuf", rb_cObject);
 	rb_define_singleton_method(rbc_doc_buf, "new", rbc_doc_buf_new, 0);
 	rb_define_method(rbc_doc_buf, "field_found", rbc_doc_buf_field_found, 1);
 	rb_define_method(rbc_doc_buf, "term_found", rbc_doc_buf_term_found, 2);
 	rb_define_method(rbc_doc_buf, "int_found", rbc_doc_buf_int_found, 1);
 	rb_define_method(rbc_doc_buf, "doc_found", rbc_doc_buf_doc_found, 1);
+	rb_define_method(rbc_doc_buf, "ints", rbc_doc_buf_ints, 0);
+	rb_define_method(rbc_doc_buf, "terms", rbc_doc_buf_terms, 0);
+	rb_define_method(rbc_doc_buf, "docs", rbc_doc_buf_docs, 0);
   
 	// AST::Node
 	rbc_ast_node = rb_define_class_under(m_sit, "ASTNode", rb_cObject);
