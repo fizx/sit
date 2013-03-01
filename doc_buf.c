@@ -1,5 +1,7 @@
 #include "sit.h"
 
+#define TERM_CAPACITY 10000
+
 void
 doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
 	Term *term = &buffer->terms[buffer->term_count++];
@@ -11,7 +13,7 @@ doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
 }
 
 void
-doc_buf_document_found(DocBuf *buffer, pstring *pstr) {
+doc_buf_doc_found(DocBuf *buffer, pstring *pstr) {
   buffer->doc = pstr;
 }
 
@@ -27,9 +29,9 @@ doc_buf_int_found(DocBuf *buffer, int value) {
 }
 
 DocBuf *
-doc_buf_new(int term_capacity) {
-  DocBuf *buf = calloc(1, sizeof(DocBuf) + (term_capacity - 1) * (sizeof(Term)));
-  buf->term_capacity = term_capacity;
+doc_buf_new() {
+  DocBuf *buf = calloc(1, sizeof(DocBuf) + (TERM_CAPACITY - 1) * (sizeof(Term)));
+  buf->term_capacity = TERM_CAPACITY;
   buf->term_index = dictCreate(getTermDict(), 0);
 	buf->ints = dictCreate(getPstrDict(), 0);
   buf->field = NULL;

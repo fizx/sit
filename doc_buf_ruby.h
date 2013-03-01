@@ -3,4 +3,20 @@
 
 #include "ruby.h"
 
+VALUE 
+rbc_doc_buf_new(VALUE class);
+
+VALUE
+rbc_doc_buf_field_found(VALUE self, VALUE rstr);
+
+VALUE
+rbc_doc_buf_term_found(VALUE self, VALUE rstr, VALUE roffset);
+
+VALUE
+rbc_doc_buf_int_found(VALUE self, VALUE rval);
+
+VALUE
+rbc_doc_buf_doc_found(VALUE self, VALUE rstr);
+
+
 #endif

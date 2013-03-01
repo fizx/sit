@@ -16,7 +16,7 @@ typedef struct DocBuf {
 } DocBuf;
 
 DocBuf *
-doc_buf_new(int term_capacity);
+doc_buf_new();
 
 #include "sit.h"
 
@@ -24,7 +24,7 @@ void
 doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset);
 
 void
-doc_buf_document_found(DocBuf *buffer, pstring *pstr);
+doc_buf_doc_found(DocBuf *buffer, pstring *pstr);
 
 void
 doc_buf_field_found(DocBuf *buffer, pstring *name);

@@ -7,6 +7,7 @@
 
 #include "ast_ruby.h"
 #include "callback_ruby.h"
+#include "doc_buf_ruby.h"
 #include "engine_ruby.h"
 #include "input_ruby.h"
 #include "lrw_dict_ruby.h"
