@@ -49,12 +49,13 @@ _jsonsl_stack_callback(
 	JSONState *mystate = parser->state;
   pstring *working = mystate->working;
   long working_pos = mystate->working_pos;
-  DocBuf *buf = mystate->buffers[state->level];
   mystate->level = state->level;
 	switch (action) {
 	case JSONSL_ACTION_PUSH:
 	  switch (state->type) {
 		case JSONSL_T_OBJECT: {
+      DEBUG("level: %d", state->level);
+      DEBUG("start: %d", jsn->pos);
       mystate->begins[state->level] = jsn->pos;
       break;
 		}}
@@ -66,6 +67,8 @@ _jsonsl_stack_callback(
         break;
       }
       const char *string = working->val + state->pos_begin - working_pos;
+      DEBUG("level: %d", state->level);
+      DocBuf *buf = mystate->buffers[state->level-1];
       doc_buf_int_found(buf, strtol(string, NULL, 10));
       break;
     }
@@ -76,6 +79,8 @@ _jsonsl_stack_callback(
         working->val + off,
         len
       };
+      DEBUG("level: %d", state->level);
+      DocBuf *buf = mystate->buffers[state->level-1];
       doc_buf_field_found(buf, &pstr);
 			break;
 		}
@@ -87,6 +92,8 @@ _jsonsl_stack_callback(
         len
       };
 
+      DEBUG("level: %d", state->level);
+      mystate->level = state->level - 1;
       mystate->tokenizer->data = parser->data;
       mystate->tokenizer->consume(mystate->tokenizer, &pstr);
       mystate->tokenizer->end_stream(mystate->tokenizer);
@@ -94,12 +101,14 @@ _jsonsl_stack_callback(
 			break;
     }
 		case JSONSL_T_OBJECT: {
-     	long off = mystate->begins[state->level] - working_pos;
+     	DocBuf *buf = mystate->buffers[state->level];
+      long off = mystate->begins[state->level] - working_pos;
       long len = jsn->pos - mystate->begins[state->level] + 1;
       pstring doc = {
         working->val + off,
         len
       };
+      DEBUG("level: %d", state->level);
       doc_buf_field_found(buf, &LEVEL);
       doc_buf_int_found(buf, state->level);
 		  doc_buf_doc_found(buf, &doc);
