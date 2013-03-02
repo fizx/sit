@@ -70,8 +70,8 @@ _jsonsl_stack_callback(
       break;
     }
 		case JSONSL_T_HKEY: {
-      long off = state->pos_cur - working_pos + 1;
-      int len = state->pos_cur - state->pos_begin - 2;
+      long off = state->pos_begin - working_pos + 1;
+      int len = state->pos_cur - state->pos_begin - 1;
       pstring pstr = {
         working->val + off,
         len
