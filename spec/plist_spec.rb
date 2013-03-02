@@ -80,15 +80,15 @@ describe "PlistPool" do
   end
     
   it "should create more blocks when full" do
-    Plist = Plist.new @pool
+    plist = Plist.new @pool
     ary = []
     100.times do |i|
       entry = PlistEntry.new(i, i)
-      Plist.append(entry)
+      plist.append(entry)
       ary << entry
     end
-    Plist.size.should == 100
-    Plist.blocks_count.should == 2
-    Plist.to_a.should == ary.reverse
+    plist.size.should == 100
+    plist.blocks_count.should == 2
+    plist.to_a.should == ary.reverse
   end
 end

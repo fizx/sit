@@ -306,6 +306,7 @@ engine_search(Engine *engine, Query *query) {
   iter->cursors = dictCreate(getTermDict(), 0);
   iter->subs = malloc(sizeof(sub_iterator*) * query->count);
   iter->count = query->count;
+  DEBUG("Constructing cursor");
   for(int i = 0; i < query->count; i++) {
     conjunction_t *cj = query->conjunctions[i];
     iter->subs[i] = malloc(sizeof(sub_iterator));
@@ -320,13 +321,20 @@ engine_search(Engine *engine, Query *query) {
       Cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
         if(term->numeric) {
+          DEBUG("Making numeric subcursor");
           RingBuffer *rb = dictFetchValue(engine->ints, term->field);
           cursor = rb == NULL ? NULL : &ring_buffer_predicate_int_cursor_new(rb, sizeof(int), term->text->val[0], term->offset)->as_cursor;
         } else {
+          DEBUG("Making plist subcursor for %.*s:%.*s", term->field->len, term->field->val, term->text->len, term->text->val);
           Plist *pl = lrw_dict_get(engine->term_dictionary, term);
           cursor = pl == NULL ? NULL : &plist_cursor_new(pl)->as_cursor;
+          if(!pl) {
+            DEBUG("term not found: using null cursor");
+          }
           dictAdd(iter->cursors, term, cursor);
         }
+      } else {
+        DEBUG("Reusing subcursor");
       }
       iter->subs[i]->negateds[j] = (int) term->negated;
       iter->subs[i]->cursors[j] = cursor;

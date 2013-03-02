@@ -25,6 +25,8 @@ typedef struct Input {
   QueryParserMode qparser_mode;
   QueryIdNode    *query_ids;
   
+  Callback *doc_acker;
+  
   Output         *output;
 
 	void *data;

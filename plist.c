@@ -30,7 +30,7 @@ plist_cursor_prev(Cursor *scursor) {
   if(cursor->exhausted) {
     return false;
   }
-  Plist *pl = cursor->Plist;
+  Plist *pl = cursor->plist;
   PlistPool *pool = pl->pool;
   PlistEntry * entry = cursor->as_cursor.data;
   
@@ -130,7 +130,7 @@ plist_cursor_new(Plist *pl) {
   cursor->as_cursor.id = plist_cursor_document_id;
   cursor->as_cursor.seek_lte = plist_cursor_seek_lte;
   cursor->as_cursor.data = NULL;
-  cursor->Plist = pl;
+  cursor->plist = pl;
   cursor->block = NULL;
   cursor->exhausted = false;
   return cursor;
@@ -200,12 +200,12 @@ _count(Callback *cb, void *entry) {
 }
 
 long
-plist_size(Plist *Plist) {
+plist_size(Plist *plist) {
 	Callback counter;
 	int count = 0;
 	counter.handler = _count;
 	counter.user_data = &count;
-	plist_reach(Plist, &counter);
+	plist_reach(plist, &counter);
 	return count;
 }
 

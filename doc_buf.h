@@ -21,6 +21,9 @@ doc_buf_new();
 #include "sit.h"
 
 void
+doc_buf_reset(DocBuf *buf);
+
+void
 doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset);
 
 void

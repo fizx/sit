@@ -33,6 +33,14 @@ doc_buf_int_found(DocBuf *buffer, int value) {
 	dictSetSignedIntegerVal(entry, value);
 }
 
+void
+doc_buf_reset(DocBuf *buf) {
+  dictEmpty(buf->ints);
+  dictEmpty(buf->term_index);
+  buf->field = NULL;  
+  buf->term_count = 0;
+}
+
 DocBuf *
 doc_buf_new() {
   DocBuf *buf = calloc(1, sizeof(DocBuf) + (TERM_CAPACITY - 1) * (sizeof(Term)));

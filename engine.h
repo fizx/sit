@@ -51,7 +51,6 @@ typedef struct {
   dict *cursors;
 } ResultIterator;
 
-
 Engine *
 engine_new(Parser *parser, long size);
 
@@ -72,6 +71,9 @@ engine_last_document(Engine *engine);
 
 pstring *
 engine_get_document(Engine *engine, long doc_id);
+
+void 
+engine_document_found(Engine *engine, DocBuf *buffer);
 
 long
 engine_last_document_id(Engine *engine);

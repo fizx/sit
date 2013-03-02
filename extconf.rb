@@ -2,7 +2,8 @@ require 'mkmf'
 CONFIG['CC'] = ENV['CC'] if ENV['CC']
 CONFIG['optflags'] = "-O0"
 $CFLAGS << ' -g -std=c99 
-             -pedantic -Wall -Wextra 
+             -Wno-pedantic 
+             -Wall -Wextra 
              -Wno-newline-eof 
              -Wno-declaration-after-statement 
              -Wno-comment 

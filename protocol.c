@@ -123,14 +123,8 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   } else if(!cpstrcmp("close", command)) {
     input->output->close(input->output);
   } else if(isTestMode() && !cpstrcmp("dump", command)) {
-    Callback cb = {
-      _dump_handler,
-      output,
-      NULL,
-      NULL,
-      NULL
-    };
-    engine_each_query(input->engine, &cb);
+    Callback *cb = callback_new(_dump_handler, output);
+    engine_each_query(input->engine,  cb);
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");
