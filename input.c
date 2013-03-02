@@ -31,7 +31,7 @@ _input_document_found(Callback *cb, void *data) {
   Input *input = cb->user_data;
 	Engine *engine = input->engine;
   engine->current_output = input->output;
-  engine->on_document->handler(engine->on_document, data);
+  engine_document_found(engine, data);
 }
 
 void

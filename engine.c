@@ -18,7 +18,7 @@ engine_new(Parser *parser, long size) {
 	engine->queries = dictCreate(getTermDict(), 0);
 	engine->parser = parser;
 	engine->query_id = 0;
-	engine->on_document = NULL;
+	engine->after_on_document = NULL;
 	engine->stream = ring_buffer_new(size / 4);
 	engine->term_dictionary = lrw_dict_new(getTermDict(), getTermLrw(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
@@ -459,24 +459,27 @@ _engine_apply_ints(Engine *engine, DocBuf *buffer, long doc_id) {
   dictEntry *entry;
   while ((entry = dictNext(iter))) {
     pstring *key = dictGetKey(entry);
-    dictEntry *other = dictFind(buffer->ints, key);
-    int val = other ? dictGetSignedIntegerVal(other) : 0;
+    engine_set_int(engine, doc_id, key, 0);
+  }
+  dictReleaseIterator(iter);
+  iter = dictGetIterator(buffer->ints);
+  while ((entry = dictNext(iter))) {
+    pstring *key = dictGetKey(entry);
+    int val = dictGetSignedIntegerVal(entry);
     engine_set_int(engine, doc_id, key, val);
   }
   dictReleaseIterator(iter);
 }
 
 void 
-engine_document_found(Callback *callback, void *data) {  
-  DocBuf *buffer = data;
-  Engine *engine = callback->user_data;
+engine_document_found(Engine *engine, DocBuf *buffer) {  
   doc_ref dr = { engine->stream->written, buffer->doc->len };
   ring_buffer_append_pstring(engine->stream, buffer->doc);
 	ring_buffer_append(engine->docs, &dr, sizeof(dr));
   long doc_id = engine_last_document_id(engine);
   _engine_apply_ints(engine, buffer, doc_id);
-  if(engine->on_document) {
-    engine->on_document->handler(engine->on_document, engine);
+  if(engine->after_on_document) {
+    engine->after_on_document->handler(engine->after_on_document, engine);
   }
 	engine_percolate(engine, buffer, doc_id);
 	engine_index(engine, buffer, doc_id);

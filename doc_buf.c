@@ -24,6 +24,7 @@ doc_buf_field_found(DocBuf *buffer, pstring *name) {
 
 void
 doc_buf_int_found(DocBuf *buffer, int value) {
+  assert(buffer->field);
 	dictEntry *entry = dictReplaceRaw(buffer->ints, buffer->field);
 	dictSetSignedIntegerVal(entry, value);
 }

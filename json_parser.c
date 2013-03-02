@@ -5,11 +5,25 @@
 typedef struct JSONState {
   jsonsl_t    json_parser;
   Tokenizer  *tokenizer;
+  long        begins[MAX_DEPTH];
   DocBuf     *buffers[MAX_DEPTH];
+  int level;
   pstring    *working;      // the live window we care about
   long        working_pos;  // the offset of working relative to the stream start
   pstring    *delta;        // the string passed with consume
 } JSONState;
+
+void
+_json_token_found(Callback *cb, void *data) {
+  Token *token = data;
+  JSONState *state = cb->user_data;
+  doc_buf_term_found(state->buffers[state->level], token->text, token->offset);
+}
+
+pstring LEVEL = {
+  "_level",
+  6
+};
 
 int 
 _jsonsl_error_callback(
@@ -19,6 +33,7 @@ _jsonsl_error_callback(
         jsonsl_char_t *at) {
   (void) state;
   (void) at;
+  printf("ERROR\n");
 	Parser *parser = jsn->data;
   parser->on_error->handler(parser->on_error, c2pstring(jsonsl_strerror(error)));
 	return 0;
@@ -35,7 +50,15 @@ _jsonsl_stack_callback(
   pstring *working = mystate->working;
   long working_pos = mystate->working_pos;
   DocBuf *buf = mystate->buffers[state->level];
+  mystate->level = state->level;
 	switch (action) {
+	case JSONSL_ACTION_PUSH:
+	  switch (state->type) {
+		case JSONSL_T_OBJECT: {
+      mystate->begins[state->level] = jsn->pos;
+      break;
+		}}
+    break;
 	case JSONSL_ACTION_POP: 
 		switch (state->type) {
 	  case JSONSL_T_SPECIAL: {
@@ -71,14 +94,23 @@ _jsonsl_stack_callback(
 			break;
     }
 		case JSONSL_T_OBJECT: {
-     	long off = state->pos_cur - working_pos;
-      int len = state->pos_cur - state->pos_begin;
+     	long off = mystate->begins[state->level] - working_pos;
+      long len = jsn->pos - mystate->begins[state->level] + 1;
       pstring doc = {
         working->val + off,
         len
       };
-		  doc_buf_document_found(buf, &doc);
+      doc_buf_field_found(buf, &LEVEL);
+      doc_buf_int_found(buf, state->level);
+		  doc_buf_doc_found(buf, &doc);
 		  parser->on_document->handler(parser->on_document, buf);
+		  if(state->level == 1) {
+        pstring *tmp = working;
+        mystate->working = pstring_new2(working->val + jsn->pos, working->len - jsn->pos);
+        pstring_free(tmp);
+        jsonsl_reset(jsn);
+        mystate->working_pos = 0;
+		  }
       break;
 		}}
 		break;
@@ -115,6 +147,7 @@ json_parser_new(Tokenizer *tokenizer) {
   jsonsl_enable_all_callbacks(state->json_parser);
   jsonsl_reset(state->json_parser);
   state->tokenizer = tokenizer;
+  state->tokenizer->on_token = callback_new(_json_token_found, state);
   state->json_parser->action_callback = _jsonsl_stack_callback;
 	state->json_parser->error_callback = _jsonsl_error_callback;
 	SET_ONCE(state->json_parser->data, parser);

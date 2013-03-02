@@ -21,7 +21,7 @@ typedef struct Engine {
   // User-settable
   void *data;
   
-  struct Callback    *on_document;
+  struct Callback    *after_on_document;
   Output             *current_output;
   
   long                query_id;
