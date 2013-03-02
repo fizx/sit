@@ -33,7 +33,6 @@ _jsonsl_error_callback(
         jsonsl_char_t *at) {
   (void) state;
   (void) at;
-  printf("ERROR\n");
 	Parser *parser = jsn->data;
   parser->on_error->handler(parser->on_error, c2pstring(jsonsl_strerror(error)));
 	return 0;

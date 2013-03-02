@@ -8,7 +8,7 @@ require "rr"
 require File.dirname(__FILE__) + "/../sit"
 include Sit
 
-Sit.test_mode = true
+# Sit.test_mode = true
 
 describe "integration" do
   before do

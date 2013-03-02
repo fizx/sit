@@ -22,7 +22,7 @@ doc_buf_doc_found(DocBuf *buffer, pstring *pstr) {
 void
 doc_buf_field_found(DocBuf *buffer, pstring *name) {
   DEBUG("field found: %.*s", name->len, name->val);
-  buffer->field = name;
+  buffer->field = pcpy(name);
 }
 
 void

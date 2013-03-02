@@ -28,7 +28,9 @@ term_copy(Term *term) {
   copy->text = pcpy(term->text);
   copy->offset = term->offset;
   copy->negated = term->negated;
+  copy->numeric = term->numeric;
 	term_update_hash(copy);
+  assert(term->hash_code == copy->hash_code);
   return copy;
 }
 

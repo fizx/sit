@@ -6,7 +6,6 @@ require "rspec"
 require "json"
 require "rr"
 require File.dirname(__FILE__) + "/../sit"
-require File.dirname(__FILE__) + "/abc_tsv_parser"
 include Sit
 
 describe "integration" do

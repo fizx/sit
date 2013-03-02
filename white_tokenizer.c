@@ -64,6 +64,8 @@ void white_end_stream(Tokenizer *tok) {
     DEBUG("have token: %.*s %d", state->remaining->len, state->remaining->val, state->offset);
     tok->on_token->handler(tok->on_token, &token);
   }
+  state->remaining = pstring_new(0);
+  state->offset = 0;
 }
 
 Tokenizer *
