@@ -1,0 +1,3 @@
+{"hello": {"inner": "thing"}, "world": "hi"}
+query inner ~ thing;
+query world ~ hi;

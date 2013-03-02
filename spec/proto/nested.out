@@ -1,0 +1,8 @@
+{"status": "ok", "message": "added", "doc_id": 0"}
+{"status": "ok", "message": "added", "doc_id": 1"}
+{"status": "ok", "message": "querying", "id": 0}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 0, "doc": {"inner": "thing"}}
+{"status": "ok", "message": "complete", "id": 0}
+{"status": "ok", "message": "querying", "id": 1}
+{"status": "ok", "message": "found", "query_id": 1, "doc_id": 1, "doc": {"hello": {"inner": "thing"}, "world": "hi"}}
+{"status": "ok", "message": "complete", "id": 1}
