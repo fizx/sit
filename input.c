@@ -32,6 +32,13 @@ _input_document_found(Callback *cb, void *data) {
 	Engine *engine = input->engine;
   engine->current_output = input->output;
   engine_document_found(engine, data);
+  Output *output = input->output;
+  pstring *buf = pstring_new(0);
+  PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
+  PV("%ld", engine_last_document_id(engine));
+  PC("\"}");
+  output->write(output, buf);
+  pstring_free(buf);    
 }
 
 void
@@ -93,17 +100,3 @@ void
 input_end_stream(struct Input *input) {
   input->parser->end_stream(input->parser);
 }
-
-void 
-_ack_doc(Callback *cb, void *data) {
-  Engine *engine = data;
-  Input *input = cb->user_data;
-  Output *output = input->output;
-  pstring *buf = pstring_new(0);
-  PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
-  PV("%ld", engine_last_document_id(engine));
-  PC("\"}");
-  output->write(output, buf);
-  pstring_free(buf);    
-}
-
