@@ -80,8 +80,8 @@ _jsonsl_stack_callback(
 			break;
 		}
 		case JSONSL_T_STRING: {
-  		long off = state->pos_cur - working_pos + 1;
-      int len = state->pos_cur - state->pos_begin - 2;
+  		long off = state->pos_begin - working_pos + 1;
+      int len = state->pos_cur - state->pos_begin - 1;
       pstring pstr = {
         working->val + off,
         len
@@ -141,7 +141,7 @@ _json_consume(struct Parser *parser, pstring *str) {
 Parser *
 json_parser_new(Tokenizer *tokenizer) {
   Parser *parser = parser_new();
-  parser->state = malloc(sizeof(JSONState));
+  parser->state = calloc(1, sizeof(JSONState));
   JSONState *state = parser->state;
   state->json_parser = jsonsl_new(MAX_DEPTH);
   jsonsl_enable_all_callbacks(state->json_parser);

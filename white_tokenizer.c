@@ -7,6 +7,7 @@ typedef struct {
 
 void
 _white_consume(Tokenizer *tok, pstring *str) {
+  DEBUG("tokenizing %.*s", str->len, str->val);
   WhiteState *state = tok->state;
   padd(state->remaining, str);
   str = state->remaining;
@@ -35,6 +36,7 @@ _white_consume(Tokenizer *tok, pstring *str) {
           term, 
           state->offset++
         };
+        DEBUG("have token: %.*s %d", term->len, term->val, state->offset);
         tok->on_token->handler(tok->on_token, &token);
       } else {
         off = i;
@@ -59,6 +61,7 @@ void white_end_stream(Tokenizer *tok) {
       state->remaining,
       state->offset++
     };
+    DEBUG("have token: %.*s %d", state->remaining->len, state->remaining->val, state->offset);
     tok->on_token->handler(tok->on_token, &token);
   }
 }
@@ -73,7 +76,7 @@ Tokenizer *
 white_tokenizer_new() {
   Tokenizer *tok = calloc(1, sizeof(*tok));
   tok->consume = _white_consume;
-  tok->state = malloc(sizeof(WhiteState));
+  tok->state = calloc(1, sizeof(WhiteState));
   WhiteState *state = tok->state;
   state->remaining = pstring_new(0);
   tok->end_stream = white_end_stream;

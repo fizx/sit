@@ -4,6 +4,7 @@
 
 void
 doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
+  DEBUG("term found: %.*s (%d)", pstr->len, pstr->val, field_offset);
 	Term *term = &buffer->terms[buffer->term_count++];
 	term->field = buffer->field;
   term->text = pcpy(pstr);
@@ -14,16 +15,19 @@ doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
 
 void
 doc_buf_doc_found(DocBuf *buffer, pstring *pstr) {
+  DEBUG("doc found: %.*s", pstr->len, pstr->val);
   buffer->doc = pstr;
 }
 
 void
 doc_buf_field_found(DocBuf *buffer, pstring *name) {
+  DEBUG("field found: %.*s", name->len, name->val);
   buffer->field = name;
 }
 
 void
 doc_buf_int_found(DocBuf *buffer, int value) {
+  DEBUG("int found: %d", value);
   assert(buffer->field);
 	dictEntry *entry = dictReplaceRaw(buffer->ints, buffer->field);
 	dictSetSignedIntegerVal(entry, value);

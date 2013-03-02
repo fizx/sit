@@ -39,5 +39,6 @@ VALUE
 rbc_setTestMode(VALUE class, VALUE val) {
   (void) class;
   setTestMode(val == Qtrue);
+  set_logger(stderr);
   return Qnil;
 }

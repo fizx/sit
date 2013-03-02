@@ -14,31 +14,23 @@ describe "Engine" do
     @output = []
  		@input = Input.new(@engine, 1 << 10, 1 << 20, @output)
     $events = []
+    Sit.test_mode = true
   end
-  
-  it "should understand documents" do
-    last_id = @engine.last_document_id
-    @engine.last_document.should be_nil
-    @input.consume('{"hello": "world"}
-    {"goodbye": "world"}');
-    @engine.last_document.should == '{"goodbye": "world"}'
-    @input.consume("\n")
-    id = @engine.last_document_id
-    id.should == last_id + 2
-    @engine.get_int(id, "_level").should == 1
-    @engine.incr(id, "_level", 2)
-    @engine.get_int(id, "_level").should == 3
-    @engine.set_int(id, "columns", 5)
-    @engine.get_int(id, "columns").should == 5
-  # end
-  #   
-  # it "should understand integers" do
+  # 
+  # it "should understand documents" do
   #   last_id = @engine.last_document_id
-  #   @input.consume("a\tb")
   #   @engine.last_document.should be_nil
+  #   @input.consume('{"hello": "world"}
+  #   {"goodbye": "world"}');
+  #   @engine.last_document.should == '{"goodbye": "world"}'
   #   @input.consume("\n")
-  #   @engine.last_document_id.should == last_id + 1
-  #   @engine.last_document.should == "a\tb\n"
+  #   id = @engine.last_document_id
+  #   id.should == last_id + 2
+  #   @engine.get_int(id, "_level").should == 1
+  #   @engine.incr(id, "_level", 2)
+  #   @engine.get_int(id, "_level").should == 3
+  #   @engine.set_int(id, "columns", 5)
+  #   @engine.get_int(id, "columns").should == 5
   # end
   # 
   # it "should be able to register queries" do
@@ -61,15 +53,15 @@ describe "Engine" do
   #   @engine.queries.should == []
   # end
   # 
-  # it "should be able to percolate a query" do
-  #   term = Term.new("a", "hello", 0, false)
-  #   cj = Conjunction.new([term])
-  #   cb = Callback.new(Numeric, proc{|doc| $events << doc })
-  #   q = Query.new([cj], cb)   
-  #   id = @engine.register(q)
-  #   @input.consume("hello\tworld\n")
-  #   $events.should == [0]
-  # end
+  it "should be able to percolate a query" do
+    term = Term.new("a", "hello", 0, false)
+    cj = Conjunction.new([term])
+    cb = Callback.new(Numeric, proc{|doc| $events << doc })
+    q = Query.new([cj], cb)   
+    id = @engine.register(q)
+    @input.consume("{\"a\": \"hello world\"}\n")
+    $events.should == [0]
+  end
   # 
   # it "should be able to percolate a not query" do
   #   term = Term.new("a", "dsafdsa", 0, true)
@@ -185,5 +177,4 @@ describe "Engine" do
   #   id = @engine.register(q)
   #   @input.consume("hello\tworld\n")
   #   $events.should == []
-  end 
 end

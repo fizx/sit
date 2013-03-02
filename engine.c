@@ -236,6 +236,7 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
 
 void
 engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {
+  DEBUG("starting percolation");
 	callback_recurse(engine, buffer->term_index, engine->queries, &doc_id, true);
 }
 
