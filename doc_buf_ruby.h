@@ -25,7 +25,7 @@ VALUE
 rbc_doc_buf_terms(VALUE self);
 
 VALUE
-rbc_doc_buf_docs(VALUE self);
+rbc_doc_buf_doc(VALUE self);
 
 
 #endif

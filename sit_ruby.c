@@ -60,7 +60,7 @@ Init_sit() {
 	rb_define_method(rbc_doc_buf, "doc_found", rbc_doc_buf_doc_found, 1);
 	rb_define_method(rbc_doc_buf, "ints", rbc_doc_buf_ints, 0);
 	rb_define_method(rbc_doc_buf, "terms", rbc_doc_buf_terms, 0);
-	rb_define_method(rbc_doc_buf, "docs", rbc_doc_buf_docs, 0);
+	rb_define_method(rbc_doc_buf, "doc", rbc_doc_buf_doc, 0);
   
 	// AST::Node
 	rbc_ast_node = rb_define_class_under(m_sit, "ASTNode", rb_cObject);

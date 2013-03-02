@@ -37,18 +37,3 @@ doc_buf_new() {
   buf->field = NULL;
   return buf;
 }
-
-VALUE
-rbc_doc_buf_ints(VALUE self) {
-  
-}
-
-VALUE
-rbc_doc_buf_terms(VALUE self) {
-  
-}
-
-VALUE
-rbc_doc_buf_docs(VALUE self) {
-  
-}
