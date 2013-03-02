@@ -61,6 +61,24 @@ rbc_parser_new_json(VALUE class) {
 	return tdata;
 }
 
+void 
+_rb_ondoc(Callback *self, void *data) {
+  DocBuf *copy = doc_buf_copy(data);
+  VALUE class = rb_eval_string("::Sit::DocBuf");
+  VALUE block = vunwrap(self->user_data);
+  VALUE tdata = Data_Wrap_Struct(class, markall, NULL, copy);
+	rb_obj_call_init(tdata, 0, NULL);  	
+  rb_funcall(block, rb_intern("call"), 1, tdata);
+}
+
+VALUE
+rbc_parser_on_document(VALUE self, VALUE proc) {
+  Parser *parser;
+	Data_Get_Struct(self, Parser, parser);
+  parser->on_document = callback_new(_rb_ondoc, vwrap(proc));
+  return Qnil;
+}
+
 VALUE
 rbc_parser_consume(VALUE self, VALUE rstr) {
 	Parser *parser;

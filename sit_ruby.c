@@ -140,6 +140,7 @@ Init_sit() {
 	rb_define_singleton_method(rbc_parser, "new_json", rbc_parser_new_json, 0);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
 	rb_define_method(rbc_parser, "end_stream", rbc_parser_end_stream, 0);
+	rb_define_method(rbc_parser, "on_document", rbc_parser_on_document, 1);
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);

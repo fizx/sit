@@ -10,48 +10,37 @@ include Sit
 
 describe "Parser" do
 	before do
-	  $events = []
-	  @te = TestEvents.new
+	  $bufs = []
 	end
   
   it "should do json" do
     str = "{\"hello\":\"world\"}"
     @parser = Parser.new_json()
-    @parser.receiver = @te
+    @parser.on_document(proc{|db| $bufs << db})
     @parser.consume(str)
-    $events.should == [
-      [:field, "hello"],
-      [:term, "world", 0],
-      [:doc, str],
-    ]
+    $bufs.size.should == 1
+    $bufs.first.terms.should == [Term.new("hello", "world", 0, false)]
   end
   
   it "should do account for newline" do
     str = "\n\n{\"hello\":\"world\"}"
     @parser = Parser.new_json()
-    @parser.receiver = @te
+    @parser.on_document(proc{|db| $bufs << db})
     @parser.consume(str)
-    $events.should == [
-      [:field, "hello"],
-      [:term, "world", 0],
-      [:doc, "{\"hello\":\"world\"}"],
-    ]
+    $bufs.size.should == 1
+    $bufs.first.terms.should == [Term.new("hello", "world", 0, false)]
   end
     
   it "should do multiple docs" do
     str = "{\"hello\":\"world\"}\n{\"wha\":\"goodbye thanks\"}"
     @parser = Parser.new_json()
-    @parser.receiver = @te
+    @parser.on_document(proc{|db| $bufs << db})
     @parser.consume(str)
-    start = str.index("{", 10)
-    $events.should == [
-      [:field, "hello"],
-      [:term, "world", 0],
-      [:doc, "{\"hello\":\"world\"}"],      
-      [:field, "wha"],
-      [:term, "goodbye", 0],
-      [:term, "thanks", 1],
-      [:doc, "{\"wha\":\"goodbye thanks\"}"]
+    $bufs.size.should == 2
+    $bufs.first.terms.should == [Term.new("hello", "world", 0, false)]
+    $bufs.last.terms.should == [
+      Term.new("wha", "goodbye", 0, false),
+      Term.new("wha", "thanks", 1, false)
     ]
   end      
 end

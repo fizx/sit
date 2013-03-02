@@ -23,6 +23,9 @@ doc_buf_new();
 void
 doc_buf_reset(DocBuf *buf);
 
+DocBuf *
+doc_buf_copy(DocBuf *buf);
+
 void
 doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset);
 

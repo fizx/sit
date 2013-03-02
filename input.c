@@ -45,9 +45,7 @@ _input_document_found(Callback *cb, void *data) {
 	Engine *engine = input->engine;
   engine->current_output = input->output;
   engine->after_on_document = input->doc_acker;
-  DocBuf *buf = data;
   engine_document_found(engine, data);
-  doc_buf_reset(buf);
 }
 
 void

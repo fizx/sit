@@ -50,3 +50,26 @@ doc_buf_new() {
   buf->field = NULL;
   return buf;
 }
+
+DocBuf *
+doc_buf_copy(DocBuf *buf) {
+  DocBuf *copy = doc_buf_new();
+  copy->field = pcpy(buf->field);
+  dictIterator *iterator = dictGetIterator(buf->ints);
+	dictEntry *next;
+	while((next = dictNext(iterator))) {
+    pstring *pstr = pcpy(dictGetKey(next));
+    dictEntry *entry = dictReplaceRaw(copy->ints, pstr);
+  	dictSetSignedIntegerVal(entry, dictGetSignedIntegerVal(next));
+	}
+  dictReleaseIterator(iterator);
+  iterator = dictGetIterator(buf->term_index);
+	while((next = dictNext(iterator))) {
+    Term *term = dictGetKey(next);
+    doc_buf_field_found(copy, term->field);
+    doc_buf_term_found(copy, term->text, term->offset);
+	}
+  dictReleaseIterator(iterator);
+	
+  return copy;
+}

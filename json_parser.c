@@ -112,6 +112,7 @@ _jsonsl_stack_callback(
       doc_buf_int_found(buf, state->level);
 		  doc_buf_doc_found(buf, &doc);
 		  parser->on_document->handler(parser->on_document, buf);
+      doc_buf_reset(buf);
 		  if(state->level == 1) {
         pstring *tmp = working;
         mystate->working = pstring_new2(working->val + jsn->pos, working->len - jsn->pos);
