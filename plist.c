@@ -124,7 +124,7 @@ plist_new(PlistPool *pool) {
 void 
 plist_free(Plist *pl) {
   (void) pl;
-	// free(pl);
+  free(pl);
 }
 
 plist_cursor *

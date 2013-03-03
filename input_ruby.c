@@ -13,7 +13,7 @@ _no_op(struct Output *output) {
 }
 
 VALUE
-rbc_input_new(VALUE class, VALUE rengine, VALUE rterm_capacity, VALUE rbuf_size, VALUE buf) {
+rbc_input_new(VALUE class, VALUE rengine, VALUE rbuf_size, VALUE buf) {
 	Engine *engine;
 	Data_Get_Struct(rengine, Engine, engine);
 	long buf_size = NUM2LONG(rbuf_size);

@@ -34,8 +34,8 @@ rbc_term_to_s(VALUE self) {
 	Data_Get_Struct(self, Term, term);
 	char *str;
 	asprintf(&str, "[%.*s:%.*s %d]", 
-		term->field->len, term->field->val, 
-		term->text->len, term->text->val, 
+		term->field.len, term->field.val, 
+		term->text.len, term->text.val, 
 		term->offset);
 	VALUE rstr = rb_str_new2(str);
 	free(str);

@@ -60,16 +60,13 @@ rbc_doc_buf_terms(VALUE self) {
   DocBuf *buf;
 	Data_Get_Struct(self, DocBuf, buf);
   VALUE array = rb_ary_new();
-  dictIterator * iterator = dictGetIterator(buf->term_index);
-	dictEntry *next;
   VALUE class = rb_eval_string("::Sit::Term");
-	while((next = dictNext(iterator))) {
-    Term *term = dictGetKey(next);
+  for(int i = 0; i < buf->term_count; i++) {
+    Term *term = &buf->terms[i];
     VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, term);
   	rb_obj_call_init(tdata, 0, NULL);  	
     rb_ary_push(array, tdata);
 	}
-  dictReleaseIterator(iterator);
   return array;  
 }
 

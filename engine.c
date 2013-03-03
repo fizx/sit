@@ -20,12 +20,12 @@ engine_new(Parser *parser, long size) {
 	engine->query_id = 0;
 	engine->after_on_document = NULL;
 	engine->stream = ring_buffer_new(size / 4);
-	engine->term_dictionary = lrw_dict_new(getTermDict(), getTermLrw(), size / 32);
+	engine->term_dictionary = lrw_dict_new(getTermPlistDict(), getTermLrw(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
 	engine->docs = ring_buffer_new((size / 4 / sizeof(doc_ref)) * sizeof(doc_ref));
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
-	engine->ints = dictCreate(getPstrDict(), 0);
+	engine->ints = dictCreate(getPstrRingBufferDict(), 0);
 	return engine;
 }
 
@@ -42,11 +42,12 @@ engine_free(Engine *engine) {
 }
 
 Term SENTINEL = {
-  NULL,
-  NULL,
+  {},
+  {},
   0,
   0,
   true, 
+  false,
   false
 };
 
@@ -214,7 +215,7 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
       if (positive == !!dictFetchValue(term_index, dictGetKey(next))) {
 		  	QueryNode *node = dictGetVal(next);
   			Callback *cb = node->callback;
-        DEBUG("perc'd %.*s:%.*s", node->term->field->len, node->term->field->val, node->term->text->len, node->term->text->val);
+        DEBUG("perc'd %.*s:%.*s", node->term->field.len, node->term->field.val, node->term->text.len, node->term->text.val);
   			while(cb) {
   			  DEBUG("running callback %d", cb->id);
   				cb->handler(cb, doc);
@@ -225,6 +226,7 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
   			}
   		}
 		}
+    dictReleaseIterator(iterator);
 	} else {
 		dictIterator *iterator = dictGetIterator(term_index);
 		dictEntry *next;
@@ -233,7 +235,7 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
     while ((next = dictNext(iterator))) {
       if(positive == !!(node = dictFetchValue(query_nodes, dictGetKey(next)))) {
   			Callback *cb = node->callback;
-  			DEBUG("perc'd %.*s:%.*s", node->term->field->len, node->term->field->val, node->term->text->len, node->term->text->val);
+  			DEBUG("perc'd %.*s:%.*s", node->term->field.len, node->term->field.val, node->term->text.len, node->term->text.val);
   			while(cb) {
   			  DEBUG("running callback %d", cb->id);
   				cb->handler(cb, doc);
@@ -244,6 +246,7 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
   			}
   		}
 		}
+		dictReleaseIterator(iterator);
 	}
 }
 
@@ -255,14 +258,12 @@ engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {
 
 void
 engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
-  dictIterator *iter = dictGetIterator(buffer->term_index);
-  dictEntry *entry;
-  while ((entry = dictNext(iter))) {
-    Term *term = dictGetKey(entry);
-		Plist *value = lrw_dict_get(engine->term_dictionary, term);
+  for(int i = 0; i < buffer->term_count; i++) {
+    Term *term = &buffer->terms[i];
+  	Plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
-			lrw_dict_put(engine->term_dictionary, term_copy(term), value);
+			lrw_dict_put(engine->term_dictionary, term, value);
 			assert(lrw_dict_get(engine->term_dictionary, term));
 		} else {
       lrw_dict_tap(engine->term_dictionary, term);
@@ -271,7 +272,6 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
     PlistEntry entry = { doc_id, term->offset };
 		plist_append_entry(value, &entry);
 	}
-	dictReleaseIterator(iter);
 }
 
 void
@@ -338,10 +338,10 @@ engine_search(Engine *engine, Query *query) {
       if(cursor == NULL) {
         if(term->numeric) {
           DEBUG("Making numeric subcursor");
-          RingBuffer *rb = dictFetchValue(engine->ints, term->field);
-          cursor = rb == NULL ? NULL : &ring_buffer_predicate_int_cursor_new(rb, sizeof(int), term->text->val[0], term->offset)->as_cursor;
+          RingBuffer *rb = dictFetchValue(engine->ints, &term->field);
+          cursor = rb == NULL ? NULL : &ring_buffer_predicate_int_cursor_new(rb, sizeof(int), term->text.val[0], term->offset)->as_cursor;
         } else {
-          DEBUG("Making plist subcursor for %.*s:%.*s", term->field->len, term->field->val, term->text->len, term->text->val);
+          DEBUG("Making plist subcursor for %.*s:%.*s", term->field.len, term->field.val, term->text.len, term->text.val);
           Plist *pl = lrw_dict_get(engine->term_dictionary, term);
           cursor = pl == NULL ? NULL : &plist_cursor_new(pl)->as_cursor;
           if(!pl) {

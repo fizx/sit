@@ -28,7 +28,7 @@ cstring_new(const char *cstr, int len) {
 }
 
 pstring *
-pcpy(pstring *pstr) {
+pcpy(const pstring *pstr) {
   return pstring_new2(pstr->val, pstr->len);
 }
 

@@ -11,6 +11,7 @@ typedef struct DocBuf {
   int              term_capacity;
 	dict            *ints;
   pstring         *doc;
+  Term             terms[1];
 } DocBuf;
 
 DocBuf *
@@ -20,9 +21,6 @@ doc_buf_new();
 
 void
 doc_buf_reset(DocBuf *buf);
-
-DocBuf *
-doc_buf_copy(DocBuf *buf);
 
 void
 doc_buf_free(DocBuf *buf);

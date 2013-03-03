@@ -12,7 +12,7 @@ describe "Engine" do
   before do
     @engine = Engine.new(Parser.new_json, 1_000_000)
     @output = []
- 		@input = Input.new(@engine, 1 << 10, 1 << 20, @output)
+ 		@input = Input.new(@engine, 1 << 20, @output)
     $events = []
     # Sit.test_mode = true
   end

@@ -87,8 +87,8 @@ rbc_conjunction_to_s(VALUE self) {
 		}
 		char *str;
 		asprintf(&str, "%.*s ~ %.*s", 
-			term->field->len, term->field->val, 
-			term->text->len, term->text->val);
+			term->field.len, term->field.val, 
+			term->text.len, term->text.val);
 		VALUE rstr = rb_str_new2(str);
 		free(str);
 		rb_ary_push(buf, rstr);

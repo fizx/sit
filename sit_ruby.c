@@ -210,7 +210,7 @@ Init_sit() {
 	
 	// Input
 	rbc_input = rb_define_class_under(m_sit, "Input", rb_cObject);
-	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 4);
+	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 3);
 	rb_define_method(rbc_input, "consume", rbc_input_consume, 1);
 	rb_define_method(rbc_input, "end_stream", rbc_input_end_stream, 0);
 

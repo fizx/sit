@@ -45,15 +45,21 @@ _term_copy(void *privdata, const void *term) {
 }
 
 void
-_term_free(void *privdata, const void *term) {
+_term_free(void *privdata, void *term) {
   (void) privdata;
   return term_free(term);
 }
 
 void 
-_pstr_free(void *privdata, const void *pstr) {
+_pstr_free(void *privdata, void *pstr) {
   (void) privdata;
   pstring_free(pstr);
+}
+
+void 
+_plist_free(void *privdata, void *pl) {
+  (void) privdata;
+  plist_free(pl);
 }
 
 void *
@@ -62,7 +68,7 @@ _pstr_dup(void *privdata, const void *pstr) {
   return pcpy(pstr);
 }
 
-void *
+void
 _rb_free(void *privdata, const void *rb) {
   (void) privdata;
   ring_buffer_free(rb);
@@ -97,13 +103,21 @@ dictType termDict = {
 
 dictType termTermDict = {
     _term_hash,    /* hash function */
-    _term_copy,          /* key dup */
+    NULL,          /* key dup */
     NULL,          /* val dup */
     _term_compare, /* key compare */
-    _term_free,    			 /* key destructor */
+    NULL,    			 /* key destructor */
     NULL           /* val destructor */
 };
 
+dictType termPlistDict = {
+    _term_hash,    /* hash function */
+    _term_copy,    /* key dup */
+    NULL,          /* val dup */
+    _term_compare, /* key compare */
+    _term_free,    /* key destructor */
+    _plist_free    /* val destructor */
+};
 
 lrw_type termLrw = {
 	_term_bump,
@@ -116,3 +130,5 @@ lrw_type *getTermLrw() { return &termLrw; }
 dictType *getTermDict() { return &termDict; }
 dictType *getTermTermDict() { return &termTermDict; }
 dictType *getPstrRingBufferDict() { return &pstrRingBufferDict; }
+dictType *getTermPlistDict() { return &termPlistDict; }
+

@@ -91,6 +91,7 @@ void
 query_parser_free(QueryParser *parser) {
   tokenizer_free(parser->tokenizer);
   ast_free(parser->ast);
+  if(parser->on_query) callback_free(parser->on_query);
   free(parser);
 }
 

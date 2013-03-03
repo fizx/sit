@@ -14,6 +14,9 @@ dictType *
 getTermDict();
 
 dictType *
+getTermPlistDict();
+
+dictType *
 getTermTermDict();
 
 dictType *

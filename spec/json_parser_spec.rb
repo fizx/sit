@@ -11,36 +11,45 @@ include Sit
 describe "Parser" do
 	before do
 	  $bufs = []
+	  $hit = false
 	end
   
   it "should do json" do
     str = "{\"hello\":\"world\"}"
     @parser = Parser.new_json()
-    @parser.on_document(proc{|db| $bufs << db})
+    @parser.on_document(proc{|db|
+      db.terms.should == [Term.new("hello", "world", 0, false)]
+      $hit = true
+    })
     @parser.consume(str)
-    $bufs.size.should == 1
-    $bufs.first.terms.should == [Term.new("hello", "world", 0, false)]
+    $hit.should be_true
   end
   
   it "should do account for newline" do
-    str = "\n\n{\"hello\":\"world\"}"
+    str = "\n\n{\"hello\":\"world\"}  "
     @parser = Parser.new_json()
-    @parser.on_document(proc{|db| $bufs << db})
+    @parser.on_document(proc{|db|
+      db.terms.should == [Term.new("hello", "world", 0, false)]
+      $hit = true
+    })
     @parser.consume(str)
-    $bufs.size.should == 1
-    $bufs.first.terms.should == [Term.new("hello", "world", 0, false)]
+    $hit.should be_true
   end
     
   it "should do multiple docs" do
     str = "{\"hello\":\"world\"}\n{\"wha\":\"goodbye thanks\"}"
-    @parser = Parser.new_json()
-    @parser.on_document(proc{|db| $bufs << db})
-    @parser.consume(str)
-    $bufs.size.should == 2
-    $bufs.first.terms.should == [Term.new("hello", "world", 0, false)]
-    $bufs.last.terms.should == [
-      Term.new("wha", "goodbye", 0, false),
-      Term.new("wha", "thanks", 1, false)
+    answers = [
+      [Term.new("hello", "world", 0, false)],
+      [
+        Term.new("wha", "goodbye", 0, false),
+        Term.new("wha", "thanks", 1, false)
+      ]
     ]
+    @parser = Parser.new_json()
+    @parser.on_document(proc{|db| 
+      db.terms.should == answers.shift
+    })
+    @parser.consume(str)
+    answers.should == []
   end      
 end

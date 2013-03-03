@@ -23,7 +23,7 @@ void
 padd(pstring *pstr, pstring *append);
 
 pstring *
-pcpy(pstring *pstr);
+pcpy(const pstring *pstr);
 
 const char *
 p2cstring(pstring *pstr);

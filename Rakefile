@@ -33,3 +33,7 @@ task :clean do
   rm Dir["*.tab.*"]
 	rm_f "Makefile"
 end
+
+task :valgrind do
+  exec "cat spec/twitter.json | valgrind --track-origins=yes --leak-check=full --dsymutil=yes ./sit"
+end

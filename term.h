@@ -11,12 +11,13 @@
  * field:points, offset:1, numeric:true, text:>.
  */
 typedef struct Term {
-  pstring *field;
-  pstring *text;
+  pstring field;
+  pstring text;
   unsigned int hash_code;
   unsigned int offset;
   bool negated;
   bool numeric;
+  bool owns_string;
 } Term;
 
 Term *
@@ -26,7 +27,7 @@ pstring *
 term_to_s(Term *term);
 
 Term *
-term_copy(Term *term);
+term_copy(const Term *term);
 
 void 
 term_free(Term *term);
