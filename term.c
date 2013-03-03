@@ -15,8 +15,8 @@ term_new(pstring *field, pstring *text, int offset, bool negated) {
 void 
 term_free(Term *term) {
 	if(term->owns_string) {
-		pstring_free(&term->field);
-		pstring_free(&term->text);
+    free(term->field.val);
+		free(term->text.val);
 	}  
 	free(term);
 }
