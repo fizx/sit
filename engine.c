@@ -29,6 +29,18 @@ engine_new(Parser *parser, long size) {
 	return engine;
 }
 
+void
+engine_free(Engine *engine) {
+  dictRelease(engine->queries);
+  parser_free(engine->parser);
+  ring_buffer_free(engine->stream);
+  lrw_dict_free(engine->term_dictionary);
+  plist_pool_free(engine->postings);
+  ring_buffer_free(engine->docs);
+  dictRelease(engine->ints);
+  free(engine);
+}
+
 Term SENTINEL = {
   NULL,
   NULL,

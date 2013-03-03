@@ -11,6 +11,7 @@ typedef struct Parser {
 	void (*consume)(struct Parser *parser, pstring *str);
 	void *state; // for internal parser state
 	void *data;  // for user purposes, e.g. the ruby bindings keep the ruby object here.
+  void (*free)(void *parser);
 	
   DocBuf *buffer;
 	
@@ -20,6 +21,9 @@ typedef struct Parser {
 
 Parser *
 parser_new();
+
+void
+parser_free(Parser *parser);
 
 Parser *
 default_fresh_copy(Parser *parser);

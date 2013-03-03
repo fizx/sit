@@ -20,6 +20,9 @@ typedef struct LRWDict {
 LRWDict *
 lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity);
 
+void
+lrw_dict_free(LRWDict *dict);
+
 void *
 lrw_dict_get(LRWDict *d, const void *key);
 
@@ -28,7 +31,6 @@ lrw_dict_put(LRWDict *d, const void *key, const void *value);
 
 void
 lrw_dict_tap(LRWDict *d, const void *key);
-
 
 #endif
 

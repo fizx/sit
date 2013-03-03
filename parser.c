@@ -17,3 +17,12 @@ parser_new() {
 	parser->fresh_copy = default_fresh_copy;
 	return parser;
 }
+
+void
+parser_free(Parser *parser) {
+  if(parser->free) {
+    parser->free(parser);
+  } else {
+    free(parser);
+  }
+}

@@ -14,6 +14,12 @@ plist_pool_new(long size) {
 	return pool;
 }
 
+void
+plist_pool_free(PlistPool *pool) {
+  free(pool->buffer);
+  free(pool);
+}
+
 long
 plist_cursor_document_id(Cursor *scursor) {
   plist_cursor *cursor = (plist_cursor *)scursor;

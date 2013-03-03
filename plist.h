@@ -49,6 +49,9 @@ typedef struct plist_cursor {
   bool exhausted;
 } plist_cursor;
 
+void
+plist_pool_free(PlistPool *plist);
+
 PlistPool *
 plist_pool_new(long size);
 

@@ -54,6 +54,9 @@ typedef struct {
 Engine *
 engine_new(Parser *parser, long size);
 
+void
+engine_free(Engine *engine);
+
 ResultIterator *
 engine_search(Engine *engine, Query *query);
 

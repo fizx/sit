@@ -11,6 +11,12 @@ lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity) {
 	return dict;
 }
 
+void
+lrw_dict_free(LRWDict *dict) {
+  dictRelease(dict->dict);
+  free(dict);
+}
+
 void *
 lrw_dict_get(LRWDict *d, const void *key) {
 	dictEntry *entry = dictFind(d->dict, key);
