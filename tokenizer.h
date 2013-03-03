@@ -10,6 +10,8 @@ typedef struct Tokenizer {
 	void (*consume)(struct Tokenizer *tok, pstring *str);
 	void *state; // for internal parser state
 	void *data;  // for user purposes, e.g. the ruby bindings keep the ruby object here.
+
+	void (*free)(void *parser);
 	
   Callback *on_error;
   Callback *on_token;
@@ -22,6 +24,9 @@ typedef struct Token {
 
 Tokenizer *
 tokenizer_new();
+
+void
+tokenizer_free(Tokenizer *);
 
 #endif
 

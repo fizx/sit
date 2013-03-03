@@ -2188,6 +2188,13 @@ query_parser_new(Callback *cb) {
 }
 
 void
+query_parser_free(QueryParser *parser) {
+  tokenizer_free(parser->tokenizer);
+  ast_free(parser->ast);
+  free(parser);
+}
+
+void
 query_parser_reset(QueryParser *parser) {
   parser->push_state = yypstate_new();
   yylex_init(&parser->scanner);

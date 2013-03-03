@@ -38,6 +38,9 @@ typedef struct QueryParser {
 QueryParser *
 query_parser_new();
 
+void
+query_parser_free(QueryParser *qp);
+
 ASTNode *
 query_node_new(QueryParser *qp, QNodeType type);
 

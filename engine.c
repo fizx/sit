@@ -133,6 +133,7 @@ _recurse_each(Callback *cb, dict *hash) {
 			_recurse_each(cb, node->children);
 		}
 	}
+  dictReleaseIterator(iterator);
 }
 
 void

@@ -13,7 +13,7 @@ sit_log(const char *level, const char *format, ...) {
     time(&timer);
     tm_info = localtime(&timer);
     
-    strftime(buffer, 25, "%Y:%m:%d%H:%M:%S", tm_info);
+    strftime(buffer, 25, "%Y:%m:%dT%H:%M:%S", tm_info);
     
     fprintf(logfile, "[%s] [%s] ", level, buffer);
     

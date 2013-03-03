@@ -1,4 +1,5 @@
 #include "sit.h"
+#include "tokenizer.h"
 
 typedef struct {
   pstring *remaining;
@@ -76,7 +77,7 @@ white_fresh_copy(Tokenizer *t) {
 
 Tokenizer *
 white_tokenizer_new() {
-  Tokenizer *tok = calloc(1, sizeof(*tok));
+  Tokenizer *tok = tokenizer_new();
   tok->consume = _white_consume;
   tok->state = calloc(1, sizeof(WhiteState));
   WhiteState *state = tok->state;

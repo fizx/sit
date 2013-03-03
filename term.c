@@ -14,6 +14,7 @@ term_new(pstring *field, pstring *text, int offset, bool negated) {
 
 void 
 term_free(Term *term) {
+  DEBUG("term_free");
 	if(term != NULL) {
 		pstring_free(term->field);
 		pstring_free(term->text);

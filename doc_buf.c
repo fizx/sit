@@ -12,7 +12,11 @@ doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
     term->text = pcpy(pstr);
   	term->offset = field_offset;
   	term_update_hash(term);
-  	dictAdd(buffer->term_index, term, term);  
+    if (!dictFetchValue(buffer->term_index, term)) {
+  	  dictAdd(buffer->term_index, term, term);  
+	  } else {
+      term_free(term);
+	  }
 	} else {
     WARN("term without field");
 	}
@@ -65,7 +69,7 @@ DocBuf *
 doc_buf_new() {
   DocBuf *buf = calloc(1, sizeof(DocBuf));
   buf->term_capacity = TERM_CAPACITY;
-  buf->term_index = dictCreate(getTermDict(), 0);
+  buf->term_index = dictCreate(getTermTermDict(), 0);
 	buf->ints = dictCreate(getPstrDict(), 0);
   buf->field = NULL;
   return buf;

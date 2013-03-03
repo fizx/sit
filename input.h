@@ -37,6 +37,9 @@ Input *
 input_new(struct Engine *engine, long buffer_size);
 
 void
+input_free(Input *input);
+
+void
 input_consume(struct Input *input, pstring *pstr);
 
 void 

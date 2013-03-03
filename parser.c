@@ -12,9 +12,10 @@ default_fresh_copy(Parser *parser) {
 
 Parser *
 parser_new() {
-	Parser *parser = calloc(1, sizeof(Parser));
+	Parser *parser = malloc(sizeof(Parser));
 	parser->consume = NULL;
 	parser->fresh_copy = default_fresh_copy;
+  parser->data = NULL;
 	return parser;
 }
 

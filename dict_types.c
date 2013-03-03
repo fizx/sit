@@ -38,6 +38,36 @@ _pstr_compare(void *privdata, const void *key1,
   return pstrcmp(a, b) == 0;
 }
 
+void *
+_term_copy(void *privdata, const void *term) {
+  (void) privdata;
+  return term_copy(term);
+}
+
+void
+_term_free(void *privdata, const void *term) {
+  (void) privdata;
+  return term_free(term);
+}
+
+void 
+_pstr_free(void *privdata, const void *pstr) {
+  (void) privdata;
+  pstring_free(pstr);
+}
+
+void *
+_pstr_dup(void *privdata, const void *pstr) {
+  (void) privdata;
+  return pcpy(pstr);
+}
+
+void *
+_rb_free(void *privdata, const void *rb) {
+  (void) privdata;
+  ring_buffer_free(rb);
+}
+
 dictType pstrDict = {
     _pstr_hash,    /* hash function */
     NULL,          /* key dup */
@@ -45,6 +75,15 @@ dictType pstrDict = {
     _pstr_compare, /* key compare */
     NULL,    			 /* key destructor */
     NULL           /* val destructor */
+};
+
+dictType pstrRingBufferDict = {
+    _pstr_hash,    /* hash function */
+    _pstr_dup,     /* key dup */
+    NULL,          /* val dup */
+    _pstr_compare, /* key compare */
+    _pstr_free,    /* key destructor */
+    _rb_free       /* val destructor */
 };
 
 dictType termDict = {
@@ -56,6 +95,16 @@ dictType termDict = {
     NULL           /* val destructor */
 };
 
+dictType termTermDict = {
+    _term_hash,    /* hash function */
+    _term_copy,          /* key dup */
+    NULL,          /* val dup */
+    _term_compare, /* key compare */
+    _term_free,    			 /* key destructor */
+    NULL           /* val destructor */
+};
+
+
 lrw_type termLrw = {
 	_term_bump,
 	_term_version
@@ -65,3 +114,5 @@ lrw_type termLrw = {
 dictType *getPstrDict() { return &pstrDict; }
 lrw_type *getTermLrw() { return &termLrw; }
 dictType *getTermDict() { return &termDict; }
+dictType *getTermTermDict() { return &termTermDict; }
+dictType *getPstrRingBufferDict() { return &pstrRingBufferDict; }

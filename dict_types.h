@@ -13,4 +13,10 @@ getTermLrw();
 dictType *
 getTermDict();
 
+dictType *
+getTermTermDict();
+
+dictType *
+getPstrRingBufferDict();
+
 #endif
