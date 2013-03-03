@@ -5,12 +5,14 @@
 void
 doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
   DEBUG("term found: %.*s (%d)", pstr->len, pstr->val, field_offset);
-	Term *term = &buffer->terms[buffer->term_count++];
-	term->field = buffer->field;
-  term->text = pcpy(pstr);
-	term->offset = field_offset;
-	term_update_hash(term);
-	dictAdd(buffer->term_index, term, term);  
+  if(buffer->field) {
+  	Term *term = &buffer->terms[buffer->term_count++];
+  	term->field = buffer->field;
+    term->text = pcpy(pstr);
+  	term->offset = field_offset;
+  	term_update_hash(term);
+  	dictAdd(buffer->term_index, term, term);  
+	}
 }
 
 void
@@ -27,10 +29,10 @@ doc_buf_field_found(DocBuf *buffer, pstring *name) {
 
 void
 doc_buf_int_found(DocBuf *buffer, int value) {
-  DEBUG("int found: %d", value);
-  assert(buffer->field);
-	dictEntry *entry = dictReplaceRaw(buffer->ints, buffer->field);
-	dictSetSignedIntegerVal(entry, value);
+  if(buffer->field) {
+  	dictEntry *entry = dictReplaceRaw(buffer->ints, buffer->field);
+  	dictSetSignedIntegerVal(entry, value);
+  }
 }
 
 void
