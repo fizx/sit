@@ -242,8 +242,10 @@ engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {
 
 void
 engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
-	for (int i = 0; i < buffer->term_count; i++) {
-		Term *term = &buffer->terms[i];
+  dictIterator *iter = dictGetIterator(buffer->term_index);
+  dictEntry *entry;
+  while ((entry = dictNext(iter))) {
+    Term *term = dictGetKey(entry);
 		Plist *value = lrw_dict_get(engine->term_dictionary, term);
 		if(value == NULL) {
 			value = plist_new(engine->postings);
@@ -256,6 +258,7 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
     PlistEntry entry = { doc_id, term->offset };
 		plist_append_entry(value, &entry);
 	}
+	dictReleaseIterator(iter);
 }
 
 void

@@ -3,7 +3,7 @@
 VALUE 
 rbc_doc_buf_new(VALUE class) {
   DocBuf *buf = doc_buf_new();
-	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, buf);
+	VALUE tdata = Data_Wrap_Struct(class, NULL, doc_buf_free, buf);
   return tdata;
 }
 
@@ -65,7 +65,7 @@ rbc_doc_buf_terms(VALUE self) {
   VALUE class = rb_eval_string("::Sit::Term");
 	while((next = dictNext(iterator))) {
     Term *term = dictGetKey(next);
-    VALUE tdata = Data_Wrap_Struct(class, markall, NULL, term);
+    VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, term);
   	rb_obj_call_init(tdata, 0, NULL);  	
     rb_ary_push(array, tdata);
 	}

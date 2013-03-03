@@ -58,7 +58,7 @@ rbc_callback_new(VALUE class, VALUE klass, VALUE block) {
     cb->handler = _pointer_handler;
   }
 	
-	VALUE tdata = Data_Wrap_Struct(class, _cb_mark, NULL, cb);
+	VALUE tdata = Data_Wrap_Struct(class, _cb_mark, callback_free, cb);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;
 }
