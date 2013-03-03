@@ -12,6 +12,8 @@ doc_buf_term_found(DocBuf *buffer, pstring *pstr, int field_offset) {
   	term->offset = field_offset;
   	term_update_hash(term);
   	dictAdd(buffer->term_index, term, term);  
+	} else {
+    WARN("term without field");
 	}
 }
 
@@ -32,7 +34,10 @@ doc_buf_int_found(DocBuf *buffer, int value) {
   if(buffer->field) {
   	dictEntry *entry = dictReplaceRaw(buffer->ints, buffer->field);
   	dictSetSignedIntegerVal(entry, value);
-  }
+  } else {
+    WARN("int without field");
+	}
+	
 }
 
 void
