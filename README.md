@@ -1,46 +1,57 @@
-SIT -- Stream Indexing Toolkit
-==============================
+# Chaser
 
-SIT is a lightweight tcp server that provides realtime full text search over streams of (currently flattened only) json documents.  It's also accessible as a c library, where it can be used to parse any stream using custom parsers.
+Chaser is a lightweight TCP server that provides real-time full-text search over
+streams of JSON documents. It's also usable as a C library, where it can parse
+any stream using custom parsers.
 
-Why?
---------
+## Why?
 
-* **Lightweight**    
-  The executable is 228K on my machine.  It only depends on libev and libc (I'm temporarily using Ruby for the build and test suite).
-* **True realtime**    
-  No garbage collection.  No "commits," "flushes," or fsync requirements.  It's optimized for getting recent documents.
-* **Write then read**    
-  Realtime means that you can trivially support search results that include the document you just added.
-* **Efficient percolation**    
-  SIT is designed to add documents and execute query callbacks efficiently with up to 100k registered queries and/or connections.
-* **Flexible pubsub**    
-  Rather than publishing into channels, you can use SIT to publish into a global event stream, and subscribe to dynamic channels defined by search queries.
-  
-Protocol
---------
+* **Lightweight**
+  The executable is 228K on my machine.  It only depends on libev and libc;
+  and currently (and temporarily) uses Ruby for the build and test suites.
+* **True realtime**
+  This is "true" real time, as opposed to "near" real time. Chaser eliminates
+  garbage collection, "commits," "flushes," and fsyncs. This is search highly
+  optimized for recency and real-time.
+* **Write, then read**
+  Trivially support search results which include the document you _just_ added.
+* **Computationally efficient percolation**
+  Chaser is designed to add documents and execute query callbacks efficiently with
+  up to 100,000 registered queries and/or connections. Efficiency is not just a
+  buzz word, we mean rigorous computational efficiency for performance at scale.
+* **Flexible pubsub**
+  Rather than publishing into channels, you can use Chaser to publish into a global
+  event stream, and subscribe to dynamic channels defined by search queries.
 
-SIT speaks a simple line-based pipelineable protocol.  Any line that starts with { is interpreted as a json document to add to the indexed dataset.  Other lines are interpreted as commands.  
-  
-All responses are json lines, and have a `status` key, which can be either ok, or error.  Other keys are implemented on a per-command basis.
-  
-Search & Percolation
---------------------
+## Protocol
 
-SIT provides traditional search, where you give a query and get a resultset back.  It also provides percolation, where you can register a query that will notify you when matching documents are added to the index.
-  
-Commands
---------
+Chaser speaks a simple line-based pipelineable protocol.  Any line that starts with
+a curly brace (`{`) is interpreted as a JSON document to add to the indexed
+dataset. Other lines are interpreted as commands.
+
+All responses are JSON lines, and have a `status` key, which can be either ok,
+or error.  Other keys are implemented on a per-command basis.
+
+## Search & Percolation
+
+Chaser provides traditional search, where you give a query and get a resultset
+back.  It also provides percolation, where you can register a query that will
+notify you when matching documents are added to the index.
+
+## Commands
 
 * **register** _QUERY_    
-  Registers this query(s) for percolation.  When any document that matches the query is added, SIT will print a "found" response in this stream.
-  
+  Registers the query, or queries, for percolation.  When any document that
+  matches the query is added, Chaser will print a "found" response in this stream.
+
   Sample request/response:    
   
         > register title ~ "hello world" AND points > 4;
         < {"status": "ok", "message": "registered", "id": 29}
         # ...
         < {"status": "ok", "message": "found", "query_id": 29, "doc_id": 500, "doc": {"title": "hello sweet world", "points": 7}}
+  
+  The response to a `register` command includes an ID of the registered query.
 
 * **unregister** _QUERYID_    
   Give the id provided in the **register** response, to stop the percolation.
@@ -76,10 +87,12 @@ Commands
         < {"status": "ok", "message": "found", "query_id": 27, "doc_id": 5, "doc": {"hello":"world 5"}}
         < {"status": "ok", "message": "complete", "id": 27}
 
-Query Language
---------------
+## Query Language
 
-SIT has a simple query language, composed of boolean operations (AND OR NOT) over clauses.  You can tack on LIMIT N to the end of a query.  Queries are terminated with either a newline or a semicolon.  The following are valid clauses:
+Chaser has a simple query language, composed of boolean operations (`AND`, `OR`,
+`NOT`) over clauses. You can append `LIMIT N` to the end of a query. Queries
+are terminated with either a newline or a semicolon. The following are valid
+clauses:
 
       field_name ~ string 
       field_name > integer
@@ -88,24 +101,99 @@ SIT has a simple query language, composed of boolean operations (AND OR NOT) ove
       field_name >= integer
       field_name <= integer
       field_name != integer
-      
-Tokenization
-------------
 
-In this pre-release version, **all strings in the server are tokenized by whitespace only**.  You can customize this if you're using the c-library, and other tokenizer implementations are welcome pull requests.
+## Tokenization
 
-What is the tilde?
-------------------
+Chaser is designed to use pluggable tokenization strategies.
 
-Tilde means full-text search.  In the simplest case, `title ~ hello` means to match the document if the document has a key called title, it points to the string, and string.split(/\s+/).include?("hello").  `title ~ "hello world"` will be transformed into `(title ~ hello AND title ~ world)`
+__TODO: Describe tokenization 101 basics, concepts, examples.__
 
-TODO
-----
+#### Supported tokenization strategies
 
+- [x] whitespace
+- [ ] Unicode UAX#29 word boundaries
+- [ ] regular expression pattern tokenizer
+
+Pull requests are welcome.
+
+## What is the tilde?
+
+The tilde indicates a full-text search. A full-text search identifies documents
+where a given term is present in the specified field.
+
+The full-text search, `title ~ hello` will match JSON documents with a field
+named `title` which contain a token of `hello`. For example, the document
+`{"title":"hello full text search"}` when tokenized with a simple whitespace
+tokenizer.
+
+A quoted value for the tilde operator will match documents where all the terms
+of the quoted text are present in the named field. For example, `title ~ "hello
+world"` will be transformed into `(title ~ hello AND title ~ world)`.
+
+## TODO
+
+* [x] Nested JSON support
+* Composable streams
 * Persistance
-* Nested json support
-* replace 
+* Replace
 * wchar/unicode support
-* facets
-* aggregations
-* quoted/span/proximity queries
+* Facets
+* Aggregations
+* Quoted/span/proximity queries
+* selectable parsers besides JSON in the server? (e.g., log output, msgpack,
+  BSON)
+
+## Quick Start
+
+Feeling adventurous? Run chaser on your own system and try some of these demos.
+
+### Downloading and building chaser
+
+```
+git clone git://github.com/fizx/sit.git
+cd sit
+bundle install
+bundle exec rake
+```
+
+### Demo: Running chaser with simple inputs and searches
+
+Start the server with `./sit`, which reads commands from standard input, and
+prints its output to standard out.
+
+```sh
+./sit
+{"hello":"world"}
+# {"status": "ok", "message": "added", "doc_id": 0"}
+query hello ~ world;
+# {"status": "ok", "message": "querying", "id": 0}
+# {"status": "ok", "message": "found", "query_id": 0, "doc_id": 0, "doc":
+# {"hello":"world"}}
+# {"status": "ok", "message": "complete", "id": 0}
+```
+
+
+### Demo: Twitter Streaming API
+
+Reminder, this is pre-release software. We use Twitter Streaming APIs as testing
+to find new and novel edge cases which cause crashes.
+
+You should assume that this demo has a 50/50 chance to format your hard drive,
+and proceed accordingly. Preferably by reading the source to see whether this
+paragraph is serious or not.
+
+First, [install and authenticate twurl](https://github.com/marcel/twurl).
+
+Next, start a server listening to the network.
+
+```
+./sit --port 4000
+[INFO] [2013:03:0221:15:53] Successfully started server.
+```
+
+Now stream documents from Twitter, via netcat, to your running server.
+
+```
+twurl -t -H stream.twitter.com /1/statuses/sample.json | nc localhost 4000
+```
+
