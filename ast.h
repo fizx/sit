@@ -23,6 +23,9 @@ typedef struct AST {
 AST *
 ast_new(void *(*fmake)(), void (*ffree)(void *));
 
+void
+ast_free(AST *ast);
+
 ASTNode *
 ast_node_new(AST *ast); 
 

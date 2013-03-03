@@ -37,7 +37,6 @@ doc_buf_int_found(DocBuf *buffer, int value) {
   } else {
     WARN("int without field");
 	}
-	
 }
 
 void

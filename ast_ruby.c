@@ -8,7 +8,7 @@ wrapnil() {
 VALUE 
 rbc_ast_new(VALUE class) {	
   AST *ast = ast_new(wrapnil, free);
-	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, ast);
+	VALUE tdata = Data_Wrap_Struct(class, NULL, ast_free, ast);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }

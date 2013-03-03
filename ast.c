@@ -5,7 +5,23 @@ ast_new(void *(*fmake)(), void (*ffree)(void *)) {
   AST *ast = malloc(sizeof(AST));
   ast->make_data = fmake;
   ast->free_data = ffree;
+  ast->nodes = NULL;
   return ast;
+}
+
+void
+ast_free(AST *ast) {
+  ASTNode *node = ast->nodes;
+  ASTNode *tmp;
+  while(node) {
+    if(ast->free_data) {
+      ast->free_data(node->data);
+    }
+    tmp = node;
+    node = node->internal;
+    free(tmp);
+  }
+  free(ast);
 }
 
 ASTNode *
