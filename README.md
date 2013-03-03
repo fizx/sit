@@ -10,9 +10,9 @@ any stream using custom parsers.
   The executable is 228K on my machine.  It only depends on libev and libc;
   and currently (and temporarily) uses Ruby for the build and test suites.
 * **True realtime**
-  This is "true" real time, as opposed to "near" real time. Chaser's design has no
-  garbage collection, no "commits," no "flushes," and not even any fsyncs.
-  Search is optimized for recency and real-time.
+  This is "true" real time, as opposed to "near" real time. Chaser eliminates
+  garbage collection, "commits," "flushes," and fsyncs. This is search highly
+  optimized for recency and real-time.
 * **Write, then read**
   Trivially support search results which include the document you _just_ added.
 * **Computationally efficient percolation**
