@@ -308,7 +308,6 @@ expand_clauses(QueryParser *context, ASTNode *node) {
       ast_node_remove(op);
       ast_node_remove(val);
       context->tokenizer->consume(context->tokenizer, Q(node)->val);
-      context->tokenizer->end_stream(context->tokenizer);
     } else if(Q(op)->cmp != _TILDE && Q(val)->type == NUM) {
       Q(node)->type = NUMTERM;
       Q(node)->field = Q(field)->val;

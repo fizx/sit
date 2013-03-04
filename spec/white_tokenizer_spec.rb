@@ -13,8 +13,6 @@ describe "Tokenizer" do
 	  tokens = []
 	  parser = Tokenizer.new_whitespace(tokens)
 	  parser.consume("hello world")
-	  tokens.should == ["hello"]
-		parser.end_stream
 		tokens.should == ["hello", "world"]
   end
 end

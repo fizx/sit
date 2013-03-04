@@ -1,21 +1,14 @@
 #include "sit.h"
 #include "tokenizer.h"
 
-typedef struct {
-  pstring *remaining;
-  int offset;
-} WhiteState;
-
 void
 _white_consume(Tokenizer *tok, pstring *str) {
   DEBUG("tokenizing %.*s", str->len, str->val);
-  WhiteState *state = tok->state;
-  padd(state->remaining, str);
-  str = state->remaining;
   long off = 0;
   bool waswhite = false;
   bool iswhite = false;
   char c;
+  int offset = 0;
   for (int i =0; i < str->len; i++) {
     c = str->val[i];
     switch(c) {
@@ -32,12 +25,15 @@ _white_consume(Tokenizer *tok, pstring *str) {
     
     if(iswhite != waswhite) {
       if(iswhite) {
-        pstring *term = pstring_new2(str->val + off, i-off);
-        Token token = {
-          term, 
-          state->offset++
+        pstring term = {
+          str->val + off, 
+          i-off
         };
-        DEBUG("have token: %.*s %d", term->len, term->val, state->offset);
+        Token token = {
+          &term, 
+          offset++
+        };
+        DEBUG("have token: %.*s %d", term.len, term.val, offset);
         tok->on_token->handler(tok->on_token, &token);
       } else {
         off = i;
@@ -47,26 +43,16 @@ _white_consume(Tokenizer *tok, pstring *str) {
   }
     
   if(!iswhite) {
-    state->remaining = pstring_new2(str->val + off, str->len - off);
-  } else {
-    state->remaining = pstring_new(0);
-  }
-}
-
-void white_end_stream(Tokenizer *tok) {
-  assert(tok);
-  assert(tok->state);
-  WhiteState *state = tok->state;
-  if(state->remaining && state->remaining->len > 0) {
-    Token token = {
-      state->remaining,
-      state->offset++
+    pstring term = {
+     str->val + off, 
+     str->len - off
     };
-    DEBUG("have token: %.*s %d", state->remaining->len, state->remaining->val, state->offset);
+    Token token = {
+      &term, 
+      offset
+    };
     tok->on_token->handler(tok->on_token, &token);
   }
-  state->remaining = pstring_new(0);
-  state->offset = 0;
 }
 
 Tokenizer *
@@ -75,14 +61,16 @@ white_fresh_copy(Tokenizer *t) {
 	return white_tokenizer_new();
 }
 
+void
+_white_tokenizer_free(void *data) {
+  Tokenizer *tok = data;
+  free(tok);
+}
+
 Tokenizer *
 white_tokenizer_new() {
   Tokenizer *tok = tokenizer_new();
   tok->consume = _white_consume;
-  tok->state = calloc(1, sizeof(WhiteState));
-  WhiteState *state = tok->state;
-  state->remaining = pstring_new(0);
-  tok->end_stream = white_end_stream;
 	tok->fresh_copy = white_fresh_copy;
   return tok;
 }

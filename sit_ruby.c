@@ -228,5 +228,4 @@ Init_sit() {
   rbc_tokenizer = rb_define_class_under(m_sit, "Tokenizer", rb_cObject);
   rb_define_singleton_method(rbc_tokenizer, "new_whitespace", rbc_tokenizer_new_whitespace, 1);
   rb_define_method(rbc_tokenizer, "consume", rbc_tokenizer_consume, 1);
-  rb_define_method(rbc_tokenizer, "end_stream", rbc_tokenizer_end_stream, 0);
 }

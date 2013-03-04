@@ -95,7 +95,6 @@ _jsonsl_stack_callback(
       mystate->level = state->level - 1;
       mystate->tokenizer->data = parser->data;
       mystate->tokenizer->consume(mystate->tokenizer, &pstr);
-      mystate->tokenizer->end_stream(mystate->tokenizer);
 
 			break;
     }
@@ -147,11 +146,26 @@ _json_consume(struct Parser *parser, pstring *str) {
 	jsonsl_feed(state->json_parser, str->val, str->len);
 }
 
+void 
+_json_parser_free(void *data) {
+  Parser *parser = data;
+  JSONState *state = parser->state;
+  jsonsl_destroy(state->json_parser);
+  tokenizer_free(state->tokenizer);
+  pstring_free(state->working);
+  for(int i =0; i < MAX_DEPTH; i++) {
+    free(state->buffers[i]);
+  }
+  free(state);
+  free(parser);
+}
+
 Parser *
 json_parser_new(Tokenizer *tokenizer) {
   Parser *parser = parser_new();
   parser->state = calloc(1, sizeof(JSONState));
   JSONState *state = parser->state;
+  parser->free = _json_parser_free;
   state->json_parser = jsonsl_new(MAX_DEPTH);
   jsonsl_enable_all_callbacks(state->json_parser);
   jsonsl_reset(state->json_parser);

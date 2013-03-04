@@ -24,11 +24,3 @@ rbc_tokenizer_consume(VALUE self, VALUE rstr) {
   tok->consume(tok, r2pstring(rstr));
   return Qnil;
 }
-
-VALUE 
-rbc_tokenizer_end_stream(VALUE self) {
-  Tokenizer *tok;
-	Data_Get_Struct(self, Tokenizer, tok);
-  tok->end_stream(tok);
-  return Qnil;
-}
