@@ -47,7 +47,19 @@ _term_copy(void *privdata, const void *term) {
 void
 _term_free(void *privdata, void *term) {
   (void) privdata;
-  return term_free(term);
+  term_free(term);
+}
+
+void
+_void_free(void *privdata, void *data) {
+  (void) privdata;
+  free(data);
+}
+
+void 
+_plist_cursor_free(void *privdata, void *cursor) {
+  (void) privdata;
+  plist_cursor_free(cursor);
 }
 
 void 
@@ -72,6 +84,13 @@ void
 _rb_free(void *privdata, const void *rb) {
   (void) privdata;
   ring_buffer_free(rb);
+}
+
+void 
+_query_node_free(void *privdata, const void *data) {
+  (void) privdata;
+  QueryNode *node = data;
+  query_node_free(node);
 }
 
 dictType pstrDict = {
@@ -101,6 +120,15 @@ dictType termDict = {
     NULL           /* val destructor */
 };
 
+dictType termQueryNodeDict = {
+    _term_hash,    /* hash function */
+    NULL,    /* key dup */
+    NULL,          /* val dup */
+    _term_compare, /* key compare */
+    _term_free,    /* key destructor */
+    _query_node_free     /* val destructor */
+};
+
 dictType termTermDict = {
     _term_hash,    /* hash function */
     NULL,          /* key dup */
@@ -119,6 +147,15 @@ dictType termPlistDict = {
     _plist_free    /* val destructor */
 };
 
+dictType termPlistCursorDict = {
+    _term_hash,    /* hash function */
+    _term_copy,    /* key dup */
+    NULL,          /* val dup */
+    _term_compare, /* key compare */
+    _term_free,    /* key destructor */
+    _plist_cursor_free    /* val destructor */
+};
+
 lrw_type termLrw = {
 	_term_bump,
 	_term_version
@@ -131,4 +168,7 @@ dictType *getTermDict() { return &termDict; }
 dictType *getTermTermDict() { return &termTermDict; }
 dictType *getPstrRingBufferDict() { return &pstrRingBufferDict; }
 dictType *getTermPlistDict() { return &termPlistDict; }
+dictType *getTermQueryNodeDict() { return &termQueryNodeDict; }
+dictType *getTermPlistCursorDict() { return &termPlistCursorDict; }
+
 

@@ -3,12 +3,17 @@
 Term *
 term_new(pstring *field, pstring *text, int offset, bool negated) {
  	Term *term = malloc(sizeof(Term));
-	term->field = *field;
-	term->text = *text;
-	term->offset = offset;
-  term->negated = negated;
-  term->numeric = false;
-	term_update_hash(term);
+ 	const Term tmp = {
+ 	  *field,
+ 	  *text,
+ 	  0,
+ 	  offset,
+ 	  negated,
+ 	  false,
+ 	  false
+  };
+	term_update_hash(&tmp);
+  term_copulate(term, &tmp);
 	return term;
 }
 
@@ -21,9 +26,8 @@ term_free(Term *term) {
 	free(term);
 }
 
-Term *
-term_copy(const Term *term) {	
- 	Term *copy = malloc(sizeof(Term));
+void
+term_copulate(Term *copy, const Term *term) {	  
   copy->field.val = malloc(term->field.len);
   memcpy((void*)copy->field.val, term->field.val, term->field.len);
   copy->field.len = term->field.len;
@@ -35,6 +39,12 @@ term_copy(const Term *term) {
   copy->negated = term->negated;
   copy->numeric = term->numeric;
   copy->hash_code = term->hash_code;
+}
+
+Term *
+term_copy(const Term *term) {	
+ 	Term *copy = malloc(sizeof(Term));
+  term_copulate(copy, term);
   return copy;
 }
 

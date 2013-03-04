@@ -1,12 +1,5 @@
 #include "sit.h"
 
-typedef struct QueryNode {
-	dict               *children;
-	Term							 *term;
-	struct QueryNode   *parent;
-	Callback 				   *callback;
-} QueryNode;
-
 typedef struct unregister_data {
   long query_id;
   bool success;
@@ -15,7 +8,7 @@ typedef struct unregister_data {
 Engine *
 engine_new(Parser *parser, long size) {
   Engine *engine = malloc(sizeof(Engine));
-	engine->queries = dictCreate(getTermDict(), 0);
+	engine->queries = dictCreate(getTermQueryNodeDict(), 0);
 	engine->parser = parser;
 	engine->query_id = 0;
 	engine->after_on_document = NULL;
@@ -41,14 +34,29 @@ engine_free(Engine *engine) {
   free(engine);
 }
 
+void 
+query_node_free(QueryNode *node) {
+  if(node->children) {
+    dictRelease(node->children);
+  }
+  Callback *cb = node->callback;
+  while(cb) {
+    Callback *tmp = cb;
+    cb = cb->next;
+    callback_free(tmp);
+  }
+	
+  free(node); 
+}
+
 Term SENTINEL = {
-  {},
-  {},
-  0,
+  {NULL, 0},
+  {NULL, 0},
+  INT_MAX,
   0,
   true, 
   false,
-  false
+  true
 };
 
 int 
@@ -64,9 +72,9 @@ _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int rema
 	  if (node == NULL) {
   	  node = calloc(sizeof(QueryNode), 1);
   		node->parent = parent;
-  		node->term = &SENTINEL;
-  		node->children = dictCreate(getTermDict(), 0);
-      dictAdd(hash, &SENTINEL, node);
+  		node->term = term_copy(&SENTINEL);
+  		node->children = dictCreate(getTermQueryNodeDict(), 0);
+      dictAdd(hash, node->term, node);
 		}
     parent = node;
     hash = node->children;
@@ -77,8 +85,8 @@ _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int rema
 	if (node == NULL) {
 		node = calloc(sizeof(QueryNode), 1);
 		node->parent = parent;
-		node->term = term;
-		dictAdd(hash, term, node);
+		node->term = term_copy(term);
+		dictAdd(hash, node->term, node);
 		tmp = term_to_s(term);
 	}
 	if (remaining == 1) {
@@ -89,7 +97,7 @@ _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int rema
 		return callback->id;
 	} else {
 		if(node->children == NULL) {
-			node->children = dictCreate(getTermDict(), 0);
+			node->children = dictCreate(getTermQueryNodeDict(), 0);
 		}
 		return _recurse_add(engine, node->children, node, term + 1, remaining - 1, negated_yet, callback);
 	}
@@ -106,7 +114,7 @@ engine_register(Engine *engine, Query *query) {
 Term **
 _get_terms(QueryNode *node, int *term_count) {	 
 
-  if(node->term != &SENTINEL){
+  if(node->term->hash_code != INT_MAX){
     (*term_count)++;
   }    
   
@@ -216,6 +224,7 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
       if (positive == !!dictFetchValue(term_index, dictGetKey(next))) {
 		  	QueryNode *node = dictGetVal(next);
   			Callback *cb = node->callback;
+        assert(node->term->owns_string);
         DEBUG("perc'd %.*s:%.*s", node->term->field.len, node->term->field.val, node->term->text.len, node->term->text.val);
   			while(cb) {
   			  DEBUG("running callback %d", cb->id);
@@ -311,6 +320,19 @@ _unregister_handler(Callback *cb, void *vnode) {
 	}
 }
 
+void
+result_iterator_free(ResultIterator *iter) {
+  dictRelease(iter->cursors);
+  for(int i = 0; i < iter->count; i++) {
+    free(iter->subs[i]->cursors);
+    free(iter->subs[i]->negateds);
+    free(iter->subs[i]->state);
+    free(iter->subs[i]);
+  }
+  free(iter->subs);
+  free(iter);
+}
+
 ResultIterator *
 engine_search(Engine *engine, Query *query) {
   long max = engine_last_document_id(engine)+1;
@@ -320,7 +342,7 @@ engine_search(Engine *engine, Query *query) {
   iter->engine = engine;
   iter->doc_id = max;
   iter->initialized = false;
-  iter->cursors = dictCreate(getTermDict(), 0);
+  iter->cursors = dictCreate(getTermPlistCursorDict(), 0);
   iter->subs = malloc(sizeof(sub_iterator*) * query->count);
   iter->count = query->count;
   DEBUG("Constructing cursor");
@@ -328,7 +350,7 @@ engine_search(Engine *engine, Query *query) {
     conjunction_t *cj = query->conjunctions[i];
     iter->subs[i] = malloc(sizeof(sub_iterator));
     iter->subs[i]->doc_id = max;
-    iter->subs[i]->cursors = malloc(sizeof(plist_cursor*) * cj->count);
+    iter->subs[i]->cursors = malloc(sizeof(PlistCursor*) * cj->count);
     iter->subs[i]->negateds = malloc(cj->count * sizeof(int));
     iter->subs[i]->state = malloc(sizeof(long) * cj->count);
     iter->subs[i]->initialized = false;

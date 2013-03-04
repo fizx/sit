@@ -42,12 +42,12 @@ typedef struct PlistPool {
  	void         *next_block;
 } PlistPool;
 
-typedef struct plist_cursor {
+typedef struct PlistCursor {
   struct Cursor as_cursor;
   Plist *plist;
   PlistBlock *block;
   bool exhausted;
-} plist_cursor;
+} PlistCursor;
 
 void
 plist_pool_free(PlistPool *plist);
@@ -55,8 +55,11 @@ plist_pool_free(PlistPool *plist);
 PlistPool *
 plist_pool_new(long size);
 
-plist_cursor *
+PlistCursor *
 plist_cursor_new(Plist *plist);
+
+void
+plist_cursor_free(PlistCursor *cursor);
 
 Plist *
 plist_new(PlistPool *pool);

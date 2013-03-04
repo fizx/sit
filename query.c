@@ -36,7 +36,11 @@ conjunction_new(Term **terms, int count) {
 
 void 
 query_free(Query *query) {
-	callback_free(query->callback);
+  if(query->callback)	callback_free(query->callback);
+  for(int i = 0; i < query->count; i++) {
+    free(query->conjunctions[i]);
+  }
+  free(query->conjunctions);
 	free(query);
 }
 

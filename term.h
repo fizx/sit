@@ -29,6 +29,10 @@ term_to_s(Term *term);
 Term *
 term_copy(const Term *term);
 
+
+void
+term_copulate(Term *copy, const Term *term);
+
 void 
 term_free(Term *term);
 

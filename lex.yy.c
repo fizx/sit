@@ -2170,6 +2170,23 @@ query_node_new(QueryParser *qp, QNodeType type) {
   return ast_node;
 }
 
+#define Q(node)     ((QNode *)(node->data))
+
+
+void
+add_token(Callback *cb, void *data) {
+  Token *token = data;
+  QueryParser *context = cb->user_data;
+  ASTNode *node = context->tmp;
+  pstring *field = Q(node)->field;
+  Q(node)->num = token->offset;
+  ASTNode *term = query_node_new(context, TERM);
+  Q(term)->cmp = Q(node)->cmp;
+  Q(term)->field = field;
+  Q(term)->val = pcpy(token->text);
+  ast_node_append_child(node, term);
+}
+
 QueryParser *
 query_parser_new(Callback *cb) {
   QueryParser *parser = malloc(sizeof(QueryParser));
@@ -2179,6 +2196,7 @@ query_parser_new(Callback *cb) {
   parser->root = NULL;
   parser->on_query = cb;
   parser->tokenizer = white_tokenizer_new();
+  parser->tokenizer->on_token = callback_new(add_token, parser);
   parser->push_state = yypstate_new();
   parser->lvalp = malloc(sizeof(YYSTYPE));
   parser->llocp = malloc(sizeof(YYLTYPE));
@@ -2225,7 +2243,6 @@ query_parser_consume(QueryParser *parser, pstring *pstr) {
   return status;
 }
 
-#define Q(node)     ((QNode *)(node->data))
 #define NEXT(obj)   (obj ? obj->next : NULL)
 void 
 associate_ands(QueryParser *context, ASTNode *node) {
@@ -2381,20 +2398,6 @@ bubble_ors(QueryParser *context, ASTNode *node) {
 }
 
 void
-add_token(Callback *cb, void *data) {
-  Token *token = data;
-  QueryParser *context = cb->user_data;
-  ASTNode *node = context->tmp;
-  pstring *field = Q(node)->field;
-  Q(node)->num = token->offset;
-  ASTNode *term = query_node_new(context, TERM);
-  Q(term)->cmp = Q(node)->cmp;
-  Q(term)->field = field;
-  Q(term)->val = pcpy(token->text);
-  ast_node_append_child(node, term);
-}
-
-void
 expand_clauses(QueryParser *context, ASTNode *node) {
   if(!node) return;
 
@@ -2404,7 +2407,6 @@ expand_clauses(QueryParser *context, ASTNode *node) {
     ASTNode *val = node->child->next->next;
     if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
       Q(node)->type = ANDS;
-      context->tokenizer->on_token = callback_new(add_token, context);
       context->tmp = node;
       Q(node)->field = Q(field)->val;
       Q(node)->cmp = Q(op)->cmp;
@@ -2433,7 +2435,8 @@ to_conjunction(ASTNode *node, void *obj) {
   case NUMTERM:
   case TERM: {
     conjunction_t *con = malloc(sizeof(conjunction_t));
-    memcpy(&con->terms[0], obj, sizeof(Term));
+    term_copulate(&con->terms[0], obj);
+    free(obj);
   	con->count = 1;
   	con->data = NULL;
     return con;
@@ -2454,9 +2457,9 @@ to_query(ASTNode *node, void *obj) {
     // fall-through
   }
   case ANDS: {
-    Query *query = malloc(sizeof(Query));
+    Query *query = calloc(1, sizeof(Query));
     query->count = 1;
-    query->conjunctions = malloc(sizeof(conjunction_t*));
+    query->conjunctions = calloc(1, sizeof(conjunction_t*));
     query->conjunctions[0] = obj;
     return query;
   }
@@ -2510,6 +2513,7 @@ void *
 make_query_and_callback(QueryParser *context, ASTNode *node) {
   switch(Q(node)->type) {
   case NUMTERM: {
+    DEBUG("NUMTERM");
     pstring *c = cmpmap(Q(node)->cmp);
     if(Q(node)->negated) c = _negate(c);
     Term *term = term_new(Q(node)->field, c, Q(node)->num, false);
@@ -2517,13 +2521,18 @@ make_query_and_callback(QueryParser *context, ASTNode *node) {
     return term;
   }
   case TERM:
+    DEBUG("TERM");
     return term_new(Q(node)->field, Q(node)->val, Q(node)->num, Q(node)->negated);
   case ANDS: {
+    DEBUG("ANDS");
     int count = ast_node_child_count(node);
     conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(Term));
     ASTNode *child = node->child;
   	for(int i = 0	; i < count; i++) {
-  		memcpy(&con->terms[i], make_query_and_callback(context, child), sizeof(Term));
+  	  DEBUG("recurse");
+  	  Term *term = make_query_and_callback(context, child);
+      term_copulate(&con->terms[i], term);
+      free(term);
   		child = child->next;
   	}
   	qsort(con->terms, count, sizeof(Term), qtermcmp);	
@@ -2532,6 +2541,7 @@ make_query_and_callback(QueryParser *context, ASTNode *node) {
   	return con;
   } 
   case ORS: {
+    DEBUG("ORS");
     int count = ast_node_child_count(node);
     Query *query = malloc(sizeof(Query));
     query->count = count;
@@ -2543,6 +2553,7 @@ make_query_and_callback(QueryParser *context, ASTNode *node) {
   	}
   } 
   case EXPR: {
+    DEBUG("EXPR");
     return to_query(node->child, make_query_and_callback(context, node->child));
   }
   default:
@@ -2555,10 +2566,6 @@ query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
   pstring *pstr;
   (void) pstr;
   context->root = expression;
-  // pstr = query_node_query(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
-  // pstr = query_node_ast_to_s(expression);
-  // printf("\n%.*s\n****************\n", pstr->len, pstr->val);
   expand_clauses(context, expression);
   associate_ands(context, expression);
   combine_ors(context, expression);
@@ -2569,14 +2576,11 @@ query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
   bubble_ors(context, expression);
   merge_bools(context, expression, ORS);
   merge_bools(context, expression, ANDS);
-  // pstr = query_node_query(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
-  // pstr = query_node_ast_to_s(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
   
   Query * query = make_query_and_callback(context, expression);
   query->limit = limit;
   context->on_query->handler(context->on_query, query);
+  query_free(query);
 }
 
 const char *

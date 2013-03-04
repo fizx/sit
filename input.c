@@ -64,6 +64,7 @@ _channel_handler(Callback *callback, void *data) {
     pstring *buf = pstring_new(0);
     PV("{\"status\": \"ok\", \"message\": \"registered\", \"id\": %ld}", query_id);
     input->output->write(input->output, buf);
+    query->callback = NULL; // disassociate from gc.
     pstring_free(buf);
   } else {
     query->callback = callback_new(_perc_found_handler, input);
@@ -79,8 +80,8 @@ _channel_handler(Callback *callback, void *data) {
     PV("{\"status\": \"ok\", \"message\": \"complete\", \"id\": %ld}", query->callback->id);
     input->output->write(input->output, buf);
     pstring_free(buf);
-    free(iter);
-  } 
+    result_iterator_free(iter);
+  }   
 }
 
 Input *
@@ -91,8 +92,7 @@ input_new(struct Engine *engine, long buffer_size) {
  	Input *input = malloc(sizeof(Input));
 	input->engine = engine;
   input->qparser_mode = REGISTERING;
-	input->qparser = query_parser_new();
-	input->qparser->on_query = callback_new(_channel_handler, input);
+	input->qparser = query_parser_new(callback_new(_channel_handler, input));
 	input->parser = engine->parser->fresh_copy(engine->parser);
 	input->parser->on_document = callback_new(_input_document_found, input);
 	input->parser->on_error = callback_new(__input_error_found, input);

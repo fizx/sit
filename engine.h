@@ -6,6 +6,16 @@
 #include "input.h"
 #include "plist.h"
 
+typedef struct QueryNode {
+	dict               *children;
+	Term							 *term;
+	struct QueryNode   *parent;
+	Callback 				   *callback;
+} QueryNode;
+
+void 
+query_node_free(QueryNode *node);
+
 typedef struct Engine {
   // Data structures & indexes
   dict                  *queries;  // Registered for percolation
@@ -86,6 +96,9 @@ engine_percolate(Engine *engine, DocBuf *buffer, long doc_id);
 
 void
 engine_index(Engine *engine, DocBuf *buffer, long doc_id);
+
+void
+result_iterator_free(ResultIterator *iter);
 
 long
 engine_register(Engine *engine, Query *query);

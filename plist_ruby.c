@@ -104,7 +104,7 @@ rbc_plist_new_cursor(VALUE self) {
   Plist *pl;
 	Data_Get_Struct(self, Plist, pl);
   assert(pl);
-  plist_cursor *cursor = plist_cursor_new(pl);
+  PlistCursor *cursor = plist_cursor_new(pl);
   if (cursor == NULL) {
     return Qnil;
   } else {
@@ -116,24 +116,24 @@ rbc_plist_new_cursor(VALUE self) {
 
 VALUE
 rbc_plist_cursor_prev(VALUE self) {
-  plist_cursor *cursor;
-	Data_Get_Struct(self, plist_cursor, cursor);
+  PlistCursor *cursor;
+	Data_Get_Struct(self, PlistCursor, cursor);
   Cursor *sc = &cursor->as_cursor;
   return sc->prev(sc) ? Qtrue : Qfalse;
 }
 
 VALUE
 rbc_plist_cursor_next(VALUE self) {
-  plist_cursor *cursor;
-	Data_Get_Struct(self, plist_cursor, cursor);
+  PlistCursor *cursor;
+	Data_Get_Struct(self, PlistCursor, cursor);
 	Cursor *sc = &cursor->as_cursor;
   return sc->next(sc) ? Qtrue : Qfalse;
 }
 
 VALUE
 rbc_plist_cursor_entry(VALUE self) {
-  plist_cursor *cursor;
-	Data_Get_Struct(self, plist_cursor, cursor);
+  PlistCursor *cursor;
+	Data_Get_Struct(self, PlistCursor, cursor);
 	Cursor *sc = &cursor->as_cursor;
   PlistEntry *entry = sc->data;
   if(entry == NULL) {

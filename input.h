@@ -26,6 +26,7 @@ typedef struct Input {
   QueryIdNode    *query_ids;
   
   Callback *doc_acker;
+  Callback *found_callback;
   
   Output         *output;
 

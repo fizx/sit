@@ -14,6 +14,9 @@ dictType *
 getTermDict();
 
 dictType *
+getTermQueryNodeDict();
+
+dictType *
 getTermPlistDict();
 
 dictType *
@@ -21,5 +24,8 @@ getTermTermDict();
 
 dictType *
 getPstrRingBufferDict();
+
+dictType *
+getTermPlistCursorDict();
 
 #endif
