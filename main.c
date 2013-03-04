@@ -104,8 +104,9 @@ main(int argc, char **argv) {
   		pstr.len = strlen(buffer);
       pparser->consume(pparser, &pstr);
   	}
-  	input_free(input);
+    line_input_protocol_free(pparser);
     free(input->output);
+  	input_free(input);
     engine_free(engine);
   }
 }

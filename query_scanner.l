@@ -100,7 +100,9 @@ query_parser_free(QueryParser *parser) {
 
 void
 query_parser_reset(QueryParser *parser) {
+  yypstate_delete(parser->push_state);
   parser->push_state = yypstate_new();
+  yylex_destroy(parser->scanner);
   yylex_init(&parser->scanner);
   yyset_extra(parser, parser->scanner);
 }
@@ -453,10 +455,6 @@ query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
   pstring *pstr;
   (void) pstr;
   context->root = expression;
-  // pstr = query_node_query(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
-  // pstr = query_node_ast_to_s(expression);
-  // printf("\n%.*s\n****************\n", pstr->len, pstr->val);
   expand_clauses(context, expression);
   associate_ands(context, expression);
   combine_ors(context, expression);
@@ -467,14 +465,11 @@ query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
   bubble_ors(context, expression);
   merge_bools(context, expression, ORS);
   merge_bools(context, expression, ANDS);
-  // pstr = query_node_query(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
-  // pstr = query_node_ast_to_s(expression);
-  // printf("%.*s\n", pstr->len, pstr->val);
   
   Query * query = make_query_and_callback(context, expression);
   query->limit = limit;
   context->on_query->handler(context->on_query, query);
+  query_free(query);
 }
 
 const char *

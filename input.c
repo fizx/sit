@@ -11,6 +11,7 @@ _perc_found_handler(Callback *callback, void *data) {
   PV("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld, \"doc\": %.*s}", query_id, doc_id, doc->len, doc->val);
   input->output->write(input->output, buf);
   pstring_free(buf);
+  pstring_free(doc);
 }
 
 void 
@@ -78,6 +79,7 @@ _channel_handler(Callback *callback, void *data) {
     PV("{\"status\": \"ok\", \"message\": \"complete\", \"id\": %ld}", query->callback->id);
     input->output->write(input->output, buf);
     pstring_free(buf);
+    free(iter);
   } 
 }
 

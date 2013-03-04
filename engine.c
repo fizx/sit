@@ -188,6 +188,7 @@ engine_get_document(Engine *engine, long doc_id) {
     return NULL;
   } else {
 		pstring *doc = ring_buffer_get_pstring(engine->stream, dr->off, dr->len);
+    free(dr);
 		return doc;
   }
 }

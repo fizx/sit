@@ -2200,7 +2200,9 @@ query_parser_free(QueryParser *parser) {
 
 void
 query_parser_reset(QueryParser *parser) {
+  yypstate_delete(parser->push_state);
   parser->push_state = yypstate_new();
+  yylex_destroy(parser->scanner);
   yylex_init(&parser->scanner);
   yyset_extra(parser,parser->scanner);
 }
