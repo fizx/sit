@@ -154,7 +154,7 @@ _json_parser_free(void *data) {
   tokenizer_free(state->tokenizer);
   pstring_free(state->working);
   for(int i =0; i < MAX_DEPTH; i++) {
-    free(state->buffers[i]);
+    doc_buf_free(state->buffers[i]);
   }
   free(state);
   free(parser);

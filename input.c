@@ -100,7 +100,10 @@ input_new(struct Engine *engine, long buffer_size) {
 }
 
 void
-input_free(Input *input) {
+input_free(Input *input) {  
+  callback_free(input->qparser->on_query);
+  callback_free(input->parser->on_document);
+  callback_free(input->parser->on_error);
   query_parser_free(input->qparser);
   parser_free(input->parser);
   callback_free(input->doc_acker);

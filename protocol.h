@@ -34,4 +34,7 @@ line_protocol_new();
 ProtocolParser *
 line_input_protocol_new(struct Input *input);
 
+void
+line_input_protocol_free(ProtocolParser *parser);
+
 #endif

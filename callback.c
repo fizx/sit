@@ -14,6 +14,7 @@ callback_new(void (*handler)(struct Callback *self, void *data), void *user_data
 void
 callback_free(Callback *cb) {
 	if(cb->free == NULL) {
+    free(cb);
 	} else {
 		cb->free(cb);
 	}

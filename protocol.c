@@ -164,6 +164,12 @@ line_input_protocol_new(Input *input) {
   return parser;
 }
 
+void
+line_input_protocol_free(ProtocolParser *parser) {
+  free(parser->handler);
+  free(parser);
+}
+
 ProtocolParser *
 line_protocol_new() {
   ProtocolParser *parser = malloc(sizeof(ProtocolParser));

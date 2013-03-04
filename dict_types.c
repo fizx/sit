@@ -76,10 +76,10 @@ _rb_free(void *privdata, const void *rb) {
 
 dictType pstrDict = {
     _pstr_hash,    /* hash function */
-    NULL,          /* key dup */
+    _pstr_dup,     /* key dup */
     NULL,          /* val dup */
     _pstr_compare, /* key compare */
-    NULL,    			 /* key destructor */
+    _pstr_free,    /* key destructor */
     NULL           /* val destructor */
 };
 

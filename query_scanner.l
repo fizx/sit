@@ -91,7 +91,10 @@ void
 query_parser_free(QueryParser *parser) {
   tokenizer_free(parser->tokenizer);
   ast_free(parser->ast);
-  if(parser->on_query) callback_free(parser->on_query);
+  yypstate_delete(parser->push_state);
+  yylex_destroy(parser->scanner);
+  free(parser->lvalp);
+  free(parser->llocp);
   free(parser);
 }
 
