@@ -54,6 +54,8 @@ ASTNode *
 str_node(QueryParser *context) {
   ASTNode *node = ast_query_node_new(context, STR);
   Q(node)->val = c2pstring(context->ptr);
+  qp_freeable(context, Q(node)->val);
+  qp_freeable(context, Q(node)->val->val);
   return node;
 }
 
@@ -61,6 +63,8 @@ ASTNode *
 qstr_node(QueryParser *context) {
   ASTNode *node = ast_query_node_new(context, STR);
   Q(node)->val = qc2pstring(context->ptr);
+  qp_freeable(context, Q(node)->val);
+  qp_freeable(context, Q(node)->val->val);
   return node;
 }
 

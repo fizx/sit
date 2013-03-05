@@ -38,6 +38,9 @@ typedef struct QueryParser {
 QueryParser *
 query_parser_new();
 
+void 
+qp_freeable(QueryParser *qp, void *data);
+
 void
 query_parser_free(QueryParser *qp);
 

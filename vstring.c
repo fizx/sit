@@ -19,23 +19,6 @@ vstring_append(vstring *vstr, pstring *pstr) {
 }
 
 void
-ll_add(LList **ll, const void *data) {
-  LList *node = malloc(sizeof(LList));
-  node->data = data;
-  node->next = *ll;
-  *ll = node;
-}
-
-void
-ll_free(LList *ll) {
-  if(ll->next) {
-    ll_free(ll->next);
-  }
-  free((void *)ll->data);
-  free(ll);
-}
-
-void
 _v(pstring *out, VStringNode *node, long off) {
   if(!node) return;
   

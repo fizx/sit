@@ -12,18 +12,12 @@ typedef struct Output {
 
 typedef enum { REGISTERING, QUERYING } QueryParserMode;
 
-typedef struct QueryIdNode {
-  long query_id;
-  struct QueryIdNode *next;
-} QueryIdNode;
-
 typedef struct Input {
   struct Engine      *engine;
 	Parser      *parser;
   QueryParser *qparser;
   
   QueryParserMode qparser_mode;
-  QueryIdNode    *query_ids;
   
   Callback *doc_acker;
   Callback *found_callback;

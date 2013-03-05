@@ -2,11 +2,7 @@
 #define VSTRING_H_INCLUDED
 
 #include "pstring.h"
-
-typedef struct LList {
-  const void   *data;
-  struct LList *next;
-} LList;
+#include "ll.h"
 
 typedef struct VStringNode {
   pstring             pstr;
@@ -19,12 +15,6 @@ typedef struct vstring {
   struct VStringNode *node;
   long off;
 } vstring;
-
-void
-ll_add(LList **ll, const void *data);
-
-void
-ll_free(LList *ll);
 
 vstring *
 vstring_new();

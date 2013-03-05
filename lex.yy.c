@@ -923,7 +923,7 @@ YY_RULE_SETUP
 case 15:
 YY_RULE_SETUP
 #line 48 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); return(DIGITS); }
+{ yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(DIGITS); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
@@ -934,12 +934,12 @@ case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
 #line 50 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); return(STRING_LITERAL); }
+{ yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(STRING_LITERAL); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 51 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); return(UNQUOTED); }
+{ yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(UNQUOTED); }
 	YY_BREAK
 case 19:
 /* rule 19 can match eol */
@@ -2163,6 +2163,11 @@ _qnode_free(void *data) {
   free(node);
 }
 
+void 
+qp_freeable(QueryParser *qp, void *data) {
+  ll_add(&qp->ast->freeable, data);
+}
+
 ASTNode *
 ast_query_node_new(QueryParser *qp, QNodeType type) {
   QNode *node = malloc(sizeof(QNode));
@@ -2191,6 +2196,7 @@ add_token(Callback *cb, void *data) {
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
   Q(term)->val = pcpy(token->text);
+  qp_freeable(context, Q(term)->val);
   ast_node_append_child(node, term);
 }
 

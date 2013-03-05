@@ -257,6 +257,8 @@ ASTNode *
 str_node(QueryParser *context) {
   ASTNode *node = ast_query_node_new(context, STR);
   Q(node)->val = c2pstring(context->ptr);
+  qp_freeable(context, Q(node)->val);
+  qp_freeable(context, Q(node)->val->val);
   return node;
 }
 
@@ -264,6 +266,8 @@ ASTNode *
 qstr_node(QueryParser *context) {
   ASTNode *node = ast_query_node_new(context, STR);
   Q(node)->val = qc2pstring(context->ptr);
+  qp_freeable(context, Q(node)->val);
+  qp_freeable(context, Q(node)->val->val);
   return node;
 }
 
@@ -314,7 +318,7 @@ query_node_copy_subtree(QueryParser *context, ASTNode *subtree) {
 
 
 /* Line 390 of yacc.c  */
-#line 318 "y.tab.c"
+#line 322 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -588,9 +592,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   131,   131,   132,   136,   137,   141,   142,   146,   149,
-     155,   158,   164,   170,   174,   178,   185,   194,   195,   196,
-     197,   198,   199,   200,   205,   206,   211,   216
+       0,   135,   135,   136,   140,   141,   145,   146,   150,   153,
+     159,   162,   168,   174,   178,   182,   189,   198,   199,   200,
+     201,   202,   203,   204,   209,   210,   215,   220
 };
 #endif
 
@@ -1762,31 +1766,31 @@ yyreduce:
     {
         case 2:
 /* Line 1807 of yacc.c  */
-#line 131 "query_parser.y"
+#line 135 "query_parser.y"
     { (yyval.node) = int_node(context); }
     break;
 
   case 3:
 /* Line 1807 of yacc.c  */
-#line 132 "query_parser.y"
+#line 136 "query_parser.y"
     { (yyval.node) = int_node(context); Q((yyval.node))->num *= -1; }
     break;
 
   case 4:
 /* Line 1807 of yacc.c  */
-#line 136 "query_parser.y"
+#line 140 "query_parser.y"
     { (yyval.node) = qstr_node(context); }
     break;
 
   case 5:
 /* Line 1807 of yacc.c  */
-#line 137 "query_parser.y"
+#line 141 "query_parser.y"
     { (yyval.node) = str_node(context); }
     break;
 
   case 8:
 /* Line 1807 of yacc.c  */
-#line 146 "query_parser.y"
+#line 150 "query_parser.y"
     { 
     query_parser_construct(context, (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].num)); 
   }
@@ -1794,7 +1798,7 @@ yyreduce:
 
   case 9:
 /* Line 1807 of yacc.c  */
-#line 149 "query_parser.y"
+#line 153 "query_parser.y"
     { 
     query_parser_construct(context, (yyvsp[(1) - (2)].node), -1); 
   }
@@ -1802,13 +1806,13 @@ yyreduce:
 
   case 10:
 /* Line 1807 of yacc.c  */
-#line 155 "query_parser.y"
+#line 159 "query_parser.y"
     { (yyval.num) = Q((yyvsp[(2) - (2)].node))->num; }
     break;
 
   case 11:
 /* Line 1807 of yacc.c  */
-#line 158 "query_parser.y"
+#line 162 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1819,7 +1823,7 @@ yyreduce:
 
   case 12:
 /* Line 1807 of yacc.c  */
-#line 164 "query_parser.y"
+#line 168 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1830,7 +1834,7 @@ yyreduce:
 
   case 13:
 /* Line 1807 of yacc.c  */
-#line 170 "query_parser.y"
+#line 174 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(2) - (3)].node));
@@ -1839,7 +1843,7 @@ yyreduce:
 
   case 14:
 /* Line 1807 of yacc.c  */
-#line 174 "query_parser.y"
+#line 178 "query_parser.y"
     { 
       (yyval.node) = (yyvsp[(2) - (2)].node);
       Q((yyval.node))->negated = !Q((yyval.node))->negated;
@@ -1848,7 +1852,7 @@ yyreduce:
 
   case 15:
 /* Line 1807 of yacc.c  */
-#line 178 "query_parser.y"
+#line 182 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (1)].node));
@@ -1857,7 +1861,7 @@ yyreduce:
 
   case 16:
 /* Line 1807 of yacc.c  */
-#line 185 "query_parser.y"
+#line 189 "query_parser.y"
     { 
       (yyval.node) = clause_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1868,49 +1872,49 @@ yyreduce:
 
   case 17:
 /* Line 1807 of yacc.c  */
-#line 194 "query_parser.y"
+#line 198 "query_parser.y"
     { (yyval.node) = cmp_node(context, _EQ     );}
     break;
 
   case 18:
 /* Line 1807 of yacc.c  */
-#line 195 "query_parser.y"
+#line 199 "query_parser.y"
     { (yyval.node) = cmp_node(context, _GT     );}
     break;
 
   case 19:
 /* Line 1807 of yacc.c  */
-#line 196 "query_parser.y"
+#line 200 "query_parser.y"
     { (yyval.node) = cmp_node(context, _LT     );}
     break;
 
   case 20:
 /* Line 1807 of yacc.c  */
-#line 197 "query_parser.y"
+#line 201 "query_parser.y"
     { (yyval.node) = cmp_node(context, _GTE    );}
     break;
 
   case 21:
 /* Line 1807 of yacc.c  */
-#line 198 "query_parser.y"
+#line 202 "query_parser.y"
     { (yyval.node) = cmp_node(context, _LTE    );}
     break;
 
   case 22:
 /* Line 1807 of yacc.c  */
-#line 199 "query_parser.y"
+#line 203 "query_parser.y"
     { (yyval.node) = cmp_node(context, _TILDE  );}
     break;
 
   case 23:
 /* Line 1807 of yacc.c  */
-#line 200 "query_parser.y"
+#line 204 "query_parser.y"
     { (yyval.node) = cmp_node(context, _NEQ    );}
     break;
 
   case 26:
 /* Line 1807 of yacc.c  */
-#line 211 "query_parser.y"
+#line 215 "query_parser.y"
     { 
       (yyval.node) = (yyvsp[(1) - (4)].node); 
       Q((yyvsp[(1) - (4)].node))->type = MODSTR; 
@@ -1920,7 +1924,7 @@ yyreduce:
 
 
 /* Line 1807 of yacc.c  */
-#line 1924 "y.tab.c"
+#line 1928 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2162,5 +2166,5 @@ yypushreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 219 "query_parser.y"
+#line 223 "query_parser.y"
 

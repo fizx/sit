@@ -6,6 +6,7 @@ ast_new(void *(*fmake)(), void (*ffree)(void *)) {
   ast->make_data = fmake;
   ast->free_data = ffree;
   ast->nodes = NULL;
+  ast->freeable = NULL;
   return ast;
 }
 
@@ -21,6 +22,7 @@ ast_free(AST *ast) {
     node = node->internal;
     free(tmp);
   }
+  ll_free(ast->freeable);
   free(ast);
 }
 

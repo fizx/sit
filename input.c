@@ -57,10 +57,6 @@ _channel_handler(Callback *callback, void *data) {
   if(input->qparser_mode == REGISTERING) {
     query->callback = callback_new(_perc_found_handler, input);
     long query_id = engine_register(engine, query);
-    QueryIdNode *node = malloc(sizeof(*node));
-    node->query_id = query_id;
-    node->next = input->query_ids;
-    input->query_ids = node;
     pstring *buf = pstring_new(0);
     PV("{\"status\": \"ok\", \"message\": \"registered\", \"id\": %ld}", query_id);
     input->output->write(input->output, buf);

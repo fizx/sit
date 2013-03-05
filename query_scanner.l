@@ -45,10 +45,10 @@ NS    [^ \t\n\r,?*();:\^"]
 "~"                       { return(TILDE); }
 "<>"                      { return(NEQ); }
 "-"                       { return(MINUS); }
-{D}+                      { yyextra->ptr = cstring_new(yytext, yyleng); return(DIGITS); }
+{D}+                      { yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(DIGITS); }
 "."                       { return(DOT); }
-L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); return(STRING_LITERAL); }
-{NS}+             	      { yyextra->ptr = cstring_new(yytext, yyleng); return(UNQUOTED); }
+L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(STRING_LITERAL); }
+{NS}+             	      { yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(UNQUOTED); }
 [;\n]+                    { return(EOQ); }
 [ \t\v\f]  		            { /* ignore whitespace*/ }
 .			                    { /* ignore bad characters */ }
@@ -61,6 +61,11 @@ _qnode_free(void *data) {
 //  if(node->field) free(node->field);
 //  # if(node->val) free(node->val);
   free(node);
+}
+
+void 
+qp_freeable(QueryParser *qp, void *data) {
+  ll_add(&qp->ast->freeable, data);
 }
 
 ASTNode *
@@ -91,6 +96,7 @@ add_token(Callback *cb, void *data) {
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
   Q(term)->val = pcpy(token->text);
+  qp_freeable(context, Q(term)->val);
   ast_node_append_child(node, term);
 }
 

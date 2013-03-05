@@ -2,6 +2,7 @@
 #define AST_H_INCLUDED
 
 struct AST;
+#include "ll.h"
 
 typedef struct ASTNode {
   struct AST     *ast;
@@ -17,6 +18,7 @@ typedef struct AST {
   void *(*make_data)();
   void  (*free_data)(void *data);
   ASTNode *nodes;
+  LList *freeable;
 } AST;
 
 

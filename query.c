@@ -34,11 +34,23 @@ conjunction_new(Term **terms, int count) {
 	return con;
 }
 
+void
+_conjunction_free(conjunction_t *con) {
+  for(int i = 0; i < con->count; i++) {
+    Term *term = &con->terms[i];
+    if(term->owns_string) {
+      free(term->field.val);
+  		free(term->text.val);
+    }
+  }
+  free(con);
+}
+
 void 
 query_free(Query *query) {
   if(query->callback)	callback_free(query->callback);
   for(int i = 0; i < query->count; i++) {
-    free(query->conjunctions[i]);
+    _conjunction_free(query->conjunctions[i]);
   }
   free(query->conjunctions);
 	free(query);

@@ -157,9 +157,9 @@ json_parser_new(Tokenizer *tokenizer) {
   state->tokenizer = tokenizer;
   state->tokenizer->on_token = callback_new(_json_token_found, state);
   state->json_parser->action_callback = _jsonsl_stack_callback;
- state->json_parser->error_callback = _jsonsl_error_callback;
- SET_ONCE(state->json_parser->data, parser);
- parser->fresh_copy = json_fresh_copy;
+  state->json_parser->error_callback = _jsonsl_error_callback;
+  SET_ONCE(state->json_parser->data, parser);
+  parser->fresh_copy = json_fresh_copy;
   parser->consume = _json_consume;
   state->stream = vstring_new();
   for(int i =0; i < MAX_DEPTH; i++) {
