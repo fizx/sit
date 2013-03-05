@@ -32,8 +32,8 @@ vstring_new();
 void
 vstring_append(vstring *vstr, pstring *pstr);
 
-pstring *
-vstring_get(vstring *vstr, long off, int len);
+void
+vstring_get(pstring *target, vstring *vstr, long off);
 
 long
 vstring_size(vstring *vstr);

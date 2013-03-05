@@ -31,16 +31,15 @@ ll_free(LList *ll) {
   if(ll->next) {
     ll_free(ll->next);
   }
-  free(ll->data);
+  free((void *)ll->data);
   free(ll);
 }
 
-pstring *
-_v(VStringNode *node, long off, int len) {
-  if(!node) {
-    return NULL;
-  }
+void
+_v(pstring *out, VStringNode *node, long off) {
+  if(!node) return;
   
+  int len = out->len;
   long reloff = off - node->off;
   long relend = reloff + len;
   
@@ -49,45 +48,41 @@ _v(VStringNode *node, long off, int len) {
   if (reloff >= 0 && relend <= node->pstr.len) {
     // the requested string exists entirely within one buffer, therefore
     // we do a pointer-only allocation and GTFO.
-    pstring *out = malloc(sizeof(pstring));
     out->val = node->pstr.val + reloff;
-    out->len = len;
-    return out;
+    return;
   } else if (relend < 0) {
     // the entire string has been filled already
-    return _v(node->prev, off, len);
+    return;
+  }
+   
+  if(reloff < 0) {
+    // grab previous chunk
+    _v(out, node->prev, off);
   } else {
-    pstring *out;
-    if(reloff < 0) {
-      // grab previous chunk
-      out = _v(node->prev, off, len);
-    } else {
-      out = pstring_new(len);
-    }
+    out->val = malloc(len);
+  }
+  
+  // just need to fill in part of the string
+  if (relend <= node->pstr.len) {
     
-    if(out) {
-      
-      // just need to fill in part of the string
-      if (relend <= node->pstr.len) {
-        
-        // we own the end of this string, so register it
-        ll_add(&node->strings, node->pstr.val);
-      }
-    
-      long start = reloff > 0 ? reloff : 0; 
-      long node_remaining = node->pstr.len - start;
-      long string_remaining = len + (reloff < 0 ? reloff : 0); 
-      long cplen = node_remaining > string_remaining ? string_remaining : node_remaining;
-      memcpy(out->val - reloff, node->pstr.val + start, cplen);
-    }
-    return out;
-  } 
+    // we own the end of this string, so register it
+    ll_add(&node->strings, node->pstr.val);
+  }
+
+  long start = reloff > 0 ? reloff : 0; 
+  long node_remaining = node->pstr.len - start;
+  long string_remaining = len + (reloff < 0 ? reloff : 0); 
+  long cplen = node_remaining > string_remaining ? string_remaining : node_remaining;
+  memcpy((void *)(out->val - reloff), node->pstr.val + start, cplen);
 }
 
-pstring *
-vstring_get(vstring *vstr, long off, int len) {
-  if(off + len > vstring_size(vstr)) return NULL;
-  return _v(vstr->node, off + vstr->off, len);
+void
+vstring_get(pstring *target, vstring *vstr, long off) {
+  if (off + target->len > vstring_size(vstr)) {
+    target->len = -1;
+  } else {
+    _v(target, vstr->node, off + vstr->off);
+  }
 }
 
 void 

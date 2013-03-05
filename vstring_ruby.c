@@ -24,9 +24,9 @@ rbc_vstring_get(VALUE self, VALUE roff, VALUE rlen) {
   Data_Get_Struct(self, vstring, vstr);
   long off = NUM2LONG(roff);
   int len = NUM2INT(rlen);
-  pstring *pstr = vstring_get(vstr, off, len);
-  VALUE out = p2rstring(pstr);
-  free(pstr);
+  pstring pstr = { NULL, len };
+  vstring_get(&pstr, vstr, off);
+  VALUE out = p2rstring(&pstr);
   return out;
 }
 

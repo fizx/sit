@@ -8,7 +8,7 @@ r2pstring(VALUE rstr) {
 
 VALUE
 p2rstring(pstring *pstr) {
-	if(pstr == NULL) {
+	if(pstr == NULL || pstr->len < 0) {
 		return Qnil;
 	} else {
     return rb_str_new(pstr->val, pstr->len);

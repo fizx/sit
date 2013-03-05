@@ -33,7 +33,7 @@ describe "VString" do
 	  @vs.nodes.should == [" world"]
 	  @vs.size.should == 3
 	  @vs.get(1, 2).should == "ld"
-	  
 	  @vs.get(1, 6).should == nil
+	  @vs.get(11, 6).should == nil
   end
 end
