@@ -19,6 +19,13 @@ p2cstring(pstring *pstr) {
   return cstring_new(pstr->val, pstr->len);
 }
 
+void
+pstring_copulate(pstring *target, pstring *pstr) {
+  target->val = malloc(pstr->len);
+  memcpy((void*)target->val, pstr->val, pstr->len);
+  target->len = pstr->len;
+}
+
 char *
 cstring_new(const char *cstr, int len) {
   char *new = malloc(len + 1);

@@ -46,6 +46,9 @@ qc2pstring(const char *cstr);
 void
 pstring_free(pstring *pstr);
 
+void
+pstring_copulate(pstring *target, pstring *pstr);
+
 int
 pstrcmp(pstring *a, pstring *b);
 

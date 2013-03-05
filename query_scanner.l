@@ -55,8 +55,16 @@ L?\"(\\.|[^\\"])*\"	      { yyextra->ptr = cstring_new(yytext, yyleng); return(S
 
 %%
 
+void
+_qnode_free(void *data) {
+  QNode *node = data;
+//  if(node->field) free(node->field);
+//  # if(node->val) free(node->val);
+  free(node);
+}
+
 ASTNode *
-query_node_new(QueryParser *qp, QNodeType type) {
+ast_query_node_new(QueryParser *qp, QNodeType type) {
   QNode *node = malloc(sizeof(QNode));
   node->type     = type;
   node->field    = NULL;
@@ -72,7 +80,6 @@ query_node_new(QueryParser *qp, QNodeType type) {
 
 #define Q(node)     ((QNode *)(node->data))
 
-
 void
 add_token(Callback *cb, void *data) {
   Token *token = data;
@@ -80,7 +87,7 @@ add_token(Callback *cb, void *data) {
   ASTNode *node = context->tmp;
   pstring *field = Q(node)->field;
   Q(node)->num = token->offset;
-  ASTNode *term = query_node_new(context, TERM);
+  ASTNode *term = ast_query_node_new(context, TERM);
   Q(term)->cmp = Q(node)->cmp;
   Q(term)->field = field;
   Q(term)->val = pcpy(token->text);
@@ -92,7 +99,7 @@ query_parser_new(Callback *cb) {
   QueryParser *parser = malloc(sizeof(QueryParser));
   parser->buf = NULL;
   parser->error = NULL;
-  parser->ast = ast_new(NULL, free);
+  parser->ast = ast_new(NULL, _qnode_free);
   parser->root = NULL;
   parser->on_query = cb;
   parser->tokenizer = white_tokenizer_new();
@@ -151,7 +158,7 @@ associate_ands(QueryParser *context, ASTNode *node) {
   ASTNode *other = NEXT(op);
   
   if(op && Q(op)->type == BAND) {
-    ASTNode *wrapper = query_node_new(context, ANDS); 
+    ASTNode *wrapper = ast_query_node_new(context, ANDS); 
     ast_node_insert_before(op, wrapper);
     ast_node_prepend_child(wrapper, other);
     ast_node_prepend_child(wrapper, node);
@@ -169,7 +176,7 @@ combine_ors(QueryParser *context, ASTNode *node) {
   ASTNode *other = NEXT(op);
   
   if(op && Q(op)->type == BOR) {
-    ASTNode *wrapper = query_node_new(context, ORS); 
+    ASTNode *wrapper = ast_query_node_new(context, ORS); 
     ast_node_insert_before(op, wrapper);
     ast_node_prepend_child(wrapper, other);
     ast_node_prepend_child(wrapper, node);
@@ -273,7 +280,7 @@ bubble_ors(QueryParser *context, ASTNode *node) {
 
   ASTNode *parent = node->parent;
   if(Q(node)->type == ORS && Q(parent)->type != EXPR) {
-    ASTNode *gp = query_node_new(context, ORS);
+    ASTNode *gp = ast_query_node_new(context, ORS);
     ASTNode *child = node->child;
     for (int i = 0; child; i++, child = child->next) {
       ASTNode *cp = query_node_copy_subtree(context, parent);

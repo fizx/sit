@@ -20,6 +20,7 @@ VALUE rbc_engine;
 VALUE rbc_lrw_dict;
 VALUE rbc_plist_pool;
 VALUE rbc_plist;
+VALUE rbc_vstring;
 VALUE rbc_plist_cursor;
 VALUE rbc_plist_entry;
 VALUE rbc_result_iterator;
@@ -213,6 +214,16 @@ Init_sit() {
 	rb_define_singleton_method(rbc_input, "new", rbc_input_new, 3);
 	rb_define_method(rbc_input, "consume", rbc_input_consume, 1);
 	rb_define_method(rbc_input, "end_stream", rbc_input_end_stream, 0);
+	
+	// VString
+	rbc_vstring = rb_define_class_under(m_sit, "VString", rb_cObject);
+	rb_define_singleton_method(rbc_vstring, "new", rbc_vstring_new, 0);
+	rb_define_method(rbc_vstring, "append", rbc_vstring_append, 1);
+	rb_define_method(rbc_vstring, "get", rbc_vstring_get, 2);
+	rb_define_method(rbc_vstring, "shift", rbc_vstring_shift, 1);
+	rb_define_method(rbc_vstring, "to_s", rbc_vstring_to_s, 0);
+	rb_define_method(rbc_vstring, "size", rbc_vstring_size, 0);
+	rb_define_method(rbc_vstring, "nodes", rbc_vstring_nodes, 0);
 
 	// Protocol
   rbc_protocol = rb_define_class_under(m_sit, "Protocol", rb_cObject);

@@ -172,8 +172,8 @@ line_input_protocol_free(ProtocolParser *parser) {
 
 ProtocolParser *
 line_protocol_new() {
-  ProtocolParser *parser = malloc(sizeof(ProtocolParser));
-  ProtocolHandler *handler = malloc(sizeof(ProtocolHandler));
+  ProtocolParser *parser = calloc(1, sizeof(ProtocolParser));
+  ProtocolHandler *handler = calloc(1, sizeof(ProtocolHandler));
   parser->handler = handler;
   handler->parser = parser;
   parser->consume = _line_consume;

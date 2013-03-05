@@ -62,7 +62,6 @@ Term SENTINEL = {
 int 
 _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int remaining, bool negated_yet, Callback *callback) {
   assert(term);
-	pstring *tmp;
 	if(!term->hash_code) {
 		term_update_hash(term);
 	}
@@ -87,7 +86,6 @@ _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int rema
 		node->parent = parent;
 		node->term = term_copy(term);
 		dictAdd(hash, node->term, node);
-		tmp = term_to_s(term);
 	}
 	if (remaining == 1) {
 		Callback *next = node->callback;

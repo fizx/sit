@@ -42,7 +42,7 @@ void
 query_parser_free(QueryParser *qp);
 
 ASTNode *
-query_node_new(QueryParser *qp, QNodeType type);
+ast_query_node_new(QueryParser *qp, QNodeType type);
 
 ASTNode *
 query_node_copy_subtree(QueryParser *parser, ASTNode *subtree);

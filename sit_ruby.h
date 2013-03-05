@@ -10,6 +10,7 @@
 #include "doc_buf_ruby.h"
 #include "engine_ruby.h"
 #include "input_ruby.h"
+#include "vstring_ruby.h"
 #include "lrw_dict_ruby.h"
 #include "parser_ruby.h"
 #include "plist_ruby.h"

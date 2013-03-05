@@ -45,43 +45,43 @@ void yyerror(YYLTYPE* locp, QueryParser *parser, const char* err) {
 
 ASTNode *
 int_node(QueryParser *context) {
-  ASTNode *node = query_node_new(context, NUM);
+  ASTNode *node = ast_query_node_new(context, NUM);
   Q(node)->num = atoi(context->ptr);
   return node;
 }
 
 ASTNode *
 str_node(QueryParser *context) {
-  ASTNode *node = query_node_new(context, STR);
+  ASTNode *node = ast_query_node_new(context, STR);
   Q(node)->val = c2pstring(context->ptr);
   return node;
 }
 
 ASTNode *
 qstr_node(QueryParser *context) {
-  ASTNode *node = query_node_new(context, STR);
+  ASTNode *node = ast_query_node_new(context, STR);
   Q(node)->val = qc2pstring(context->ptr);
   return node;
 }
 
 ASTNode *
 expr_node(QueryParser *context) {
-  return query_node_new(context, EXPR);
+  return ast_query_node_new(context, EXPR);
 }
 
 ASTNode *
 clause_node(QueryParser *context) {
-  return query_node_new(context, CLAUSE);
+  return ast_query_node_new(context, CLAUSE);
 }
 
 ASTNode *
 mstr_node(QueryParser *context) {
-  return query_node_new(context, MODSTR);
+  return ast_query_node_new(context, MODSTR);
 }
 
 ASTNode *
 cmp_node(QueryParser *context, CmpType c) {
-  ASTNode *node = query_node_new(context, CMP);
+  ASTNode *node = ast_query_node_new(context, CMP);
   Q(node)->cmp = c;
   return node;
 }
@@ -89,7 +89,7 @@ cmp_node(QueryParser *context, CmpType c) {
 ASTNode *
 query_node_copy_subtree(QueryParser *context, ASTNode *subtree) {
   if(!subtree) return NULL;
-  ASTNode *cp = query_node_new(context, Q(subtree)->type);
+  ASTNode *cp = ast_query_node_new(context, Q(subtree)->type);
   Q(cp)->num = Q(subtree)->num;
   Q(cp)->cmp = Q(subtree)->cmp;
   Q(cp)->negated = Q(subtree)->negated;
@@ -159,13 +159,13 @@ expression
       $$ = expr_node(context);
       ast_node_prepend_child($$, $1);
       ast_node_insert_after($1, $3);
-      ast_node_insert_after($1, query_node_new(context, BOR));
+      ast_node_insert_after($1, ast_query_node_new(context, BOR));
     }
   | expression AND expression  { 
       $$ = expr_node(context);
       ast_node_prepend_child($$, $1);
       ast_node_insert_after($1, $3);
-      ast_node_insert_after($1, query_node_new(context, BAND));
+      ast_node_insert_after($1, ast_query_node_new(context, BAND));
     }
   | LPAREN expression RPAREN                          { 
       $$ = expr_node(context);

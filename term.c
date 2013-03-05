@@ -28,12 +28,8 @@ term_free(Term *term) {
 
 void
 term_copulate(Term *copy, const Term *term) {	  
-  copy->field.val = malloc(term->field.len);
-  memcpy((void*)copy->field.val, term->field.val, term->field.len);
-  copy->field.len = term->field.len;
-  copy->text.val = malloc(term->text.len);
-  memcpy((void*)copy->text.val, term->text.val, term->text.len);
-  copy->text.len = term->text.len;
+  pstring_copulate(&copy->field, &term->field);
+  pstring_copulate(&copy->text, &term->text);
   copy->owns_string = true; 	  
   copy->offset = term->offset;
   copy->negated = term->negated;

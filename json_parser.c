@@ -78,9 +78,11 @@ _jsonsl_stack_callback(
         working->val + off,
         len
       };
+      if(len > 1000) {
+        WARN("len: %d");
+      }
       DEBUG("level: %d", state->level);
-      DocBuf *buf = mystate->buffers[state->level-1];
-      doc_buf_field_found(buf, &pstr);
+      doc_buf_field_found(mystate->buffers[state->level-1], &pstr);
 			break;
 		}
 		case JSONSL_T_STRING: {
