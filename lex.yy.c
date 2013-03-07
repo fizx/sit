@@ -2197,6 +2197,7 @@ add_token(Callback *cb, void *data) {
   Q(term)->field = field;
   Q(term)->val = pcpy(token->text);
   qp_freeable(context, Q(term)->val);
+  qp_freeable(context, Q(term)->val->val);
   ast_node_append_child(node, term);
 }
 
@@ -2449,7 +2450,7 @@ to_conjunction(ASTNode *node, void *obj) {
   case TERM: {
     conjunction_t *con = malloc(sizeof(conjunction_t));
     term_copulate(&con->terms[0], obj);
-    free(obj);
+    term_free(obj);
   	con->count = 1;
   	con->data = NULL;
     return con;
@@ -2545,7 +2546,7 @@ make_query_and_callback(QueryParser *context, ASTNode *node) {
   	  DEBUG("recurse");
   	  Term *term = make_query_and_callback(context, child);
       term_copulate(&con->terms[i], term);
-      free(term);
+      term_free(term);
   		child = child->next;
   	}
   	qsort(con->terms, count, sizeof(Term), qtermcmp);	
