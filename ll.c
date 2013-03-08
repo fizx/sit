@@ -15,4 +15,3 @@ ll_free(LList *ll) {
   free((void *)ll->data);
   free(ll);
 }
-

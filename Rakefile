@@ -35,5 +35,5 @@ task :clean do
 end
 
 task :valgrind do
-  exec "cat spec/twitter.json | valgrind --track-origins=yes --leak-check=full --dsymutil=yes ./sit"
+  exec "cat spec/twitter.json | valgrind --track-origins=yes --leak-check=full --dsymutil=yes --show-reachable=yes ./sit"
 end
