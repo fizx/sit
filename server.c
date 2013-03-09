@@ -6,9 +6,11 @@
 
 void 
 read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
-	conn_t *conn = (conn_t *)watcher;
+  conn_t *conn = (conn_t *)watcher;
 	char buffer[BUFFER_SIZE];
 	ssize_t read;
+
+  if(!conn->live) return;
 
 	if(EV_ERROR & revents) {
   	PERROR("got invalid event");
@@ -47,27 +49,64 @@ accept_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 
 void
 conn_free(conn_t * conn) {
+  Input *input = conn->parser->handler->data;
+  free(input->output);
+  input_free(input);
+  line_input_protocol_free(conn->parser);
 	free(conn);
 }
 
 void
-conn_write(Output *output, pstring *data) {
+conn_write(Output *output, pstring *data) {  
   paddc(data, "\n");
   DEBUG("writing back: %.*s", data->len, data->val);
   conn_t *conn = output->data;
-  send(conn->as_io.fd, data->val, data->len, 0);
+  if(!conn->live) return;
+  int sent = send(conn->as_io.fd, data->val, data->len, 0);
+  if(sent < 0) {
+    switch(errno) {
+      case 32: // sigpipe
+        conn_close(conn);
+        break;
+      case 35: // eagain
+        // TODO: buffer responses
+        break;
+      default:
+        PERROR("unknown error writing");
+    }
+  }
+}
+
+void
+_conn_free_cb(struct ev_loop *loop, ev_timer *timer, int revents) {
+  conn_free(timer->data);
+  free(timer);
 }
 
 void 
 conn_close(conn_t *conn) {
+  // Idempotent close
+  if(!conn->live) return;
+  conn->live = false;
+  
+  struct ev_loop *loop = conn->server->loop;
+  
+  // It gets really ugly to free connection-specific resources
+  // during a unit of work.  It's much better to set a timer for the
+  // next tick, so that we don't interrupt work in progress.
+  ev_timer *conn_free_timer = malloc(sizeof(ev_timer));
+  conn_free_timer->data = conn;
+  ev_timer_init(conn_free_timer, _conn_free_cb, 0., 0.);
+  ev_timer_start(loop, conn_free_timer);
+	
   DEBUG("closing: %d",conn->as_io.fd);
   ev_io_stop(ev_default_loop(0), &conn->as_io);
   close(conn->as_io.fd);
 	conn->server->total_clients--;
-	conn_free(conn);
 	INFO("closing connection");
 	INFO("%d client(s) connected.", conn->server->total_clients);
 }
+
 
 void 
 out_conn_close(Output *output) {
@@ -87,6 +126,7 @@ conn_new(Server *server) {
   input->output->write = conn_write;
   input->output->close = out_conn_close;
   conn->parser = line_input_protocol_new(input);
+  conn->live = true;
 	return conn;
 }
 
@@ -104,6 +144,9 @@ conn_start(conn_t * conn, int revents) {
 	}
 	
 	client_sd = accept(conn->server->as_io.fd, (struct sockaddr *)&client_addr, &client_len);
+  int flags = fcntl(client_sd, F_GETFL);
+  flags |= O_NONBLOCK;
+  fcntl(client_sd, F_SETFL, flags);
 	
 	if (client_sd < 0) {
 	  PERROR("accept error");
@@ -125,6 +168,7 @@ server_new(Engine *engine) {
 	server->loop = ev_default_loop (0);
 	server->addr = NULL;
 	server->total_clients = 0;
+  signal(SIGPIPE, SIG_IGN);
 	return server;
 }
 

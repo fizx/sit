@@ -14,6 +14,7 @@ struct lrw_type;
 #ifdef HAVE_EV_H
 #include <ev.h>
 #endif
+#include <fcntl.h>
 #include <getopt.h>
 #include <limits.h>
 #include <netinet/in.h>

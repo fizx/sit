@@ -128,7 +128,9 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
 #ifdef HAVE_EV_H
   } else if(isTestMode() && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");
+    input->output->close(input->output);
     ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
+    engine_free(input->engine);
     INFO("stopped\n");
 #endif
   } else {

@@ -17,10 +17,11 @@ typedef struct {
 } Server;
 
 typedef struct {
-	struct ev_io        as_io;
-	Server         *server;
-	struct sockaddr_in *addr;
+	struct ev_io             as_io;
+	Server                  *server;
+	struct sockaddr_in      *addr;
 	struct ProtocolParser   *parser;
+  bool                     live;
 } conn_t;
 
 Server *
