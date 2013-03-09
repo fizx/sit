@@ -65,15 +65,17 @@ conn_write(Output *output, pstring *data) {
   int sent = send(conn->as_io.fd, data->val, data->len, 0);
   if(sent < 0) {
     switch(errno) {
-      case 32: // sigpipe
+      case EPIPE: // sigpipe
         conn_close(conn);
         break;
-      case 35: // eagain
+      case EAGAIN: // eagain
         // TODO: buffer responses
+        WARN("conn would have blocked, write dropped on the floor (%ld bytes)", data->len);
         break;
       default:
         PERROR("unknown error writing");
     }
+    errno = 0;
   }
 }
 
