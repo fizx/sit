@@ -1,8 +1,7 @@
 require 'mkmf'
-CONFIG['CC'] = ENV['CC'] if ENV['CC']
-CONFIG['optflags'] = "-O0"
-$CFLAGS << ' -g -std=c99 
-             -Wno-pedantic 
+CONFIG['CC'] = "gcc"
+CONFIG['optflags'] = "-O3"
+$CFLAGS << ' -g -std=c99
              -Wall -Wextra 
              -Wno-newline-eof 
              -Wno-declaration-after-statement 
@@ -23,7 +22,6 @@ $(TARGET): $(OBJS) Makefile
 	$(ECHO) linking executable $(TARGET)
 	@-$(RM) $(@)
 	$(Q) $(CC) -dynamic -o $@ $(OBJS) $(LIBPATH) $(DLDFLAGS) $(LOCAL_LIBS) $(LIBS)
-       
 STR
 
 

@@ -7,6 +7,12 @@
 
 #define SET_ONCE(variable, value) ((variable && variable != value) ? assert(0) : (void)(variable = value))
 
+#ifdef COMPILE_WITH_DEBUG
+#define TEST_MODE (isTestMode())
+#else
+#define TEST_MODE false
+#endif
+
 bool
 isTestMode();
 

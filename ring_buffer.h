@@ -7,7 +7,6 @@
 
 typedef struct RingBuffer {
 	long capacity;
-	long offset;
 	long written;
 	char *buffer;
 } RingBuffer;

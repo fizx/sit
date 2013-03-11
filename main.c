@@ -109,4 +109,5 @@ main(int argc, char **argv) {
   	input_free(input);
     engine_free(engine);
   }
+  return 0;
 }

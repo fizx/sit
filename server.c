@@ -53,30 +53,74 @@ conn_free(conn_t * conn) {
   free(input->output);
   input_free(input);
   line_input_protocol_free(conn->parser);
+  vstring_free(conn->buffer);
 	free(conn);
 }
 
 void
+_enqueue_flush(conn_t *conn);
+  
+void
+_conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
+  INFO("attempting flush");
+  conn_t *conn = timer->data;
+  vstring *buffer = conn->buffer;
+  
+  long size = vstring_size(buffer);
+  while(size) {
+    if(size > BUFFER_SIZE) size = BUFFER_SIZE;
+  
+    pstring data = { NULL, size};
+    vstring_get(&data, buffer, 0);
+  
+    int sent = send(conn->as_io.fd, data.val, data.len, 0);
+    if(sent < 0) {
+      INFO("some fail");
+      switch(errno) {
+        case EPIPE: // sigpipe
+          conn_close(conn);
+          break;
+        case EAGAIN: // eagain
+          conn->flusher = NULL;
+          _enqueue_flush(conn);
+          free(timer);
+          return;
+        default:
+          PERROR("unknown error writing");
+      }
+      errno = 0;
+      break;
+    } else {
+      INFO("some success");
+      vstring_shift(buffer, sent);
+      size = vstring_size(buffer);
+    }
+  }
+  conn->flusher = NULL;
+  free(timer);
+}
+
+
+void
+_enqueue_flush(conn_t *conn) {
+  if(!conn->flusher) {
+    struct ev_loop *loop = conn->server->loop;
+    conn->flusher = malloc(sizeof(ev_timer));
+    conn->flusher->data = conn;
+    ev_timer_init(conn->flusher, _conn_flush_cb, 0., 0.);
+    ev_timer_start(loop, conn->flusher);
+  }
+}
+
+void
 conn_write(Output *output, pstring *data) {  
-  paddc(data, "\n");
-  DEBUG("writing back: %.*s", data->len, data->val);
   conn_t *conn = output->data;
   if(!conn->live) return;
-  int sent = send(conn->as_io.fd, data->val, data->len, 0);
-  if(sent < 0) {
-    switch(errno) {
-      case EPIPE: // sigpipe
-        conn_close(conn);
-        break;
-      case EAGAIN: // eagain
-        // TODO: buffer responses
-        WARN("conn would have blocked, write dropped on the floor (%ld bytes)", data->len);
-        break;
-      default:
-        PERROR("unknown error writing");
-    }
-    errno = 0;
-  }
+
+  paddc(data, "\n");
+  vstring_append(conn->buffer, data);
+  
+  _enqueue_flush(conn);
 }
 
 void
@@ -129,6 +173,8 @@ conn_new(Server *server) {
   input->output->close = out_conn_close;
   conn->parser = line_input_protocol_new(input);
   conn->live = true;
+  conn->buffer = vstring_new();
+  conn->flusher = NULL;
 	return conn;
 }
 
@@ -211,7 +257,5 @@ server_start(Server *server, struct sockaddr_in *addr) {
   ev_loop(loop, 0);
   return 0;
 }
-
-
 
 #endif

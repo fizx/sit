@@ -4,6 +4,7 @@
 
 #include <ev.h>
 #include "engine.h"
+#include "vstring.h"
 #include "input.h"
 struct Engine;
 struct Input;
@@ -22,6 +23,8 @@ typedef struct {
 	struct sockaddr_in      *addr;
 	struct ProtocolParser   *parser;
   bool                     live;
+  vstring                 *buffer;
+  ev_timer                *flusher;
 } conn_t;
 
 Server *

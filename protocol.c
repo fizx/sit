@@ -122,11 +122,11 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     pstring_free(buf);
   } else if(!cpstrcmp("close", command)) {
     input->output->close(input->output);
-  } else if(isTestMode() && !cpstrcmp("dump", command)) {
+  } else if(TEST_MODE && !cpstrcmp("dump", command)) {
     Callback *cb = callback_new(_dump_handler, output);
     engine_each_query(input->engine,  cb);
 #ifdef HAVE_EV_H
-  } else if(isTestMode() && !cpstrcmp("stop", command)) {
+  } else if(TEST_MODE && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");
     input->output->close(input->output);
     ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
