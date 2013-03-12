@@ -3,14 +3,16 @@
 
 void
 _white_consume(Tokenizer *tok, pstring *str) {
+  int len = str->len;
+  const char *val = str->val;
   DEBUG("tokenizing %.*s", str->len, str->val);
   long off = 0;
   bool waswhite = false;
   bool iswhite = false;
   char c;
   int offset = 0;
-  for (int i =0; i < str->len; i++) {
-    c = str->val[i];
+  for (int i = 0; i < len; i++) {
+    c = val[i];
     switch(c) {
     case '\t':
     case ' ':
@@ -26,7 +28,7 @@ _white_consume(Tokenizer *tok, pstring *str) {
     if(iswhite != waswhite) {
       if(iswhite) {
         pstring term = {
-          str->val + off, 
+          val + off, 
           i-off
         };
         Token token = {
@@ -44,8 +46,8 @@ _white_consume(Tokenizer *tok, pstring *str) {
     
   if(!iswhite) {
     pstring term = {
-     str->val + off, 
-     str->len - off
+     val + off, 
+     len - off
     };
     Token token = {
       &term, 
