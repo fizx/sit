@@ -7,3 +7,4 @@ perc
 Makefile
 sit
 build
+callgrind.out*

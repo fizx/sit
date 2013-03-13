@@ -62,7 +62,6 @@ _enqueue_flush(conn_t *conn);
   
 void
 _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
-  INFO("attempting flush");
   conn_t *conn = timer->data;
   vstring *buffer = conn->buffer;
   
@@ -75,7 +74,6 @@ _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
   
     int sent = send(conn->as_io.fd, data.val, data.len, 0);
     if(sent < 0) {
-      INFO("some fail");
       switch(errno) {
         case EPIPE: // sigpipe
           conn_close(conn);
@@ -91,7 +89,6 @@ _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
       errno = 0;
       break;
     } else {
-      INFO("some success");
       vstring_shift(buffer, sent);
       size = vstring_size(buffer);
     }
@@ -232,8 +229,7 @@ server_start(Server *server, struct sockaddr_in *addr) {
 	  PERROR("socket error");
 	  return -1;
 	}
-	
-	
+		
 	setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 
 	// Bind socket to address

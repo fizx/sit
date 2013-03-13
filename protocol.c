@@ -42,8 +42,13 @@ _parse_command(ProtocolParser *parser, pstring *pstr) {
 }
 
 void 
-_line_consume(ProtocolParser *parser, pstring *pstr) {
+_line_consume(ProtocolParser *parser, pstring *pstr) {  
   ProtocolHandler *handler = parser->handler;
+  if(parser->state == FORCE_DATA) {
+    handler->data_found(handler, pstr);
+    return;
+  }
+  
   char *buf;
   pstring tmp = {
     pstr->val,
@@ -51,10 +56,12 @@ _line_consume(ProtocolParser *parser, pstring *pstr) {
   };
   while ((buf = memchr(tmp.val, '\n', tmp.len))) {
     tmp.len = buf - tmp.val;
-    if(tmp.val[0] == '{' || parser->state == PARTIAL) {
+    if(tmp.val[0] == '{' || parser->state != COMPLETE) {
       handler->data_found(handler, &tmp);
-      handler->data_complete(handler);
-      parser->state = COMPLETE;
+      if(parser->state != FORCE_DATA) {
+        handler->data_complete(handler);
+        parser->state = COMPLETE;
+      }
     } else {
       _parse_command(parser, &tmp);
     }
@@ -98,6 +105,12 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     input->qparser_mode = QUERYING;
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
+  } else if(!cpstrcmp("stream", command)) {
+    handler->parser->state = FORCE_DATA;
+    pstring *buf = pstring_new(0);
+    PC("{\"status\": \"ok\", \"message\": \"streaming\"}");
+    output->write(output, buf);
+    pstring_free(buf);    
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = engine_unregister(input->engine, query_id);

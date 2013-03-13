@@ -29,6 +29,7 @@ main(int argc, char **argv) {
   const char *logfile = NULL;
   // const char *data    = NULL;
   long ram            = 10000000; // 10mb
+  bool solr = false;
   
   set_logger(stderr);
   
@@ -40,11 +41,12 @@ main(int argc, char **argv) {
       {"data-dir",  required_argument, 0, 'd'},
       {"mem-size",  required_argument, 0, 'm'},
       {"test-mode", no_argument,       0, 't'},
+      {"solr",      no_argument,       0, 's'},
       {0, 0, 0, 0}
     };
     
     int option_index = 0;
-    c = getopt_long(argc, argv, "hp:l:d:r:t", long_options, &option_index);
+    c = getopt_long(argc, argv, "hp:l:d:r:ts", long_options, &option_index);
     if (c == -1) break;
     
     switch (c) {
@@ -57,6 +59,9 @@ main(int argc, char **argv) {
       break;
     case 'l':
       logfile = optarg;
+      break;
+    case 's':
+      solr = true;
       break;
     case 't':
       setTestMode(true);
@@ -71,7 +76,7 @@ main(int argc, char **argv) {
   }
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
-  Parser *parser = json_parser_new(white_tokenizer_new());
+  Parser *parser = solr ? solr_parser_new() : json_parser_new(white_tokenizer_new());
   Engine *engine = engine_new(parser, ram);
 
 #ifdef HAVE_EV_H
