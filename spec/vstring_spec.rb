@@ -37,14 +37,32 @@ describe "VString" do
     @vs.get(11, 6).should == nil
     end
 
-	it "should allocate correctly across segments" do
-	  @vs.append("ohai")
-	  @vs.append(" world")
-	  @vs.append(" wat")
+it "should allocate correctly across segments" do
+  @vs.append("ohai")
+  @vs.append(" world")
+  @vs.append(" wat")
     @vs.get(3, 5).should == "i wor"
     @vs.get(3, 5).should == "i wor"
     @vs.get(3, 5).should == "i wor"
     @vs.get(3, 5).should == "i wor"
     @vs.shift 11
   end
+  
+  it "should gets" do
+    @vs.append("ohai\nworld\nunterminated")
+    @vs.gets.should == "ohai\n"
+    @vs.to_s.should == "world\nunterminated"
+    @vs.gets.should == "world\n"
+    @vs.gets.should == nil
+  end
+  
+  it "should gets across segments" do
+    @vs.append("ohai\nworl")
+    @vs.append("d\nunterminated")
+    @vs.gets.should == "ohai\n"
+    @vs.to_s.should == "world\nunterminated"
+    @vs.gets.should == "world\n"
+    @vs.gets.should == nil
+  end
+  
 end

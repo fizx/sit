@@ -30,6 +30,18 @@ rbc_vstring_get(VALUE self, VALUE roff, VALUE rlen) {
   return out;
 }
 
+VALUE 
+rbc_vstring_gets(VALUE self) {
+  vstring *vstr;
+  Data_Get_Struct(self, vstring, vstr);
+  pstring pstr;
+  if(vstring_gets(&pstr, vstr)) {
+    return p2rstring(&pstr);
+  } else {
+    return Qnil;
+  }
+}
+
 VALUE
 rbc_vstring_shift(VALUE self, VALUE count) {
   vstring *vstr;

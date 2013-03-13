@@ -5,6 +5,51 @@ vstring_new() {
   return calloc(1, sizeof(vstring));
 }
 
+int 
+_vstrchr(VStringNode *node, char c, long min) {
+  if (!node || (node->off + node->pstr.len < min)) return -1;
+  int last = _vstrchr(node->prev, c, min);
+  if (last == -1) {
+    char *base = node->pstr.val;
+    long len = node->pstr.len;
+    if(node->off < min) {
+      base += min - node->off;
+      len  -= min - node->off;
+    }
+    char *data = memchr(base, c, len);
+    if(data) {
+      return node->off + data - node->pstr.val;
+    } else {
+      return -1;
+    }
+  } else {
+    return last;
+  }
+}
+
+int
+vstrchr(vstring *vstr, char c) {
+  int inner = _vstrchr(vstr->node, c, vstr->off);
+  if (inner == -1) {
+    return -1; 
+  } else {
+    return inner - vstr->off;
+  }
+}
+
+bool
+vstring_gets(pstring *target, vstring *vstr) {
+  int nl = vstrchr(vstr, '\n');
+  if(nl == -1) {
+    return false;
+  } else {
+    target->len = nl + 1;
+    vstring_get(target, vstr, 0);
+    vstring_shift_retain(vstr, nl + 1);
+    return true;
+  }
+}
+
 void
 vstring_append(vstring *vstr, pstring *pstr) {
   VStringNode *node = malloc(sizeof(*node));
@@ -41,9 +86,9 @@ _v(pstring *out, VStringNode *node, long off, long *flags) {
     // the entire string has been filled already
     return;
   }
-  
+
   assert(!*flags);
-   
+
   if(reloff < 0) {
     // grab previous chunk
     _v(out, node->prev, off, flags);
@@ -104,13 +149,11 @@ vstring_size(vstring *vstr) {
   }
 }
 
-void
-vstring_shift(vstring *vstr, long off) {
-  vstr->off += off;
+void _free_less_than(vstring *vstr, long off) {
   VStringNode *node = vstr->node;
   VStringNode *next = NULL;
   while(node) {
-    if(node->off + node->pstr.len < vstr->off) {
+    if(node->off + node->pstr.len < off) {
       if(next) next->prev = NULL;
       vstring_node_free(node);
       return;
@@ -118,6 +161,18 @@ vstring_shift(vstring *vstr, long off) {
     next = node;
     node = node->prev;
   }
+}
+
+void
+vstring_shift_retain(vstring *vstr, long off) {
+  _free_less_than(vstr, vstr->off);
+  vstr->off += off;
+}
+
+void
+vstring_shift(vstring *vstr, long off) {
+  vstr->off += off;
+  _free_less_than(vstr, vstr->off);
 }
 
 void

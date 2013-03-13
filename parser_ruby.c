@@ -31,6 +31,16 @@ rbc_json_fresh_copy(Parser *parser) {
   return copy;
 }
 
+Parser *
+rbc_solr_fresh_copy(Parser *parser) {
+  Parser* copy = solr_fresh_copy(parser);
+	copy->fresh_copy = rbc_solr_fresh_copy;
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::Parser"), markall, NULL, copy);
+	rb_obj_call_init(tdata, 0, NULL);
+  SET_ONCE(copy->data, vwrap(tdata));
+  return copy;
+}
+
 Tokenizer *
 rbc_white_fresh_copy(Tokenizer *tok) {
   Tokenizer* copy = white_fresh_copy(tok);
@@ -56,6 +66,15 @@ VALUE
 rbc_parser_new_json(VALUE class) {
 	Parser *parser = json_white_parser_new();
   parser->fresh_copy = rbc_json_fresh_copy;
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);
+	rb_obj_call_init(tdata, 0, NULL);
+	return tdata;
+}
+
+VALUE 
+rbc_parser_new_solr(VALUE class) {
+	Parser *parser = solr_parser_new();
+  parser->fresh_copy = rbc_solr_fresh_copy;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;

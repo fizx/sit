@@ -10,6 +10,9 @@ VALUE
 rbc_parser_new_json(VALUE class);
 
 VALUE 
+rbc_parser_new_solr(VALUE class);
+
+VALUE 
 rbc_parser_new_whitespace(VALUE class);
 
 VALUE 

@@ -33,6 +33,7 @@ struct lrw_type;
 #include "doc_buf.h"
 #include "logger.h"
 #include "json_parser.h"
+#include "solr_parser.h"
 #include "jsonsl.h"
 #include "ll.h"
 #include "lrw_dict.h"

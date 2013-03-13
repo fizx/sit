@@ -13,6 +13,9 @@ rbc_vstring_append(VALUE self, VALUE rstr);
 VALUE 
 rbc_vstring_get(VALUE self, VALUE roff, VALUE rlen);
 
+VALUE 
+rbc_vstring_gets(VALUE self);
+
 VALUE
 rbc_vstring_shift(VALUE self, VALUE roff);
 
