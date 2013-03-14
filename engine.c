@@ -19,6 +19,7 @@ engine_new(Parser *parser, long size) {
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
 	engine->ints = dictCreate(getPstrRingBufferDict(), 0);
+	engine->stream_parsers = dictCreate(getPstrParserDict(), 0);
 	return engine;
 }
 
@@ -31,7 +32,23 @@ engine_free(Engine *engine) {
   plist_pool_free(engine->postings);
   ring_buffer_free(engine->docs);
   dictRelease(engine->ints);
+  dictRelease(engine->stream_parsers);
   free(engine);
+}
+
+void
+engine_add_stream_parser(Engine *engine, char *name, Parser *parser) {
+  pstring p = { name, strlen(name) };
+  dictAdd(engine->stream_parsers, &p, parser);
+}
+
+Parser *
+engine_new_stream_parser(Engine *engine, pstring *more) {
+  Parser *p = dictFetchValue(engine->stream_parsers, more);
+  if(p) {
+    p = p->fresh_copy(p);
+  }
+  return p;
 }
 
 void 

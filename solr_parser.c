@@ -18,6 +18,8 @@ pstring _hits     = { "hits", 4 };
 pstring _status   = { "status", 6 };
 pstring _qtime    = { "qtime", 5 };
 
+pstring not_solr = { "this line doesn't look like a solr log", 38 };
+
 void 
 _solr_consume(Parser *parser, pstring *pstr) {
   SolrState *state = parser->state;
@@ -58,6 +60,8 @@ _solr_consume(Parser *parser, pstring *pstr) {
       doc_buf_doc_found(buf, &line);
       parser->on_document->handler(parser->on_document, buf);
       doc_buf_reset(buf);
+    } else {
+      parser->on_error->handler(parser->on_error, &not_solr);
     }
   }
 }

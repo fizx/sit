@@ -28,4 +28,7 @@ getPstrRingBufferDict();
 dictType *
 getTermPlistCursorDict();
 
+dictType *
+getPstrParserDict();
+
 #endif

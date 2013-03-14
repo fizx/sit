@@ -1,0 +1,6 @@
+stream solr
+INFO: [23453452345] webapp=/solr path=/select params={bq=degree_&defType=dismax} hits=0 status=0 QTime=906 
+INFO: [23453452345] webapp=/solr path=/select params={start=0&q=*:*&wt=ruby&fq=type:User&rows=30} hits=3186235 status=0 QTime=1 
+INFO: [23453452345] webapp=/solr path=/replication params={indexversion=1315419957212&command=filelist&wt=javabin} status=0 QTime=2 
+INFO: [23453452345] webapp=/solr path=/replication params={indexversion=1315419957212&file=_6a08_hc.del&command=filecontent&checksum=true&wt=filestream} status=0 QTime=0 
+wat

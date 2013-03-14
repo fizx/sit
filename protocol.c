@@ -8,7 +8,7 @@ _input_error_found(struct ProtocolHandler *handler, pstring *message) {
   Output *output = input->output;
   pstring escaped;
   json_escape(&escaped, message);
-  WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", &escaped);
+  WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%.*s\"}", escaped.len, escaped.val);
   free(escaped.val);
 }
 
@@ -92,6 +92,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   DEBUG("found cmd:  %.*s", command->len, command->val);
   Input *input = handler->data;
   Output *output = input->output;
+  Engine *engine = input->engine;
   
   if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
@@ -103,11 +104,17 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
   } else if(!cpstrcmp("stream", command)) {
-    handler->parser->state = FORCE_DATA;
-    pstring *buf = pstring_new(0);
-    PC("{\"status\": \"ok\", \"message\": \"streaming\"}");
-    output->write(output, buf);
-    pstring_free(buf);    
+    Parser *parser = engine_new_stream_parser(engine, more);
+    if(parser) {
+      parser->on_document = input->parser->on_document;
+      parser->on_error = input->parser->on_error;
+      parser_free(input->parser);
+      input->parser = parser;
+      handler->parser->state = FORCE_DATA;      
+      WRITE_OUT("{\"status\": \"ok\", \"message\": \"streaming\"}", "");
+    } else {
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"no stream parser\"}", "");
+    }
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = engine_unregister(input->engine, query_id);

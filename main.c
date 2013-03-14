@@ -76,8 +76,9 @@ main(int argc, char **argv) {
   }
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
-  Parser *parser = solr ? solr_parser_new() : json_parser_new(white_tokenizer_new());
+  Parser *parser = json_parser_new(white_tokenizer_new());
   Engine *engine = engine_new(parser, ram);
+  engine_add_stream_parser(engine, "solr", solr_parser_new());
 
 #ifdef HAVE_EV_H
   

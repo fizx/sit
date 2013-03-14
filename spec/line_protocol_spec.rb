@@ -23,18 +23,4 @@ describe "integration" do
       @proto.consume("{\"hello\":\"world\"}\n" * 10000)
     end
   end
-  
-  Dir[File.dirname(__FILE__) + "/proto/*.in"].each do |path|
-    it "should run #{path} successfully" do
-      out = path.sub(".in", ".out")
-      File.exists?(out).should == true
-      @proto.consume(File.read(path))
-      expected = File.readlines(out)
-      actual = @output
-      actual.zip(expected).each do |a,e|
-        a.should == e.chomp
-      end
-      expected.size.should == actual.size
-    end
-  end
 end

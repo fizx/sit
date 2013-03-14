@@ -20,6 +20,7 @@ typedef struct Engine {
   // Data structures & indexes
   dict                  *queries;  // Registered for percolation
   Parser                *parser;
+  dict                  *stream_parsers;
   struct RingBuffer     *stream;
   struct LRWDict        *term_dictionary;
   struct PlistPool      *postings;
@@ -66,6 +67,12 @@ engine_new(Parser *parser, long size);
 
 void
 engine_free(Engine *engine);
+
+void
+engine_add_stream_parser(Engine *engine, char *name, Parser *parser);
+
+Parser *
+engine_new_stream_parser(Engine *engine, pstring *more);
 
 ResultIterator *
 engine_search(Engine *engine, Query *query);

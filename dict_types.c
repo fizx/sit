@@ -11,6 +11,12 @@ _term_compare(void *privdata, const void *key1, const void *key2) {
   return _term_hash(key1) == _term_hash(key2);
 }
 
+void
+_parser_free(void *privdata, void *parser) {
+  (void) privdata;
+  parser_free(parser);
+}
+
 static void
 _term_bump(dictEntry *entry, long value) {
 	Term *term = dictGetKey(entry);
@@ -93,6 +99,8 @@ _query_node_free(void *privdata, const void *data) {
   query_node_free(node);
 }
 
+
+
 dictType pstrDict = {
     _pstr_hash,    /* hash function */
     _pstr_dup,     /* key dup */
@@ -156,11 +164,19 @@ dictType termPlistCursorDict = {
     _plist_cursor_free    /* val destructor */
 };
 
+dictType pstrParserDict = {
+    _pstr_hash,    /* hash function */
+    _pstr_dup,     /* key dup */
+    NULL,          /* val dup */
+    _pstr_compare, /* key compare */
+    _pstr_free,    /* key destructor */
+    _parser_free   /* val destructor */
+};
+
 lrw_type termLrw = {
 	_term_bump,
 	_term_version
 };
-
 
 dictType *getPstrDict() { return &pstrDict; }
 lrw_type *getTermLrw() { return &termLrw; }
@@ -170,5 +186,6 @@ dictType *getPstrRingBufferDict() { return &pstrRingBufferDict; }
 dictType *getTermPlistDict() { return &termPlistDict; }
 dictType *getTermQueryNodeDict() { return &termQueryNodeDict; }
 dictType *getTermPlistCursorDict() { return &termPlistCursorDict; }
+dictType *getPstrParserDict() { return &pstrParserDict; }
 
 
