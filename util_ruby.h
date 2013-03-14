@@ -18,6 +18,9 @@ vunwrap(void *vp);
 void 
 markall();
 
+VALUE 
+rbc_json_escape(VALUE class, VALUE rstr);
+
 VALUE
 rbc_isTestMode(VALUE class);
 

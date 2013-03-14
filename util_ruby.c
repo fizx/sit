@@ -29,6 +29,17 @@ markall() {
   }
 }
 
+VALUE 
+rbc_json_escape(VALUE class, VALUE rstr) {
+  pstring *in = r2pstring(rstr);
+  pstring out;
+  json_escape(&out, in);
+  VALUE rout = p2rstring(&out);
+  free(out.val);
+  pstring_free(in);
+  return rout;
+}
+
 VALUE
 rbc_isTestMode(VALUE class) {
   (void) class;
