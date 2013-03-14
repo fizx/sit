@@ -20,9 +20,10 @@ describe "Parser" do
     @parser.on_document(proc{|db|
       db.terms.should == [
         Term.new("severity", "INFO", 0, false),
-        Term.new("core", "1234567898765", 0, false)
+        Term.new("core", "1234567898765", 0, false),
+        Term.new("path", "/select", 0, false)
       ]
-      db.ints.should == {}
+      db.ints.should == {"hits"=>3186235, "qtime"=>1, "status"=>0}
       db.doc.should == str
       $hit = true
     })

@@ -19,4 +19,7 @@ isTestMode();
 void
 setTestMode(bool val);
 
+void
+json_escape(pstring *target, pstring *pstr);
+
 #endif

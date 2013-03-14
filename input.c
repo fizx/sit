@@ -4,14 +4,9 @@ void
 _perc_found_handler(Callback *callback, void *data) {
   long doc_id = *(long*)data;
   Input *input = callback->user_data;
-  Engine *engine = input->engine;
-  pstring *doc = engine_get_document(engine, doc_id);
+  Output *output = input->output;
   long query_id = callback->id;
-  pstring *buf = pstring_new(0);
-  PV("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld, \"doc\": %.*s}", query_id, doc_id, doc->len, doc->val);
-  input->output->write(input->output, buf);
-  pstring_free(buf);
-  pstring_free(doc);
+  WRITE_OUT("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": ", "%ld, \"doc_id\": %ld}", query_id, doc_id);  
 }
 
 void 
@@ -19,25 +14,18 @@ _ack_doc(Callback *cb, void *data) {
   Engine *engine = data;
   Input *input = cb->user_data;
   Output *output = input->output;
-  pstring *buf = pstring_new(0);
-  PC("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ");
-  PV("%ld", engine_last_document_id(engine));
-  PC("\"}");
-  output->write(output, buf);
-  pstring_free(buf);    
+  WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
 }
 
 void 
 __input_error_found(Callback *cb, void *data) {
   Input *input = cb->user_data;
-  pstring *message = data;
   Output *output = input->output;
-  pstring *buf = pstring_new(0);
-  PC("{\"status\": \"error\", \"message\": \"");
-  P(message);
-  PC("\"}");
+  pstring escaped;
+  json_escape(&escaped, data);
+  pstring *buf = pstringf("{\"status\": \"error\", \"message\": \"%.*s\"}", escaped.len, escaped.val);
   output->write(output, buf);
-  pstring_free(buf);
+  free(escaped.val);
 }
 
 void 
@@ -53,29 +41,21 @@ void
 _channel_handler(Callback *callback, void *data) {
   Query *query = data;
   Input *input = callback->user_data;
+  Output *output = input->output;
   Engine * engine = input->engine;
   if(input->qparser_mode == REGISTERING) {
     query->callback = callback_new(_perc_found_handler, input);
     long query_id = engine_register(engine, query);
-    pstring *buf = pstring_new(0);
-    PV("{\"status\": \"ok\", \"message\": \"registered\", \"id\": %ld}", query_id);
-    input->output->write(input->output, buf);
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"registered\", \"id\": ", "%ld}", query_id);
     query->callback = NULL; // disassociate from gc.
-    pstring_free(buf);
   } else {
     query->callback = callback_new(_perc_found_handler, input);
     ResultIterator *iter = engine_search(engine, query);
-    pstring *buf = pstring_new(0);
-    PV("{\"status\": \"ok\", \"message\": \"querying\", \"id\": %ld}", query->callback->id);
-    input->output->write(input->output, buf);
-    pstring_free(buf);
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"querying\", \"id\": ", "%ld}", query->callback->id);
     while(result_iterator_prev(iter) && (query->limit-- != 0)) {
       result_iterator_do_callback(iter);
     }
-    buf = pstring_new(0);
-    PV("{\"status\": \"ok\", \"message\": \"complete\", \"id\": %ld}", query->callback->id);
-    input->output->write(input->output, buf);
-    pstring_free(buf);
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"complete\", \"id\": ", "%ld}", query->callback->id);
     result_iterator_free(iter);
   }   
 }

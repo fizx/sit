@@ -6,14 +6,11 @@ void
 _input_error_found(struct ProtocolHandler *handler, pstring *message) {
   Input *input = handler->data;
   Output *output = input->output;
-  pstring *buf = pstring_new(0);
-  PC("{\"status\": \"error\", \"message\": \"");
-  P(message);
-  PC("\"}");
-  output->write(output, buf);
-  pstring_free(buf);
+  pstring escaped;
+  json_escape(&escaped, message);
+  WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", &escaped);
+  free(escaped.val);
 }
-
 
 int
 extract_string(pstring *target, pstring *haystack, int off) {
@@ -114,25 +111,19 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = engine_unregister(input->engine, query_id);
-    pstring *buf = pstring_new(0);
     if(success) {
-      PV("{\"status\": \"ok\", \"message\": \"unregistered\", \"query_id\": %ld}", query_id);
+      WRITE_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"query_id\": ", "%ld}", query_id);
     } else {
-      PV("{\"status\": \"error\", \"message\": \"not found\", \"query_id\": %ld}", query_id);
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"query_id\": ", "%ld}", query_id);
     }
-    output->write(output, buf);
-    pstring_free(buf);
   } else if(!cpstrcmp("get", command)) {
     long doc_id = strtol(more->val, NULL, 10);
     pstring *doc = engine_get_document(input->engine, doc_id);
-    pstring *buf = pstring_new(0);
     if(doc) {
-      PV("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": %.*s}", doc->len, doc->val);
+      WRITE_OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": %.*s}", doc->len, doc->val);
     } else {
-      PV("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": %ld}", doc_id);
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": ", "%ld}", doc_id);
     }
-    output->write(output, buf);
-    pstring_free(buf);
   } else if(!cpstrcmp("close", command)) {
     input->output->close(input->output);
   } else if(TEST_MODE && !cpstrcmp("dump", command)) {
@@ -147,8 +138,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     INFO("stopped\n");
 #endif
   } else {
-    pstring *buf = pstring_new(0);
-    PV("Unknown command: %.*s", command->len, command->val);
+    pstring *buf = pstringf("Unknown command: %.*s", command->len, command->val);
     _input_error_found(handler, buf);
     pstring_free(buf);
   }

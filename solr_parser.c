@@ -1,26 +1,15 @@
 #include "sit.h"
 
+/**
+ * Parses the solr log format, extracting a couple useful pieces of information.  Reasonable
+ * example for a line-oriented, not-nested parser.  This ends up being pretty fast and much 
+ * simpler than bison.
+ */
+
 typedef struct SolrState {
   vstring *stream;
   DocBuf  *doc_buf;
 } SolrState;
-
-#define strnchr(a, b)  (a == NULL ? NULL : strchr(a, b))
-#define strnstr(a, b)  (a == NULL ? NULL : strstr(a, b))
-
-char * 
-pstrnchr(pstring *base, char *start, const char c) {
-  if(start<base->val) return NULL;
-  int len = base->len - (start - base->val);
-  return strnchr(start, c);
-}
-
-char * 
-pstrnstr(pstring *base, char *start, const char *c) {
-  if(start<base->val) return NULL;
-  int len = base->len - (start - base->val);
-  return strnstr(start, c);
-}
 
 pstring _severity = { "severity", 8 };
 pstring _core     = { "core", 4 };
@@ -53,7 +42,7 @@ _solr_consume(Parser *parser, pstring *pstr) {
       doc_buf_term_found(buf, &core, 0);
 
       doc_buf_field_found(buf, &_path);
-      pstring tpath = { path + 6, closep - path - 3 };
+      pstring tpath = { path + 6, closep - path - 6 };
       doc_buf_term_found(buf, &tpath, 0);
       
       if(hits) {

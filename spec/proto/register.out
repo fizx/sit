@@ -1,4 +1,4 @@
 {"status": "ok", "message": "registered", "id": 0}
-{"status": "ok", "message": "added", "doc_id": 0"}
-{"status": "ok", "message": "found", "query_id": 0, "doc_id": 0, "doc": {"hello":"world"}}
-{"status": "ok", "message": "added", "doc_id": 1"}
+{"status": "ok", "message": "added", "doc_id": 0}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 0}
+{"status": "ok", "message": "added", "doc_id": 1}

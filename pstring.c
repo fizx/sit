@@ -10,6 +10,18 @@ pstring_new(int len) {
 }
 
 pstring *
+pstringf(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  char *tmp;
+  vasprintf(&tmp, fmt, args);
+  pstring *pstr = malloc(sizeof(pstring));
+  pstr->val = tmp;
+  pstr->len = strlen(tmp);
+  return pstr;
+}
+
+pstring *
 c2pstring(const char *cstr) {
   return pstring_new2(cstr, strlen(cstr));
 }
@@ -17,6 +29,50 @@ c2pstring(const char *cstr) {
 const char *
 p2cstring(pstring *pstr) {
   return cstring_new(pstr->val, pstr->len);
+}
+
+char * 
+pstrnchr(pstring *base, char *start, const char c) {
+  if(start<base->val) return NULL;
+  int len = base->len - (start - base->val);
+  return memchr(start, c, len);
+}
+
+char * 
+pstrnstr(pstring *base, char *start, const char *c) {
+  if(start<base->val) return NULL;
+  int len = base->len - (start - base->val);
+  return strnstr(start, c, len);
+}
+
+void
+padd(pstring *pstr, pstring *append) {
+  int nlen = pstr->len + append->len;
+  char *nbuf = malloc(nlen);
+  memcpy(nbuf, pstr->val, pstr->len);
+  memcpy(nbuf + pstr->len, append->val, append->len);
+  free((void*)pstr->val);
+  pstr->val = nbuf;
+  pstr->len = nlen;
+}
+
+void
+paddv(pstring *pstr, const char *fmt, ...) {
+       va_list args;
+  va_start(args, fmt);
+       char *tmp;
+       vasprintf(&tmp, fmt, args);
+       paddc(pstr, tmp);
+       free(tmp);
+}
+
+void
+paddc(pstring *pstr, const char *cstr) {
+  pstring tmp = {
+    cstr,
+    strlen(cstr)
+  };
+  padd(pstr, &tmp);
 }
 
 void
@@ -37,36 +93,6 @@ cstring_new(const char *cstr, int len) {
 pstring *
 pcpy(const pstring *pstr) {
   return pstring_new2(pstr->val, pstr->len);
-}
-
-void
-padd(pstring *pstr, pstring *append) {
-  int nlen = pstr->len + append->len;
-  char *nbuf = malloc(nlen);
-  memcpy(nbuf, pstr->val, pstr->len);
-  memcpy(nbuf + pstr->len, append->val, append->len);
-  free((void*)pstr->val);
-  pstr->val = nbuf;
-  pstr->len = nlen;
-}
-
-void
-paddv(pstring *pstr, const char *fmt, ...) {
-	va_list args;
-  va_start(args, fmt);
-	char *tmp;
-	vasprintf(&tmp, fmt, args);
-	paddc(pstr, tmp);
-	free(tmp);
-}
-
-void
-paddc(pstring *pstr, const char *cstr) {
-  pstring tmp = {
-    cstr,
-    strlen(cstr)
-  };
-  padd(pstr, &tmp);
 }
 
 pstring *

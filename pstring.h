@@ -4,14 +4,22 @@
 #include <stdarg.h>
 
 typedef struct {
-  const char 			   *val;
+  const char   *val;
   int           len;
 } pstring;
 
 #define P(x)   padd(buf, x)
 #define PC(x)   paddc(buf, x)
-
 #define PV(x, ...)   paddv(buf, x, ##__VA_ARGS__)
+
+void
+paddc(pstring *pstr, const char *cstr);
+
+void
+paddv(pstring *pstr, const char *fmt, ...);
+
+void
+padd(pstring *pstr, pstring *append);
 
 pstring *
 pstring_new(int len);
@@ -19,20 +27,14 @@ pstring_new(int len);
 pstring *
 pstring_new2(const char *cstr, int len);
 
-void
-padd(pstring *pstr, pstring *append);
+pstring *
+pstringf(const char *fmt, ...);
 
 pstring *
 pcpy(const pstring *pstr);
 
 const char *
 p2cstring(pstring *pstr);
-
-void
-paddc(pstring *pstr, const char *cstr);
-
-void
-paddv(pstring *pstr, const char *fmt, ...);
 
 char *
 cstring_new(const char *cstr, int len);
@@ -57,5 +59,11 @@ cpstrcmp(const char *a, pstring *b);
 
 unsigned int
 pstrhash(pstring *pstr);
+
+char * 
+pstrnchr(pstring *base, char *start, const char c);
+
+char * 
+pstrnstr(pstring *base, char *start, const char *c);
 
 #endif
