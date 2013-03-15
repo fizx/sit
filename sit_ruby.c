@@ -141,6 +141,7 @@ Init_sit() {
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
 	rb_define_singleton_method(rbc_parser, "new_json", rbc_parser_new_json, 0);
 	rb_define_singleton_method(rbc_parser, "new_solr", rbc_parser_new_solr, 0);
+	rb_define_singleton_method(rbc_parser, "new_syslog", rbc_parser_new_syslog, 0);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);
 	rb_define_method(rbc_parser, "end_stream", rbc_parser_end_stream, 0);
 	rb_define_method(rbc_parser, "on_document", rbc_parser_on_document, 1);
@@ -241,5 +242,6 @@ Init_sit() {
 
   rbc_tokenizer = rb_define_class_under(m_sit, "Tokenizer", rb_cObject);
   rb_define_singleton_method(rbc_tokenizer, "new_whitespace", rbc_tokenizer_new_whitespace, 1);
+  rb_define_singleton_method(rbc_tokenizer, "new_regex", rbc_tokenizer_new_regex, 2);
   rb_define_method(rbc_tokenizer, "consume", rbc_tokenizer_consume, 1);
 }

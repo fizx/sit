@@ -1,6 +1,6 @@
 require 'mkmf'
 # CONFIG['CC'] = "gcc"
-CONFIG['optflags'] = "-Os"
+CONFIG['optflags'] = "-O0"
 $CFLAGS << ' -g -std=c99
              -Wall -Wextra 
              -Wno-newline-eof 
@@ -14,6 +14,7 @@ $CFLAGS << ' -g -std=c99
              -o sit'.gsub(/\s+/, " ")
 
 find_library('ev', 'ev_default_loop') && have_header("ev.h")
+find_library('pcre', 'pcre_compile') && have_header("pcre.h")
 
 create_makefile('sit')
 

@@ -14,6 +14,9 @@ struct lrw_type;
 #ifdef HAVE_EV_H
 #include <ev.h>
 #endif
+#ifdef HAVE_PCRE_H
+#include <pcre.h>
+#endif
 #include <fcntl.h>
 #include <getopt.h>
 #include <limits.h>
@@ -34,6 +37,8 @@ struct lrw_type;
 #include "logger.h"
 #include "json_parser.h"
 #include "solr_parser.h"
+#include "regex_tokenizer.h"
+#include "syslog_parser.h"
 #include "jsonsl.h"
 #include "ll.h"
 #include "lrw_dict.h"

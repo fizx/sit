@@ -17,6 +17,16 @@ rbc_tokenizer_new_whitespace(VALUE class, VALUE tokens) {
   return tdata;
 }
 
+VALUE 
+rbc_tokenizer_new_regex(VALUE class, VALUE pattern, VALUE tokens) {
+  char *cpattern = RSTRING_PTR(pattern);
+  Tokenizer *tok = regex_tokenizer_new(cpattern);
+  tok->on_token = callback_new(_rbc_on_token, vwrap(tokens));
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, tok);
+	rb_obj_call_init(tdata, 0, NULL);
+  return tdata;
+}
+
 VALUE
 rbc_tokenizer_consume(VALUE self, VALUE rstr) {
   Tokenizer *tok;

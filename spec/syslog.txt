@@ -1,0 +1,8 @@
+Mar 15 17:15:01 ip-10-148-147-201 CRON[24131]: (munin) CMD (if [ -x /usr/bin/munin-cron ]; then /usr/bin/munin-cron; fi)
+Mar 15 17:15:01 ip-10-148-147-201 CRON[24132]: (root) CMD (command -v debian-sa1 > /dev/null && debian-sa1 1 1)
+Mar 15 17:15:11 ip-10-148-147-201 postfix/pickup[17614]: CE18520D17: uid=108 from=<munin>
+Mar 15 17:15:11 ip-10-148-147-201 postfix/cleanup[24664]: CE18520D17: message-id=<20130315171511.CE18520D17@ip-10-148-147-201.ec2.internal>
+Mar 15 17:15:11 ip-10-148-147-201 postfix/qmgr[11512]: CE18520D17: from=<munin@ip-10-148-147-201.ec2.internal>, size=804, nrcpt=1 (queue active)
+Mar 15 17:15:11 ip-10-148-147-201 postfix/local[24666]: CE18520D17: to=<root@ip-10-148-147-201.ec2.internal>, orig_to=<root>, relay=local, delay=0.02, delays=0.01/0.01/0/0, dsn=2.0.0, status=sent (delivered to mailbox)
+Mar 15 17:15:11 ip-10-148-147-201 postfix/qmgr[11512]: CE18520D17: removed
+Mar 15 17:16:01 ip-10-148-147-201 CRON[24677]: (root) CMD (/bin/sh /var/websolr/etc/fds.sh >> /tmp/cron.log 2>&1)
