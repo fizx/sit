@@ -1,6 +1,6 @@
 require 'mkmf'
 # CONFIG['CC'] = "gcc"
-CONFIG['optflags'] = "-O3"
+CONFIG['optflags'] = "-Os"
 $CFLAGS << ' -g -std=c99
              -Wall -Wextra 
              -Wno-newline-eof 
