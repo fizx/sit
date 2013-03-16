@@ -14,7 +14,11 @@ _ack_doc(Callback *cb, void *data) {
   Engine *engine = data;
   Input *input = cb->user_data;
   Output *output = input->output;
-  WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
+  if(engine->error) {
+    WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", engine->error);
+  } else {
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
+  }
 }
 
 void 

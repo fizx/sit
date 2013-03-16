@@ -11,6 +11,7 @@ typedef struct DocBuf {
   int              term_capacity;
 	dict            *ints;
   pstring         *doc;
+  unsigned int     hash_code;
   Term             terms[1];
 } DocBuf;
 
@@ -21,6 +22,9 @@ doc_buf_new();
 
 void
 doc_buf_reset(DocBuf *buf);
+
+void
+doc_buf_set_hash_code(DocBuf *buffer, unsigned int hash);
 
 void
 doc_buf_free(DocBuf *buf);

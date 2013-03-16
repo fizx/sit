@@ -5,8 +5,15 @@ typedef struct unregister_data {
   bool success;
 } unregister_data;
 
+void
+_doc_evict(Callback *cb, void *data) {
+  Engine *engine = cb->user_data;
+  DocRef *dr = data;
+  dictDelete(engine->doc_set, dr);
+}
+
 Engine *
-engine_new(Parser *parser, long size) {
+engine_new(Parser *parser, long size, bool dedupe) {
   Engine *engine = malloc(sizeof(Engine));
 	engine->queries = dictCreate(getTermQueryNodeDict(), 0);
 	engine->parser = parser;
@@ -15,11 +22,18 @@ engine_new(Parser *parser, long size) {
 	engine->stream = ring_buffer_new(size / 4);
 	engine->term_dictionary = lrw_dict_new(getTermPlistDict(), getTermLrw(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
-	engine->docs = ring_buffer_new((size / 4 / sizeof(doc_ref)) * sizeof(doc_ref));
+	engine->docs = ring_buffer_new((size / 4 / sizeof(DocRef)) * sizeof(DocRef));
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
 	engine->ints = dictCreate(getPstrRingBufferDict(), 0);
 	engine->stream_parsers = dictCreate(getPstrParserDict(), 0);
+	if(dedupe) {
+    engine->doc_set = dictCreate(getDocRefDict(), engine);
+    engine->docs->on_evict = callback_new(_doc_evict, engine);	  
+	} else {
+    engine->doc_set = NULL;
+	}
+  engine->error = NULL;
 	return engine;
 }
 
@@ -30,9 +44,11 @@ engine_free(Engine *engine) {
   ring_buffer_free(engine->stream);
   lrw_dict_free(engine->term_dictionary);
   plist_pool_free(engine->postings);
+  if(engine->docs->on_evict)callback_free(engine->docs->on_evict);
   ring_buffer_free(engine->docs);
   dictRelease(engine->ints);
   dictRelease(engine->stream_parsers);
+  if(engine->doc_set) dictRelease(engine->doc_set);
   free(engine);
 }
 
@@ -205,8 +221,8 @@ engine_get_document(Engine *engine, long doc_id) {
   if (doc_id < 0) {
     return NULL;
   }
-  long off = doc_id * sizeof(doc_ref);
-  doc_ref *dr = ring_buffer_get(engine->docs, off, sizeof(doc_ref));
+  long off = doc_id * sizeof(DocRef);
+  DocRef *dr = ring_buffer_get(engine->docs, off, sizeof(DocRef));
   if(dr == NULL) {
     return NULL;
   } else {
@@ -218,7 +234,7 @@ engine_get_document(Engine *engine, long doc_id) {
 
 long
 engine_last_document_id(Engine *engine) {
-  return engine->docs->written / sizeof(doc_ref) - 1;
+  return engine->docs->written / sizeof(DocRef) - 1;
 }
 
 void 
@@ -536,16 +552,30 @@ _engine_apply_ints(Engine *engine, DocBuf *buffer, long doc_id) {
 
 void 
 engine_document_found(Engine *engine, DocBuf *buffer) {  
-  doc_ref dr = { engine->stream->written, buffer->doc->len };
-  ring_buffer_append_pstring(engine->stream, buffer->doc);
-	ring_buffer_append(engine->docs, &dr, sizeof(dr));
-  long doc_id = engine_last_document_id(engine);
-  _engine_apply_ints(engine, buffer, doc_id);
-  if(engine->after_on_document) {
-    engine->after_on_document->handler(engine->after_on_document, engine);
+  unsigned int hash_code = buffer->hash_code;
+  if (!hash_code) {
+    hash_code = pstrhash(buffer->doc);
   }
-	engine_percolate(engine, buffer, doc_id);
-	engine_index(engine, buffer, doc_id);
+  DocRef dr = { buffer->doc, engine->stream->written, buffer->doc->len, hash_code };
+  if(engine->doc_set && dictFind(engine->doc_set, &dr)){
+    engine->error = "duplicate document rejected";
+    if(engine->after_on_document) {
+      engine->after_on_document->handler(engine->after_on_document, engine);
+    }
+  } else {
+    engine->error = NULL;
+    dr.tmp = NULL;
+    ring_buffer_append_pstring(engine->stream, buffer->doc);
+  	ring_buffer_append(engine->docs, &dr, sizeof(dr));
+    long doc_id = engine_last_document_id(engine);
+    _engine_apply_ints(engine, buffer, doc_id);
+    if(engine->after_on_document) {
+      engine->after_on_document->handler(engine->after_on_document, engine);
+    }
+  	engine_percolate(engine, buffer, doc_id);
+  	engine_index(engine, buffer, doc_id);
+    if(engine->doc_set) dictAdd(engine->doc_set, &dr, NULL);
+	}
 }
 
 int *

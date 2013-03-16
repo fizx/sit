@@ -1,11 +1,11 @@
 #include "sit_ruby.h"
 
 VALUE
-rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize) {
+rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize, VALUE rdedupe) {
 	Parser *parser;
 	Data_Get_Struct(rparser, Parser, parser);
 	long size = NUM2LONG(rsize);
-	Engine *engine = engine_new(parser, size);
+	Engine *engine = engine_new(parser, size, rdedupe == Qtrue);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
   // rb_funcall(rparser, rb_intern("receiver="), 1, tdata);

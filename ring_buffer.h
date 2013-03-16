@@ -4,11 +4,13 @@
 #include <stdbool.h>
 #include "cursor.h"
 #include "pstring.h"
+#include "callback.h"
 
 typedef struct RingBuffer {
 	long capacity;
 	long written;
 	char *buffer;
+  Callback *on_evict;
 } RingBuffer;
 
 typedef struct ring_buffer_cursor {

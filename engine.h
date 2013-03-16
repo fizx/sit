@@ -28,6 +28,9 @@ typedef struct Engine {
   dict                  *ints;
   long                   ints_capacity;
   struct RingBuffer     *docs;
+  dict                  *doc_set;
+  
+  char *error;
  
   // User-settable
   void *data;
@@ -38,10 +41,12 @@ typedef struct Engine {
   long                query_id;
 } Engine;
 
-typedef struct doc_ref {
+typedef struct DocRef {
+  pstring *tmp;
 	long off;
 	int len;
-} doc_ref;
+	unsigned int hash_code;
+} DocRef;
 
 typedef struct {
   int count;
@@ -63,7 +68,7 @@ typedef struct {
 } ResultIterator;
 
 Engine *
-engine_new(Parser *parser, long size);
+engine_new(Parser *parser, long size, bool dedupe);
 
 void
 engine_free(Engine *engine);

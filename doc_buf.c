@@ -24,6 +24,11 @@ doc_buf_doc_found(DocBuf *buffer, pstring *pstr) {
 }
 
 void
+doc_buf_set_hash_code(DocBuf *buffer, unsigned int hash) {
+  buffer->hash_code = hash;
+}
+
+void
 doc_buf_field_found(DocBuf *buffer, pstring *name) {
   DEBUG("field found: %.*s", name->len, name->val);
   buffer->field = name;
@@ -46,6 +51,7 @@ doc_buf_reset(DocBuf *buf) {
   buf->field = NULL;  
   buf->doc = NULL;  
   buf->term_count = 0;
+  buf->hash_code = 0;
 }
 
 void

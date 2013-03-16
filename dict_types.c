@@ -35,6 +35,12 @@ _pstr_hash(const void *key) {
   return pstrhash(pstr);
 }
 
+static unsigned int 
+_docref_hash(const void *key) {  
+  DocRef *dr = (DocRef *) key;
+  return dr->hash_code;
+}
+
 static int 
 _pstr_compare(void *privdata, const void *key1,
         const void *key2) {
@@ -42,6 +48,19 @@ _pstr_compare(void *privdata, const void *key1,
   pstring *a = (pstring *) key1;
   pstring *b = (pstring *) key2;
   return pstrcmp(a, b) == 0;
+}
+
+static int 
+_docref_cmp(void *privdata, const void *key1, const void *key2) {
+  Engine *engine = privdata;
+  
+  DocRef *a = key1;
+  DocRef *b = key2;
+  
+  pstring *pa = a->tmp ? a->tmp : ring_buffer_get_pstring(engine->stream, a->off, a->len);
+  pstring *pb = b->tmp ? b->tmp : ring_buffer_get_pstring(engine->stream, b->off, b->len);
+  
+  return pstrcmp(pa, pb) == 0;
 }
 
 void *
@@ -173,6 +192,15 @@ dictType pstrParserDict = {
     _parser_free   /* val destructor */
 };
 
+dictType docrefDict = {
+    _docref_hash,    /* hash function */
+    NULL,     /* key dup */
+    NULL,          /* val dup */
+    _docref_cmp, /* key compare */
+    NULL,    /* key destructor */
+    NULL   /* val destructor */
+};
+
 lrw_type termLrw = {
 	_term_bump,
 	_term_version
@@ -187,5 +215,6 @@ dictType *getTermPlistDict() { return &termPlistDict; }
 dictType *getTermQueryNodeDict() { return &termQueryNodeDict; }
 dictType *getTermPlistCursorDict() { return &termPlistCursorDict; }
 dictType *getPstrParserDict() { return &pstrParserDict; }
+dictType *getDocRefDict() { return &docrefDict; }
 
 

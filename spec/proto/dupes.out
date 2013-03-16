@@ -1,0 +1,5 @@
+{"status": "ok", "message": "streaming"}
+{"status": "ok", "message": "added", "doc_id": 0}
+{"status": "error", "message": "duplicate document rejected"}
+{"status": "error", "message": "duplicate document rejected"}
+{"status": "error", "message": "duplicate document rejected"}

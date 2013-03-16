@@ -148,7 +148,7 @@ Init_sit() {
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
-	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 2);
+	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 3);
 	rb_define_method(rbc_engine, "parser", rbc_engine_parser, 0);
 	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
 	rb_define_method(rbc_engine, "unregister", rbc_engine_unregister, 1);

@@ -31,4 +31,7 @@ getTermPlistCursorDict();
 dictType *
 getPstrParserDict();
 
+dictType *
+getDocRefDict();
+
 #endif

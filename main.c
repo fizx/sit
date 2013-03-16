@@ -30,6 +30,7 @@ main(int argc, char **argv) {
   // const char *data    = NULL;
   long ram            = 10000000; // 10mb
   bool solr = false;
+  bool dedupe = false;
   
   set_logger(stderr);
   
@@ -42,11 +43,12 @@ main(int argc, char **argv) {
       {"mem-size",  required_argument, 0, 'm'},
       {"test-mode", no_argument,       0, 't'},
       {"solr",      no_argument,       0, 's'},
+      {"dedupe",    no_argument,       0, 'z'},
       {0, 0, 0, 0}
     };
     
     int option_index = 0;
-    c = getopt_long(argc, argv, "hp:l:d:r:ts", long_options, &option_index);
+    c = getopt_long(argc, argv, "hp:l:d:r:tsz", long_options, &option_index);
     if (c == -1) break;
     
     switch (c) {
@@ -70,6 +72,9 @@ main(int argc, char **argv) {
     case 'd':
       // TODO: care about persistance.
       break;
+    case 'z':
+      dedupe = true;
+      break;
     case 'm':
       ram = strtol(optarg, NULL, 10);  
     }
@@ -77,7 +82,7 @@ main(int argc, char **argv) {
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
   Parser *parser = json_parser_new(white_tokenizer_new());
-  Engine *engine = engine_new(parser, ram);
+  Engine *engine = engine_new(parser, ram, dedupe);
   engine_add_stream_parser(engine, "solr", solr_parser_new());
 
 #ifdef HAVE_EV_H

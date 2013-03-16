@@ -6,6 +6,7 @@ ring_buffer_new(long capacity) {
 	buffer->buffer = calloc(1, capacity);
 	buffer->capacity = capacity;
 	buffer->written = 0;
+  buffer->on_evict = NULL;
 	return buffer;
 }
 
@@ -274,6 +275,9 @@ ring_buffer_reset(RingBuffer *rb) {
 
 void
 ring_buffer_append(RingBuffer *rb, void *obj, int len) {	
+  if(rb->on_evict && rb->written >= rb->capacity) {
+    rb->on_evict->handler(rb->on_evict, rb->buffer + (rb->written % rb->capacity));
+  }
   ring_buffer_put(rb, rb->written, obj, len);
 }
 

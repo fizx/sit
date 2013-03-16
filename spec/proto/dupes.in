@@ -1,0 +1,5 @@
+stream solr
+INFO: [23453452345] webapp=/solr path=/select params={bq=degree_&defType=dismax} hits=0 status=0 QTime=906 
+INFO: [23453452345] webapp=/solr path=/select params={bq=degree_&defType=dismax} hits=0 status=0 QTime=906 
+INFO: [23453452345] webapp=/solr path=/select params={bq=degree_&defType=dismax} hits=0 status=0 QTime=906 
+INFO: [23453452345] webapp=/solr path=/select params={bq=degree_&defType=dismax} hits=0 status=0 QTime=906 
