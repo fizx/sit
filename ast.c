@@ -2,7 +2,7 @@
 
 AST *
 ast_new(void *(*fmake)(), void (*ffree)(void *)) {
-  AST *ast = malloc(sizeof(AST));
+  AST *ast = calloc(1, sizeof(AST));
   ast->make_data = fmake;
   ast->free_data = ffree;
   ast->nodes = NULL;
@@ -28,11 +28,7 @@ ast_free(AST *ast) {
 
 ASTNode *
 ast_node_new(AST *ast) {
-  ASTNode *node = malloc(sizeof(ASTNode));
-  node->parent = NULL;
-  node->child = NULL;
-  node->next = NULL;
-  node->prev = NULL;
+  ASTNode *node = calloc(1, sizeof(ASTNode));
   node->ast = ast;
   node->internal = ast->nodes;
   ast->nodes = node;

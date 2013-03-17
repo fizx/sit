@@ -1,0 +1,4 @@
+register *;
+{"hello":"world"}
+{"goodbye":"world"}
+query *;

@@ -22,7 +22,7 @@ rbc_term_new_numeric(VALUE class, VALUE rfield, VALUE op, VALUE val) {
 	assert(field);
 	assert(text);
 	Term *term = term_new(field, text, off, false);
-  term->numeric = true;
+  term->type = NUMERIC;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, term);
 	rb_obj_call_init(tdata, 0, NULL);
 	return tdata;

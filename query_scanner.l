@@ -39,6 +39,7 @@ NS    [^ \t\n\r,?*();:\^"]
 ")"                       { return(RPAREN); }
 "="                       { return(EQ); }
 ">"                       { return(GT); }
+"*"                       { return(STAR); }
 "<"                       { return(LT); }
 ">="                      { return(GTE); }
 "<="                      { return(LTE); }
@@ -228,6 +229,7 @@ demorgans(QueryParser *context, ASTNode *node) {
       }
       break;
     case CLAUSE :
+    case STAR_CLAUSE :
     case TERM:
     case NUMTERM :
       break;
@@ -238,6 +240,7 @@ demorgans(QueryParser *context, ASTNode *node) {
     case MODSTR :
     case BAND   :
     case BOR    :
+    default     :
       assert(0);
     }
   }
@@ -347,6 +350,7 @@ void *
 to_conjunction(ASTNode *node, void *obj) {
   switch(Q(node)->type) {
   case NUMTERM:
+  case STAR_CLAUSE:
   case TERM: {
     conjunction_t *con = malloc(sizeof(conjunction_t));
     term_copulate(&con->terms[0], obj);
@@ -365,6 +369,7 @@ to_conjunction(ASTNode *node, void *obj) {
 void *
 to_query(ASTNode *node, void *obj) {
   switch(Q(node)->type) {
+  case STAR_CLAUSE:
   case NUMTERM:
   case TERM: {
     obj = to_conjunction(node, obj);
@@ -423,15 +428,23 @@ _negate(pstring *t) {
   return &_na;
 }
 
+pstring _star = { "*", 1 };
+
 void *
 make_query_and_callback(QueryParser *context, ASTNode *node) {
   switch(Q(node)->type) {
+  case STAR_CLAUSE: {
+    Term *term = term_new(&_star, &_star, 0, Q(node)->negated);
+    term->type = CATCHALL;
+    return term;
+    
+  }
   case NUMTERM: {
     DEBUG("NUMTERM");
     pstring *c = cmpmap(Q(node)->cmp);
     if(Q(node)->negated) c = _negate(c);
     Term *term = term_new(Q(node)->field, c, Q(node)->num, false);
-    term->numeric = true;
+    term->type = NUMERIC;
     return term;
   }
   case TERM:
@@ -492,6 +505,10 @@ query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
   merge_bools(context, expression, ANDS);
   
   Query * query = make_query_and_callback(context, expression);
+  pstring *s = query_to_s(query);
+  INFO("Query: %.*s", s->len, s->val);
+  pstring_free(s);
+  
   query->limit = limit;
   context->on_query->handler(context->on_query, query);
   query_free(query);

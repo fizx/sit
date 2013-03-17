@@ -391,11 +391,15 @@ engine_search(Engine *engine, Query *query) {
       Term *term = &cj->terms[j];
       Cursor *cursor = dictFetchValue(iter->cursors, term);
       if(cursor == NULL) {
-        if(term->numeric) {
+        switch(term->type) {
+        case CATCHALL:
+          //its an inverted null, handled later
+        case NUMERIC:
           DEBUG("Making numeric subcursor");
           RingBuffer *rb = dictFetchValue(engine->ints, &term->field);
           cursor = rb == NULL ? NULL : &ring_buffer_predicate_int_cursor_new(rb, sizeof(int), term->text.val[0], term->offset)->as_cursor;
-        } else {
+          break;
+        case TEXT:
           DEBUG("Making plist subcursor for %.*s:%.*s", term->field.len, term->field.val, term->text.len, term->text.val);
           Plist *pl = lrw_dict_get(engine->term_dictionary, term);
           cursor = pl == NULL ? NULL : &plist_cursor_new(pl)->as_cursor;
@@ -403,11 +407,14 @@ engine_search(Engine *engine, Query *query) {
             DEBUG("term not found: using null cursor");
           }
           dictAdd(iter->cursors, term, cursor);
+        default: 
+          assert(0);
         }
       } else {
         DEBUG("Reusing subcursor");
       }
-      iter->subs[i]->negateds[j] = (int) term->negated;
+      // catchall is inverted not-found
+      iter->subs[i]->negateds[j] = (int) ((term->type == CATCHALL) ? !term->negated : term->negated);
       iter->subs[i]->cursors[j] = cursor;
       iter->subs[i]->state[j] = max;
     }
@@ -429,6 +436,7 @@ result_sub_iterator_prev(sub_iterator *iter) {
 
       if (cursor == NULL) {
         if(negated) {
+          if(min > max) max = min;
           continue;
         } else {
           iter->doc_id = -1;

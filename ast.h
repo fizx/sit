@@ -14,6 +14,7 @@ typedef struct ASTNode {
   void *internal;
 } ASTNode;
 
+
 typedef struct AST {
   void *(*make_data)();
   void  (*free_data)(void *data);

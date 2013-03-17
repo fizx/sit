@@ -33,7 +33,7 @@ term_copulate(Term *copy, const Term *term) {
   copy->owns_string = true; 	  
   copy->offset = term->offset;
   copy->negated = term->negated;
-  copy->numeric = term->numeric;
+  copy->type = term->type;
   copy->hash_code = term->hash_code;
 }
 

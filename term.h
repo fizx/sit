@@ -4,6 +4,8 @@
 #include "pstring.h"
 #include <stdbool.h>
 
+typedef enum { TEXT, NUMERIC, CATCHALL } TermType;
+
 /**
  * A term is a key:value pair, with some limited metadata.  It's used by 
  * a bunch of different things, so the meanings are a little overloaded.
@@ -16,7 +18,7 @@ typedef struct Term {
   unsigned int hash_code;
   unsigned int offset;
   bool negated;
-  bool numeric;
+  TermType type;
   bool owns_string;
 } Term;
 
@@ -28,7 +30,6 @@ term_to_s(Term *term);
 
 Term *
 term_copy(const Term *term);
-
 
 void
 term_copulate(Term *copy, const Term *term);

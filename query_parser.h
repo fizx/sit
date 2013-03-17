@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 
-typedef enum { UNKNOWN, NUM, EXPR, CLAUSE, CMP, STR, MODSTR, BAND, BOR, ANDS, ORS, TERM, NUMTERM } QNodeType;
+typedef enum { UNKNOWN, NUM, EXPR, CLAUSE, STAR_CLAUSE, CMP, STR, MODSTR, BAND, BOR, ANDS, ORS, TERM, NUMTERM } QNodeType;
 typedef enum { _NA, _EQ, _GT, _LT, _GTE, _LTE, _TILDE, _NEQ } CmpType;
 
 typedef struct QNode {

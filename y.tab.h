@@ -66,14 +66,15 @@ extern int yydebug;
      GTE = 266,
      LTE = 267,
      EOQ = 268,
-     TILDE = 269,
-     NEQ = 270,
-     MINUS = 271,
-     DIGITS = 272,
-     DOT = 273,
-     STRING_LITERAL = 274,
-     UNQUOTED = 275,
-     LIMIT = 276
+     STAR = 269,
+     TILDE = 270,
+     NEQ = 271,
+     MINUS = 272,
+     DIGITS = 273,
+     DOT = 274,
+     STRING_LITERAL = 275,
+     UNQUOTED = 276,
+     LIMIT = 277
    };
 #endif
 /* Tokens.  */
@@ -88,14 +89,15 @@ extern int yydebug;
 #define GTE 266
 #define LTE 267
 #define EOQ 268
-#define TILDE 269
-#define NEQ 270
-#define MINUS 271
-#define DIGITS 272
-#define DOT 273
-#define STRING_LITERAL 274
-#define UNQUOTED 275
-#define LIMIT 276
+#define STAR 269
+#define TILDE 270
+#define NEQ 271
+#define MINUS 272
+#define DIGITS 273
+#define DOT 274
+#define STRING_LITERAL 275
+#define UNQUOTED 276
+#define LIMIT 277
 
 
 
@@ -111,7 +113,7 @@ typedef union YYSTYPE
 
 
 /* Line 2065 of yacc.c  */
-#line 115 "y.tab.h"
+#line 117 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -79,6 +79,12 @@ clause_node(QueryParser *context) {
 }
 
 ASTNode *
+star_clause_node(QueryParser *context) {
+  return ast_query_node_new(context, STAR_CLAUSE);
+}
+
+
+ASTNode *
 mstr_node(QueryParser *context) {
   return ast_query_node_new(context, MODSTR);
 }
@@ -115,7 +121,7 @@ query_node_copy_subtree(QueryParser *context, ASTNode *subtree) {
 
 %}
 
-%token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE EOQ
+%token<cptr> AND OR NOT LPAREN RPAREN EQ GT LT GTE LTE EOQ STAR
 %token<cptr> TILDE NEQ MINUS DIGITS DOT STRING_LITERAL UNQUOTED LIMIT
 
 %type<node> number string full_expressions full_expression expression 
@@ -186,7 +192,8 @@ expression
   ;
 
 clause
-  : string comparison_operator value  { 
+  : STAR { $$ = star_clause_node(context); }
+  | string comparison_operator value  { 
       $$ = clause_node(context);
       ast_node_prepend_child($$, $1);
       ast_node_insert_after($1, $2);
