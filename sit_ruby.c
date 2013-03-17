@@ -41,6 +41,7 @@ Init_sit() {
 	rb_define_singleton_method(m_sit, "test_mode=", rbc_setTestMode, 1);
 	rb_define_singleton_method(m_sit, "test_mode", rbc_isTestMode, 0);
 	rb_define_singleton_method(m_sit, "json_escape", rbc_json_escape, 1);
+	rb_define_singleton_method(m_sit, "ev_loop_until", rbc_ev_loop_until, 0);
 	
 	// PString
 	rbc_pstring = rb_define_class_under(m_sit, "PString", rb_cObject);

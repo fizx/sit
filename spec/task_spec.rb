@@ -21,9 +21,14 @@ describe "Task" do
   end
   
 	it "should be tailing the file" do
-	  initial = @engine.last_document_id
-	  initial.should > 0
-	  File.open(abs("tmp.json"), "a") {|f| f.puts(File.read(abs("sample.json")))}
-	  @engine.last_document_id.should > initial
+	  Sit.ev_loop_until {
+      @engine.last_document_id == 29
+    }
+	  
+	  File.open(abs("tmp.json"), "a") {|f| f.puts(File.read(abs("sample.json"))) }
+
+	  Sit.ev_loop_until {
+      @engine.last_document_id == 59
+    }
 	end
 end

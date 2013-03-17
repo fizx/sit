@@ -29,6 +29,32 @@ markall() {
   }
 }
 
+static int loops = 0;
+
+void
+_ev_loop_until(struct ev_loop *loop, struct ev_timer *timer, int revents) {
+  if (loops++ > 1000) {
+		rb_raise(rb_eRuntimeError, "loop timeout");
+    ev_break (EV_A_ EVBREAK_ONE);
+  } else {
+    if(rb_yield(rb_ary_new()) == Qtrue){
+      ev_break (EV_A_ EVBREAK_ONE);
+    }
+  }
+}
+
+VALUE 
+rbc_ev_loop_until(VALUE class) {
+  struct ev_loop *loop = EV_DEFAULT;
+  ev_timer *timer = malloc(sizeof(ev_timer));
+  loops = 0;
+  ev_timer_init(timer, _ev_loop_until, 0.01, 0.01);
+  ev_timer_start(loop, timer);
+  ev_run(loop, 0);
+  return Qnil;
+}
+
+
 VALUE 
 rbc_json_escape(VALUE class, VALUE rstr) {
   pstring *in = r2pstring(rstr);

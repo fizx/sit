@@ -17,7 +17,7 @@ Task *
 task_new();
 
 Task *
-tail_task_new(Engine *engine, pstring *path);
+tail_task_new(Engine *engine, pstring *path, double interval);
 
 void
 task_free(Task *task);

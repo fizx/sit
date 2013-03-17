@@ -27,4 +27,7 @@ rbc_isTestMode(VALUE class);
 VALUE
 rbc_setTestMode(VALUE class, VALUE val);
 
+VALUE 
+rbc_ev_loop_until(VALUE class);
+
 #endif
