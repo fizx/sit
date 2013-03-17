@@ -313,7 +313,7 @@ engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {
   
   Callback *cb = engine->catchall_callbacks;
 	while(cb) {
-		cb->handler(cb, buffer);
+		cb->handler(cb, &doc_id);
 		cb = cb->next;
 	}
 	
