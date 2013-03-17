@@ -74,7 +74,7 @@ describe "Engine" do
     $events.should == [0]
   end
   
-  it "cannot search a not query by itself" do
+  it "can search a not query by itself" do
     term = Term.new("a", "miss", 0, true)
     cj = Conjunction.new([term])
     cb = Callback.new(Numeric, proc{|doc| $events << doc })
@@ -84,7 +84,7 @@ describe "Engine" do
     while cursor.prev!
       cursor.call
     end
-    $events.should == []
+    $events.should == [0]
   end
   
   it "should be able to search a not query" do

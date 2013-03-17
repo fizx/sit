@@ -57,8 +57,7 @@ termcmp(const void *a, const void *b) {
 	Term *ta = (Term *) a;
 	Term *tb = (Term *) b;
 	
-  // int out = ta->negated - tb->negated;
-  int out = 0;
+  int out = tb->type - ta->type;
   
 	if (!out) {
 	  out = pstrcmp(&ta->field, &tb->field);

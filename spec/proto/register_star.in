@@ -1,4 +1,5 @@
 register *;
+register a ~ b AND *;
 {"hello":"world"}
 {"goodbye":"world"}
 query *;

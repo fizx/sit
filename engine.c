@@ -99,6 +99,11 @@ _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int rema
 	if(!term->hash_code) {
 		term_update_hash(term);
 	}
+	
+	if(term->type == CATCHALL && term->negated) {
+	  // TODO: does this leak?
+    return -1;
+	}
 
 	if(term->negated && !negated_yet) {
 	  QueryNode *node = dictFetchValue(hash, &SENTINEL);
@@ -394,6 +399,7 @@ engine_search(Engine *engine, Query *query) {
         switch(term->type) {
         case CATCHALL:
           //its an inverted null, handled later
+          break;
         case NUMERIC:
           DEBUG("Making numeric subcursor");
           RingBuffer *rb = dictFetchValue(engine->ints, &term->field);
@@ -407,6 +413,7 @@ engine_search(Engine *engine, Query *query) {
             DEBUG("term not found: using null cursor");
           }
           dictAdd(iter->cursors, term, cursor);
+          break;
         default: 
           assert(0);
         }
