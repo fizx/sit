@@ -31,6 +31,8 @@ typedef struct Engine {
   dict                  *doc_set;
   dict                  *tasks;
   
+	Callback 				      *catchall_callbacks;
+  
   char *error;
  
   // User-settable

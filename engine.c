@@ -18,6 +18,7 @@ engine_new(Parser *parser, long size, bool dedupe) {
 	engine->queries = dictCreate(getTermQueryNodeDict(), 0);
 	engine->parser = parser;
 	engine->query_id = 0;
+  engine->catchall_callbacks = NULL;
 	engine->after_on_document = NULL;
 	engine->stream = ring_buffer_new(size / 4);
 	engine->term_dictionary = lrw_dict_new(getTermPlistDict(), getTermLrw(), size / 32);
@@ -100,9 +101,18 @@ _recurse_add(Engine *engine, dict *hash, QueryNode *parent, Term *term, int rema
 		term_update_hash(term);
 	}
 	
-	if(term->type == CATCHALL && term->negated) {
-	  // TODO: does this leak?
-    return -1;
+	if(term->type == CATCHALL) {
+	  if (term->negated) {
+      return callback->id;
+	  } else if (remaining > 1) {
+	    return _recurse_add(engine, hash, parent, term + 1, remaining - 1, negated_yet, callback);
+    } else {
+      Callback *next = engine->catchall_callbacks;
+      engine->catchall_callbacks = callback;
+      callback->next = next;
+      if(callback->id < 0) callback->id = engine->query_id++;
+  		return callback->id;    	
+    }
 	}
 
 	if(term->negated && !negated_yet) {
@@ -298,8 +308,15 @@ callback_recurse(Engine *engine, dict *term_index, dict *query_nodes, void *doc,
 }
 
 void
-engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {
+engine_percolate(Engine *engine, DocBuf *buffer, long doc_id) {  
   DEBUG("starting percolation");
+  
+  Callback *cb = engine->catchall_callbacks;
+	while(cb) {
+		cb->handler(cb, buffer);
+		cb = cb->next;
+	}
+	
 	callback_recurse(engine, buffer->term_index, engine->queries, &doc_id, true);
 }
 
