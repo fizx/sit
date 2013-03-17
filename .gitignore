@@ -9,3 +9,4 @@ sit
 build
 callgrind.out*
 TODO
+tmp.json

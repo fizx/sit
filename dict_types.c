@@ -63,6 +63,28 @@ _docref_cmp(void *privdata, const void *key1, const void *key2) {
   return pstrcmp(pa, pb) == 0;
 }
 
+static int 
+_task_cmp(void *privdata, const void *key1, const void *key2) {
+  Engine *engine = privdata;
+  
+  Task *a = key1;
+  Task *b = key2;
+  
+  return a->id == b->id;
+}
+
+void
+_task_free(void *privdata, void *data) {
+  (void) privdata;
+  task_free(data);
+}
+
+static unsigned int 
+_task_hash(const void *key) {  
+  Task *task = (Task *) key;
+  return task->id;
+}
+
 void *
 _term_copy(void *privdata, const void *term) {
   (void) privdata;
@@ -201,6 +223,15 @@ dictType docrefDict = {
     NULL   /* val destructor */
 };
 
+dictType taskDict = {
+  _task_hash,    /* hash function */
+  NULL,     /* key dup */
+  NULL,          /* val dup */
+  _task_cmp, /* key compare */
+  _task_free,    /* key destructor */
+  NULL   /* val destructor */  
+};
+
 lrw_type termLrw = {
 	_term_bump,
 	_term_version
@@ -216,5 +247,5 @@ dictType *getTermQueryNodeDict() { return &termQueryNodeDict; }
 dictType *getTermPlistCursorDict() { return &termPlistCursorDict; }
 dictType *getPstrParserDict() { return &pstrParserDict; }
 dictType *getDocRefDict() { return &docrefDict; }
-
+dictType *getTaskTaskDict() { return &taskDict; }
 

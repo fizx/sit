@@ -34,4 +34,7 @@ getPstrParserDict();
 dictType *
 getDocRefDict();
 
+dictType *
+getTaskTaskDict();
+
 #endif

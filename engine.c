@@ -33,6 +33,7 @@ engine_new(Parser *parser, long size, bool dedupe) {
 	} else {
     engine->doc_set = NULL;
 	}
+	engine->tasks = dictCreate(getTaskTaskDict(), 0);
   engine->error = NULL;
 	return engine;
 }

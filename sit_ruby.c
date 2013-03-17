@@ -10,6 +10,7 @@ VALUE rbc_ast;
 VALUE rbc_ast_node;
 VALUE rbc_ring_buffer;
 VALUE rbc_term;
+VALUE rbc_task;
 VALUE rbc_callback;
 VALUE rbc_doc_buf;
 VALUE rbc_query;
@@ -53,7 +54,11 @@ Init_sit() {
 	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
 	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
 
-	//DocBuf
+	// Task
+	rbc_task = rb_define_class_under(m_sit, "Task", rb_cObject);
+	rb_define_singleton_method(rbc_task, "new_tail", rbc_task_new_tail, 2);
+
+	// DocBuf
   rbc_doc_buf = rb_define_class_under(m_sit, "DocBuf", rb_cObject);
 	rb_define_singleton_method(rbc_doc_buf, "new", rbc_doc_buf_new, 0);
 	rb_define_method(rbc_doc_buf, "field_found", rbc_doc_buf_field_found, 1);

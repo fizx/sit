@@ -29,6 +29,7 @@ typedef struct Engine {
   long                   ints_capacity;
   struct RingBuffer     *docs;
   dict                  *doc_set;
+  dict                  *tasks;
   
   char *error;
  

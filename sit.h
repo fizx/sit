@@ -27,6 +27,9 @@ struct lrw_type;
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/queue.h>
+#include <sys/stat.h>
+#include <aio.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -40,6 +43,7 @@ struct lrw_type;
 #include "regex_tokenizer.h"
 #include "syslog_parser.h"
 #include "jsonsl.h"
+#include "task.h"
 #include "ll.h"
 #include "lrw_dict.h"
 #include "pstring.h"

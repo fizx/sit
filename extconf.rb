@@ -14,8 +14,9 @@ $CFLAGS << ' -g -std=c99
              -o sit'.gsub(/\s+/, " ")
 
 find_library('ev', 'ev_default_loop') && have_header("ev.h")
+have_header("aio.h")
 find_library('pcre', 'pcre_compile') && have_header("pcre.h")
-
+have_header("sys/queue.h")
 create_makefile('sit')
 
 footer = <<-STR
@@ -24,7 +25,6 @@ $(TARGET): $(OBJS) Makefile
 	@-$(RM) $(@)
 	$(Q) $(CC) -dynamic -o $@ $(OBJS) $(LIBPATH) $(DLDFLAGS) $(LOCAL_LIBS) $(LIBS)
 STR
-
 
 existing = File.read("Makefile")
 existing.sub!(/^all.*/, "all:\t$(DLLIB) $(TARGET)")
