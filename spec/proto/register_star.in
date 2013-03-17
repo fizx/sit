@@ -3,3 +3,6 @@ register a ~ b AND *;
 {"hello":"world"}
 {"goodbye":"world"}
 query *;
+unregister 0
+unregister 0
+{"goodbye":"world"}

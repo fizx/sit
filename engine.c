@@ -554,6 +554,27 @@ result_iterator_document_id(ResultIterator *iter) {
 
 bool
 engine_unregister(Engine *engine, long query_id) {
+  Callback *cb = engine->catchall_callbacks;
+  if(cb && cb->id == query_id) {
+    engine->catchall_callbacks = cb->next;
+    if(cb->free) {
+      cb->free(cb);
+    }
+    return true;
+  }
+  Callback *prev = cb;
+  while(cb) {
+    if(cb->id == query_id) {
+      prev->next = cb->next;
+      if(cb->free) {
+        cb->free(cb);
+      }
+      return true;
+    }
+    prev = cb;
+    cb = cb->next;
+  }
+  
   unregister_data data = {
     query_id,
     false

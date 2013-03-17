@@ -8,3 +8,6 @@
 {"status": "ok", "message": "found", "query_id": 2, "doc_id": 1}
 {"status": "ok", "message": "found", "query_id": 2, "doc_id": 0}
 {"status": "ok", "message": "complete", "id": 2}
+{"status": "ok", "message": "unregistered", "query_id": 0}
+{"status": "error", "message": "not found", "query_id": 0}
+{"status": "ok", "message": "added", "doc_id": 2}
