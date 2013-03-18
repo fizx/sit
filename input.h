@@ -6,6 +6,7 @@
 
 typedef struct Output {
 	void *data;
+  pstring *delimiter;
   void (*write)(struct Output *output, pstring *message);
   void (*close)(struct Output *output);
 } Output;
@@ -47,7 +48,6 @@ typedef struct Input {
     buf.len = STRLEN(_s) + written;                         \
     output->write(output, &buf);                            \
   } while(0)
-
 
 Input *
 input_new(struct Engine *engine, long buffer_size);

@@ -102,9 +102,12 @@ main(int argc, char **argv) {
 #else
   {
 #endif
+
+    pstring nl = {"\n", 1};
   
   	Input *input = input_new(engine, BUF_SIZE);
     input->output = malloc(sizeof(Output));
+    input->output->delimiter = &nl;
     input->output->write = stdout_write;
     input->output->close = stdout_close;
     ProtocolParser *pparser = line_input_protocol_new(input);

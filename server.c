@@ -109,15 +109,13 @@ _enqueue_flush(conn_t *conn) {
   }
 }
 
-pstring nl = {"\n", 1};
-
 void
 conn_write(Output *output, pstring *data) {  
   conn_t *conn = output->data;
   if(!conn->live) return;
 
   vstring_append(conn->buffer, data);
-  vstring_append(conn->buffer, &nl);
+  vstring_append(conn->buffer, output->delimiter);
   
   _enqueue_flush(conn);
 }
@@ -160,6 +158,8 @@ out_conn_close(Output *output) {
   conn_close(conn);
 }
 
+static pstring nl = {"\n", 1};
+
 conn_t *
 conn_new(Server *server) {
   assert(server->engine);
@@ -167,6 +167,7 @@ conn_new(Server *server) {
 	conn->server = server;
 	Input *input = input_new(server->engine, STREAM_BUFFER_SIZE);
   input->output = malloc(sizeof(Output));
+  input->output->delimiter = &nl;
   input->output->data = conn;
   input->output->write = conn_write;
   input->output->close = out_conn_close;

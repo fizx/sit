@@ -136,6 +136,8 @@ _raw_query_handler(Callback *callback, void *data) {
 void 
 _raw_noop(Callback *cb, void *data) {}
 
+pstring _empty = {"", 0};
+
 void
 _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
@@ -162,6 +164,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   	input->parser->on_document = callback_new(_raw_noop, input);
   	input->parser->on_error = callback_new(_close_on_error2, handler);
     input->doc_acker = callback_new(_raw_noop, input);
+    output->delimiter = &_empty;
   } else if(!cpstrcmp("tail", command)) {
     Task *task = tail_task_new(engine, more, 1.);
     pstring *json = task_to_json(task);
