@@ -165,6 +165,14 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   	input->parser->on_error = callback_new(_close_on_error2, handler);
     input->doc_acker = callback_new(_raw_noop, input);
     output->delimiter = &_empty;
+  } else if(!cpstrcmp("release_task", command)) {
+    long task_id = strtol(more->val, NULL, 10);
+    bool success = engine_release_task(engine, task_id);
+    if(success) {
+      WRITE_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"task_id\": ", "%ld}", task_id);
+    } else {
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id);
+    }
   } else if(!cpstrcmp("tail", command)) {
     Task *task = tail_task_new(engine, more, 1.);
     pstring *json = task_to_json(task);

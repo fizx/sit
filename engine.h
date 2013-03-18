@@ -115,6 +115,9 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id);
 void
 result_iterator_free(ResultIterator *iter);
 
+bool
+engine_release_task(Engine *engine, long task_id);
+
 long
 engine_register(Engine *engine, Query *query);
 

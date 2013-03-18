@@ -553,6 +553,15 @@ result_iterator_document_id(ResultIterator *iter) {
 }
 
 bool
+engine_release_task(Engine *engine, long task_id) {
+  Task *task = calloc(1, sizeof(Task));
+  task->id = task_id;
+  int status = dictDelete(engine->tasks, task);
+  free(task);
+  return status == DICT_OK;
+}
+
+bool
 engine_unregister(Engine *engine, long query_id) {
   Callback *cb = engine->catchall_callbacks;
   if(cb && cb->id == query_id) {

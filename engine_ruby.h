@@ -31,6 +31,12 @@ VALUE
 rbc_engine_last_document_id(VALUE self);
 
 VALUE
+rbc_engine_tasks(VALUE self);
+
+VALUE
+rbc_engine_release_task(VALUE self, VALUE rtaskid);
+
+VALUE
 rbc_engine_get_document(VALUE self, VALUE rid);
 
 VALUE 

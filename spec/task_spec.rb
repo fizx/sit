@@ -35,4 +35,14 @@ describe "Task" do
 	it "should to_json" do
 	  @task.to_json.should == "{\"id\": 1, \"type\": \"tail\", \"path\": \"#{abs("tmp.json").gsub('/', '\\/')}\"}"
   end
+  
+  it "should register with engine" do
+	  @engine.tasks.size.should == 1
+  end
+  
+  it "should be able to unregister with engine" do
+	  @engine.tasks.size.should == 1
+	  @engine.release_task(@task.task_id)
+	  @engine.tasks.size.should == 0
+  end
 end

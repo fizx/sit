@@ -22,3 +22,11 @@ rbc_task_to_json(VALUE self) {
   pstring_free(json);
   return rstring;
 }
+
+VALUE
+rbc_task_id(VALUE self) {
+  Task *task;
+	Data_Get_Struct(self, Task, task);
+  return INT2FIX(task->id);
+}
+
