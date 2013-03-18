@@ -10,11 +10,15 @@ typedef struct Task {
 	Parser        *parser;
   void          *state;
 	void          *data;
-
+  pstring     *(*to_json)(struct Task *task);
+  void         (*free)(struct Task *task);
 } Task;
 
 Task *
 task_new();
+
+pstring *
+task_to_json(Task *task);
 
 Task *
 tail_task_new(Engine *engine, pstring *path, double interval);

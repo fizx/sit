@@ -58,7 +58,8 @@ Init_sit() {
 	// Task
 	rbc_task = rb_define_class_under(m_sit, "Task", rb_cObject);
 	rb_define_singleton_method(rbc_task, "new_tail", rbc_task_new_tail, 2);
-
+	rb_define_method(rbc_task, "to_json", rbc_task_to_json, 0);
+	
 	// DocBuf
   rbc_doc_buf = rb_define_class_under(m_sit, "DocBuf", rb_cObject);
 	rb_define_singleton_method(rbc_doc_buf, "new", rbc_doc_buf_new, 0);

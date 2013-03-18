@@ -31,4 +31,8 @@ describe "Task" do
       @engine.last_document_id == 59
     }
 	end
+	
+	it "should to_json" do
+	  @task.to_json.should == "{\"id\": 1, \"type\": \"tail\", \"path\": \"#{abs("tmp.json").gsub('/', '\\/')}\"}"
+  end
 end

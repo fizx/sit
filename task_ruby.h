@@ -6,4 +6,7 @@
 VALUE 
 rbc_task_new_tail(VALUE class, VALUE engine, VALUE path);
 
+VALUE 
+rbc_task_to_json(VALUE self);
+
 #endif

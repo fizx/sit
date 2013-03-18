@@ -103,6 +103,21 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     input->qparser_mode = QUERYING;
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
+  } else if(!cpstrcmp("tail", command)) {
+    Task *task = tail_task_new(engine, more, 1.);
+  } else if(!cpstrcmp("tasks", command)) {
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"begin\"}", "");
+    dictIterator * iterator = dictGetIterator(engine->tasks);
+  	dictEntry *next;
+  	while((next = dictNext(iterator))) {
+      Task *task = dictGetKey(next);
+      pstring *json = task_to_json(task);
+      WRITE_OUT("{\"status\": \"ok\", \"id\": \"", "%d, details: %.*s}", task->id, json->len, json->val);
+      pstring_free(json);
+  	}
+    dictReleaseIterator(iterator);
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"complete\"}", "");
+    Task *task = tail_task_new(engine, more, 1.);
   } else if(!cpstrcmp("stream", command)) {
     Parser *parser = engine_new_stream_parser(engine, more);
     if(parser) {

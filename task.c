@@ -4,7 +4,7 @@ static int task_id = 0;
 
 Task *
 task_new() {
-  Task *task = malloc(sizeof(Task));
+  Task *task = calloc(1, sizeof(Task));
   task->id = task_id++;
   return task;
 }
@@ -18,6 +18,7 @@ task_free(Task *task) {
 
 typedef struct TailState {
   FILE *fd;
+  pstring *path;
   long pointer;
   long size;
   ev_stat *stat;
@@ -27,6 +28,20 @@ typedef struct TailState {
   long docs;
   long errors;
 } TailState;
+
+pstring *
+task_to_json(Task *task) {
+  if(task->to_json) {
+    return task->to_json(task);
+  } else {
+    char *buf;
+    asprintf(&buf, "{\"id\": %d, \"type\": \"unknown\"}");
+    pstring *str = malloc(sizeof(pstring));
+    str->val = buf;
+    str->len = strlen(buf);
+    return str;
+  }
+}
 
 static void
 _retry_task(Task *task) {
@@ -112,6 +127,18 @@ _tail_error_found(Callback *cb, void *data) {
   state->errors++;
 }
 
+static pstring *
+_tail_task_to_json(Task *task) {
+  TailState *state = task->state;
+  char *buf;
+  pstring escaped;
+  json_escape(&escaped, state->path);
+  asprintf(&buf, "{\"id\": %d, \"type\": \"tail\", \"path\": \"%.*s\"}", task->id, escaped.len, escaped.val);
+  pstring *str = malloc(sizeof(pstring));
+  str->val = buf;
+  str->len = strlen(buf);
+  return str;
+}
 
 Task *
 tail_task_new(Engine *engine, pstring *path, double interval) {
@@ -121,6 +148,7 @@ tail_task_new(Engine *engine, pstring *path, double interval) {
 	task->parser->on_document = callback_new(_tail_document_found, task);
 	task->parser->on_error = callback_new(_tail_error_found, task);
 	task->data = NULL;
+  task->to_json = _tail_task_to_json;
 	
   TailState *state = calloc(1, sizeof(TailState));
   task->state = state;
@@ -128,6 +156,7 @@ tail_task_new(Engine *engine, pstring *path, double interval) {
   char *name = p2cstring(path);
 	state->fd = fopen(name, "r");
   if(!state->fd) {
+    task_free(task);
     free(name);
     return NULL;
   }
@@ -150,6 +179,8 @@ tail_task_new(Engine *engine, pstring *path, double interval) {
   task_stat->data = task;
   ev_stat_init(task_stat, _task_stat, name, interval);
   ev_stat_start(loop, task_stat);
+  state->path = pcpy(path);
+  dictAdd(engine->tasks, task, task);
   free(name);
   return task;
 }
