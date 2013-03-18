@@ -1,0 +1,4 @@
+{"status": "ok", "message": "added", "details: {"id": 0, "type": "tail", "path": "spec\/twitter.json"}}
+{"status": "ok", "message": "begin"}
+{"status": "ok", details: {"id": 0, "type": "tail", "path": "spec\/twitter.json"}}
+{"status": "ok", "message": "complete"}
