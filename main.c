@@ -19,6 +19,7 @@ stdout_write(Output *output, pstring *data) {
 void 
 stdout_close(Output *output) {
   (void) output;
+  exit(0);
 }
 
 int 
@@ -81,9 +82,10 @@ main(int argc, char **argv) {
   }
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
-  Parser *parser = json_parser_new(white_tokenizer_new());
+  Parser *parser = json_white_parser_new();
   Engine *engine = engine_new(parser, ram, dedupe);
   engine_add_stream_parser(engine, "solr", solr_parser_new());
+  engine_add_stream_parser(engine, "json", json_white_parser_new());
 
 #ifdef HAVE_EV_H
   

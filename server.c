@@ -109,13 +109,15 @@ _enqueue_flush(conn_t *conn) {
   }
 }
 
+pstring nl = {"\n", 1};
+
 void
 conn_write(Output *output, pstring *data) {  
   conn_t *conn = output->data;
   if(!conn->live) return;
 
-  paddc(data, "\n");
   vstring_append(conn->buffer, data);
+  vstring_append(conn->buffer, &nl);
   
   _enqueue_flush(conn);
 }

@@ -12,6 +12,21 @@ _input_error_found(struct ProtocolHandler *handler, pstring *message) {
   free(escaped.val);
 }
 
+void
+_close_on_error(struct ProtocolHandler *handler, pstring *message) {
+  (void) message;
+  Input *input = handler->data;
+  Output *output = input->output;
+  output->close(output);
+}
+
+void
+_close_on_error2(Callback *cb, void *message) {
+  ProtocolHandler *handler = cb->user_data;
+  _close_on_error(handler, message);
+}
+
+
 int
 extract_string(pstring *target, pstring *haystack, int off) {
   for (int i = off; i < haystack->len; i++) {
@@ -35,6 +50,7 @@ _parse_command(ProtocolParser *parser, pstring *pstr) {
   more.len = pstr->len - off;
   more.val = pstr->val + off;
   if(!cmd.len) return; // empty line
+  if(*(more.val + more.len - 1) == '\r') more.len--;
   parser->handler->command_found(parser->handler, &cmd, &more);
 }
 
@@ -88,6 +104,39 @@ _dump_handler(struct Callback *self, void *data) {
 }
 
 void
+_raw_found_handler(Callback *callback, void *data) {
+  long doc_id = *(long*)data;
+  Input *input = callback->user_data;
+  Engine *engine = input->engine;
+  Output *output = input->output;
+  pstring *doc = engine_get_document(engine, doc_id);
+  if(doc) output->write(output, doc);
+}
+
+void
+_raw_query_handler(Callback *callback, void *data) {
+  Query *query = data;
+  Input *input = callback->user_data;
+  Output *output = input->output;
+  Engine * engine = input->engine;
+  if(input->qparser_mode == REGISTERING) {
+    query->callback = callback_new(_raw_found_handler, input);
+    engine_register(engine, query);
+    query->callback = NULL; // disassociate from gc.
+  } else {
+    query->callback = callback_new(_raw_found_handler, input);
+    ResultIterator *iter = engine_search(engine, query);
+    while(result_iterator_prev(iter) && (query->limit-- != 0)) {
+      result_iterator_do_callback(iter);
+    }
+    result_iterator_free(iter);
+  }   
+}
+
+void 
+_raw_noop(Callback *cb, void *data) {}
+
+void
 _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
   Input *input = handler->data;
@@ -103,6 +152,16 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     input->qparser_mode = QUERYING;
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
+  } else if(!cpstrcmp("raw", command)) {
+    handler->error_found = _close_on_error;
+    query_parser_free(input->qparser);
+    input->qparser = query_parser_new(callback_new(_raw_query_handler, input));
+    callback_free(input->parser->on_document);
+    callback_free(input->parser->on_error);
+    callback_free(input->doc_acker);
+  	input->parser->on_document = callback_new(_raw_noop, input);
+  	input->parser->on_error = callback_new(_close_on_error2, handler);
+    input->doc_acker = callback_new(_raw_noop, input);
   } else if(!cpstrcmp("tail", command)) {
     Task *task = tail_task_new(engine, more, 1.);
     pstring *json = task_to_json(task);
@@ -131,7 +190,9 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
       handler->parser->state = FORCE_DATA;      
       WRITE_OUT("{\"status\": \"ok\", \"message\": \"streaming\"}", "");
     } else {
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"no stream parser\"}", "");
+      pstring json;
+      json_escape(&json, more);
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"no stream parser for ", "%.*s\"}", json.len, json.val);
     }
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
@@ -145,7 +206,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     long doc_id = strtol(more->val, NULL, 10);
     pstring *doc = engine_get_document(input->engine, doc_id);
     if(doc) {
-      WRITE_OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": %.*s}", doc->len, doc->val);
+      WRITE_OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": ", "%.*s}", doc->len, doc->val);
     } else {
       WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": ", "%ld}", doc_id);
     }
@@ -154,6 +215,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   } else if(TEST_MODE && !cpstrcmp("dump", command)) {
     Callback *cb = callback_new(_dump_handler, output);
     engine_each_query(input->engine,  cb);
+    callback_free(cb);
 #ifdef HAVE_EV_H
   } else if(TEST_MODE && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");
@@ -164,7 +226,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
 #endif
   } else {
     pstring *buf = pstringf("Unknown command: %.*s", command->len, command->val);
-    _input_error_found(handler, buf);
+    handler->error_found(handler, buf);
     pstring_free(buf);
   }
 }
