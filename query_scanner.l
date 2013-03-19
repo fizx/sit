@@ -32,16 +32,16 @@ NS    [^ \t\n\r,?*();:\^"]
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
-#define YY_INPUT(cbuf, offset, max_size)  {                                   \
-  int i;\
-  for(i = 0; i < max_size && offset < yyextra->buf->len; i++, offset++) { \
-    cbuf[i] = yyextra->buf->val[offset];                                      \
+#define YY_INPUT(cbuf, offset, max_size)  {                                 \
+  int i;                                                                    \
+  for(i = 0; i < max_size && offset < yyextra->buf->len; i++, offset++) {   \
+    cbuf[i] = yyextra->buf->val[offset];                                    \
   }                                                                         \
   if(i == 0) {                                                              \
-    yyextra->done++;                                                   \
+    yyextra->done++;                                                        \
   }                                                                         \
-  offset = i;                                                                 \
-}                                                                             
+  offset = i;                                                               \
+}
 
 %}
 
