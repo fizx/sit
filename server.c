@@ -62,6 +62,7 @@ _enqueue_flush(conn_t *conn);
   
 void
 _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
+  DEBUG("flushing");
   conn_t *conn = timer->data;
   vstring *buffer = conn->buffer;
   
@@ -71,7 +72,7 @@ _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
   
     pstring data = { NULL, size};
     vstring_get(&data, buffer, 0);
-  
+    DEBUG("sending %d bytes", size);
     int sent = send(conn->as_io.fd, data.val, data.len, 0);
     if(sent < 0) {
       switch(errno) {
@@ -79,6 +80,7 @@ _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
           conn_close(conn);
           break;
         case EAGAIN: // eagain
+          DEBUG("EAGAIN");
           conn->flusher = NULL;
           _enqueue_flush(conn);
           free(timer);
@@ -88,7 +90,8 @@ _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
       }
       errno = 0;
       break;
-    } else {
+    } else {  
+      DEBUG("sent %d bytes", sent);
       vstring_shift(buffer, sent);
       size = vstring_size(buffer);
     }

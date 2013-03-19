@@ -154,6 +154,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
   } else if(!cpstrcmp("raw", command)) {
+    INFO("entering raw mode");
     handler->error_found = _close_on_error;
     query_parser_free(input->qparser);
     input->qparser = query_parser_new(callback_new(_raw_query_handler, input));
@@ -174,9 +175,13 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     }
   } else if(!cpstrcmp("connect", command)) {
     Task *task = client_task_new(engine, more);
-    pstring *json = task_to_json(task);
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
-    pstring_free(json);    
+    if(task) {
+      pstring *json = task_to_json(task);
+      WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
+      pstring_free(json);    
+    } else {
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", strerror(errno));
+    }
   } else if(!cpstrcmp("tail", command)) {
     Task *task = tail_task_new(engine, more, 1.);
     pstring *json = task_to_json(task);
@@ -194,7 +199,30 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   	}
     dictReleaseIterator(iterator);
     WRITE_OUT("{\"status\": \"ok\", \"message\": \"complete\"}", "");
-    Task *task = tail_task_new(engine, more, 1.);
+  } else if(!cpstrcmp("tell", command)) {  
+    long task_id = strtol(more->val, NULL, 10);
+    if(more->val[0] == '$' && more->val[1] == '!') {
+      task_id = task_last_id();
+    }
+    Task *task = engine_get_task(engine, task_id);
+    if(task) {
+      if(task->tell) {
+        char *space = memchr(more->val, ' ', more->len);
+        if(space) {
+          pstring message = { space + 1, more->len - (space - more->val) };
+          char *n = message.val + message.len - 1;
+          *(n) = '\n';
+          task->tell(task, &message);
+          WRITE_OUT("{\"status\": \"ok\", \"message\": \"success\"}", "");
+        } else {
+          WRITE_OUT("{\"status\": \"error\", \"message\": \"invalid tell message\"", ""); 
+        }
+      } else {
+        WRITE_OUT("{\"status\": \"error\", \"message\": \"task doesn't accept input\", \"task_id\": ", "%ld}", task_id); 
+      }
+    } else {
+      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id); 
+    }
   } else if(!cpstrcmp("stream", command)) {
     Parser *parser = engine_new_stream_parser(engine, more);
     if(parser) {

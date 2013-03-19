@@ -5,6 +5,7 @@
 #include "query.h"
 #include "input.h"
 #include "plist.h"
+#include "task.h"
 
 typedef struct QueryNode {
 	dict               *children;
@@ -114,6 +115,9 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id);
 
 void
 result_iterator_free(ResultIterator *iter);
+
+Task *
+engine_get_task(Engine *engine, long task_id);
 
 bool
 engine_release_task(Engine *engine, long task_id);

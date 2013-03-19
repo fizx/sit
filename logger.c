@@ -15,7 +15,7 @@ sit_log(const char *level, const char *format, ...) {
     
     strftime(buffer, 25, "%Y:%m:%dT%H:%M:%S", tm_info);
     
-    fprintf(logfile, "[%s] [%s] ", level, buffer);
+    fprintf(logfile, "[%s] [%d] [%s] ", level, getpid(), buffer);
     
     vfprintf(logfile, format, args);
     fprintf(logfile, "\n");

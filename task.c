@@ -1,6 +1,6 @@
 #include "sit.h"
 
-static int task_id = 0;
+static long task_id = 0;
 
 Task *
 task_new() {
@@ -13,6 +13,12 @@ void
 task_free(Task *task) {
   
 }
+
+long
+task_last_id() {
+  return task_id - 1;
+}
+
 
 #define TBUF_SIZE 16384
 
@@ -36,6 +42,8 @@ typedef struct ClientState {
   pstring     *endpoint;
   long         docs;
   long         errors;
+  Task        *task;
+  bool         connected;
 } ClientState;
 
 pstring *
@@ -172,7 +180,9 @@ _client_task_to_json(Task *task) {
   char *buf;
   pstring escaped;
   json_escape(&escaped, state->endpoint);
-  asprintf(&buf, "{\"id\": %d, \"type\": \"client\", \"endpoint\": \"%.*s\"}", task->id, escaped.len, escaped.val);
+  asprintf(&buf, 
+    "{\"id\": %d, \"type\": \"client\", \"endpoint\": \"%.*s\", \"connected\": %s}", 
+    task->id, escaped.len, escaped.val, state->connected ? "true": "false");
   pstring *str = malloc(sizeof(pstring));
   str->val = buf;
   str->len = strlen(buf);
@@ -224,9 +234,76 @@ tail_task_new(Engine *engine, pstring *path, double interval) {
   return task;
 }
 
+#define BUFFER_SIZE 16384
+static char _buf[BUFFER_SIZE];
+
 static void 
 _client_cb(EV_P_ ev_io *w, int revents) {
+  ClientState *state = (ClientState *)w;
+  Task *task = state->task;
   
+  if (revents & EV_WRITE) { // we're connected
+    state->connected = true;
+    
+    // Quit sending still-connected notices
+    vstring *buffer = state->write_buffer;
+    long size = vstring_size(buffer);
+    if(size > BUFFER_SIZE) size = BUFFER_SIZE;
+    if (size > 0) {
+      pstring data = { NULL, size};
+      vstring_get(&data, buffer, 0);
+      DEBUG("sending tell: %.*s", data.len, data.val);
+      int sent = send(state->fd, data.val, data.len, 0);
+      if(sent < 0) {
+        switch(errno) {
+        case EPIPE: // sigpipe
+          task_free(task);
+          return;
+        case EAGAIN: // eagain
+          DEBUG("EAGAIN");
+          return;
+        default:
+          PERROR("unknown error writing");
+          task_free(task);
+          return;
+        }
+        errno = 0;
+      } else {  
+        DEBUG("sent %d bytes", sent);
+        vstring_shift(buffer, sent);
+      }
+    } else { //nothing to do, quit trying
+      ev_io_stop(EV_A_ w);
+      ev_io_set(w, state->fd, EV_READ);
+      ev_io_start(EV_A_ w);
+    }
+  } else if (revents & EV_READ) { // data available
+    int read = recv(state->fd, _buf, BUFFER_SIZE, 0);
+    if (read > 0) {
+      pstring pstr = { _buf, read };
+      task->parser->consume(task->parser, &pstr);
+    } else if (read == 0) {
+      engine_release_task(task->engine, task->id);
+    } else if (EAGAIN == errno) {
+      DEBUG("WTF");
+    } else {
+      PERROR("unknown client error");
+      engine_release_task(task->engine, task->id);
+    }
+  } else {
+    DEBUG("WTF");
+  }
+}
+
+void
+_client_tell(Task *task, pstring *message) {
+  struct ev_loop *loop = EV_DEFAULT;
+  ClientState *state = task->state;
+  DEBUG("telling: %.*s", message->len, message->val);
+  vstring_append(state->write_buffer, message);
+  ev_io_stop(EV_A_ state);
+  ev_io_set((struct ev_io *)state, state->fd, EV_READ | EV_WRITE);
+  ev_io_start(EV_A_ state);
 }
 
 Task *
@@ -237,10 +314,14 @@ client_task_new(Engine *engine, pstring *hostport) {
 	task->parser->on_document = callback_new(_client_document_found, task);
 	task->parser->on_error = callback_new(_client_error_found, task);
   task->to_json = _client_task_to_json;
+  task->tell = _client_tell;
   ClientState *state = calloc(1, sizeof(ClientState));
   task->state = state;
+  state->task = task;
+  state->endpoint = pcpy(hostport);
+  state->write_buffer = vstring_new();
 
-  if (-1 == (state->fd = socket(AF_UNIX, SOCK_STREAM, 0))) {
+  if (-1 == (state->fd = socket(AF_INET, SOCK_STREAM, 0))) {
     PERROR("socket");
     task_free(task);
     return NULL;
@@ -273,16 +354,26 @@ client_task_new(Engine *engine, pstring *hostport) {
   int off = colon - hostport->val;
   char *host = pstring_cslice(hostport, 0, off);
   char *port = pstring_cslice(hostport, off + 1, hostport->len - (off + 1));
+  struct addrinfo hint;
+  memset((void *)&hint, 0, sizeof(hint));
   struct addrinfo *addr = NULL;
   if(-1 == getaddrinfo(host, port, NULL, &addr)) {
     PERROR("can't resolve");
     task_free(task);
     return NULL;    
   }
+  
+  addr->ai_addr->sa_family = AF_INET;
 
   if (-1 == connect(state->fd, addr->ai_addr, addr->ai_addrlen)) {
-    PERROR("can't connect");
-    task_free(task);
-    return NULL;
+    if(errno == EINPROGRESS) {
+      errno = 0;
+    } else {
+      PERROR("can't connect");
+      task_free(task);
+      return NULL;
+    }
   }
+  dictAdd(engine->tasks, task, task);
+  return task;
 }

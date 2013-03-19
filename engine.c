@@ -561,6 +561,16 @@ engine_release_task(Engine *engine, long task_id) {
   return status == DICT_OK;
 }
 
+Task *
+engine_get_task(Engine *engine, long task_id) {
+  Task *task = calloc(1, sizeof(Task));
+  task->id = task_id;
+  Task *real = dictFetchValue(engine->tasks, task);
+  free(task);
+  return real;
+}
+
+
 bool
 engine_unregister(Engine *engine, long query_id) {
   Callback *cb = engine->catchall_callbacks;
