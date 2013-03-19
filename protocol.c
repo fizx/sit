@@ -26,7 +26,6 @@ _close_on_error2(Callback *cb, void *message) {
   _close_on_error(handler, message);
 }
 
-
 int
 extract_string(pstring *target, pstring *haystack, int off) {
   for (int i = off; i < haystack->len; i++) {
@@ -173,6 +172,11 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     } else {
       WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id);
     }
+  } else if(!cpstrcmp("connect", command)) {
+    Task *task = client_task_new(engine, more);
+    pstring *json = task_to_json(task);
+    WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
+    pstring_free(json);    
   } else if(!cpstrcmp("tail", command)) {
     Task *task = tail_task_new(engine, more, 1.);
     pstring *json = task_to_json(task);

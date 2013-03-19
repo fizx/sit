@@ -15,6 +15,9 @@ typedef struct {
 void
 paddc(pstring *pstr, const char *cstr);
 
+char *
+pstring_cslice(pstring *pstr, long off, int len);
+
 void
 paddv(pstring *pstr, const char *fmt, ...);
 

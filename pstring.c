@@ -45,6 +45,14 @@ pstrnstr(pstring *base, char *start, const char *c) {
   return strnstr(start, c, len);
 }
 
+char *
+pstring_cslice(pstring *pstr, long off, int len) {
+  char *target = malloc(len + 1);
+  memcpy(target, pstr->val + off, len);
+  target[len + 1] = '\0';
+  return target;
+}
+
 void
 padd(pstring *pstr, pstring *append) {
   int nlen = pstr->len + append->len;

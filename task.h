@@ -21,6 +21,9 @@ pstring *
 task_to_json(Task *task);
 
 Task *
+client_task_new(Engine *engine, pstring *hostport);
+
+Task *
 tail_task_new(Engine *engine, pstring *path, double interval);
 
 void

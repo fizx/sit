@@ -2,7 +2,8 @@ require 'mkmf'
 # CONFIG['CC'] = "gcc"
 CONFIG['optflags'] = "-O0"
 $CFLAGS << ' -g -std=c99
-             -Wall -Wextra 
+             -Wall -Wextra
+             -DCOMPILE_WITH_DEBUG 
              -Wno-newline-eof 
              -Wno-declaration-after-statement 
              -Wno-comment 

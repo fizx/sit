@@ -29,6 +29,7 @@ struct lrw_type;
 #include <sys/socket.h>
 #include <sys/queue.h>
 #include <sys/stat.h>
+#include <netdb.h>
 #include <aio.h>
 #include <time.h>
 #include <unistd.h>
