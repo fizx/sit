@@ -3,6 +3,7 @@
 %option bison-locations
 %option noyywrap
 %option yylineno
+%option extra-type="QueryParser*"
 
 D			[0-9]
 L			[a-zA-Z_]
@@ -12,8 +13,23 @@ NS    [^ \t\n\r,?*();:\^"]
 %{
 
 #include "sit.h"
+#define YYSTYPE         QPSTYPE
+#define YYLTYPE         QPLTYPE
+/* Substitute the variable and function names.  */
+#define yyparse         qpparse
+#define yypush_parse    qppush_parse
+#define yypull_parse    qppull_parse
+#define yypstate_new    qppstate_new
+#define yypstate_delete qppstate_delete
+#define yypstate        qppstate
+#define yylex           qplex
+#define yyerror         qperror
+#define yylval          qplval
+#define yychar          qpchar
+#define yydebug         qpdebug
+#define yynerrs         qpnerrs
+#define yylloc          qplloc
 
-#define YY_EXTRA_TYPE QueryParser*
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
 #define YY_INPUT(cbuf, offset, max_size)  {                                   \
@@ -112,11 +128,11 @@ query_parser_new(Callback *cb) {
   parser->on_query = cb;
   parser->tokenizer = white_tokenizer_new();
   parser->tokenizer->on_token = callback_new(add_token, parser);
-  parser->push_state = yypstate_new();
-  parser->lvalp = malloc(sizeof(YYSTYPE));
-  parser->llocp = malloc(sizeof(YYLTYPE));
-  yylex_init(&parser->scanner);
-  yyset_extra(parser, parser->scanner);
+  parser->push_state = qppstate_new();
+  parser->lvalp = malloc(sizeof(QPSTYPE));
+  parser->llocp = malloc(sizeof(QPLTYPE));
+  qplex_init(&parser->scanner);
+  qpset_extra(parser, parser->scanner);
   return parser;
 }
 
@@ -124,8 +140,8 @@ void
 query_parser_free(QueryParser *parser) {
   tokenizer_free(parser->tokenizer);
   ast_free(parser->ast);
-  yypstate_delete(parser->push_state);
-  yylex_destroy(parser->scanner);
+  qppstate_delete(parser->push_state);
+  qplex_destroy(parser->scanner);
   free(parser->lvalp);
   free(parser->llocp);
   free(parser);
@@ -133,11 +149,11 @@ query_parser_free(QueryParser *parser) {
 
 void
 query_parser_reset(QueryParser *parser) {
-  yypstate_delete(parser->push_state);
-  parser->push_state = yypstate_new();
-  yylex_destroy(parser->scanner);
-  yylex_init(&parser->scanner);
-  yyset_extra(parser, parser->scanner);
+  qppstate_delete(parser->push_state);
+  parser->push_state = qppstate_new();
+  qplex_destroy(parser->scanner);
+  qplex_init(&parser->scanner);
+  qpset_extra(parser, parser->scanner);
 }
 
 int
@@ -145,12 +161,12 @@ query_parser_consume(QueryParser *parser, pstring *pstr) {
   assert(pstr);
   parser->buf = pstr;
   parser->done = false;
-  //return yyparse(parser);
+  //return qpparse(parser);
   int status = YYPUSH_MORE;
   while (status == YYPUSH_MORE && parser->done < 1) {
-    status = yypush_parse(
+    status = qppush_parse(
       parser->push_state,
-      yylex(parser->lvalp, parser->llocp, parser->scanner), 
+      qplex(parser->lvalp, parser->llocp, parser->scanner), 
       parser->lvalp,
       parser->llocp,
       parser);
@@ -530,6 +546,7 @@ _s(QNodeType t) {
     case ORS     : return "ORS"     ;
     case TERM    : return "TERM"    ;
     case NUMTERM : return "NUMTERM" ;
+    default: assert(0);
   }
 }
 

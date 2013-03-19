@@ -6,6 +6,7 @@
 
 %define api.pure full
 %define api.push-pull both
+%define api.prefix qp
 
 %parse-param { QueryParser* context }
 %lex-param { void* scanner  }
@@ -30,12 +31,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-// extern int yydebug;
-// yydebug = 1;
+// extern int qpdebug;
+// qpdebug = 1;
 
-int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+int qplex(QPSTYPE* lvalp, QPLTYPE* llocp, void* scanner);
 
-void yyerror(YYLTYPE* locp, QueryParser *parser, const char* err) {
+void qperror(QPLTYPE* locp, QueryParser *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }

@@ -58,13 +58,28 @@
 /* Pull parsers.  */
 #define YYPULL 1
 
-
-
+/* Substitute the type names.  */
+#define YYSTYPE         QPSTYPE
+#define YYLTYPE         QPLTYPE
+/* Substitute the variable and function names.  */
+#define yyparse         qpparse
+#define yypush_parse    qppush_parse
+#define yypull_parse    qppull_parse
+#define yypstate_new    qppstate_new
+#define yypstate_delete qppstate_delete
+#define yypstate        qppstate
+#define yylex           qplex
+#define yyerror         qperror
+#define yylval          qplval
+#define yychar          qpchar
+#define yydebug         qpdebug
+#define yynerrs         qpnerrs
+#define yylloc          qplloc
 
 /* Copy the first part of user declarations.  */
 
 /* Line 371 of yacc.c  */
-#line 68 "y.tab.c"
+#line 83 "qp.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -83,32 +98,40 @@
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "y.tab.h".  */
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+   by #include "qp.tab.h".  */
+#ifndef YY_QP_QP_TAB_H_INCLUDED
+# define YY_QP_QP_TAB_H_INCLUDED
 /* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
-#endif
-#if YYDEBUG
-extern int yydebug;
+#ifndef QPDEBUG
+# if defined YYDEBUG
+#  if YYDEBUG
+#   define QPDEBUG 1
+#  else
+#   define QPDEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define QPDEBUG 1
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined QPDEBUG */
+#if QPDEBUG
+extern int qpdebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 13 "query_parser.y"
+#line 14 "query_parser.y"
 
   #include "query_parser.h"
 
 
 /* Line 387 of yacc.c  */
-#line 105 "y.tab.c"
+#line 128 "qp.tab.c"
 
 /* Tokens.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
+#ifndef QPTOKENTYPE
+# define QPTOKENTYPE
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
-   enum yytokentype {
+   enum qptokentype {
      AND = 258,
      OR = 259,
      NOT = 260,
@@ -155,11 +178,11 @@ extern int yydebug;
 
 
 
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+#if ! defined QPSTYPE && ! defined QPSTYPE_IS_DECLARED
+typedef union QPSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 18 "query_parser.y"
+#line 19 "query_parser.y"
  
   ASTNode *node;
   int         num;
@@ -167,24 +190,24 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 171 "y.tab.c"
-} YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
+#line 194 "qp.tab.c"
+} QPSTYPE;
+# define QPSTYPE_IS_TRIVIAL 1
+# define qpstype QPSTYPE /* obsolescent; will be withdrawn */
+# define QPSTYPE_IS_DECLARED 1
 #endif
 
-#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
-typedef struct YYLTYPE
+#if ! defined QPLTYPE && ! defined QPLTYPE_IS_DECLARED
+typedef struct QPLTYPE
 {
   int first_line;
   int first_column;
   int last_line;
   int last_column;
-} YYLTYPE;
-# define yyltype YYLTYPE /* obsolescent; will be withdrawn */
-# define YYLTYPE_IS_DECLARED 1
-# define YYLTYPE_IS_TRIVIAL 1
+} QPLTYPE;
+# define qpltype QPLTYPE /* obsolescent; will be withdrawn */
+# define QPLTYPE_IS_DECLARED 1
+# define QPLTYPE_IS_TRIVIAL 1
 #endif
 
 
@@ -193,39 +216,39 @@ typedef struct YYLTYPE
 enum { YYPUSH_MORE = 4 };
 #endif
 
-typedef struct yypstate yypstate;
+typedef struct qppstate qppstate;
 
 #if defined __STDC__ || defined __cplusplus
-int yyparse (QueryParser* context);
+int qpparse (QueryParser* context);
 #else
-int yyparse ();
+int qpparse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, QueryParser* context);
+int qppush_parse (qppstate *ps, int pushed_char, QPSTYPE const *pushed_val, QPLTYPE *pushed_loc, QueryParser* context);
 #else
-int yypush_parse ();
+int qppush_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int yypull_parse (yypstate *ps, QueryParser* context);
+int qppull_parse (qppstate *ps, QueryParser* context);
 #else
-int yypull_parse ();
+int qppull_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-yypstate * yypstate_new (void);
+qppstate * qppstate_new (void);
 #else
-yypstate * yypstate_new ();
+qppstate * qppstate_new ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-void yypstate_delete (yypstate *ps);
+void qppstate_delete (qppstate *ps);
 #else
-void yypstate_delete ();
+void qppstate_delete ();
 #endif
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+#endif /* !YY_QP_QP_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 /* Line 390 of yacc.c  */
-#line 24 "query_parser.y"
+#line 25 "query_parser.y"
 
 #include "query_parser.h"
 #include "callback.h"
@@ -235,12 +258,12 @@ void yypstate_delete ();
 #include <stdio.h>
 #include <assert.h>
 
-// extern int yydebug;
-// yydebug = 1;
+// extern int qpdebug;
+// qpdebug = 1;
 
-int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner);
+int qplex(QPSTYPE* lvalp, QPLTYPE* llocp, void* scanner);
 
-void yyerror(YYLTYPE* locp, QueryParser *parser, const char* err) {
+void qperror(QPLTYPE* locp, QueryParser *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }
@@ -326,7 +349,7 @@ query_node_copy_subtree(QueryParser *context, ASTNode *subtree) {
 
 
 /* Line 390 of yacc.c  */
-#line 330 "y.tab.c"
+#line 353 "qp.tab.c"
 
 #ifdef short
 # undef short
@@ -460,8 +483,8 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-	 || (defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL \
-	     && defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+	 || (defined QPLTYPE_IS_TRIVIAL && QPLTYPE_IS_TRIVIAL \
+	     && defined QPSTYPE_IS_TRIVIAL && QPSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -574,7 +597,7 @@ static const yytype_uint8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22
 };
 
-#if YYDEBUG
+#if QPDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
@@ -600,13 +623,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   141,   141,   142,   146,   147,   151,   152,   156,   159,
-     165,   168,   174,   180,   184,   188,   195,   196,   205,   206,
-     207,   208,   209,   210,   211,   216,   217,   222,   227
+       0,   142,   142,   143,   147,   148,   152,   153,   157,   160,
+     166,   169,   175,   181,   185,   189,   196,   197,   206,   207,
+     208,   209,   210,   211,   212,   217,   218,   223,   228
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 1
+#if QPDEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -805,7 +828,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# if defined QPLTYPE_IS_TRIVIAL && QPLTYPE_IS_TRIVIAL
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
@@ -860,7 +883,7 @@ yy_location_print_ (yyo, yylocp)
 #endif
 
 /* Enable debugging if requested.  */
-#if YYDEBUG
+#if QPDEBUG
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
@@ -1027,12 +1050,12 @@ do {					\
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
 int yydebug;
-#else /* !YYDEBUG */
+#else /* !QPDEBUG */
 # define YYDPRINTF(Args)
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
-#endif /* !YYDEBUG */
+#endif /* !QPDEBUG */
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
@@ -1400,7 +1423,7 @@ yypull_parse (yyps, context)
   int yychar;
   YYSTYPE yylval;
   static YYLTYPE yyloc_default
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# if defined QPLTYPE_IS_TRIVIAL && QPLTYPE_IS_TRIVIAL
   = { 1, 1, 1, 1 }
 # endif
 ;
@@ -1464,7 +1487,7 @@ yypstate_delete (yyps)
   free (yyps);
 }
 
-#define yynerrs yyps->yynerrs
+#define qpnerrs yyps->qpnerrs
 #define yystate yyps->yystate
 #define yyerrstatus yyps->yyerrstatus
 #define yyssa yyps->yyssa
@@ -1517,7 +1540,7 @@ static YYSTYPE yyval_default;
 # define YY_INITIAL_VALUE(Value) = Value
 #endif
 static YYLTYPE yyloc_default
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# if defined QPLTYPE_IS_TRIVIAL && QPLTYPE_IS_TRIVIAL
   = { 1, 1, 1, 1 }
 # endif
 ;
@@ -1774,31 +1797,31 @@ yyreduce:
     {
         case 2:
 /* Line 1807 of yacc.c  */
-#line 141 "query_parser.y"
+#line 142 "query_parser.y"
     { (yyval.node) = int_node(context); }
     break;
 
   case 3:
 /* Line 1807 of yacc.c  */
-#line 142 "query_parser.y"
+#line 143 "query_parser.y"
     { (yyval.node) = int_node(context); Q((yyval.node))->num *= -1; }
     break;
 
   case 4:
 /* Line 1807 of yacc.c  */
-#line 146 "query_parser.y"
+#line 147 "query_parser.y"
     { (yyval.node) = qstr_node(context); }
     break;
 
   case 5:
 /* Line 1807 of yacc.c  */
-#line 147 "query_parser.y"
+#line 148 "query_parser.y"
     { (yyval.node) = str_node(context); }
     break;
 
   case 8:
 /* Line 1807 of yacc.c  */
-#line 156 "query_parser.y"
+#line 157 "query_parser.y"
     { 
     query_parser_construct(context, (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].num)); 
   }
@@ -1806,7 +1829,7 @@ yyreduce:
 
   case 9:
 /* Line 1807 of yacc.c  */
-#line 159 "query_parser.y"
+#line 160 "query_parser.y"
     { 
     query_parser_construct(context, (yyvsp[(1) - (2)].node), -1); 
   }
@@ -1814,13 +1837,13 @@ yyreduce:
 
   case 10:
 /* Line 1807 of yacc.c  */
-#line 165 "query_parser.y"
+#line 166 "query_parser.y"
     { (yyval.num) = Q((yyvsp[(2) - (2)].node))->num; }
     break;
 
   case 11:
 /* Line 1807 of yacc.c  */
-#line 168 "query_parser.y"
+#line 169 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1831,7 +1854,7 @@ yyreduce:
 
   case 12:
 /* Line 1807 of yacc.c  */
-#line 174 "query_parser.y"
+#line 175 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1842,7 +1865,7 @@ yyreduce:
 
   case 13:
 /* Line 1807 of yacc.c  */
-#line 180 "query_parser.y"
+#line 181 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(2) - (3)].node));
@@ -1851,7 +1874,7 @@ yyreduce:
 
   case 14:
 /* Line 1807 of yacc.c  */
-#line 184 "query_parser.y"
+#line 185 "query_parser.y"
     { 
       (yyval.node) = (yyvsp[(2) - (2)].node);
       Q((yyval.node))->negated = !Q((yyval.node))->negated;
@@ -1860,7 +1883,7 @@ yyreduce:
 
   case 15:
 /* Line 1807 of yacc.c  */
-#line 188 "query_parser.y"
+#line 189 "query_parser.y"
     { 
       (yyval.node) = expr_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (1)].node));
@@ -1869,13 +1892,13 @@ yyreduce:
 
   case 16:
 /* Line 1807 of yacc.c  */
-#line 195 "query_parser.y"
+#line 196 "query_parser.y"
     { (yyval.node) = star_clause_node(context); }
     break;
 
   case 17:
 /* Line 1807 of yacc.c  */
-#line 196 "query_parser.y"
+#line 197 "query_parser.y"
     { 
       (yyval.node) = clause_node(context);
       ast_node_prepend_child((yyval.node), (yyvsp[(1) - (3)].node));
@@ -1886,49 +1909,49 @@ yyreduce:
 
   case 18:
 /* Line 1807 of yacc.c  */
-#line 205 "query_parser.y"
+#line 206 "query_parser.y"
     { (yyval.node) = cmp_node(context, _EQ     );}
     break;
 
   case 19:
 /* Line 1807 of yacc.c  */
-#line 206 "query_parser.y"
+#line 207 "query_parser.y"
     { (yyval.node) = cmp_node(context, _GT     );}
     break;
 
   case 20:
 /* Line 1807 of yacc.c  */
-#line 207 "query_parser.y"
+#line 208 "query_parser.y"
     { (yyval.node) = cmp_node(context, _LT     );}
     break;
 
   case 21:
 /* Line 1807 of yacc.c  */
-#line 208 "query_parser.y"
+#line 209 "query_parser.y"
     { (yyval.node) = cmp_node(context, _GTE    );}
     break;
 
   case 22:
 /* Line 1807 of yacc.c  */
-#line 209 "query_parser.y"
+#line 210 "query_parser.y"
     { (yyval.node) = cmp_node(context, _LTE    );}
     break;
 
   case 23:
 /* Line 1807 of yacc.c  */
-#line 210 "query_parser.y"
+#line 211 "query_parser.y"
     { (yyval.node) = cmp_node(context, _TILDE  );}
     break;
 
   case 24:
 /* Line 1807 of yacc.c  */
-#line 211 "query_parser.y"
+#line 212 "query_parser.y"
     { (yyval.node) = cmp_node(context, _NEQ    );}
     break;
 
   case 27:
 /* Line 1807 of yacc.c  */
-#line 222 "query_parser.y"
+#line 223 "query_parser.y"
     { 
       (yyval.node) = (yyvsp[(1) - (4)].node); 
       Q((yyvsp[(1) - (4)].node))->type = MODSTR; 
@@ -1938,7 +1961,7 @@ yyreduce:
 
 
 /* Line 1807 of yacc.c  */
-#line 1942 "y.tab.c"
+#line 1965 "qp.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2180,5 +2203,5 @@ yypushreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 230 "query_parser.y"
+#line 231 "query_parser.y"
 

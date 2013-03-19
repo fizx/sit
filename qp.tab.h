@@ -30,31 +30,39 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+#ifndef YY_QP_QP_TAB_H_INCLUDED
+# define YY_QP_QP_TAB_H_INCLUDED
 /* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
-#endif
-#if YYDEBUG
-extern int yydebug;
+#ifndef QPDEBUG
+# if defined YYDEBUG
+#  if YYDEBUG
+#   define QPDEBUG 1
+#  else
+#   define QPDEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define QPDEBUG 1
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined QPDEBUG */
+#if QPDEBUG
+extern int qpdebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2065 of yacc.c  */
-#line 13 "query_parser.y"
+#line 14 "query_parser.y"
 
   #include "query_parser.h"
 
 
 /* Line 2065 of yacc.c  */
-#line 51 "y.tab.h"
+#line 59 "qp.tab.h"
 
 /* Tokens.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
+#ifndef QPTOKENTYPE
+# define QPTOKENTYPE
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
-   enum yytokentype {
+   enum qptokentype {
      AND = 258,
      OR = 259,
      NOT = 260,
@@ -101,11 +109,11 @@ extern int yydebug;
 
 
 
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+#if ! defined QPSTYPE && ! defined QPSTYPE_IS_DECLARED
+typedef union QPSTYPE
 {
 /* Line 2065 of yacc.c  */
-#line 18 "query_parser.y"
+#line 19 "query_parser.y"
  
   ASTNode *node;
   int         num;
@@ -113,24 +121,24 @@ typedef union YYSTYPE
 
 
 /* Line 2065 of yacc.c  */
-#line 117 "y.tab.h"
-} YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
+#line 125 "qp.tab.h"
+} QPSTYPE;
+# define QPSTYPE_IS_TRIVIAL 1
+# define qpstype QPSTYPE /* obsolescent; will be withdrawn */
+# define QPSTYPE_IS_DECLARED 1
 #endif
 
-#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
-typedef struct YYLTYPE
+#if ! defined QPLTYPE && ! defined QPLTYPE_IS_DECLARED
+typedef struct QPLTYPE
 {
   int first_line;
   int first_column;
   int last_line;
   int last_column;
-} YYLTYPE;
-# define yyltype YYLTYPE /* obsolescent; will be withdrawn */
-# define YYLTYPE_IS_DECLARED 1
-# define YYLTYPE_IS_TRIVIAL 1
+} QPLTYPE;
+# define qpltype QPLTYPE /* obsolescent; will be withdrawn */
+# define QPLTYPE_IS_DECLARED 1
+# define QPLTYPE_IS_TRIVIAL 1
 #endif
 
 
@@ -139,32 +147,32 @@ typedef struct YYLTYPE
 enum { YYPUSH_MORE = 4 };
 #endif
 
-typedef struct yypstate yypstate;
+typedef struct qppstate qppstate;
 
 #if defined __STDC__ || defined __cplusplus
-int yyparse (QueryParser* context);
+int qpparse (QueryParser* context);
 #else
-int yyparse ();
+int qpparse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int yypush_parse (yypstate *ps, int pushed_char, YYSTYPE const *pushed_val, YYLTYPE *pushed_loc, QueryParser* context);
+int qppush_parse (qppstate *ps, int pushed_char, QPSTYPE const *pushed_val, QPLTYPE *pushed_loc, QueryParser* context);
 #else
-int yypush_parse ();
+int qppush_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int yypull_parse (yypstate *ps, QueryParser* context);
+int qppull_parse (qppstate *ps, QueryParser* context);
 #else
-int yypull_parse ();
+int qppull_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-yypstate * yypstate_new (void);
+qppstate * qppstate_new (void);
 #else
-yypstate * yypstate_new ();
+qppstate * qppstate_new ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-void yypstate_delete (yypstate *ps);
+void qppstate_delete (qppstate *ps);
 #else
-void yypstate_delete ();
+void qppstate_delete ();
 #endif
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+#endif /* !YY_QP_QP_TAB_H_INCLUDED  */

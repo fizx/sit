@@ -22,8 +22,7 @@ describe "QueryParser" do
   
   it "should be creatable" do
   end
-    
-  
+      
   it "should consume strings" do
     status = @qp.consume("foo ~ bar;")
     @qp.last_error.should be_nil
