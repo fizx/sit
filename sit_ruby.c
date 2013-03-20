@@ -148,6 +148,7 @@ Init_sit() {
 	rbc_parser = rb_define_class_under(m_sit, "Parser", rb_cObject);
 	rb_define_singleton_method(rbc_parser, "new", rbc_parser_new, 0);
 	rb_define_singleton_method(rbc_parser, "new_json", rbc_parser_new_json, 0);
+	rb_define_singleton_method(rbc_parser, "new_regex", rbc_parser_new_regex, 1);
 	rb_define_singleton_method(rbc_parser, "new_solr", rbc_parser_new_solr, 0);
 	rb_define_singleton_method(rbc_parser, "new_syslog", rbc_parser_new_syslog, 0);
 	rb_define_method(rbc_parser, "consume", rbc_parser_consume, 1);

@@ -31,7 +31,7 @@
 
 int relex(RESTYPE* lvalp, RELTYPE* llocp, void* scanner);
 
-void reerror(RELTYPE* locp, QueryParser *parser, const char* err) {
+void reerror(RELTYPE* locp, RegexParser *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }

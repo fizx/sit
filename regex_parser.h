@@ -9,7 +9,9 @@
 
 #define RE_PARSER_FIELD_LIMIT 64
 
-struct RegexMatcher;
+typedef struct FieldMatcher {
+  pstring *name;
+} FieldMatcher;
 
 typedef struct RegexParser {
   void               *scanner;
@@ -19,27 +21,21 @@ typedef struct RegexParser {
   bool                done;
   pstring            *buf;
   pstring            *ptr;
+  pstring            *error;
   struct RegexMatcher *matcher;
-} RegexParser;
-
-typedef struct FieldMatcher {
-  pstring *name;
-} FieldMatcher;
-
-typedef struct RegexMatcher {
+  
   char        *pattern;
   pcre        *regex;
   pcre_extra  *extra;
-  char        *error;
-  int          error_offset;  
+
   int          count;
   FieldMatcher fields[RE_PARSER_FIELD_LIMIT];
-} RegexMatcher;
+} RegexParser;
 
 RegexParser *
-regex_parser_new();
+regex_parser_new(pstring *query);
 
 int
-regex_parser_parse(RegexParser *parser, pstring *query);
+regex_parser_consume(RegexParser *parser, pstring *line);
 
 #endif

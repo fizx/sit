@@ -15,6 +15,9 @@ rbc_parser_new_solr(VALUE class);
 VALUE 
 rbc_parser_new_syslog(VALUE class);
 
+VALUE
+rbc_parser_new_regex(VALUE class, VALUE spec);
+
 VALUE 
 rbc_parser_new_whitespace(VALUE class);
 

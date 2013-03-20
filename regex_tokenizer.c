@@ -13,7 +13,6 @@ _regex_consume(Tokenizer *tok, pstring *str) {
   RegexTokenizerState *state = tok->state;
   int len = str->len;
   int ovector[10];
-  int out = 0;
   int off = 0;
   int ahead = 0;
   pstring text;
@@ -40,7 +39,7 @@ _regex_consume(Tokenizer *tok, pstring *str) {
 }
 
 Tokenizer *
-regex_fresh_copy(Tokenizer *t) {
+regex_tokenizer_fresh_copy(Tokenizer *t) {
 	(void) t;
   RegexTokenizerState *state = t->state;
 	return regex_tokenizer_new(state->pattern);
@@ -59,7 +58,7 @@ Tokenizer *
 regex_tokenizer_new(char *pattern) {
   Tokenizer *tok = tokenizer_new();
   tok->consume = _regex_consume;
-	tok->fresh_copy = regex_fresh_copy;
+	tok->fresh_copy = regex_tokenizer_fresh_copy;
   tok->free = _regex_tokenizer_free;
   RegexTokenizerState *state = calloc(1, sizeof(RegexTokenizerState));
   tok->state = state;

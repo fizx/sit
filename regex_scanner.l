@@ -62,21 +62,10 @@ L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext, yyleng); retur
 
 %%
 
-int
-regex_parser_parse(RegexParser *parser, pstring *query) {
-  assert(query);
+RegexParser *
+regex_parser_new(pstring *query) {
+  RegexParser *parser = calloc(1, sizeof(RegexParser));
   parser->buf = query;
-  parser->done = false;
-  parser->matcher = calloc(1, sizeof(RegexMatcher));
-  int status = YYPUSH_MORE;
-  while (status == YYPUSH_MORE && parser->done < 1) {
-    status = qppush_parse(
-      parser->push_state,
-      qplex(parser->lvalp, parser->llocp, parser->scanner), 
-      parser->lvalp,
-      parser->llocp,
-      parser);
-  }
-  return status;
+  reparse(parser);
+  return parser;
 }
-

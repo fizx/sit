@@ -8,6 +8,16 @@ _rbc_consume(Parser *parser, pstring *pstr) {
 }
 
 Parser *
+rbc_regex_fresh_copy(Parser *parser) {
+  Parser* copy = regex_parser_fresh_copy(parser);
+	copy->fresh_copy = rbc_regex_fresh_copy;
+	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::Parser"), markall, NULL, copy);
+	rb_obj_call_init(tdata, 0, NULL);
+  SET_ONCE(copy->data, vwrap(tdata));
+  return copy;
+}
+
+Parser *
 rbc_default_fresh_copy(Parser *parser) {
   VALUE old = vunwrap(parser->data);
   VALUE class = rb_funcall(old, rb_intern("class"), 0);
@@ -71,6 +81,18 @@ rbc_parser_new(VALUE class) {
   SET_ONCE(parser->data, vwrap(tdata));
 	return tdata;
 }
+
+VALUE
+rbc_parser_new_regex(VALUE class, VALUE rspec) {
+  pstring *spec = r2pstring(spec);
+	Parser *parser = regex_parser_new(spec);
+  pstring_free(spec);
+  parser->fresh_copy = rbc_regex_fresh_copy;
+	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);
+	rb_obj_call_init(tdata, 0, NULL);
+	return tdata;
+}
+
 
 VALUE 
 rbc_parser_new_json(VALUE class) {

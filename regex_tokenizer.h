@@ -7,6 +7,6 @@ Tokenizer *
 regex_tokenizer_new(char *regex);
 
 Tokenizer *
-regex_fresh_copy(Tokenizer *tok);
+regex_tokenizer_fresh_copy(Tokenizer *tok);
 
 #endif
