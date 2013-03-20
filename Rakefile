@@ -14,23 +14,27 @@ task :test => :spec
 
 task :default => :make
 
-task :make => "Makefile" do
+task :make => ["Makefile", :bison] do
 	sys!("make")
 end
 
-file "Makefile" => "y.tab.h" do
+file "Makefile" => "extconf.rb" do
 	sys!("./configure")
 end
 
-file "y.tab.h" => :bison
-task :bison do 
+task :bison => ["re.tab.h", "qp.tab.h"]
+
+file "qp.tab.h" => FileList["query_*"] do
   sys "flex -P qp query_scanner.l && /usr/local/bin/bison -ytd -b qp query_parser.y"
+end
+
+file "re.tab.h" => FileList["regex_*"] do
   sys "flex -P re regex_scanner.l && /usr/local/bin/bison -ytd -b re regex_parser.y"
 end
 
 task :clean do
   sys "make clean"
-  rm Dir["*.yy.c"]
+  rm Dir["lex.*"]
   rm Dir["*.tab.*"]
 	rm_f "Makefile"
 end
