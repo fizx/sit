@@ -14,7 +14,7 @@ task :test => :spec
 
 task :default => :make
 
-task :make => ["Makefile", :bison] do
+task :make => ["Makefile", :bison, "sit"] + FileList["*.c"] do
 	sys!("make")
 end
 

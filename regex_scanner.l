@@ -33,7 +33,7 @@ NS    [^ \t\n\r,?*();:\^"]
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
 #define YY_INPUT(cbuf, offset, max_size)  {                                 \
-  int i;                                                                    \
+  int i;        puts("fuck");                                                            \
   for(i = 0; i < max_size && offset < yyextra->buf->len; i++, offset++) {   \
     cbuf[i] = yyextra->buf->val[offset];                                    \
   }                                                                         \
@@ -54,8 +54,8 @@ NS    [^ \t\n\r,?*();:\^"]
 "("                         { return(RLPAREN); }
 ")"                         { return(RPAREN); }
 ","                         { return(RCOMMA); }
-L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext, yyleng); return(RSTRING_LITERAL); }
-{NS}+             	        { yyextra->ptr = pstring_new2(yytext, yyleng); return(RUNQUOTED); }
+L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext, yyleng); ll_add(&yyextra->freeable, yyextra->ptr); return(RSTRING_LITERAL); }
+{NS}+             	        { yyextra->ptr = pstring_new2(yytext, yyleng); ll_add(&yyextra->freeable, yyextra->ptr); return(RUNQUOTED); }
 [;\n]+                      { return(REOQ); }
 [ \t\v\f]  		              { /* ignore whitespace*/ }
 .			                      { /* ignore bad characters */ }
@@ -64,8 +64,20 @@ L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext, yyleng); retur
 
 RegexParser *
 regex_parser_new(pstring *query) {
-  RegexParser *parser = calloc(1, sizeof(RegexParser));
+  RegexParser *parser = malloc(sizeof(RegexParser));
+  relex_init(&parser->scanner);
+  puts("WAT");
+  parser->lvalp = malloc(sizeof(RESTYPE));
+  parser->llocp = malloc(sizeof(RELTYPE));
+  reset_extra(parser, parser->scanner);
+  
   parser->buf = query;
   reparse(parser);
   return parser;
 }
+
+RegexParser *
+regex_parser_fresh_copy(RegexParser *parser) {
+  return regex_parser_new(parser->buf);
+}
+

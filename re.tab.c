@@ -164,7 +164,7 @@ typedef union RESTYPE
 /* Line 387 of yacc.c  */
 #line 19 "regex_parser.y"
  
-  char       *cptr;
+  pstring *pstr;
 
 
 /* Line 387 of yacc.c  */
@@ -515,7 +515,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    54,    54,    55,    59,    63,    64,    68,    72,    73
+       0,    53,    53,    54,    58,    62,    63,    67,    75,    76
 };
 #endif
 
@@ -1660,9 +1660,49 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-      
+        case 2:
 /* Line 1807 of yacc.c  */
-#line 1666 "re.tab.c"
+#line 53 "regex_parser.y"
+    { context->pattern = (yyvsp[(1) - (4)].pstr); YYACCEPT; }
+    break;
+
+  case 3:
+/* Line 1807 of yacc.c  */
+#line 54 "regex_parser.y"
+    { context->pattern = (yyvsp[(1) - (2)].pstr); YYACCEPT; }
+    break;
+
+  case 4:
+/* Line 1807 of yacc.c  */
+#line 58 "regex_parser.y"
+    { (yyval.pstr) = context->ptr; }
+    break;
+
+  case 7:
+/* Line 1807 of yacc.c  */
+#line 67 "regex_parser.y"
+    { 
+    context->fields[context->count].name = (yyvsp[(1) - (3)].pstr);
+    context->fields[context->count].type = (yyvsp[(3) - (3)].pstr);
+    context->count++;
+  }
+    break;
+
+  case 8:
+/* Line 1807 of yacc.c  */
+#line 75 "regex_parser.y"
+    { (yyval.pstr) = NULL; }
+    break;
+
+  case 9:
+/* Line 1807 of yacc.c  */
+#line 76 "regex_parser.y"
+    { (yyval.pstr) = (yyvsp[(3) - (4)].pstr); }
+    break;
+
+
+/* Line 1807 of yacc.c  */
+#line 1706 "re.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1904,5 +1944,5 @@ yypushreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 76 "regex_parser.y"
+#line 79 "regex_parser.y"
 

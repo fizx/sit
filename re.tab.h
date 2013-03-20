@@ -95,7 +95,7 @@ typedef union RESTYPE
 /* Line 2065 of yacc.c  */
 #line 19 "regex_parser.y"
  
-  char       *cptr;
+  pstring *pstr;
 
 
 /* Line 2065 of yacc.c  */

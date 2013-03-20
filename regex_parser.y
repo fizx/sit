@@ -17,7 +17,7 @@
 
 %union
 { 
-  char       *cptr;
+  pstring *pstr;
 }
 
 %{
@@ -42,21 +42,20 @@ void reerror(RELTYPE* locp, RegexParser *parser, const char* err) {
 
 %}
 
-%token<cptr> RWITH RAS RINT RTOKENIZED RLPAREN RRPAREN RSTRING_LITERAL RUNQUOTED REOQ RCOMMA
-
-%type<cptr> expression regex modifier modifiers impl
+%token<pstr> RWITH RAS RINT RTOKENIZED RLPAREN RRPAREN RSTRING_LITERAL RUNQUOTED REOQ RCOMMA
+%type<pstr> expression regex modifier modifiers impl
 %expect 0
 %start expression
 
 %%
 
 expression
-  : regex RWITH modifiers REOQ  
-  | regex REOQ  
+  : regex RWITH modifiers REOQ  { context->pattern = $1; YYACCEPT; }
+  | regex REOQ                  { context->pattern = $1; YYACCEPT; }
   ;
   
 regex
-  : RSTRING_LITERAL
+  : RSTRING_LITERAL     { $$ = context->ptr; }
   ;
 
 modifiers 
@@ -65,12 +64,16 @@ modifiers
   ;
   
 modifier
-  : RUNQUOTED RAS impl
+  : RUNQUOTED RAS impl                      { 
+    context->fields[context->count].name = $1;
+    context->fields[context->count].type = $3;
+    context->count++;
+  }
   ;
 
 impl
-  : RINT
-  | RTOKENIZED RLPAREN regex RRPAREN
+  : RINT                                    { $$ = NULL; }
+  | RTOKENIZED RLPAREN regex RRPAREN        { $$ = $3; }
   ;
 
 %%
