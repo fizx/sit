@@ -3,6 +3,7 @@
 
 #include "pstring.h"
 #include "callback.h"
+#include "doc_buf.h"
 
 typedef struct Parser {
 	struct Parser *(*fresh_copy)(struct Parser *parser);

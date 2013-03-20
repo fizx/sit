@@ -18,6 +18,9 @@ paddc(pstring *pstr, const char *cstr);
 char *
 pstring_cslice(pstring *pstr, long off, int len);
 
+long
+pstrtol(pstring *pstr);
+
 void
 paddv(pstring *pstr, const char *fmt, ...);
 

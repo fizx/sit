@@ -4,26 +4,33 @@
 #include "tokenizer.h"
 #include "ast.h"
 #include "pstring.h"
+#include "parser.h"
 #include <pcre.h>
 #include <stdbool.h>
 
 #define RE_PARSER_FIELD_LIMIT 64
 
+typedef enum { STRING, INT, TOKENS } FieldType;
+
 typedef struct FieldMatcher {
-  pstring *name;
-  pstring *type;
+  pstring   *name;
+  int        group;
+  FieldType  type;
+  Tokenizer *tokenizer;
 } FieldMatcher;
 
-typedef struct RegexParser {
+typedef struct RegexParserState {
+  Parser              *parser;
   void                *scanner;
-  void                *push_state;
   void                *lvalp;
   void                *llocp;
-  bool                 done;
   pstring             *buf;
   pstring             *ptr;
   pstring             *error;
   struct RegexMatcher *matcher;
+  
+  char *re_error;
+  int   re_error_offset;
   
   pstring             *pattern;
   pcre                *regex;
@@ -33,15 +40,15 @@ typedef struct RegexParser {
 
   int                  count;
   FieldMatcher         fields[RE_PARSER_FIELD_LIMIT];
-} RegexParser;
+} RegexParserState;
 
-RegexParser *
+Parser *
 regex_parser_new(pstring *query);
 
-RegexParser *
-regex_parser_fresh_copy(RegexParser *parser);
+Parser *
+regex_parser_fresh_copy(Parser *parser);
 
-int
-regex_parser_consume(RegexParser *parser, pstring *line);
+void
+regex_parser_consume(Parser *parser, pstring *line);
 
 #endif

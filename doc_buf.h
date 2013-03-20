@@ -2,6 +2,7 @@
 #define DOC_BUF_H_INCLUDED
 
 #include "term.h"
+#include "dict.h"
 
 typedef struct DocBuf {
 	// fields used to manage the current document
@@ -17,8 +18,6 @@ typedef struct DocBuf {
 
 DocBuf *
 doc_buf_new();
-
-#include "sit.h"
 
 void
 doc_buf_reset(DocBuf *buf);

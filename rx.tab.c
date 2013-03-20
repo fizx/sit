@@ -59,27 +59,27 @@
 #define YYPULL 1
 
 /* Substitute the type names.  */
-#define YYSTYPE         RESTYPE
-#define YYLTYPE         RELTYPE
+#define YYSTYPE         RXSTYPE
+#define YYLTYPE         RXLTYPE
 /* Substitute the variable and function names.  */
-#define yyparse         reparse
-#define yypush_parse    repush_parse
-#define yypull_parse    repull_parse
-#define yypstate_new    repstate_new
-#define yypstate_delete repstate_delete
-#define yypstate        repstate
-#define yylex           relex
-#define yyerror         reerror
-#define yylval          relval
-#define yychar          rechar
-#define yydebug         redebug
-#define yynerrs         renerrs
-#define yylloc          relloc
+#define yyparse         rxparse
+#define yypush_parse    rxpush_parse
+#define yypull_parse    rxpull_parse
+#define yypstate_new    rxpstate_new
+#define yypstate_delete rxpstate_delete
+#define yypstate        rxpstate
+#define yylex           rxlex
+#define yyerror         rxerror
+#define yylval          rxlval
+#define yychar          rxchar
+#define yydebug         rxdebug
+#define yynerrs         rxnerrs
+#define yylloc          rxlloc
 
 /* Copy the first part of user declarations.  */
 
 /* Line 371 of yacc.c  */
-#line 83 "re.tab.c"
+#line 83 "rx.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -98,23 +98,23 @@
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "re.tab.h".  */
-#ifndef YY_RE_RE_TAB_H_INCLUDED
-# define YY_RE_RE_TAB_H_INCLUDED
+   by #include "rx.tab.h".  */
+#ifndef YY_RX_RX_TAB_H_INCLUDED
+# define YY_RX_RX_TAB_H_INCLUDED
 /* Enabling traces.  */
-#ifndef REDEBUG
+#ifndef RXDEBUG
 # if defined YYDEBUG
 #  if YYDEBUG
-#   define REDEBUG 1
+#   define RXDEBUG 1
 #  else
-#   define REDEBUG 0
+#   define RXDEBUG 0
 #  endif
 # else /* ! defined YYDEBUG */
-#  define REDEBUG 1
+#  define RXDEBUG 1
 # endif /* ! defined YYDEBUG */
-#endif  /* ! defined REDEBUG */
-#if REDEBUG
-extern int redebug;
+#endif  /* ! defined RXDEBUG */
+#if RXDEBUG
+extern int rxdebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
@@ -124,14 +124,14 @@ extern int redebug;
 
 
 /* Line 387 of yacc.c  */
-#line 128 "re.tab.c"
+#line 128 "rx.tab.c"
 
 /* Tokens.  */
-#ifndef RETOKENTYPE
-# define RETOKENTYPE
+#ifndef RXTOKENTYPE
+# define RXTOKENTYPE
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
-   enum retokentype {
+   enum rxtokentype {
      RWITH = 258,
      RAS = 259,
      RINT = 260,
@@ -158,8 +158,8 @@ extern int redebug;
 
 
 
-#if ! defined RESTYPE && ! defined RESTYPE_IS_DECLARED
-typedef union RESTYPE
+#if ! defined RXSTYPE && ! defined RXSTYPE_IS_DECLARED
+typedef union RXSTYPE
 {
 /* Line 387 of yacc.c  */
 #line 19 "regex_parser.y"
@@ -168,24 +168,24 @@ typedef union RESTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 172 "re.tab.c"
-} RESTYPE;
-# define RESTYPE_IS_TRIVIAL 1
-# define restype RESTYPE /* obsolescent; will be withdrawn */
-# define RESTYPE_IS_DECLARED 1
+#line 172 "rx.tab.c"
+} RXSTYPE;
+# define RXSTYPE_IS_TRIVIAL 1
+# define rxstype RXSTYPE /* obsolescent; will be withdrawn */
+# define RXSTYPE_IS_DECLARED 1
 #endif
 
-#if ! defined RELTYPE && ! defined RELTYPE_IS_DECLARED
-typedef struct RELTYPE
+#if ! defined RXLTYPE && ! defined RXLTYPE_IS_DECLARED
+typedef struct RXLTYPE
 {
   int first_line;
   int first_column;
   int last_line;
   int last_column;
-} RELTYPE;
-# define reltype RELTYPE /* obsolescent; will be withdrawn */
-# define RELTYPE_IS_DECLARED 1
-# define RELTYPE_IS_TRIVIAL 1
+} RXLTYPE;
+# define rxltype RXLTYPE /* obsolescent; will be withdrawn */
+# define RXLTYPE_IS_DECLARED 1
+# define RXLTYPE_IS_TRIVIAL 1
 #endif
 
 
@@ -194,35 +194,35 @@ typedef struct RELTYPE
 enum { YYPUSH_MORE = 4 };
 #endif
 
-typedef struct repstate repstate;
+typedef struct rxpstate rxpstate;
 
 #if defined __STDC__ || defined __cplusplus
-int reparse (RegexParser* context);
+int rxparse (RegexParserState* context);
 #else
-int reparse ();
+int rxparse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int repush_parse (repstate *ps, int pushed_char, RESTYPE const *pushed_val, RELTYPE *pushed_loc, RegexParser* context);
+int rxpush_parse (rxpstate *ps, int pushed_char, RXSTYPE const *pushed_val, RXLTYPE *pushed_loc, RegexParserState* context);
 #else
-int repush_parse ();
+int rxpush_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int repull_parse (repstate *ps, RegexParser* context);
+int rxpull_parse (rxpstate *ps, RegexParserState* context);
 #else
-int repull_parse ();
+int rxpull_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-repstate * repstate_new (void);
+rxpstate * rxpstate_new (void);
 #else
-repstate * repstate_new ();
+rxpstate * rxpstate_new ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-void repstate_delete (repstate *ps);
+void rxpstate_delete (rxpstate *ps);
 #else
-void repstate_delete ();
+void rxpstate_delete ();
 #endif
 
-#endif /* !YY_RE_RE_TAB_H_INCLUDED  */
+#endif /* !YY_RX_RX_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 /* Line 390 of yacc.c  */
@@ -236,20 +236,25 @@ void repstate_delete ();
 #include <stdio.h>
 #include <assert.h>
 
-int relex(RESTYPE* lvalp, RELTYPE* llocp, void* scanner);
+int rxlex(RXSTYPE* lvalp, RXLTYPE* llocp, void* scanner);
 
-void reerror(RELTYPE* locp, RegexParser *parser, const char* err) {
+void rxerror(RXLTYPE* locp, RegexParserState *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }
 
 #define scanner context->scanner
 
-// c helpers
+void
+_ret_inner(Callback *cb, void *data) {
+  Token *token = data;
+  DocBuf *buf = cb->user_data;
+  doc_buf_term_found(buf, token->text, token->offset);
+}
 
 
 /* Line 390 of yacc.c  */
-#line 253 "re.tab.c"
+#line 258 "rx.tab.c"
 
 #ifdef short
 # undef short
@@ -383,8 +388,8 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-	 || (defined RELTYPE_IS_TRIVIAL && RELTYPE_IS_TRIVIAL \
-	     && defined RESTYPE_IS_TRIVIAL && RESTYPE_IS_TRIVIAL)))
+	 || (defined RXLTYPE_IS_TRIVIAL && RXLTYPE_IS_TRIVIAL \
+	     && defined RXSTYPE_IS_TRIVIAL && RXSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -451,11 +456,11 @@ union yyalloc
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  13
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  6
+#define YYNNTS  7
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  9
+#define YYNRULES  10
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  20
+#define YYNSTATES  21
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -496,37 +501,41 @@ static const yytype_uint8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12
 };
 
-#if REDEBUG
+#if RXDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     8,    11,    13,    15,    19,    23,    25
+       0,     0,     3,     8,    11,    13,    15,    19,    21,    25,
+      27
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
       14,     0,    -1,    15,     3,    16,    11,    -1,    15,    11,
-      -1,     9,    -1,    17,    -1,    16,    12,    17,    -1,    10,
-       4,    18,    -1,     5,    -1,     6,     7,    15,     8,    -1
+      -1,     9,    -1,    18,    -1,    16,    12,    18,    -1,    10,
+      -1,    17,     4,    19,    -1,     5,    -1,     6,     7,    15,
+       8,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    53,    53,    54,    58,    62,    63,    67,    75,    76
+       0,    58,    58,    59,    63,    67,    68,    72,    75,    89,
+      90
 };
 #endif
 
-#if REDEBUG || YYERROR_VERBOSE || 1
+#if RXDEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "RWITH", "RAS", "RINT", "RTOKENIZED",
   "RLPAREN", "RRPAREN", "RSTRING_LITERAL", "RUNQUOTED", "REOQ", "RCOMMA",
-  "$accept", "expression", "regex", "modifiers", "modifier", "impl", YY_NULL
+  "$accept", "expression", "regex", "modifiers", "name", "modifier",
+  "impl", YY_NULL
 };
 #endif
 
@@ -543,13 +552,15 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    13,    14,    14,    15,    16,    16,    17,    18,    18
+       0,    13,    14,    14,    15,    16,    16,    17,    18,    19,
+      19
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     4,     2,     1,     1,     3,     3,     1,     4
+       0,     2,     4,     2,     1,     1,     3,     1,     3,     1,
+       4
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -557,14 +568,15 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     4,     0,     0,     1,     0,     3,     0,     0,     5,
-       0,     2,     0,     8,     0,     7,     6,     0,     0,     9
+       0,     4,     0,     0,     1,     0,     3,     7,     0,     0,
+       5,     2,     0,     0,     6,     9,     0,     8,     0,     0,
+      10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     8,     9,    15
+      -1,     2,     3,     8,     9,    10,    17
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -572,14 +584,15 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -11
 static const yytype_int8 yypact[] =
 {
-      -4,   -11,     6,    -3,   -11,    -1,   -11,     3,   -10,   -11,
-      -2,   -11,    -1,   -11,     4,   -11,   -11,    -4,     2,   -11
+      -4,   -11,     6,    -3,   -11,    -1,   -11,   -11,   -10,     3,
+     -11,   -11,    -1,    -2,   -11,   -11,     4,   -11,    -4,     2,
+     -11
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -11,   -11,    -5,   -11,     1,   -11
+     -11,   -11,    -6,   -11,   -11,     1,   -11
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -588,8 +601,8 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       5,    11,    12,    13,    14,     1,     4,    10,     6,     7,
-      19,    17,    18,    16
+       5,    11,    12,    15,    16,     1,     4,    13,     6,     7,
+      20,    18,    19,    14
 };
 
 #define yypact_value_is_default(Yystate) \
@@ -601,7 +614,7 @@ static const yytype_uint8 yytable[] =
 static const yytype_uint8 yycheck[] =
 {
        3,    11,    12,     5,     6,     9,     0,     4,    11,    10,
-       8,     7,    17,    12
+       8,     7,    18,    12
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -609,7 +622,8 @@ static const yytype_uint8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,     9,    14,    15,     0,     3,    11,    10,    16,    17,
-       4,    11,    12,     5,     6,    18,    17,     7,    15,     8
+      18,    11,    12,     4,    18,     5,     6,    19,     7,    15,
+       8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -693,7 +707,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if defined RELTYPE_IS_TRIVIAL && RELTYPE_IS_TRIVIAL
+# if defined RXLTYPE_IS_TRIVIAL && RXLTYPE_IS_TRIVIAL
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
@@ -748,7 +762,7 @@ yy_location_print_ (yyo, yylocp)
 #endif
 
 /* Enable debugging if requested.  */
-#if REDEBUG
+#if RXDEBUG
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
@@ -781,7 +795,7 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, RegexParser* context)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, RegexParserState* context)
 #else
 static void
 yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, context)
@@ -789,7 +803,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, context)
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
   FILE *yyo = yyoutput;
@@ -819,7 +833,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, context)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, RegexParser* context)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, RegexParserState* context)
 #else
 static void
 yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, context)
@@ -827,7 +841,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, context)
     int yytype;
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -880,14 +894,14 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, RegexParser* context)
+yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, RegexParserState* context)
 #else
 static void
 yy_reduce_print (yyvsp, yylsp, yyrule, context)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -915,12 +929,12 @@ do {					\
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
 int yydebug;
-#else /* !REDEBUG */
+#else /* !RXDEBUG */
 # define YYDPRINTF(Args)
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
-#endif /* !REDEBUG */
+#endif /* !RXDEBUG */
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
@@ -1189,7 +1203,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, RegexParser* context)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, RegexParserState* context)
 #else
 static void
 yydestruct (yymsg, yytype, yyvaluep, yylocationp, context)
@@ -1197,7 +1211,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, context)
     int yytype;
     YYSTYPE *yyvaluep;
     YYLTYPE *yylocationp;
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
   YYUSE (yyvaluep);
@@ -1262,11 +1276,11 @@ struct yypstate
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (RegexParser* context)
+yyparse (RegexParserState* context)
 #else
 int
 yyparse (context)
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
   return yypull_parse (YY_NULL, context);
@@ -1275,12 +1289,12 @@ yyparse (context)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yypull_parse (yypstate *yyps, RegexParser* context)
+yypull_parse (yypstate *yyps, RegexParserState* context)
 #else
 int
 yypull_parse (yyps, context)
     yypstate *yyps;
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
   int yystatus;
@@ -1288,7 +1302,7 @@ yypull_parse (yyps, context)
   int yychar;
   YYSTYPE yylval;
   static YYLTYPE yyloc_default
-# if defined RELTYPE_IS_TRIVIAL && RELTYPE_IS_TRIVIAL
+# if defined RXLTYPE_IS_TRIVIAL && RXLTYPE_IS_TRIVIAL
   = { 1, 1, 1, 1 }
 # endif
 ;
@@ -1352,7 +1366,7 @@ yypstate_delete (yyps)
   free (yyps);
 }
 
-#define renerrs yyps->renerrs
+#define rxnerrs yyps->rxnerrs
 #define yystate yyps->yystate
 #define yyerrstatus yyps->yyerrstatus
 #define yyssa yyps->yyssa
@@ -1375,7 +1389,7 @@ yypstate_delete (yyps)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yypush_parse (yypstate *yyps, int yypushed_char, YYSTYPE const *yypushed_val, YYLTYPE *yypushed_loc, RegexParser* context)
+yypush_parse (yypstate *yyps, int yypushed_char, YYSTYPE const *yypushed_val, YYLTYPE *yypushed_loc, RegexParserState* context)
 #else
 int
 yypush_parse (yyps, yypushed_char, yypushed_val, yypushed_loc, context)
@@ -1383,7 +1397,7 @@ yypush_parse (yyps, yypushed_char, yypushed_val, yypushed_loc, context)
     int yypushed_char;
     YYSTYPE const *yypushed_val;
     YYLTYPE *yypushed_loc;
-    RegexParser* context;
+    RegexParserState* context;
 #endif
 {
 /* The lookahead symbol.  */
@@ -1405,7 +1419,7 @@ static YYSTYPE yyval_default;
 # define YY_INITIAL_VALUE(Value) = Value
 #endif
 static YYLTYPE yyloc_default
-# if defined RELTYPE_IS_TRIVIAL && RELTYPE_IS_TRIVIAL
+# if defined RXLTYPE_IS_TRIVIAL && RXLTYPE_IS_TRIVIAL
   = { 1, 1, 1, 1 }
 # endif
 ;
@@ -1662,47 +1676,59 @@ yyreduce:
     {
         case 2:
 /* Line 1807 of yacc.c  */
-#line 53 "regex_parser.y"
+#line 58 "regex_parser.y"
     { context->pattern = (yyvsp[(1) - (4)].pstr); YYACCEPT; }
     break;
 
   case 3:
 /* Line 1807 of yacc.c  */
-#line 54 "regex_parser.y"
+#line 59 "regex_parser.y"
     { context->pattern = (yyvsp[(1) - (2)].pstr); YYACCEPT; }
     break;
 
   case 4:
 /* Line 1807 of yacc.c  */
-#line 58 "regex_parser.y"
+#line 63 "regex_parser.y"
     { (yyval.pstr) = context->ptr; }
     break;
 
   case 7:
 /* Line 1807 of yacc.c  */
-#line 67 "regex_parser.y"
-    { 
-    context->fields[context->count].name = (yyvsp[(1) - (3)].pstr);
-    context->fields[context->count].type = (yyvsp[(3) - (3)].pstr);
-    context->count++;
-  }
+#line 72 "regex_parser.y"
+    { (yyval.pstr) = context->ptr; }
     break;
 
   case 8:
 /* Line 1807 of yacc.c  */
 #line 75 "regex_parser.y"
-    { (yyval.pstr) = NULL; }
+    { 
+    context->fields[context->count].name = (yyvsp[(1) - (3)].pstr);
+    context->fields[context->count].type = (yyvsp[(3) - (3)].pstr) ? TOKENS : INT; 
+    if((yyvsp[(3) - (3)].pstr)) {
+      char *c = p2cstring((yyvsp[(3) - (3)].pstr));
+      context->fields[context->count].tokenizer = regex_tokenizer_new(c); 
+      context->fields[context->count].tokenizer->on_token = callback_new(_ret_inner, context->parser->buffer);
+      free(c);
+    }
+    context->count++;
+  }
     break;
 
   case 9:
 /* Line 1807 of yacc.c  */
-#line 76 "regex_parser.y"
+#line 89 "regex_parser.y"
+    { (yyval.pstr) = NULL; }
+    break;
+
+  case 10:
+/* Line 1807 of yacc.c  */
+#line 90 "regex_parser.y"
     { (yyval.pstr) = (yyvsp[(3) - (4)].pstr); }
     break;
 
 
 /* Line 1807 of yacc.c  */
-#line 1706 "re.tab.c"
+#line 1732 "rx.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1944,5 +1970,5 @@ yypushreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 79 "regex_parser.y"
+#line 93 "regex_parser.y"
 

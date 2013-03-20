@@ -6,9 +6,9 @@
 
 %define api.pure full
 %define api.push-pull both
-%define api.prefix re
+%define api.prefix rx
 
-%parse-param { RegexParser* context }
+%parse-param { RegexParserState* context }
 %lex-param { void* scanner  }
 
 %code requires {
@@ -29,21 +29,26 @@
 #include <stdio.h>
 #include <assert.h>
 
-int relex(RESTYPE* lvalp, RELTYPE* llocp, void* scanner);
+int rxlex(RXSTYPE* lvalp, RXLTYPE* llocp, void* scanner);
 
-void reerror(RELTYPE* locp, RegexParser *parser, const char* err) {
+void rxerror(RXLTYPE* locp, RegexParserState *parser, const char* err) {
   (void) locp;
   parser->error = c2pstring(err);
 }
 
 #define scanner context->scanner
 
-// c helpers
+void
+_ret_inner(Callback *cb, void *data) {
+  Token *token = data;
+  DocBuf *buf = cb->user_data;
+  doc_buf_term_found(buf, token->text, token->offset);
+}
 
 %}
 
 %token<pstr> RWITH RAS RINT RTOKENIZED RLPAREN RRPAREN RSTRING_LITERAL RUNQUOTED REOQ RCOMMA
-%type<pstr> expression regex modifier modifiers impl
+%type<pstr> expression regex modifier modifiers impl name
 %expect 0
 %start expression
 
@@ -62,11 +67,20 @@ modifiers
   : modifier
   | modifiers RCOMMA modifier
   ;
+
+name
+  : RUNQUOTED  { $$ = context->ptr; }
   
 modifier
-  : RUNQUOTED RAS impl                      { 
+  : name RAS impl                      { 
     context->fields[context->count].name = $1;
-    context->fields[context->count].type = $3;
+    context->fields[context->count].type = $3 ? TOKENS : INT; 
+    if($3) {
+      char *c = p2cstring($3);
+      context->fields[context->count].tokenizer = regex_tokenizer_new(c); 
+      context->fields[context->count].tokenizer->on_token = callback_new(_ret_inner, context->parser->buffer);
+      free(c);
+    }
     context->count++;
   }
   ;

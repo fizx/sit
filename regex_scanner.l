@@ -3,7 +3,7 @@
 %option bison-locations
 %option noyywrap
 %option yylineno
-%option extra-type="RegexParser*"
+%option extra-type="RegexParserState*"
 
 D			[0-9]
 L			[a-zA-Z_]
@@ -13,32 +13,29 @@ NS    [^ \t\n\r,?*();:\^"]
 %{
 
 #include "sit.h"
-#define YYSTYPE         RESTYPE
-#define YYLTYPE         RELTYPE
+#define YYSTYPE         RXSTYPE
+#define YYLTYPE         RXLTYPE
 /* Substitute the variable and function names.  */
-#define yyparse         reparse
-#define yypush_parse    repush_parse
-#define yypull_parse    repull_parse
-#define yypstate_new    repstate_new
-#define yypstate_delete repstate_delete
-#define yypstate        repstate
-#define yylex           relex
-#define yyerror         reerror
-#define yylval          relval
-#define yychar          rechar
-#define yydebug         redebug
-#define yynerrs         renerrs
-#define yylloc          relloc
+#define yyparse         rxparse
+#define yypush_parse    rxpush_parse
+#define yypull_parse    rxpull_parse
+#define yypstate_new    rxpstate_new
+#define yypstate_delete rxpstate_delete
+#define yypstate        rxpstate
+#define yylex           rxlex
+#define yyerror         rxerror
+#define yylval          rxlval
+#define yychar          rxchar
+#define yydebug         rxdebug
+#define yynerrs         rxnerrs
+#define yylloc          rxlloc
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
 #define YY_INPUT(cbuf, offset, max_size)  {                                 \
-  int i;        puts("fuck");                                                            \
+  int i;                                                                    \
   for(i = 0; i < max_size && offset < yyextra->buf->len; i++, offset++) {   \
     cbuf[i] = yyextra->buf->val[offset];                                    \
-  }                                                                         \
-  if(i == 0) {                                                              \
-    yyextra->done++;                                                        \
   }                                                                         \
   offset = i;                                                               \
 }
@@ -52,9 +49,9 @@ NS    [^ \t\n\r,?*();:\^"]
 ("int"|"INT")               { return(RINT); }
 ("tokenized"|"TOKENIZED")   { return(RTOKENIZED); }
 "("                         { return(RLPAREN); }
-")"                         { return(RPAREN); }
+")"                         { return(RRPAREN); }
 ","                         { return(RCOMMA); }
-L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext, yyleng); ll_add(&yyextra->freeable, yyextra->ptr); return(RSTRING_LITERAL); }
+L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext+1, yyleng-2); ll_add(&yyextra->freeable, yyextra->ptr); return(RSTRING_LITERAL); }
 {NS}+             	        { yyextra->ptr = pstring_new2(yytext, yyleng); ll_add(&yyextra->freeable, yyextra->ptr); return(RUNQUOTED); }
 [;\n]+                      { return(REOQ); }
 [ \t\v\f]  		              { /* ignore whitespace*/ }
@@ -62,22 +59,116 @@ L?`(\\.|[^`])*`      	      { yyextra->ptr = pstring_new2(yytext, yyleng); ll_ad
 
 %%
 
-RegexParser *
-regex_parser_new(pstring *query) {
-  RegexParser *parser = malloc(sizeof(RegexParser));
-  relex_init(&parser->scanner);
-  puts("WAT");
-  parser->lvalp = malloc(sizeof(RESTYPE));
-  parser->llocp = malloc(sizeof(RELTYPE));
-  reset_extra(parser, parser->scanner);
+void
+regex_parser_consume(Parser *parser, pstring *str) {
+  RegexParserState *state = parser->state;
+  int len = str->len;
+  int ovector[RE_PARSER_FIELD_LIMIT];
+  pstring text;
+  Token t = { &text, 0 };
+  DocBuf *doc = parser->buffer;
   
-  parser->buf = query;
-  reparse(parser);
+  int groups = pcre_exec(state->regex, state->extra, str->val, str->len, 0, 0, ovector, RE_PARSER_FIELD_LIMIT);
+  if(groups > 0) {
+    FieldMatcher *field = state->fields;
+    for (int i = 1; i < groups; i++) {
+      int len = ovector[2*i+1] - ovector[2*i];
+      char *val = str->val + ovector[2*i];
+      pstring p = { val, len };
+      while(field->group < i) field++; 
+      if(field->group == i) {
+        doc_buf_field_found(doc, field->name);
+        switch(field->type) {
+        case STRING:
+          doc_buf_term_found(doc, &p, 0);
+          break;
+        case INT: {
+          int n = pstrtol(&p);
+          doc_buf_int_found(doc, n);
+          break;
+        }
+        case TOKENS:
+          assert(field->tokenizer);
+          field->tokenizer->consume(field->tokenizer, &p);
+          break;
+        default: 
+          assert(0);
+        }
+      }
+    }
+    int len = ovector[1] - ovector[0];
+    char *val = str->val + ovector[0];
+    pstring p = { val, len };
+    doc_buf_doc_found(doc, &p);
+    parser->on_document->handler(parser->on_document, doc);
+  } else {
+    pstring err = { "no regex match", 14 };
+    parser->on_error->handler(parser->on_error, &err);
+  }
+}
+
+int
+_fldcmp(const void *a, const void *b) {
+  return ((FieldMatcher *)a)->group - ((FieldMatcher *)b)->group;
+}
+
+Parser *
+regex_parser_new(pstring *query) {
+  Parser *parser = parser_new();
+  parser->buffer = doc_buf_new();
+  RegexParserState *state = calloc(1, sizeof(RegexParserState));
+  state->parser = parser;
+  parser->state = state;
+  parser->consume = regex_parser_consume;
+  rxlex_init(&state->scanner);
+  state->lvalp = malloc(sizeof(RXSTYPE));
+  state->llocp = malloc(sizeof(RXLTYPE));
+  rxset_extra(state, state->scanner);
+  
+  state->buf = query;
+  rxparse(state);
+  if(!state->error) {
+    char *cpattern = p2cstring(state->pattern);
+    state->regex = pcre_compile(cpattern, 0, &state->re_error, &state->re_error_offset, NULL);
+    // free(cpattern);
+    state->extra = pcre_study(state->regex, 0, &state->re_error);
+    int namecount;
+    int _namesize;
+    char *table;
+    pcre_fullinfo(state->regex, state->extra, PCRE_INFO_NAMECOUNT, &namecount);
+    pcre_fullinfo(state->regex, state->extra, PCRE_INFO_NAMEENTRYSIZE, &_namesize);
+    pcre_fullinfo(state->regex, state->extra, PCRE_INFO_NAMETABLE, &table);
+    
+    for (int i = 0; i < namecount; i++) {
+      char *str = table + (i * _namesize) + 2;
+      int group = *(str - 1);
+      pstring *pstr = c2pstring(str);
+      bool found = false;
+      for(int j = 0; j < state->count; j++) {
+        if(!pstrcmp(state->fields[j].name, pstr)) {
+          found = true;
+          pstring_free(pstr);
+          state->fields[j].group = group;
+          break;
+        }
+      }
+      if(!found) {
+        state->fields[state->count++].name = pstr;
+        state->fields[state->count].group = group;
+      }
+    }
+    
+    qsort(state->fields, state->count, sizeof(FieldMatcher), _fldcmp);
+    
+  }
   return parser;
 }
 
-RegexParser *
-regex_parser_fresh_copy(RegexParser *parser) {
-  return regex_parser_new(parser->buf);
+extern int yydebug;
+
+Parser *
+regex_parser_fresh_copy(Parser *parser) {
+  RegexParserState *state = parser->state;
+  return regex_parser_new(state->buf);
 }
 

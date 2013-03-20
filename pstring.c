@@ -103,6 +103,15 @@ pcpy(const pstring *pstr) {
   return pstring_new2(pstr->val, pstr->len);
 }
 
+long
+pstrtol(pstring *pstr) {  
+  if(pstr->len > 31) return 0;
+  static char buf[32];
+  memcpy(buf, pstr->val, pstr->len);
+  *(buf + pstr->len) = '\0';
+  return strtol(buf, NULL, 10);
+}
+
 pstring *
 pstring_new2(const char *cstr, int len) {
   pstring *pstr = pstring_new(len);

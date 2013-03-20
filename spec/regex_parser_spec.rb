@@ -8,12 +8,9 @@ require "rr"
 require File.dirname(__FILE__) + "/../sit"
 include Sit
 
-describe "RegexParser" do
-  before do
-    $hit = false
-  end
-  
+describe "RegexParser" do  
   it "should be parsable" do
+    hit = false
     string = "qtime=7 hello sweet world\n"
     query = <<-STR 
       `qtime=(?<qtime>\\d+) (?<text>.*)` WITH qtime as int, text as tokenized(` `);
@@ -21,12 +18,12 @@ describe "RegexParser" do
     query.strip!
     parser = Parser.new_regex(query)
     parser.on_document(proc{|db|
-      db.terms.inspect.should == "[[text:hello 0], [text:sweet 0], [text:world 0]]"
-      db.ints.should == {"time" => 7}
-      db.doc.should == str
-      $hit = true
+      db.terms.inspect.should == "[[text:hello 0], [text:sweet 1], [text:world 2]]"
+      db.ints.should == {"qtime" => 7}
+      db.doc.should == string.chomp
+      hit = true
     })
-    @parser.consume(str)
-    $hit.should be_true
+    parser.consume(string)
+    hit.should be_true
   end
 end

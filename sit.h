@@ -66,6 +66,6 @@ struct lrw_type;
 #include "util.h"
 #include "white_tokenizer.h"
 #include "qp.tab.h"
-#include "re.tab.h"
+#include "rx.tab.h"
 
 #endif

@@ -2,6 +2,7 @@
 #define INPUT_H_INCLUDED
 
 #include "engine.h"
+#include "parser.h"
 #include "query_parser.h"
 
 typedef struct Output {

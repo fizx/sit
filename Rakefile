@@ -29,7 +29,7 @@ file "qp.tab.h" => FileList["query_*"] do
 end
 
 file "re.tab.h" => FileList["regex_*"] do
-  sys "flex -P re regex_scanner.l && /usr/local/bin/bison -ytd -b re regex_parser.y"
+  sys "flex -P rx regex_scanner.l && /usr/local/bin/bison -ytd -b rx regex_parser.y"
 end
 
 task :clean do

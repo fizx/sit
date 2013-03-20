@@ -30,22 +30,22 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_RE_RE_TAB_H_INCLUDED
-# define YY_RE_RE_TAB_H_INCLUDED
+#ifndef YY_RX_RX_TAB_H_INCLUDED
+# define YY_RX_RX_TAB_H_INCLUDED
 /* Enabling traces.  */
-#ifndef REDEBUG
+#ifndef RXDEBUG
 # if defined YYDEBUG
 #  if YYDEBUG
-#   define REDEBUG 1
+#   define RXDEBUG 1
 #  else
-#   define REDEBUG 0
+#   define RXDEBUG 0
 #  endif
 # else /* ! defined YYDEBUG */
-#  define REDEBUG 1
+#  define RXDEBUG 1
 # endif /* ! defined YYDEBUG */
-#endif  /* ! defined REDEBUG */
-#if REDEBUG
-extern int redebug;
+#endif  /* ! defined RXDEBUG */
+#if RXDEBUG
+extern int rxdebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2065 of yacc.c  */
@@ -55,14 +55,14 @@ extern int redebug;
 
 
 /* Line 2065 of yacc.c  */
-#line 59 "re.tab.h"
+#line 59 "rx.tab.h"
 
 /* Tokens.  */
-#ifndef RETOKENTYPE
-# define RETOKENTYPE
+#ifndef RXTOKENTYPE
+# define RXTOKENTYPE
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
-   enum retokentype {
+   enum rxtokentype {
      RWITH = 258,
      RAS = 259,
      RINT = 260,
@@ -89,8 +89,8 @@ extern int redebug;
 
 
 
-#if ! defined RESTYPE && ! defined RESTYPE_IS_DECLARED
-typedef union RESTYPE
+#if ! defined RXSTYPE && ! defined RXSTYPE_IS_DECLARED
+typedef union RXSTYPE
 {
 /* Line 2065 of yacc.c  */
 #line 19 "regex_parser.y"
@@ -99,24 +99,24 @@ typedef union RESTYPE
 
 
 /* Line 2065 of yacc.c  */
-#line 103 "re.tab.h"
-} RESTYPE;
-# define RESTYPE_IS_TRIVIAL 1
-# define restype RESTYPE /* obsolescent; will be withdrawn */
-# define RESTYPE_IS_DECLARED 1
+#line 103 "rx.tab.h"
+} RXSTYPE;
+# define RXSTYPE_IS_TRIVIAL 1
+# define rxstype RXSTYPE /* obsolescent; will be withdrawn */
+# define RXSTYPE_IS_DECLARED 1
 #endif
 
-#if ! defined RELTYPE && ! defined RELTYPE_IS_DECLARED
-typedef struct RELTYPE
+#if ! defined RXLTYPE && ! defined RXLTYPE_IS_DECLARED
+typedef struct RXLTYPE
 {
   int first_line;
   int first_column;
   int last_line;
   int last_column;
-} RELTYPE;
-# define reltype RELTYPE /* obsolescent; will be withdrawn */
-# define RELTYPE_IS_DECLARED 1
-# define RELTYPE_IS_TRIVIAL 1
+} RXLTYPE;
+# define rxltype RXLTYPE /* obsolescent; will be withdrawn */
+# define RXLTYPE_IS_DECLARED 1
+# define RXLTYPE_IS_TRIVIAL 1
 #endif
 
 
@@ -125,32 +125,32 @@ typedef struct RELTYPE
 enum { YYPUSH_MORE = 4 };
 #endif
 
-typedef struct repstate repstate;
+typedef struct rxpstate rxpstate;
 
 #if defined __STDC__ || defined __cplusplus
-int reparse (RegexParser* context);
+int rxparse (RegexParserState* context);
 #else
-int reparse ();
+int rxparse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int repush_parse (repstate *ps, int pushed_char, RESTYPE const *pushed_val, RELTYPE *pushed_loc, RegexParser* context);
+int rxpush_parse (rxpstate *ps, int pushed_char, RXSTYPE const *pushed_val, RXLTYPE *pushed_loc, RegexParserState* context);
 #else
-int repush_parse ();
+int rxpush_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-int repull_parse (repstate *ps, RegexParser* context);
+int rxpull_parse (rxpstate *ps, RegexParserState* context);
 #else
-int repull_parse ();
+int rxpull_parse ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-repstate * repstate_new (void);
+rxpstate * rxpstate_new (void);
 #else
-repstate * repstate_new ();
+rxpstate * rxpstate_new ();
 #endif
 #if defined __STDC__ || defined __cplusplus
-void repstate_delete (repstate *ps);
+void rxpstate_delete (rxpstate *ps);
 #else
-void repstate_delete ();
+void rxpstate_delete ();
 #endif
 
-#endif /* !YY_RE_RE_TAB_H_INCLUDED  */
+#endif /* !YY_RX_RX_TAB_H_INCLUDED  */
