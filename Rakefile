@@ -25,6 +25,7 @@ end
 file "y.tab.h" => :bison
 task :bison do 
   sys "flex -P qp query_scanner.l && /usr/local/bin/bison -ytd -b qp query_parser.y"
+  sys "flex -P re regex_scanner.l && /usr/local/bin/bison -ytd -b re regex_parser.y"
 end
 
 task :clean do

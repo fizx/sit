@@ -1,5 +1,5 @@
 
-#line 3 "lex.qp.c"
+#line 3 "lex.re.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -152,7 +152,7 @@ typedef void* yyscan_t;
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
 
 /* Special action meaning "start processing a new file". */
-#define YY_NEW_FILE qprestart(yyin ,yyscanner )
+#define YY_NEW_FILE rerestart(yyin ,yyscanner )
 
 #define YY_END_OF_BUFFER_CHAR 0
 
@@ -181,7 +181,7 @@ typedef size_t yy_size_t;
 
     /* Note: We specifically omit the test for yy_rule_can_match_eol because it requires
      *       access to the local variable yy_act. Since yyless() is a macro, it would break
-     *       existing scanners that call yyless() from OUTSIDE qplex. 
+     *       existing scanners that call yyless() from OUTSIDE relex. 
      *       One obvious solution it to make yy_act a global. I tried that, and saw
      *       a 5% performance hit in a non-yylineno scanner, because yy_act is
      *       normally declared as a register variable-- so it is not worth it.
@@ -267,7 +267,7 @@ struct yy_buffer_state
 	 * possible backing-up.
 	 *
 	 * When we actually see the EOF, we change the status to "new"
-	 * (via qprestart()), so that the user can continue scanning by
+	 * (via rerestart()), so that the user can continue scanning by
 	 * just pointing yyin at a new input file.
 	 */
 #define YY_BUFFER_EOF_PENDING 2
@@ -290,36 +290,36 @@ struct yy_buffer_state
  */
 #define YY_CURRENT_BUFFER_LVALUE yyg->yy_buffer_stack[yyg->yy_buffer_stack_top]
 
-void qprestart (FILE *input_file ,yyscan_t yyscanner );
-void qp_switch_to_buffer (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
-YY_BUFFER_STATE qp_create_buffer (FILE *file,int size ,yyscan_t yyscanner );
-void qp_delete_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
-void qp_flush_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
-void qppush_buffer_state (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
-void qppop_buffer_state (yyscan_t yyscanner );
+void rerestart (FILE *input_file ,yyscan_t yyscanner );
+void re_switch_to_buffer (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
+YY_BUFFER_STATE re_create_buffer (FILE *file,int size ,yyscan_t yyscanner );
+void re_delete_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
+void re_flush_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
+void repush_buffer_state (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
+void repop_buffer_state (yyscan_t yyscanner );
 
-static void qpensure_buffer_stack (yyscan_t yyscanner );
-static void qp_load_buffer_state (yyscan_t yyscanner );
-static void qp_init_buffer (YY_BUFFER_STATE b,FILE *file ,yyscan_t yyscanner );
+static void reensure_buffer_stack (yyscan_t yyscanner );
+static void re_load_buffer_state (yyscan_t yyscanner );
+static void re_init_buffer (YY_BUFFER_STATE b,FILE *file ,yyscan_t yyscanner );
 
-#define YY_FLUSH_BUFFER qp_flush_buffer(YY_CURRENT_BUFFER ,yyscanner)
+#define YY_FLUSH_BUFFER re_flush_buffer(YY_CURRENT_BUFFER ,yyscanner)
 
-YY_BUFFER_STATE qp_scan_buffer (char *base,yy_size_t size ,yyscan_t yyscanner );
-YY_BUFFER_STATE qp_scan_string (yyconst char *yy_str ,yyscan_t yyscanner );
-YY_BUFFER_STATE qp_scan_bytes (yyconst char *bytes,yy_size_t len ,yyscan_t yyscanner );
+YY_BUFFER_STATE re_scan_buffer (char *base,yy_size_t size ,yyscan_t yyscanner );
+YY_BUFFER_STATE re_scan_string (yyconst char *yy_str ,yyscan_t yyscanner );
+YY_BUFFER_STATE re_scan_bytes (yyconst char *bytes,yy_size_t len ,yyscan_t yyscanner );
 
-void *qpalloc (yy_size_t ,yyscan_t yyscanner );
-void *qprealloc (void *,yy_size_t ,yyscan_t yyscanner );
-void qpfree (void * ,yyscan_t yyscanner );
+void *realloc (yy_size_t ,yyscan_t yyscanner );
+void *rerealloc (void *,yy_size_t ,yyscan_t yyscanner );
+void refree (void * ,yyscan_t yyscanner );
 
-#define yy_new_buffer qp_create_buffer
+#define yy_new_buffer re_create_buffer
 
 #define yy_set_interactive(is_interactive) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){ \
-        qpensure_buffer_stack (yyscanner); \
+        reensure_buffer_stack (yyscanner); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            qp_create_buffer(yyin,YY_BUF_SIZE ,yyscanner); \
+            re_create_buffer(yyin,YY_BUF_SIZE ,yyscanner); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
@@ -327,9 +327,9 @@ void qpfree (void * ,yyscan_t yyscanner );
 #define yy_set_bol(at_bol) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){\
-        qpensure_buffer_stack (yyscanner); \
+        reensure_buffer_stack (yyscanner); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            qp_create_buffer(yyin,YY_BUF_SIZE ,yyscanner); \
+            re_create_buffer(yyin,YY_BUF_SIZE ,yyscanner); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
@@ -338,7 +338,7 @@ void qpfree (void * ,yyscan_t yyscanner );
 
 /* Begin user sect3 */
 
-#define qpwrap(n) 1
+#define rewrap(n) 1
 #define YY_SKIP_YYWRAP
 
 typedef unsigned char YY_CHAR;
@@ -362,8 +362,8 @@ static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
 	*yy_cp = '\0'; \
 	yyg->yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 23
-#define YY_END_OF_BUFFER 24
+#define YY_NUM_RULES 13
+#define YY_END_OF_BUFFER 14
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -371,14 +371,15 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[54] =
+static yyconst flex_int16_t yy_accept[63] =
     {   0,
-        0,    0,   24,   19,   21,   20,   19,   22,   22,    5,
-        6,    9,   15,   17,   16,   20,   10,    7,    8,   19,
-       19,   19,   19,   19,   19,   19,   19,   13,   19,   20,
-        0,   18,    0,   16,   12,   14,   11,   19,    0,   19,
-       19,    3,   19,   19,   19,    1,   19,    4,   19,   19,
-       19,    2,    0
+        0,    0,   14,    9,   11,   10,    9,   12,    5,    6,
+        7,   10,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,   10,    2,    9,    9,    9,    9,    9,
+        0,    9,    8,    9,    9,    9,    3,    9,    9,    0,
+        8,    9,    0,    9,    8,    9,    9,    9,    1,    0,
+        8,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        4,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -386,17 +387,17 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         4,    4,    5,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    6,    1,    1,    1,    1,    1,    7,
-        8,    9,    1,    5,   10,   11,    1,   12,   12,   12,
-       12,   12,   12,   12,   12,   12,   12,    5,   13,   14,
-       15,   16,    5,    1,   17,    1,    1,   18,    1,    1,
-        1,    1,   19,    1,    1,   20,   21,   22,   23,    1,
-        1,   24,    1,   25,    1,    1,    1,    1,    1,    1,
-        1,   26,    1,    5,    1,    1,   27,    1,    1,   28,
+        1,    2,    1,    5,    1,    1,    1,    1,    1,    6,
+        7,    5,    1,    8,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    5,    9,    1,
+        1,    1,    5,    1,   10,    1,    1,   11,   12,    1,
+        1,   13,   14,    1,   15,   16,    1,   17,   18,    1,
+        1,    1,   19,   20,    1,    1,   21,    1,    1,   22,
+        1,   23,    1,    5,    1,   24,   25,    1,    1,   26,
 
-        1,    1,    1,    1,   29,    1,    1,   30,   31,   32,
-       33,    1,    1,   34,    1,   35,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,   36,    1,    1,    1,    1,
+       27,    1,    1,   28,   29,    1,   30,    1,    1,   31,
+       32,    1,    1,    1,   33,   34,    1,    1,   35,    1,
+        1,   36,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -416,70 +417,85 @@ static yyconst flex_int32_t yy_ec[256] =
 static yyconst flex_int32_t yy_meta[37] =
     {   0,
         1,    2,    2,    1,    2,    2,    2,    2,    2,    1,
-        1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int16_t yy_base[56] =
+static yyconst flex_int16_t yy_base[68] =
     {   0,
-        0,    0,   77,    0,   78,   34,    0,   78,   32,   78,
-       78,   78,    0,    0,   64,   36,   25,    0,   60,   52,
-       36,   50,   48,   39,   41,   36,   34,    0,    0,   40,
-       38,   78,   60,   50,    0,    0,    0,   43,   39,   39,
-       34,    0,   29,   25,   19,    0,   33,    0,   22,   25,
-       13,    0,   78,   45,   65
+        0,    0,  110,    0,  145,   34,    0,  145,  145,  145,
+      145,   35,   90,   91,   83,   88,   91,   43,   71,   72,
+       70,   72,    0,   38,    0,   80,   66,   84,   73,    0,
+       16,   89,    0,   54,   57,   52,    0,   73,   71,   39,
+      145,    0,   30,  112,    0,   56,   54,   64,    0,   53,
+       34,   49,   65,   49,   48,   29,   52,   34,   49,   33,
+        0,  145,   54,  136,  138,  140,  142
     } ;
 
-static yyconst flex_int16_t yy_def[56] =
+static yyconst flex_int16_t yy_def[68] =
     {   0,
-       53,    1,   53,   54,   53,   53,   54,   53,   55,   53,
-       53,   53,   54,   54,   54,   53,   54,   54,   54,   54,
-       54,   54,   54,   54,   54,   54,   54,   54,   54,   53,
-       55,   53,   55,   54,   54,   54,   54,   54,   55,   54,
-       54,   54,   54,   54,   54,   54,   54,   54,   54,   54,
-       54,   54,    0,   53,   53
+       62,    1,   62,   63,   62,   62,   63,   62,   62,   62,
+       62,   62,   63,   63,   63,   63,   63,   64,   63,   63,
+       63,   63,   63,   62,   63,   63,   64,   63,   63,   27,
+       65,   66,   63,   63,   63,   63,   63,   63,   63,   67,
+       62,   27,   65,   66,   27,   63,   63,   63,   63,   67,
+       65,   63,   63,   63,   63,   63,   63,   63,   63,   63,
+       63,    0,   62,   62,   62,   62,   62
     } ;
 
-static yyconst flex_int16_t yy_nxt[115] =
+static yyconst flex_int16_t yy_nxt[182] =
     {   0,
         4,    5,    6,    7,    8,    9,   10,   11,   12,   13,
-       14,   15,   16,   17,   18,   19,   20,    4,    4,   21,
-        4,   22,   23,    4,    4,    4,   24,    4,    4,   25,
-        4,   26,   27,    4,    4,   28,   30,   32,   30,   35,
-       36,   39,   30,   32,   32,   29,   30,   52,   30,   52,
-       51,   50,   30,   48,   40,   49,   46,   33,   48,   47,
-       46,   34,   53,   33,   33,   31,   31,   42,   45,   44,
-       43,   42,   41,   38,   37,   34,   53,    3,   53,   53,
-       53,   53,   53,   53,   53,   53,   53,   53,   53,   53,
-       53,   53,   53,   53,   53,   53,   53,   53,   53,   53,
+        4,    4,    4,   14,    4,   15,    4,    4,    4,   16,
+       17,    4,    4,   18,   19,    4,    4,    4,   20,    4,
+        4,    4,    4,   21,   22,    4,   24,   24,   40,   41,
+       24,   31,   24,   24,   31,   31,   24,   31,   31,   31,
+       31,   31,   40,   41,   23,   31,   40,   41,   61,   61,
+       60,   50,   51,   59,   58,   32,   33,   31,   31,   57,
+       31,   31,   31,   31,   31,   50,   51,   56,   55,   54,
+       53,   49,   52,   49,   48,   47,   46,   37,   32,   33,
+       43,   31,   39,   43,   43,   43,   43,   43,   38,   37,
 
-       53,   53,   53,   53,   53,   53,   53,   53,   53,   53,
-       53,   53,   53,   53
+       36,   35,   34,   25,   29,   28,   27,   26,   25,   62,
+       62,   44,   45,   43,   31,   62,   43,   43,   43,   43,
+       43,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   44,   45,   30,   30,   31,   31,
+       42,   42,   43,   43,    3,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62
     } ;
 
-static yyconst flex_int16_t yy_chk[115] =
+static yyconst flex_int16_t yy_chk[182] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    6,    9,   16,   17,
-       17,   21,   30,   31,   39,   54,    6,   51,   16,   50,
-       49,   47,   30,   45,   21,   44,   43,    9,   41,   40,
-       38,   34,   33,   31,   39,   55,   55,   27,   26,   25,
-       24,   23,   22,   20,   19,   15,    3,   53,   53,   53,
-       53,   53,   53,   53,   53,   53,   53,   53,   53,   53,
-       53,   53,   53,   53,   53,   53,   53,   53,   53,   53,
+        1,    1,    1,    1,    1,    1,    6,   12,   31,   31,
+       24,   40,    6,   12,   18,   18,   24,   18,   18,   18,
+       18,   18,   43,   43,   63,   50,   51,   51,   60,   59,
+       58,   40,   40,   57,   56,   18,   18,   27,   27,   55,
+       27,   27,   27,   27,   27,   50,   50,   54,   53,   52,
+       48,   47,   46,   39,   38,   36,   35,   34,   27,   27,
+       32,   32,   29,   32,   32,   32,   32,   32,   28,   26,
 
-       53,   53,   53,   53,   53,   53,   53,   53,   53,   53,
-       53,   53,   53,   53
+       22,   21,   20,   19,   17,   16,   15,   14,   13,    3,
+        0,   32,   32,   44,   44,    0,   44,   44,   44,   44,
+       44,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+        0,    0,    0,    0,   44,   44,   64,   64,   65,   65,
+       66,   66,   67,   67,   62,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+       62
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static yyconst flex_int32_t yy_rule_can_match_eol[24] =
+static yyconst flex_int32_t yy_rule_can_match_eol[14] =
     {   0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 
-    1, 0, 0, 0,     };
+0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,     };
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -488,26 +504,26 @@ static yyconst flex_int32_t yy_rule_can_match_eol[24] =
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-#line 1 "query_scanner.l"
-#line 14 "query_scanner.l"
+#line 1 "regex_scanner.l"
+#line 14 "regex_scanner.l"
 
 #include "sit.h"
-#define YYSTYPE         QPSTYPE
-#define YYLTYPE         QPLTYPE
+#define YYSTYPE         RESTYPE
+#define YYLTYPE         RELTYPE
 /* Substitute the variable and function names.  */
-#define yyparse         qpparse
-#define yypush_parse    qppush_parse
-#define yypull_parse    qppull_parse
-#define yypstate_new    qppstate_new
-#define yypstate_delete qppstate_delete
-#define yypstate        qppstate
-#define qplex           qplex
-#define yyerror         qperror
-#define yylval          qplval
-#define yychar          qpchar
-#define yydebug         qpdebug
-#define yynerrs         qpnerrs
-#define yylloc          qplloc
+#define yyparse         reparse
+#define yypush_parse    repush_parse
+#define yypull_parse    repull_parse
+#define yypstate_new    repstate_new
+#define yypstate_delete repstate_delete
+#define yypstate        repstate
+#define relex           relex
+#define yyerror         reerror
+#define yylval          relval
+#define yychar          rechar
+#define yydebug         redebug
+#define yynerrs         renerrs
+#define yylloc          relloc
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
@@ -522,7 +538,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[24] =
   offset = i;                                                               \
 }
 
-#line 526 "lex.qp.c"
+#line 542 "lex.re.c"
 
 #define INITIAL 0
 
@@ -534,7 +550,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[24] =
 #include <unistd.h>
 #endif
 
-#define YY_EXTRA_TYPE QueryParser*
+#define YY_EXTRA_TYPE RegexParser*
 
 /* Holds the entire state of the reentrant scanner. */
 struct yyguts_t
@@ -582,46 +598,46 @@ static int yy_init_globals (yyscan_t yyscanner );
     
     #    define yylloc yyg->yylloc_r
     
-int qplex_init (yyscan_t* scanner);
+int relex_init (yyscan_t* scanner);
 
-int qplex_init_extra (YY_EXTRA_TYPE user_defined,yyscan_t* scanner);
+int relex_init_extra (YY_EXTRA_TYPE user_defined,yyscan_t* scanner);
 
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int qplex_destroy (yyscan_t yyscanner );
+int relex_destroy (yyscan_t yyscanner );
 
-int qpget_debug (yyscan_t yyscanner );
+int reget_debug (yyscan_t yyscanner );
 
-void qpset_debug (int debug_flag ,yyscan_t yyscanner );
+void reset_debug (int debug_flag ,yyscan_t yyscanner );
 
-YY_EXTRA_TYPE qpget_extra (yyscan_t yyscanner );
+YY_EXTRA_TYPE reget_extra (yyscan_t yyscanner );
 
-void qpset_extra (YY_EXTRA_TYPE user_defined ,yyscan_t yyscanner );
+void reset_extra (YY_EXTRA_TYPE user_defined ,yyscan_t yyscanner );
 
-FILE *qpget_in (yyscan_t yyscanner );
+FILE *reget_in (yyscan_t yyscanner );
 
-void qpset_in  (FILE * in_str ,yyscan_t yyscanner );
+void reset_in  (FILE * in_str ,yyscan_t yyscanner );
 
-FILE *qpget_out (yyscan_t yyscanner );
+FILE *reget_out (yyscan_t yyscanner );
 
-void qpset_out  (FILE * out_str ,yyscan_t yyscanner );
+void reset_out  (FILE * out_str ,yyscan_t yyscanner );
 
-yy_size_t qpget_leng (yyscan_t yyscanner );
+yy_size_t reget_leng (yyscan_t yyscanner );
 
-char *qpget_text (yyscan_t yyscanner );
+char *reget_text (yyscan_t yyscanner );
 
-int qpget_lineno (yyscan_t yyscanner );
+int reget_lineno (yyscan_t yyscanner );
 
-void qpset_lineno (int line_number ,yyscan_t yyscanner );
+void reset_lineno (int line_number ,yyscan_t yyscanner );
 
-YYSTYPE * qpget_lval (yyscan_t yyscanner );
+YYSTYPE * reget_lval (yyscan_t yyscanner );
 
-void qpset_lval (YYSTYPE * yylval_param ,yyscan_t yyscanner );
+void reset_lval (YYSTYPE * yylval_param ,yyscan_t yyscanner );
 
-       YYLTYPE *qpget_lloc (yyscan_t yyscanner );
+       YYLTYPE *reget_lloc (yyscan_t yyscanner );
     
-        void qpset_lloc (YYLTYPE * yylloc_param ,yyscan_t yyscanner );
+        void reset_lloc (YYLTYPE * yylloc_param ,yyscan_t yyscanner );
     
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -629,9 +645,9 @@ void qpset_lval (YYSTYPE * yylval_param ,yyscan_t yyscanner );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int qpwrap (yyscan_t yyscanner );
+extern "C" int rewrap (yyscan_t yyscanner );
 #else
-extern int qpwrap (yyscan_t yyscanner );
+extern int rewrap (yyscan_t yyscanner );
 #endif
 #endif
 
@@ -730,10 +746,10 @@ static int input (yyscan_t yyscanner );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int qplex \
+extern int relex \
                (YYSTYPE * yylval_param,YYLTYPE * yylloc_param ,yyscan_t yyscanner);
 
-#define YY_DECL int qplex \
+#define YY_DECL int relex \
                (YYSTYPE * yylval_param, YYLTYPE * yylloc_param , yyscan_t yyscanner)
 #endif /* !YY_DECL */
 
@@ -761,10 +777,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 48 "query_scanner.l"
+#line 48 "regex_scanner.l"
 
 
-#line 768 "lex.qp.c"
+#line 784 "lex.re.c"
 
     yylval = yylval_param;
 
@@ -788,12 +804,12 @@ YY_DECL
 			yyout = stdout;
 
 		if ( ! YY_CURRENT_BUFFER ) {
-			qpensure_buffer_stack (yyscanner);
+			reensure_buffer_stack (yyscanner);
 			YY_CURRENT_BUFFER_LVALUE =
-				qp_create_buffer(yyin,YY_BUF_SIZE ,yyscanner);
+				re_create_buffer(yyin,YY_BUF_SIZE ,yyscanner);
 		}
 
-		qp_load_buffer_state(yyscanner );
+		re_load_buffer_state(yyscanner );
 		}
 
 	while ( 1 )		/* loops until end-of-file is reached */
@@ -821,13 +837,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 54 )
+				if ( yy_current_state >= 63 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 78 );
+		while ( yy_base[yy_current_state] != 145 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -865,122 +881,72 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 50 "query_scanner.l"
-{ return(AND); }
+#line 50 "regex_scanner.l"
+{ return(RWITH); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 51 "query_scanner.l"
-{ return(LIMIT); }
+#line 51 "regex_scanner.l"
+{ return(RAS); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 52 "query_scanner.l"
-{ return(OR); }
+#line 52 "regex_scanner.l"
+{ return(RINT); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 53 "query_scanner.l"
-{ return(NOT); }
+#line 53 "regex_scanner.l"
+{ return(RTOKENIZED); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 54 "query_scanner.l"
-{ return(LPAREN); }
+#line 54 "regex_scanner.l"
+{ return(RLPAREN); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 55 "query_scanner.l"
+#line 55 "regex_scanner.l"
 { return(RPAREN); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 56 "query_scanner.l"
-{ return(EQ); }
+#line 56 "regex_scanner.l"
+{ return(RCOMMA); }
 	YY_BREAK
 case 8:
+/* rule 8 can match eol */
 YY_RULE_SETUP
-#line 57 "query_scanner.l"
-{ return(GT); }
+#line 57 "regex_scanner.l"
+{ yyextra->ptr = pstring_new2(yytext, yyleng); return(RSTRING_LITERAL); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 58 "query_scanner.l"
-{ return(STAR); }
+#line 58 "regex_scanner.l"
+{ yyextra->ptr = pstring_new2(yytext, yyleng); return(RUNQUOTED); }
 	YY_BREAK
 case 10:
+/* rule 10 can match eol */
 YY_RULE_SETUP
-#line 59 "query_scanner.l"
-{ return(LT); }
+#line 59 "regex_scanner.l"
+{ return(REOQ); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 60 "query_scanner.l"
-{ return(GTE); }
+#line 60 "regex_scanner.l"
+{ /* ignore whitespace*/ }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 61 "query_scanner.l"
-{ return(LTE); }
+#line 61 "regex_scanner.l"
+{ /* ignore bad characters */ }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 62 "query_scanner.l"
-{ return(TILDE); }
-	YY_BREAK
-case 14:
-YY_RULE_SETUP
-#line 63 "query_scanner.l"
-{ return(NEQ); }
-	YY_BREAK
-case 15:
-YY_RULE_SETUP
-#line 64 "query_scanner.l"
-{ return(MINUS); }
-	YY_BREAK
-case 16:
-YY_RULE_SETUP
-#line 65 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(DIGITS); }
-	YY_BREAK
-case 17:
-YY_RULE_SETUP
-#line 66 "query_scanner.l"
-{ return(DOT); }
-	YY_BREAK
-case 18:
-/* rule 18 can match eol */
-YY_RULE_SETUP
-#line 67 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(STRING_LITERAL); }
-	YY_BREAK
-case 19:
-YY_RULE_SETUP
-#line 68 "query_scanner.l"
-{ yyextra->ptr = cstring_new(yytext, yyleng); qp_freeable(yyextra, yyextra->ptr); return(UNQUOTED); }
-	YY_BREAK
-case 20:
-/* rule 20 can match eol */
-YY_RULE_SETUP
-#line 69 "query_scanner.l"
-{ return(EOQ); }
-	YY_BREAK
-case 21:
-YY_RULE_SETUP
-#line 70 "query_scanner.l"
-{ /* ignore whitespace*/ }
-	YY_BREAK
-case 22:
-YY_RULE_SETUP
-#line 71 "query_scanner.l"
-{ /* ignore bad characters */ }
-	YY_BREAK
-case 23:
-YY_RULE_SETUP
-#line 73 "query_scanner.l"
+#line 63 "regex_scanner.l"
 ECHO;
 	YY_BREAK
-#line 984 "lex.qp.c"
+#line 950 "lex.re.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -998,7 +964,7 @@ case YY_STATE_EOF(INITIAL):
 			/* We're scanning a new file or input source.  It's
 			 * possible that this happened because the user
 			 * just pointed yyin at a new source and called
-			 * qplex().  If so, then we have to assure
+			 * relex().  If so, then we have to assure
 			 * consistency between YY_CURRENT_BUFFER and our
 			 * globals.  Here is the right place to do so, because
 			 * this is the first action (other than possibly a
@@ -1058,7 +1024,7 @@ case YY_STATE_EOF(INITIAL):
 				{
 				yyg->yy_did_buffer_switch_on_eof = 0;
 
-				if ( qpwrap(yyscanner ) )
+				if ( rewrap(yyscanner ) )
 					{
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
@@ -1111,7 +1077,7 @@ case YY_STATE_EOF(INITIAL):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
-} /* end of qplex */
+} /* end of relex */
 
 /* yy_get_next_buffer - try to read in a new buffer
  *
@@ -1190,7 +1156,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
 				b->yy_ch_buf = (char *)
 					/* Include room in for 2 EOB chars. */
-					qprealloc((void *) b->yy_ch_buf,b->yy_buf_size + 2 ,yyscanner );
+					rerealloc((void *) b->yy_ch_buf,b->yy_buf_size + 2 ,yyscanner );
 				}
 			else
 				/* Can't grow it, we don't own it. */
@@ -1222,7 +1188,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		if ( number_to_move == YY_MORE_ADJ )
 			{
 			ret_val = EOB_ACT_END_OF_FILE;
-			qprestart(yyin  ,yyscanner);
+			rerestart(yyin  ,yyscanner);
 			}
 
 		else
@@ -1239,7 +1205,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	if ((yy_size_t) (yyg->yy_n_chars + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
 		yy_size_t new_size = yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) qprealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,new_size ,yyscanner );
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) rerealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,new_size ,yyscanner );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
 			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
 	}
@@ -1274,7 +1240,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 54 )
+			if ( yy_current_state >= 63 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1303,11 +1269,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 54 )
+		if ( yy_current_state >= 63 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 53);
+	yy_is_jam = (yy_current_state == 62);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1396,13 +1362,13 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 					 */
 
 					/* Reset buffer status. */
-					qprestart(yyin ,yyscanner);
+					rerestart(yyin ,yyscanner);
 
 					/*FALLTHROUGH*/
 
 				case EOB_ACT_END_OF_FILE:
 					{
-					if ( qpwrap(yyscanner ) )
+					if ( rewrap(yyscanner ) )
 						return 0;
 
 					if ( ! yyg->yy_did_buffer_switch_on_eof )
@@ -1441,34 +1407,34 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @note This function does not reset the start condition to @c INITIAL .
  */
-    void qprestart  (FILE * input_file , yyscan_t yyscanner)
+    void rerestart  (FILE * input_file , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
 	if ( ! YY_CURRENT_BUFFER ){
-        qpensure_buffer_stack (yyscanner);
+        reensure_buffer_stack (yyscanner);
 		YY_CURRENT_BUFFER_LVALUE =
-            qp_create_buffer(yyin,YY_BUF_SIZE ,yyscanner);
+            re_create_buffer(yyin,YY_BUF_SIZE ,yyscanner);
 	}
 
-	qp_init_buffer(YY_CURRENT_BUFFER,input_file ,yyscanner);
-	qp_load_buffer_state(yyscanner );
+	re_init_buffer(YY_CURRENT_BUFFER,input_file ,yyscanner);
+	re_load_buffer_state(yyscanner );
 }
 
 /** Switch to a different input buffer.
  * @param new_buffer The new input buffer.
  * @param yyscanner The scanner object.
  */
-    void qp_switch_to_buffer  (YY_BUFFER_STATE  new_buffer , yyscan_t yyscanner)
+    void re_switch_to_buffer  (YY_BUFFER_STATE  new_buffer , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
 	/* TODO. We should be able to replace this entire function body
 	 * with
-	 *		qppop_buffer_state();
-	 *		qppush_buffer_state(new_buffer);
+	 *		repop_buffer_state();
+	 *		repush_buffer_state(new_buffer);
      */
-	qpensure_buffer_stack (yyscanner);
+	reensure_buffer_stack (yyscanner);
 	if ( YY_CURRENT_BUFFER == new_buffer )
 		return;
 
@@ -1481,17 +1447,17 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		}
 
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-	qp_load_buffer_state(yyscanner );
+	re_load_buffer_state(yyscanner );
 
 	/* We don't actually know whether we did this switch during
-	 * EOF (qpwrap()) processing, but the only time this flag
-	 * is looked at is after qpwrap() is called, so it's safe
+	 * EOF (rewrap()) processing, but the only time this flag
+	 * is looked at is after rewrap() is called, so it's safe
 	 * to go ahead and always set it.
 	 */
 	yyg->yy_did_buffer_switch_on_eof = 1;
 }
 
-static void qp_load_buffer_state  (yyscan_t yyscanner)
+static void re_load_buffer_state  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 	yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
@@ -1506,35 +1472,35 @@ static void qp_load_buffer_state  (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @return the allocated buffer state.
  */
-    YY_BUFFER_STATE qp_create_buffer  (FILE * file, int  size , yyscan_t yyscanner)
+    YY_BUFFER_STATE re_create_buffer  (FILE * file, int  size , yyscan_t yyscanner)
 {
 	YY_BUFFER_STATE b;
     
-	b = (YY_BUFFER_STATE) qpalloc(sizeof( struct yy_buffer_state ) ,yyscanner );
+	b = (YY_BUFFER_STATE) realloc(sizeof( struct yy_buffer_state ) ,yyscanner );
 	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in qp_create_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in re_create_buffer()" );
 
 	b->yy_buf_size = size;
 
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *) qpalloc(b->yy_buf_size + 2 ,yyscanner );
+	b->yy_ch_buf = (char *) realloc(b->yy_buf_size + 2 ,yyscanner );
 	if ( ! b->yy_ch_buf )
-		YY_FATAL_ERROR( "out of dynamic memory in qp_create_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in re_create_buffer()" );
 
 	b->yy_is_our_buffer = 1;
 
-	qp_init_buffer(b,file ,yyscanner);
+	re_init_buffer(b,file ,yyscanner);
 
 	return b;
 }
 
 /** Destroy the buffer.
- * @param b a buffer created with qp_create_buffer()
+ * @param b a buffer created with re_create_buffer()
  * @param yyscanner The scanner object.
  */
-    void qp_delete_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
+    void re_delete_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
@@ -1545,9 +1511,9 @@ static void qp_load_buffer_state  (yyscan_t yyscanner)
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
 
 	if ( b->yy_is_our_buffer )
-		qpfree((void *) b->yy_ch_buf ,yyscanner );
+		refree((void *) b->yy_ch_buf ,yyscanner );
 
-	qpfree((void *) b ,yyscanner );
+	refree((void *) b ,yyscanner );
 }
 
 #ifndef __cplusplus
@@ -1556,21 +1522,21 @@ extern int isatty (int );
     
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
- * such as during a qprestart() or at EOF.
+ * such as during a rerestart() or at EOF.
  */
-    static void qp_init_buffer  (YY_BUFFER_STATE  b, FILE * file , yyscan_t yyscanner)
+    static void re_init_buffer  (YY_BUFFER_STATE  b, FILE * file , yyscan_t yyscanner)
 
 {
 	int oerrno = errno;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-	qp_flush_buffer(b ,yyscanner);
+	re_flush_buffer(b ,yyscanner);
 
 	b->yy_input_file = file;
 	b->yy_fill_buffer = 1;
 
-    /* If b is the current buffer, then qp_init_buffer was _probably_
-     * called from qprestart() or through yy_get_next_buffer.
+    /* If b is the current buffer, then re_init_buffer was _probably_
+     * called from rerestart() or through yy_get_next_buffer.
      * In that case, we don't want to reset the lineno or column.
      */
     if (b != YY_CURRENT_BUFFER){
@@ -1587,7 +1553,7 @@ extern int isatty (int );
  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
  * @param yyscanner The scanner object.
  */
-    void qp_flush_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
+    void re_flush_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 	if ( ! b )
@@ -1608,7 +1574,7 @@ extern int isatty (int );
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
 	if ( b == YY_CURRENT_BUFFER )
-		qp_load_buffer_state(yyscanner );
+		re_load_buffer_state(yyscanner );
 }
 
 /** Pushes the new state onto the stack. The new state becomes
@@ -1617,15 +1583,15 @@ extern int isatty (int );
  *  @param new_buffer The new state.
  *  @param yyscanner The scanner object.
  */
-void qppush_buffer_state (YY_BUFFER_STATE new_buffer , yyscan_t yyscanner)
+void repush_buffer_state (YY_BUFFER_STATE new_buffer , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 	if (new_buffer == NULL)
 		return;
 
-	qpensure_buffer_stack(yyscanner);
+	reensure_buffer_stack(yyscanner);
 
-	/* This block is copied from qp_switch_to_buffer. */
+	/* This block is copied from re_switch_to_buffer. */
 	if ( YY_CURRENT_BUFFER )
 		{
 		/* Flush out information for old buffer. */
@@ -1639,8 +1605,8 @@ void qppush_buffer_state (YY_BUFFER_STATE new_buffer , yyscan_t yyscanner)
 		yyg->yy_buffer_stack_top++;
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
 
-	/* copied from qp_switch_to_buffer. */
-	qp_load_buffer_state(yyscanner );
+	/* copied from re_switch_to_buffer. */
+	re_load_buffer_state(yyscanner );
 	yyg->yy_did_buffer_switch_on_eof = 1;
 }
 
@@ -1648,19 +1614,19 @@ void qppush_buffer_state (YY_BUFFER_STATE new_buffer , yyscan_t yyscanner)
  *  The next element becomes the new top.
  *  @param yyscanner The scanner object.
  */
-void qppop_buffer_state (yyscan_t yyscanner)
+void repop_buffer_state (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 	if (!YY_CURRENT_BUFFER)
 		return;
 
-	qp_delete_buffer(YY_CURRENT_BUFFER ,yyscanner);
+	re_delete_buffer(YY_CURRENT_BUFFER ,yyscanner);
 	YY_CURRENT_BUFFER_LVALUE = NULL;
 	if (yyg->yy_buffer_stack_top > 0)
 		--yyg->yy_buffer_stack_top;
 
 	if (YY_CURRENT_BUFFER) {
-		qp_load_buffer_state(yyscanner );
+		re_load_buffer_state(yyscanner );
 		yyg->yy_did_buffer_switch_on_eof = 1;
 	}
 }
@@ -1668,7 +1634,7 @@ void qppop_buffer_state (yyscan_t yyscanner)
 /* Allocates the stack if it does not exist.
  *  Guarantees space for at least one push.
  */
-static void qpensure_buffer_stack (yyscan_t yyscanner)
+static void reensure_buffer_stack (yyscan_t yyscanner)
 {
 	yy_size_t num_to_alloc;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
@@ -1680,11 +1646,11 @@ static void qpensure_buffer_stack (yyscan_t yyscanner)
 		 * immediate realloc on the next call.
          */
 		num_to_alloc = 1;
-		yyg->yy_buffer_stack = (struct yy_buffer_state**)qpalloc
+		yyg->yy_buffer_stack = (struct yy_buffer_state**)realloc
 								(num_to_alloc * sizeof(struct yy_buffer_state*)
 								, yyscanner);
 		if ( ! yyg->yy_buffer_stack )
-			YY_FATAL_ERROR( "out of dynamic memory in qpensure_buffer_stack()" );
+			YY_FATAL_ERROR( "out of dynamic memory in reensure_buffer_stack()" );
 								  
 		memset(yyg->yy_buffer_stack, 0, num_to_alloc * sizeof(struct yy_buffer_state*));
 				
@@ -1699,12 +1665,12 @@ static void qpensure_buffer_stack (yyscan_t yyscanner)
 		int grow_size = 8 /* arbitrary grow size */;
 
 		num_to_alloc = yyg->yy_buffer_stack_max + grow_size;
-		yyg->yy_buffer_stack = (struct yy_buffer_state**)qprealloc
+		yyg->yy_buffer_stack = (struct yy_buffer_state**)rerealloc
 								(yyg->yy_buffer_stack,
 								num_to_alloc * sizeof(struct yy_buffer_state*)
 								, yyscanner);
 		if ( ! yyg->yy_buffer_stack )
-			YY_FATAL_ERROR( "out of dynamic memory in qpensure_buffer_stack()" );
+			YY_FATAL_ERROR( "out of dynamic memory in reensure_buffer_stack()" );
 
 		/* zero only the new slots.*/
 		memset(yyg->yy_buffer_stack + yyg->yy_buffer_stack_max, 0, grow_size * sizeof(struct yy_buffer_state*));
@@ -1718,7 +1684,7 @@ static void qpensure_buffer_stack (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object. 
  */
-YY_BUFFER_STATE qp_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscanner)
+YY_BUFFER_STATE re_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscanner)
 {
 	YY_BUFFER_STATE b;
     
@@ -1728,9 +1694,9 @@ YY_BUFFER_STATE qp_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscann
 		/* They forgot to leave room for the EOB's. */
 		return 0;
 
-	b = (YY_BUFFER_STATE) qpalloc(sizeof( struct yy_buffer_state ) ,yyscanner );
+	b = (YY_BUFFER_STATE) realloc(sizeof( struct yy_buffer_state ) ,yyscanner );
 	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in qp_scan_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in re_scan_buffer()" );
 
 	b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
@@ -1742,33 +1708,33 @@ YY_BUFFER_STATE qp_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscann
 	b->yy_fill_buffer = 0;
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
-	qp_switch_to_buffer(b ,yyscanner );
+	re_switch_to_buffer(b ,yyscanner );
 
 	return b;
 }
 
-/** Setup the input buffer state to scan a string. The next call to qplex() will
+/** Setup the input buffer state to scan a string. The next call to relex() will
  * scan from a @e copy of @a str.
  * @param yystr a NUL-terminated string to scan
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object.
  * @note If you want to scan bytes that may contain NUL values, then use
- *       qp_scan_bytes() instead.
+ *       re_scan_bytes() instead.
  */
-YY_BUFFER_STATE qp_scan_string (yyconst char * yystr , yyscan_t yyscanner)
+YY_BUFFER_STATE re_scan_string (yyconst char * yystr , yyscan_t yyscanner)
 {
     
-	return qp_scan_bytes(yystr,strlen(yystr) ,yyscanner);
+	return re_scan_bytes(yystr,strlen(yystr) ,yyscanner);
 }
 
-/** Setup the input buffer state to scan the given bytes. The next call to qplex() will
+/** Setup the input buffer state to scan the given bytes. The next call to relex() will
  * scan from a @e copy of @a bytes.
  * @param bytes the byte buffer to scan
  * @param len the number of bytes in the buffer pointed to by @a bytes.
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE qp_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len , yyscan_t yyscanner)
+YY_BUFFER_STATE re_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len , yyscan_t yyscanner)
 {
 	YY_BUFFER_STATE b;
 	char *buf;
@@ -1776,18 +1742,18 @@ YY_BUFFER_STATE qp_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len 
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
-	buf = (char *) qpalloc(n ,yyscanner );
+	buf = (char *) realloc(n ,yyscanner );
 	if ( ! buf )
-		YY_FATAL_ERROR( "out of dynamic memory in qp_scan_bytes()" );
+		YY_FATAL_ERROR( "out of dynamic memory in re_scan_bytes()" );
 
 	for ( i = 0; i < _yybytes_len; ++i )
 		buf[i] = yybytes[i];
 
 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
 
-	b = qp_scan_buffer(buf,n ,yyscanner);
+	b = re_scan_buffer(buf,n ,yyscanner);
 	if ( ! b )
-		YY_FATAL_ERROR( "bad buffer in qp_scan_bytes()" );
+		YY_FATAL_ERROR( "bad buffer in re_scan_bytes()" );
 
 	/* It's okay to grow etc. this buffer, and we should throw it
 	 * away when we're done.
@@ -1829,7 +1795,7 @@ static void yy_fatal_error (yyconst char* msg , yyscan_t yyscanner)
 /** Get the user-defined data for this scanner.
  * @param yyscanner The scanner object.
  */
-YY_EXTRA_TYPE qpget_extra  (yyscan_t yyscanner)
+YY_EXTRA_TYPE reget_extra  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yyextra;
@@ -1838,7 +1804,7 @@ YY_EXTRA_TYPE qpget_extra  (yyscan_t yyscanner)
 /** Get the current line number.
  * @param yyscanner The scanner object.
  */
-int qpget_lineno  (yyscan_t yyscanner)
+int reget_lineno  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     
@@ -1851,7 +1817,7 @@ int qpget_lineno  (yyscan_t yyscanner)
 /** Get the current column number.
  * @param yyscanner The scanner object.
  */
-int qpget_column  (yyscan_t yyscanner)
+int reget_column  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     
@@ -1864,7 +1830,7 @@ int qpget_column  (yyscan_t yyscanner)
 /** Get the input stream.
  * @param yyscanner The scanner object.
  */
-FILE *qpget_in  (yyscan_t yyscanner)
+FILE *reget_in  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yyin;
@@ -1873,7 +1839,7 @@ FILE *qpget_in  (yyscan_t yyscanner)
 /** Get the output stream.
  * @param yyscanner The scanner object.
  */
-FILE *qpget_out  (yyscan_t yyscanner)
+FILE *reget_out  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yyout;
@@ -1882,7 +1848,7 @@ FILE *qpget_out  (yyscan_t yyscanner)
 /** Get the length of the current token.
  * @param yyscanner The scanner object.
  */
-yy_size_t qpget_leng  (yyscan_t yyscanner)
+yy_size_t reget_leng  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yyleng;
@@ -1892,7 +1858,7 @@ yy_size_t qpget_leng  (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  */
 
-char *qpget_text  (yyscan_t yyscanner)
+char *reget_text  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yytext;
@@ -1902,7 +1868,7 @@ char *qpget_text  (yyscan_t yyscanner)
  * @param user_defined The data to be associated with this scanner.
  * @param yyscanner The scanner object.
  */
-void qpset_extra (YY_EXTRA_TYPE  user_defined , yyscan_t yyscanner)
+void reset_extra (YY_EXTRA_TYPE  user_defined , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     yyextra = user_defined ;
@@ -1912,13 +1878,13 @@ void qpset_extra (YY_EXTRA_TYPE  user_defined , yyscan_t yyscanner)
  * @param line_number
  * @param yyscanner The scanner object.
  */
-void qpset_lineno (int  line_number , yyscan_t yyscanner)
+void reset_lineno (int  line_number , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
         /* lineno is only valid if an input buffer exists. */
         if (! YY_CURRENT_BUFFER )
-           yy_fatal_error( "qpset_lineno called with no buffer" , yyscanner); 
+           yy_fatal_error( "reset_lineno called with no buffer" , yyscanner); 
     
     yylineno = line_number;
 }
@@ -1927,13 +1893,13 @@ void qpset_lineno (int  line_number , yyscan_t yyscanner)
  * @param line_number
  * @param yyscanner The scanner object.
  */
-void qpset_column (int  column_no , yyscan_t yyscanner)
+void reset_column (int  column_no , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
         /* column is only valid if an input buffer exists. */
         if (! YY_CURRENT_BUFFER )
-           yy_fatal_error( "qpset_column called with no buffer" , yyscanner); 
+           yy_fatal_error( "reset_column called with no buffer" , yyscanner); 
     
     yycolumn = column_no;
 }
@@ -1942,27 +1908,27 @@ void qpset_column (int  column_no , yyscan_t yyscanner)
  * input buffer.
  * @param in_str A readable stream.
  * @param yyscanner The scanner object.
- * @see qp_switch_to_buffer
+ * @see re_switch_to_buffer
  */
-void qpset_in (FILE *  in_str , yyscan_t yyscanner)
+void reset_in (FILE *  in_str , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     yyin = in_str ;
 }
 
-void qpset_out (FILE *  out_str , yyscan_t yyscanner)
+void reset_out (FILE *  out_str , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     yyout = out_str ;
 }
 
-int qpget_debug  (yyscan_t yyscanner)
+int reget_debug  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yy_flex_debug;
 }
 
-void qpset_debug (int  bdebug , yyscan_t yyscanner)
+void reset_debug (int  bdebug , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     yy_flex_debug = bdebug ;
@@ -1970,25 +1936,25 @@ void qpset_debug (int  bdebug , yyscan_t yyscanner)
 
 /* Accessor methods for yylval and yylloc */
 
-YYSTYPE * qpget_lval  (yyscan_t yyscanner)
+YYSTYPE * reget_lval  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yylval;
 }
 
-void qpset_lval (YYSTYPE *  yylval_param , yyscan_t yyscanner)
+void reset_lval (YYSTYPE *  yylval_param , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     yylval = yylval_param;
 }
 
-YYLTYPE *qpget_lloc  (yyscan_t yyscanner)
+YYLTYPE *reget_lloc  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yylloc;
 }
     
-void qpset_lloc (YYLTYPE *  yylloc_param , yyscan_t yyscanner)
+void reset_lloc (YYLTYPE *  yylloc_param , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     yylloc = yylloc_param;
@@ -1996,12 +1962,12 @@ void qpset_lloc (YYLTYPE *  yylloc_param , yyscan_t yyscanner)
     
 /* User-visible API */
 
-/* qplex_init is special because it creates the scanner itself, so it is
+/* relex_init is special because it creates the scanner itself, so it is
  * the ONLY reentrant function that doesn't take the scanner as the last argument.
  * That's why we explicitly handle the declaration, instead of using our macros.
  */
 
-int qplex_init(yyscan_t* ptr_yy_globals)
+int relex_init(yyscan_t* ptr_yy_globals)
 
 {
     if (ptr_yy_globals == NULL){
@@ -2009,7 +1975,7 @@ int qplex_init(yyscan_t* ptr_yy_globals)
         return 1;
     }
 
-    *ptr_yy_globals = (yyscan_t) qpalloc ( sizeof( struct yyguts_t ), NULL );
+    *ptr_yy_globals = (yyscan_t) realloc ( sizeof( struct yyguts_t ), NULL );
 
     if (*ptr_yy_globals == NULL){
         errno = ENOMEM;
@@ -2022,27 +1988,27 @@ int qplex_init(yyscan_t* ptr_yy_globals)
     return yy_init_globals ( *ptr_yy_globals );
 }
 
-/* qplex_init_extra has the same functionality as qplex_init, but follows the
+/* relex_init_extra has the same functionality as relex_init, but follows the
  * convention of taking the scanner as the last argument. Note however, that
  * this is a *pointer* to a scanner, as it will be allocated by this call (and
  * is the reason, too, why this function also must handle its own declaration).
- * The user defined value in the first argument will be available to qpalloc in
+ * The user defined value in the first argument will be available to realloc in
  * the yyextra field.
  */
 
-int qplex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
+int relex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
 
 {
     struct yyguts_t dummy_yyguts;
 
-    qpset_extra (yy_user_defined, &dummy_yyguts);
+    reset_extra (yy_user_defined, &dummy_yyguts);
 
     if (ptr_yy_globals == NULL){
         errno = EINVAL;
         return 1;
     }
 	
-    *ptr_yy_globals = (yyscan_t) qpalloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
+    *ptr_yy_globals = (yyscan_t) realloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
 	
     if (*ptr_yy_globals == NULL){
         errno = ENOMEM;
@@ -2053,7 +2019,7 @@ int qplex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
     yy_init_globals. Leave at 0x00 for releases. */
     memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
     
-    qpset_extra (yy_user_defined, *ptr_yy_globals);
+    reset_extra (yy_user_defined, *ptr_yy_globals);
     
     return yy_init_globals ( *ptr_yy_globals );
 }
@@ -2062,7 +2028,7 @@ static int yy_init_globals (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     /* Initialization is the same as for the non-reentrant scanner.
-     * This function is called from qplex_destroy(), so don't allocate here.
+     * This function is called from relex_destroy(), so don't allocate here.
      */
 
     yyg->yy_buffer_stack = 0;
@@ -2086,37 +2052,37 @@ static int yy_init_globals (yyscan_t yyscanner)
 #endif
 
     /* For future reference: Set errno on error, since we are called by
-     * qplex_init()
+     * relex_init()
      */
     return 0;
 }
 
-/* qplex_destroy is for both reentrant and non-reentrant scanners. */
-int qplex_destroy  (yyscan_t yyscanner)
+/* relex_destroy is for both reentrant and non-reentrant scanners. */
+int relex_destroy  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
     /* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER){
-		qp_delete_buffer(YY_CURRENT_BUFFER ,yyscanner );
+		re_delete_buffer(YY_CURRENT_BUFFER ,yyscanner );
 		YY_CURRENT_BUFFER_LVALUE = NULL;
-		qppop_buffer_state(yyscanner);
+		repop_buffer_state(yyscanner);
 	}
 
 	/* Destroy the stack itself. */
-	qpfree(yyg->yy_buffer_stack ,yyscanner);
+	refree(yyg->yy_buffer_stack ,yyscanner);
 	yyg->yy_buffer_stack = NULL;
 
     /* Destroy the start condition stack. */
-        qpfree(yyg->yy_start_stack ,yyscanner );
+        refree(yyg->yy_start_stack ,yyscanner );
         yyg->yy_start_stack = NULL;
 
     /* Reset the globals. This is important in a non-reentrant scanner so the next time
-     * qplex() is called, initialization will occur. */
+     * relex() is called, initialization will occur. */
     yy_init_globals( yyscanner);
 
     /* Destroy the main struct (reentrant only). */
-    qpfree ( yyscanner , yyscanner );
+    refree ( yyscanner , yyscanner );
     yyscanner = NULL;
     return 0;
 }
@@ -2145,12 +2111,12 @@ static int yy_flex_strlen (yyconst char * s , yyscan_t yyscanner)
 }
 #endif
 
-void *qpalloc (yy_size_t  size , yyscan_t yyscanner)
+void *realloc (yy_size_t  size , yyscan_t yyscanner)
 {
 	return (void *) malloc( size );
 }
 
-void *qprealloc  (void * ptr, yy_size_t  size , yyscan_t yyscanner)
+void *rerealloc  (void * ptr, yy_size_t  size , yyscan_t yyscanner)
 {
 	/* The cast to (char *) in the following accommodates both
 	 * implementations that use char* generic pointers, and those
@@ -2162,107 +2128,23 @@ void *qprealloc  (void * ptr, yy_size_t  size , yyscan_t yyscanner)
 	return (void *) realloc( (char *) ptr, size );
 }
 
-void qpfree (void * ptr , yyscan_t yyscanner)
+void refree (void * ptr , yyscan_t yyscanner)
 {
-	free( (char *) ptr );	/* see qprealloc() for (char *) cast */
+	free( (char *) ptr );	/* see rerealloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
 
-#line 73 "query_scanner.l"
+#line 63 "regex_scanner.l"
 
 
-
-void
-_qnode_free(void *data) {
-  QNode *node = data;
-//  if(node->field) free(node->field);
-//  # if(node->val) free(node->val);
-  free(node);
-}
-
-void 
-qp_freeable(QueryParser *qp, void *data) {
-  ll_add(&qp->ast->freeable, data);
-}
-
-ASTNode *
-ast_query_node_new(QueryParser *qp, QNodeType type) {
-  QNode *node = malloc(sizeof(QNode));
-  node->type     = type;
-  node->field    = NULL;
-  node->val      = NULL;
-  node->num      = 0;
-  node->negated  = false;
-  
-  ASTNode *ast_node = ast_node_new(qp->ast);
-  ast_node->data = node;
-  
-  return ast_node;
-}
-
-#define Q(node)     ((QNode *)(node->data))
-
-void
-add_token(Callback *cb, void *data) {
-  Token *token = data;
-  QueryParser *context = cb->user_data;
-  ASTNode *node = context->tmp;
-  pstring *field = Q(node)->field;
-  Q(node)->num = token->offset;
-  ASTNode *term = ast_query_node_new(context, TERM);
-  Q(term)->cmp = Q(node)->cmp;
-  Q(term)->field = field;
-  Q(term)->val = pcpy(token->text);
-  qp_freeable(context, Q(term)->val);
-  qp_freeable(context, Q(term)->val->val);
-  ast_node_append_child(node, term);
-}
-
-QueryParser *
-query_parser_new(Callback *cb) {
-  QueryParser *parser = malloc(sizeof(QueryParser));
-  parser->buf = NULL;
-  parser->error = NULL;
-  parser->ast = ast_new(NULL, _qnode_free);
-  parser->root = NULL;
-  parser->on_query = cb;
-  parser->tokenizer = white_tokenizer_new();
-  parser->tokenizer->on_token = callback_new(add_token, parser);
-  parser->push_state = qppstate_new();
-  parser->lvalp = malloc(sizeof(QPSTYPE));
-  parser->llocp = malloc(sizeof(QPLTYPE));
-  qplex_init(&parser->scanner);
-  qpset_extra(parser, parser->scanner);
-  return parser;
-}
-
-void
-query_parser_free(QueryParser *parser) {
-  tokenizer_free(parser->tokenizer);
-  ast_free(parser->ast);
-  qppstate_delete(parser->push_state);
-  qplex_destroy(parser->scanner);
-  free(parser->lvalp);
-  free(parser->llocp);
-  free(parser);
-}
-
-void
-query_parser_reset(QueryParser *parser) {
-  qppstate_delete(parser->push_state);
-  parser->push_state = qppstate_new();
-  qplex_destroy(parser->scanner);
-  qplex_init(&parser->scanner);
-  qpset_extra(parser, parser->scanner);
-}
 
 int
-query_parser_consume(QueryParser *parser, pstring *pstr) {
-  assert(pstr);
-  parser->buf = pstr;
+regex_parser_parse(RegexParser *parser, pstring *query) {
+  assert(query);
+  parser->buf = query;
   parser->done = false;
-  //return qpparse(parser);
+  parser->matcher = calloc(1, sizeof(RegexMatcher));
   int status = YYPUSH_MORE;
   while (status == YYPUSH_MORE && parser->done < 1) {
     status = qppush_parse(
@@ -2275,493 +2157,4 @@ query_parser_consume(QueryParser *parser, pstring *pstr) {
   return status;
 }
 
-#define NEXT(obj)   (obj ? obj->next : NULL)
-void 
-associate_ands(QueryParser *context, ASTNode *node) {
-  if(!node) return;
-  ASTNode *op    = node->next;
-  ASTNode *other = NEXT(op);
-  
-  if(op && Q(op)->type == BAND) {
-    ASTNode *wrapper = ast_query_node_new(context, ANDS); 
-    ast_node_insert_before(op, wrapper);
-    ast_node_prepend_child(wrapper, other);
-    ast_node_prepend_child(wrapper, node);
-    ast_node_remove(op);
-    associate_ands(context, wrapper);
-  }
-  associate_ands(context, other);
-  associate_ands(context, node->child);
-}
 
-void 
-combine_ors(QueryParser *context, ASTNode *node) {
-  if(!node) return;
-  ASTNode *op    = node->next;
-  ASTNode *other = NEXT(op);
-  
-  if(op && Q(op)->type == BOR) {
-    ASTNode *wrapper = ast_query_node_new(context, ORS); 
-    ast_node_insert_before(op, wrapper);
-    ast_node_prepend_child(wrapper, other);
-    ast_node_prepend_child(wrapper, node);
-    ast_node_remove(op);
-    combine_ors(context, wrapper);
-  }
-  combine_ors(context, op);
-  combine_ors(context, node->child);
-}
-
-void
-demorgans(QueryParser *context, ASTNode *node) {
-  if(!node) return;
-  ASTNode *tmp;
-  
-  if(Q(node)->negated) {
-    switch(Q(node)->type) {
-    case EXPR   :
-      Q(node)->negated = false;
-      tmp = node->child;
-      while(tmp) {
-        Q(tmp)->negated = !Q(tmp)->negated;
-        tmp = tmp->next;
-      }
-      break;
-    case ANDS   :
-      Q(node)->negated = false;
-      Q(node)->type = ORS;
-      tmp = node->child;
-      while(tmp) {
-        Q(tmp)->negated = !Q(tmp)->negated;
-        tmp = tmp->next;
-      }
-      break;
-    case ORS    :
-      Q(node)->negated = false;
-      Q(node)->type = ANDS;
-      tmp = node->child;
-      while(tmp) {
-        Q(tmp)->negated = !Q(tmp)->negated;
-        tmp = tmp->next;
-      }
-      break;
-    case CLAUSE :
-    case STAR_CLAUSE :
-    case TERM:
-    case NUMTERM :
-      break;
-    case UNKNOWN:
-    case NUM    :
-    case CMP    :
-    case STR    :
-    case MODSTR :
-    case BAND   :
-    case BOR    :
-    default     :
-      assert(0);
-    }
-  }
-  
-  demorgans(context, node->next);
-  demorgans(context, node->child);
-}
-
-
-void
-unwrap_exprs(QueryParser *context, ASTNode *node) {
-  if(!node) return;
-  unwrap_exprs(context, node->next);
-  unwrap_exprs(context, node->child);
-  if(node && Q(node)->type == EXPR) {
-    ast_node_unwrap(node);
-  }
-}
-
-void 
-merge_bools(QueryParser *context, ASTNode *node, QNodeType type) {
-  if(!node) return;
-  merge_bools(context, node->next, type);
-  merge_bools(context, node->child, type);
-  if(Q(node)->type == type) {
-    ASTNode *child = node->child;
-    int count = 0;
-    while(child) {
-      if(Q(child)->type == type) {
-        ast_node_unwrap(child);
-        child = node->child;
-        count = 0;
-      } else {
-        count++;
-        child = child->next;
-      }
-    }
-    if(count == 1) {
-      ast_node_unwrap(node);
-    }
-  }
-}
-
-void 
-bubble_ors(QueryParser *context, ASTNode *node) {
-  if(!node) return;
-
-  ASTNode *parent = node->parent;
-  if(Q(node)->type == ORS && Q(parent)->type != EXPR) {
-    ASTNode *gp = ast_query_node_new(context, ORS);
-    ASTNode *child = node->child;
-    for (int i = 0; child; i++, child = child->next) {
-      ASTNode *cp = query_node_copy_subtree(context, parent);
-      ast_node_append_child(gp, cp);
-      ASTNode *cpkid = cp->child;
-      while(cpkid) {
-        if(Q(cpkid)->type == ORS) {
-          ast_node_insert_before(cpkid, query_node_copy_subtree(context, child));
-          ast_node_remove(cpkid);
-          break;
-        }
-        cpkid = cpkid->next;
-      }
-    }
-    ast_node_insert_before(parent, gp);
-    ast_node_remove(parent);
-  }
-  
-  
-  bubble_ors(context, node->child); // depth-first
-  bubble_ors(context, node->next); // left-to-right
-}
-
-void
-expand_clauses(QueryParser *context, ASTNode *node) {
-  if(!node) return;
-
-  if(Q(node)->type == CLAUSE) {
-    ASTNode *field = node->child;
-    ASTNode *op  = node->child->next;
-    ASTNode *val = node->child->next->next;
-    if(Q(op)->cmp == _TILDE && Q(val)->type == STR) {
-      Q(node)->type = ANDS;
-      context->tmp = node;
-      Q(node)->field = Q(field)->val;
-      Q(node)->cmp = Q(op)->cmp;
-      Q(node)->val = Q(val)->val;
-      ast_node_remove(field);
-      ast_node_remove(op);
-      ast_node_remove(val);
-      context->tokenizer->consume(context->tokenizer, Q(node)->val);
-    } else if(Q(op)->cmp != _TILDE && Q(val)->type == NUM) {
-      Q(node)->type = NUMTERM;
-      Q(node)->field = Q(field)->val;
-      Q(node)->cmp = Q(op)->cmp;
-      Q(node)->num = Q(val)->num;
-      node->child = NULL;
-    } else {
-      assert(0);
-    }
-  }
-  expand_clauses(context, node->child); 
-  expand_clauses(context, node->next);
-}
-
-void *
-to_conjunction(ASTNode *node, void *obj) {
-  switch(Q(node)->type) {
-  case NUMTERM:
-  case STAR_CLAUSE:
-  case TERM: {
-    conjunction_t *con = malloc(sizeof(conjunction_t));
-    term_copulate(&con->terms[0], obj);
-    term_free(obj);
-  	con->count = 1;
-  	con->data = NULL;
-    return con;
-  }
-  case ANDS: 
-    return obj;
-  default:
-    assert(0);
-  }
-}
-
-void *
-to_query(ASTNode *node, void *obj) {
-  switch(Q(node)->type) {
-  case STAR_CLAUSE:
-  case NUMTERM:
-  case TERM: {
-    obj = to_conjunction(node, obj);
-    // fall-through
-  }
-  case ANDS: {
-    Query *query = calloc(1, sizeof(Query));
-    query->count = 1;
-    query->conjunctions = calloc(1, sizeof(conjunction_t*));
-    query->conjunctions[0] = obj;
-    return query;
-  }
-  case ORS: 
-    return obj;
-  default:
-    assert(0);
-  }
-}
-
-pstring _na = { "?", 1 };
-pstring _eq = { "=", 1 };
-pstring _gt = { ">", 1 };
-pstring _lt = { "<", 1 };
-pstring _gte = { ".", 1 };
-pstring _lte = { ",", 1 };
-pstring _tilde = { "~", 1 };
-pstring _neq = { "!", 1 };
-
-pstring * 
-cmpmap(CmpType t) {
-  switch(t) {
-       case _NA: return &_na;
-       case _EQ: return &_eq;
-       case _GT: return &_gt;
-       case _LT: return &_lt;
-       case _GTE: return &_gte;
-       case _LTE: return &_lte;
-       case _TILDE: return &_tilde;
-       case _NEQ: return &_neq;
-     }
-  return NULL;
-}
-
-pstring * 
-_negate(pstring *t) {
-  switch(*t->val) {
-    case '?': return &_na;
-    case '=': return &_neq;
-    case '>': return &_lte;
-    case '<': return &_gte;
-    case '.': return &_lt;
-    case ',': return &_gt;
-    case '~': return &_na;
-    case '!': return &_eq;
-  }
-  return &_na;
-}
-
-pstring _star = { "*", 1 };
-
-void *
-make_query_and_callback(QueryParser *context, ASTNode *node) {
-  switch(Q(node)->type) {
-  case STAR_CLAUSE: {
-    Term *term = term_new(&_star, &_star, 0, Q(node)->negated);
-    term->type = CATCHALL;
-    return term;
-    
-  }
-  case NUMTERM: {
-    DEBUG("NUMTERM");
-    pstring *c = cmpmap(Q(node)->cmp);
-    if(Q(node)->negated) c = _negate(c);
-    Term *term = term_new(Q(node)->field, c, Q(node)->num, false);
-    term->type = NUMERIC;
-    return term;
-  }
-  case TERM:
-    DEBUG("TERM");
-    return term_new(Q(node)->field, Q(node)->val, Q(node)->num, Q(node)->negated);
-  case ANDS: {
-    DEBUG("ANDS");
-    int count = ast_node_child_count(node);
-    conjunction_t *con = malloc(sizeof(conjunction_t) + (count - 1) * sizeof(Term));
-    ASTNode *child = node->child;
-  	for(int i = 0	; i < count; i++) {
-  	  DEBUG("recurse");
-  	  Term *term = make_query_and_callback(context, child);
-      term_copulate(&con->terms[i], term);
-      term_free(term);
-  		child = child->next;
-  	}
-  	qsort(con->terms, count, sizeof(Term), qtermcmp);	
-  	con->count = count;
-  	con->data = NULL;
-  	return con;
-  } 
-  case ORS: {
-    DEBUG("ORS");
-    int count = ast_node_child_count(node);
-    Query *query = malloc(sizeof(Query));
-    query->count = count;
-    query->conjunctions = malloc(count * sizeof(conjunction_t*));
-    ASTNode *child = node->child;
-    for(int i = 0	; i < count; i++) {
-      query->conjunctions[i] = to_conjunction(child, make_query_and_callback(context, child));
-  		child = child->next;
-  	}
-  } 
-  case EXPR: {
-    DEBUG("EXPR");
-    return to_query(node->child, make_query_and_callback(context, node->child));
-  }
-  default:
-    assert(0);
-  }
-}
-
-void
-query_parser_construct(QueryParser *context, ASTNode *expression, int limit) {
-  pstring *pstr;
-  (void) pstr;
-  context->root = expression;
-  expand_clauses(context, expression);
-  associate_ands(context, expression);
-  combine_ors(context, expression);
-  demorgans(context, expression);
-  unwrap_exprs(context, expression->child);
-  merge_bools(context, expression, ORS);
-  merge_bools(context, expression, ANDS);
-  bubble_ors(context, expression);
-  merge_bools(context, expression, ORS);
-  merge_bools(context, expression, ANDS);
-  
-  Query * query = make_query_and_callback(context, expression);
-  pstring *s = query_to_s(query);
-  INFO("Query: %.*s", s->len, s->val);
-  pstring_free(s);
-  
-  query->limit = limit;
-  context->on_query->handler(context->on_query, query);
-  query_free(query);
-}
-
-const char *
-_s(QNodeType t) {
-  switch(t) {
-    case UNKNOWN : return "UNKNOWN" ;
-    case NUM     : return "NUM"     ;
-    case EXPR    : return "EXPR"    ;
-    case CLAUSE  : return "CLAUSE"  ;
-    case CMP     : return "CMP"     ;
-    case STR     : return "STR"     ;
-    case MODSTR  : return "MODSTR"  ;
-    case BAND    : return "BAND"    ;
-    case BOR     : return "BOR"     ;
-    case ANDS    : return "ANDS"    ;
-    case ORS     : return "ORS"     ;
-    case TERM    : return "TERM"    ;
-    case NUMTERM : return "NUMTERM" ;
-    default: assert(0);
-  }
-}
-
-const char *
-_c(CmpType t) {
-  switch(t) {
-    case _NA    : return "??";
-    case _EQ    : return "=";
-    case _GT    : return ">";
-    case _LT    : return "<";
-    case _GTE   : return ">=";
-    case _LTE   : return "<=";
-    case _TILDE : return "~";
-    case _NEQ   : return "!=";
-    default     : return "??";
-  }
-}
-
-#define PQ(x)  padd(buf, query_node_query(x))
-
-pstring * 
-query_node_query(ASTNode *node) {
-  pstring *buf = pstring_new(0);
-  if(Q(node)->negated) PC("NOT ");
-  switch(Q(node)->type) {
-  case EXPR:
-    PQ(node->child);
-    break;
-  case CLAUSE:
-    node = node->child;
-    while(node) {
-      PQ(node);
-      node = node->next;
-    }
-    break;
-  case CMP:
-    PC(" ");
-    PC(_c(Q(node)->cmp));
-    PC(" ");
-    break;
-  case STR:
-    P(Q(node)->val);
-    break;
-  case TERM:
-    assert(Q(node)->field);
-    assert(Q(node)->val);
-    PV("%.*s %s %.*s", Q(node)->field->len, Q(node)->field->val, _c(Q(node)->cmp), Q(node)->val->len, Q(node)->val->val);
-    break;
-  case NUM:
-    PV("%d", Q(node)->num);
-    break;
-  case MODSTR:
-    P(Q(node)->val);
-    PC("(");
-    PQ(node->next);
-    PC(")");
-    break;
-  case ANDS: {
-    bool first = true;
-    node = node->child;
-    PC("(");
-    while(node) {
-      if(!first) PC(" AND ");
-      first = false;
-      PQ(node);
-      node = node->next;
-    }
-    PC(")");
-    break;
-  }
-  case ORS: {
-    bool first = true;
-    node = node->child;
-    PC("(");
-    while(node) {
-      if(!first) PC(" OR ");
-      first = false;
-      PQ(node);
-      node = node->next;
-    }
-    PC(")");
-    break;
-  }
-  }
-  return buf;
-}
-
-pstring * 
-_query_node_ast_to_s(ASTNode *node, int level) {
-  pstring *buf = pstring_new(0);
-  if(!node) return buf;
-  assert(node->ast);
-  for(int i = 0; i < level; i++) PC("\t");
-  P(query_node_to_s(Q(node)));
-  PC("\n");
-  P(_query_node_ast_to_s(node->child, level + 1));
-  P(_query_node_ast_to_s(node->next, level));
-  return buf;
-}
-
-pstring * 
-query_node_ast_to_s(ASTNode *node) {
-  return _query_node_ast_to_s(node, 0);
-}
-
-pstring * 
-query_node_to_s(QNode *node) {
-  pstring *buf = pstring_new(0);
-  int len = 4;
-  const char *val = "NULL";
-  if(node->val) {
-    len = node->val->len;
-    val = node->val->val;
-  }
-  PV("[%s %.*s %d %s %s %s]", _s(node->type), len, val, node->num, _c(node->cmp), node->negated ? "true" : "false");
-  return buf;
-}
