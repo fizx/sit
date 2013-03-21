@@ -78,6 +78,9 @@ _v(pstring *out, VStringNode *node, long off, long *flags) {
     // we do a pointer-only allocation and GTFO.
     DEBUG("vstring_get handled simply");
     out->val = node->pstr.val + reloff;
+    if(out->len < 0) {
+      out->len = node->pstr.len - reloff;
+    }
     *flags = 1;
     return;
   } else if (relend <= 0) {
@@ -154,7 +157,11 @@ void _free_less_than(vstring *vstr, long off) {
   VStringNode *next = NULL;
   while(node) {
     if(node->off + node->pstr.len < off) {
-      if(next) next->prev = NULL;
+      if(next) {
+        next->prev = NULL;
+      } else {
+        vstr->node = NULL;
+      }
       vstring_node_free(node);
       return;
     }

@@ -4,6 +4,7 @@
 #include "tokenizer.h"
 #include "ast.h"
 #include "pstring.h"
+#include "vstring.h"
 #include "parser.h"
 #include <pcre.h>
 #include <stdbool.h>
@@ -28,6 +29,8 @@ typedef struct RegexParserState {
   pstring             *ptr;
   pstring             *error;
   struct RegexMatcher *matcher;
+  
+  vstring             *stream;
   
   char *re_error;
   int   re_error_offset;
