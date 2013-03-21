@@ -62,11 +62,15 @@ engine_add_stream_parser(Engine *engine, char *name, Parser *parser) {
 
 Parser *
 engine_new_stream_parser(Engine *engine, pstring *more) {
-  Parser *p = dictFetchValue(engine->stream_parsers, more);
-  if(p) {
-    p = p->fresh_copy(p);
+  if(!strncmp(more->val, "match", 5)) {
+    pstring q = { more->val + 5, more->len - 5 } ;
+    return regex_parser_new(&q);
+  } else if(!strncmp(more->val, "json", 4)) {
+    return json_white_parser_new();
+  } else if(!strncmp(more->val, "solr", 4)) {
+    return solr_parser_new();
   }
-  return p;
+  return NULL;
 }
 
 void 

@@ -2194,10 +2194,6 @@ regex_parser_consume(Parser *parser, pstring *input) {
     } else if (groups == PCRE_ERROR_PARTIAL) {
       return;
     } else {
-      pstring err = { "no regex match", 14 };
-      if(parser->on_error) {
-        parser->on_error->handler(parser->on_error, &err);
-      }
       vstring_shift(stream, len);
     }
     len = vstring_size(stream);
@@ -2253,7 +2249,7 @@ regex_parser_new(pstring *query) {
         }
       }
       if(!found) {
-        state->fields[state->count++].name = pstr;
+        state->fields[++state->count].name = pstr;
         state->fields[state->count].group = group;
       }
     }

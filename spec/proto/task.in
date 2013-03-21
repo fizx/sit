@@ -1,2 +1,2 @@
-tail spec/twitter.json
+tail spec/twitter.json json
 tasks

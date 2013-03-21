@@ -6,7 +6,7 @@ _perc_found_handler(Callback *callback, void *data) {
   Input *input = callback->user_data;
   Output *output = input->output;
   long query_id = callback->id;
-  WRITE_OUT("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": ", "%ld, \"doc_id\": %ld}", query_id, doc_id);  
+  SMALL_OUT("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": ", "%ld, \"doc_id\": %ld}", query_id, doc_id);  
 }
 
 void 
@@ -15,9 +15,9 @@ _ack_doc(Callback *cb, void *data) {
   Input *input = cb->user_data;
   Output *output = input->output;
   if(engine->error) {
-    WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", engine->error);
+    SMALL_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", engine->error);
   } else {
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
   }
 }
 
@@ -50,16 +50,16 @@ _channel_handler(Callback *callback, void *data) {
   if(input->qparser_mode == REGISTERING) {
     query->callback = callback_new(_perc_found_handler, input);
     long query_id = engine_register(engine, query);
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"registered\", \"id\": ", "%ld}", query_id);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"registered\", \"id\": ", "%ld}", query_id);
     query->callback = NULL; // disassociate from gc.
   } else {
     query->callback = callback_new(_perc_found_handler, input);
     ResultIterator *iter = engine_search(engine, query);
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"querying\", \"id\": ", "%ld}", query->callback->id);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"querying\", \"id\": ", "%ld}", query->callback->id);
     while(result_iterator_prev(iter) && (query->limit-- != 0)) {
       result_iterator_do_callback(iter);
     }
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"complete\", \"id\": ", "%ld}", query->callback->id);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"complete\", \"id\": ", "%ld}", query->callback->id);
     result_iterator_free(iter);
   }   
 }

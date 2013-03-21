@@ -8,7 +8,7 @@ _input_error_found(struct ProtocolHandler *handler, pstring *message) {
   Output *output = input->output;
   pstring escaped;
   json_escape(&escaped, message);
-  WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%.*s\"}", escaped.len, escaped.val);
+  SMALL_OUT("{\"status\": \"error\", \"message\": \"", "%.*s\"}", escaped.len, escaped.val);
   free(escaped.val);
 }
 
@@ -169,36 +169,36 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     long task_id = strtol(more->val, NULL, 10);
     bool success = engine_release_task(engine, task_id);
     if(success) {
-      WRITE_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"task_id\": ", "%ld}", task_id);
+      SMALL_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"task_id\": ", "%ld}", task_id);
     } else {
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id);
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id);
     }
   } else if(!cpstrcmp("connect", command)) {
     Task *task = client_task_new(engine, more);
     if(task) {
       pstring *json = task_to_json(task);
-      WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
+      SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
       pstring_free(json);    
     } else {
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", strerror(errno));
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", strerror(errno));
     }
   } else if(!cpstrcmp("tail", command)) {
     Task *task = tail_task_new(engine, more, 1.);
     pstring *json = task_to_json(task);
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
     pstring_free(json);
   } else if(!cpstrcmp("tasks", command)) {
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"begin\"}", "");
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"begin\"}", "");
     dictIterator * iterator = dictGetIterator(engine->tasks);
   	dictEntry *next;
   	while((next = dictNext(iterator))) {
       Task *task = dictGetKey(next);
       pstring *json = task_to_json(task);
-      WRITE_OUT("{\"status\": \"ok\", details: ", "%.*s}", json->len, json->val);
+      SMALL_OUT("{\"status\": \"ok\", details: ", "%.*s}", json->len, json->val);
       pstring_free(json);
   	}
     dictReleaseIterator(iterator);
-    WRITE_OUT("{\"status\": \"ok\", \"message\": \"complete\"}", "");
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"complete\"}", "");
   } else if(!cpstrcmp("tell", command)) {  
     long task_id = strtol(more->val, NULL, 10);
     if(more->val[0] == '$' && more->val[1] == '!') {
@@ -213,15 +213,15 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
           char *n = message.val + message.len - 1;
           *(n) = '\n';
           task->tell(task, &message);
-          WRITE_OUT("{\"status\": \"ok\", \"message\": \"success\"}", "");
+          SMALL_OUT("{\"status\": \"ok\", \"message\": \"success\"}", "");
         } else {
-          WRITE_OUT("{\"status\": \"error\", \"message\": \"invalid tell message\"", ""); 
+          SMALL_OUT("{\"status\": \"error\", \"message\": \"invalid tell message\"", ""); 
         }
       } else {
-        WRITE_OUT("{\"status\": \"error\", \"message\": \"task doesn't accept input\", \"task_id\": ", "%ld}", task_id); 
+        SMALL_OUT("{\"status\": \"error\", \"message\": \"task doesn't accept input\", \"task_id\": ", "%ld}", task_id); 
       }
     } else {
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id); 
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id); 
     }
   } else if(!cpstrcmp("stream", command)) {
     Parser *parser = engine_new_stream_parser(engine, more);
@@ -231,27 +231,29 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
       parser_free(input->parser);
       input->parser = parser;
       handler->parser->state = FORCE_DATA;      
-      WRITE_OUT("{\"status\": \"ok\", \"message\": \"streaming\"}", "");
+      SMALL_OUT("{\"status\": \"ok\", \"message\": \"streaming\"}", "");
     } else {
       pstring json;
       json_escape(&json, more);
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"no stream parser for ", "%.*s\"}", json.len, json.val);
+      OUT("{\"status\": \"error\", \"message\": \"no stream parser for %.*s\"}", json.len, json.val);
     }
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = engine_unregister(input->engine, query_id);
     if(success) {
-      WRITE_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"query_id\": ", "%ld}", query_id);
+      SMALL_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"query_id\": ", "%ld}", query_id);
     } else {
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"query_id\": ", "%ld}", query_id);
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"query_id\": ", "%ld}", query_id);
     }
   } else if(!cpstrcmp("get", command)) {
     long doc_id = strtol(more->val, NULL, 10);
     pstring *doc = engine_get_document(input->engine, doc_id);
     if(doc) {
-      WRITE_OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": ", "%.*s}", doc->len, doc->val);
+      pstring json;
+      json_escape(&json, doc);
+      OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": \"%.*s\"}", json.len, json.val);
     } else {
-      WRITE_OUT("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": ", "%ld}", doc_id);
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": ", "%ld}", doc_id);
     }
   } else if(!cpstrcmp("close", command)) {
     input->output->close(input->output);

@@ -17,7 +17,7 @@ describe "Task" do
   before do
     @engine = Engine.new(Parser.new_json, 1_000_000, false)
     cp(abs("sample.json"), abs("tmp.json"))
-    @task = Task.new_tail(@engine, abs("tmp.json"))
+    @task = Task.new_tail(@engine, abs("tmp.json") + " json")
   end
   
 	it "should be tailing the file" do

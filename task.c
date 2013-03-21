@@ -48,6 +48,7 @@ typedef struct ClientState {
 
 pstring *
 task_to_json(Task *task) {
+  if(!task) return pstring_new2("null", 4);
   if(task->to_json) {
     return task->to_json(task);
   } else {
@@ -190,10 +191,25 @@ _client_task_to_json(Task *task) {
 }
 
 Task *
-tail_task_new(Engine *engine, pstring *path, double interval) {
+tail_task_new(Engine *engine, pstring *more, double interval) {
+  char *space = memchr(more->val, ' ', more->len);
+  if(!space) return NULL;
+  int pathlen = space - more->val;
+  pstring path = { more->val, pathlen };
+  pstring after = { more->val + pathlen + 1, more->len - (pathlen + 1) };
+  if(after.len < 1) {
+    puts("a");
+    return NULL;
+  }
   Task *task = task_new();
   task->engine = engine;
-  task->parser = engine->parser->fresh_copy(engine->parser);
+  task->parser = engine_new_stream_parser(engine, &after);
+  if(!task->parser) {
+    task_free(task);
+    printf("%.*s\n", after.len, after.val);
+    puts("b");
+    return NULL;
+  }
 	task->parser->on_document = callback_new(_tail_document_found, task);
 	task->parser->on_error = callback_new(_tail_error_found, task);
 	task->data = NULL;
@@ -202,7 +218,7 @@ tail_task_new(Engine *engine, pstring *path, double interval) {
   TailState *state = calloc(1, sizeof(TailState));
   task->state = state;
 	struct ev_loop *loop = ev_default_loop(0);
-  char *name = p2cstring(path);
+  char *name = p2cstring(&path);
 	state->ptr = fopen(name, "r");
   if(!state->ptr) {
     task_free(task);
@@ -228,7 +244,7 @@ tail_task_new(Engine *engine, pstring *path, double interval) {
   task_stat->data = task;
   ev_stat_init(task_stat, _task_stat, name, interval);
   ev_stat_start(loop, task_stat);
-  state->path = pcpy(path);
+  state->path = pcpy(&path);
   dictAdd(engine->tasks, task, task);
   free(name);
   return task;

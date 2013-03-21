@@ -37,7 +37,7 @@ typedef struct Input {
  * a printf formatstring, and varargs.  The printf component is limited to
  * 128 bytes, because fo the constant pre-allocated buffer size.
  */
-#define WRITE_OUT(_s, _v, ...)  do {                        \
+#define SMALL_OUT(_s, _v, ...)  do {                        \
     static char cbuf[] = _s                                 \
     "                                "                      \
     "                                "                      \
@@ -49,6 +49,15 @@ typedef struct Input {
     buf.len = STRLEN(_s) + written;                         \
     output->write(output, &buf);                            \
   } while(0)
+  
+#define OUT(_s, ...)  do {                                  \
+    char *chars;                                            \
+    int written = asprintf(&chars, _s, ##__VA_ARGS__);      \
+    pstring buf = { chars, written };                       \
+    output->write(output, &buf);                            \
+    free(chars);                                            \
+  } while(0)                                                
+
 
 Input *
 input_new(struct Engine *engine, long buffer_size);
