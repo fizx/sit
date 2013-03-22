@@ -1,4 +1,3 @@
-#ifdef HAVE_EV_H
 #include "sit.h"
 
 #define BUFFER_SIZE 8096
@@ -259,5 +258,3 @@ server_start(Server *server, struct sockaddr_in *addr) {
   ev_loop(loop, 0);
   return 0;
 }
-
-#endif

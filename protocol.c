@@ -261,14 +261,12 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     Callback *cb = callback_new(_dump_handler, output);
     engine_each_query(input->engine,  cb);
     callback_free(cb);
-#ifdef HAVE_EV_H
   } else if(TEST_MODE && !cpstrcmp("stop", command)) {
     INFO("stopping now!\n");
     input->output->close(input->output);
     ev_unloop(ev_default_loop(0), EVUNLOOP_ALL);
     engine_free(input->engine);
     INFO("stopped\n");
-#endif
   } else {
     pstring *buf = pstringf("Unknown command: %.*s", command->len, command->val);
     handler->error_found(handler, buf);

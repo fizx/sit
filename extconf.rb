@@ -3,6 +3,7 @@ require 'mkmf'
 CONFIG['optflags'] = "-O0"
 $CFLAGS << ' -g -std=c99
              -Wall -Wextra
+             -D_GNU_SOURCE
              -DCOMPILE_WITH_DEBUG 
              -Wno-newline-eof 
              -Wno-declaration-after-statement 
@@ -13,12 +14,20 @@ $CFLAGS << ' -g -std=c99
              -Wno-switch
 						 -Wno-variadic-macros
              -o sit'.gsub(/\s+/, " ")
+             
+headers = %w[/usr/local/include /usr/include]
+libs = %w[/usr/local/lib /usr/lib]
+out = `pcre-config --libs`[/-L(\S+)/, 1]
+libs.unshift(out) if out
 
-find_library('ev', 'ev_default_loop') && have_header("ev.h")
-have_header("aio.h")
-find_library('pcre', 'pcre_compile') && have_header("pcre.h")
-have_header("sys/queue.h")
-create_makefile('sit')
+find_library('ev', 'ev_default_loop', *libs)   &&
+find_header("ev.h", *headers)                  &&
+find_header("aio.h", *headers)                 &&
+find_library('pcre', 'pcre_free_study', *libs) &&
+find_header("pcre.h", *headers)                &&
+find_header("sys/queue.h", *headers)           &&
+create_makefile('sit')                         ||
+abort("error")
 
 footer = <<-STR
 $(TARGET): $(OBJS) Makefile

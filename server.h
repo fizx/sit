@@ -1,6 +1,5 @@
 #ifndef SIT_SERVER_H_INCLUDED
 #define SIT_SERVER_H_INCLUDED
-#ifdef HAVE_EV_H
 
 #include <ev.h>
 #include "engine.h"
@@ -46,5 +45,3 @@ void
 conn_free(conn_t * conn);
 
 #endif
-#endif
-

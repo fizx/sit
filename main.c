@@ -87,8 +87,6 @@ main(int argc, char **argv) {
   engine_add_stream_parser(engine, "solr", solr_parser_new());
   engine_add_stream_parser(engine, "json", json_white_parser_new());
 
-#ifdef HAVE_EV_H
-  
 	if(port > 0) {
 		struct sockaddr_in addr;
 		bzero(&addr, sizeof(addr));
@@ -99,9 +97,6 @@ main(int argc, char **argv) {
 		Server *server = server_new(engine);
 		server_start(server, &addr);
 	} else {
-#else
-  {
-#endif
 
     pstring nl = {"\n", 1};
   

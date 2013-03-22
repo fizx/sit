@@ -11,12 +11,8 @@ struct lrw_type;
 
 #include <assert.h>
 #include <errno.h>
-#ifdef HAVE_EV_H
 #include <ev.h>
-#endif
-#ifdef HAVE_PCRE_H
 #include <pcre.h>
-#endif
 #include <fcntl.h>
 #include <getopt.h>
 #include <limits.h>
