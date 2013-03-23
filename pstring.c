@@ -42,7 +42,8 @@ char *
 pstrnstr(pstring *base, char *start, const char *c) {
   if(start<base->val) return NULL;
   int len = base->len - (start - base->val);
-  return strnstr(start, c, len);
+  int clen = strlen(c);
+  return memmem(start, len, c, clen);
 }
 
 char *
