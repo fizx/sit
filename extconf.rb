@@ -13,13 +13,7 @@ $CFLAGS << '-std=c99 -D_GNU_SOURCE'
              # -Wno-variadic-macros
 
              
-headers = %w[/usr/local/include /usr/include]
-libs = %w[/usr/local/lib /usr/lib]
-out = `pcre-config --libs`[/-L(\S+)/, 1]
-if out
-  libs.unshift(out) 
-  puts "adding #{out} to search path"
-end
+libs = headers = %w[libev pcre-8.32]
 
 find_header("pcre.h", *headers)                &&
 find_header("ev.h", *headers)                  &&
