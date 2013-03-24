@@ -26,3 +26,4 @@ contrib/pcre/pcregrep
 contrib/pcre/pcretest
 contrib/pcre/config.h
 contrib/pcre/config.status
+contrib/pcre/test*

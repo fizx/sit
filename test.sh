@@ -1,6 +1,10 @@
 #!/bin/bash
-for FILE in `ls spec/*spec.rb`
-do
-  echo $FILE
-  rspec $FILE
-done
+cd `dirname $0`
+command -v bundle || gem install bundler
+bundle
+make install
+cd rb
+ruby extconf.rb
+make
+cd ..
+rspec

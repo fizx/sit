@@ -251,7 +251,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
-SUBDIRS = contrib/libev contrib/pcre src rb
+SUBDIRS = contrib/libev contrib/pcre src
 all: all-recursive
 
 .SUFFIXES:
@@ -772,6 +772,9 @@ uninstall-am:
 
 
 # EXTRA_DIST = README.md NOTICE LICENSE ChangeLog conf scripts notes
+
+check:
+	sh test.sh
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

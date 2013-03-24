@@ -14,9 +14,6 @@ AM_LIBTOOLFLAGS =
 
 AM_YFLAGS = -d
 
-__top_builddir__libsit_la_LIBADD = $(top_builddir)/contrib/libev/libev.la
-__top_builddir__libsit_la_LIBADD += $(top_builddir)/contrib/pcre/libpcre.la
-
 __top_builddir__libsit_la_SOURCES =         \
   ast.c               \
   ast.h               \
