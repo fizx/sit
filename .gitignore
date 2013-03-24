@@ -16,3 +16,11 @@ tmp.json
 .dirstamp
 .deps
 autom4te.cache
+*.lo
+*.pc
+libtool
+contrib/pcre/pcre_scanner_unittest
+contrib/pcre/pcre_stringpiece_unittest
+contrib/pcre/pcrecpp_unittest
+contrib/pcre/pcregrep
+contrib/pcre/pcretest

@@ -77,14 +77,14 @@ while test $# -gt 0; do
       if test ${prefix}/include != /usr/include ; then
         includes=-I${prefix}/include
       fi
-      echo $includes -DPCRE_STATIC
+      echo $includes 
       ;;
     --cflags-posix)
       if test yes = yes ; then
         if test ${prefix}/include != /usr/include ; then
           includes=-I${prefix}/include
         fi
-        echo $includes -DPCRE_STATIC
+        echo $includes 
       else
         echo "${usage}" 1>&2
       fi
