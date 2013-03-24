@@ -31,7 +31,7 @@ _syslog_consume(Parser *parser, pstring *pstr) {
       doc_buf_field_found(buf, &_time);
       strptime(line.val, "%b %d %H:%M:%S", &ts);
       ts.tm_year = now.tm_year;
-      time_t log_time = mktime(&ts);
+      time_t log_time = timegm(&ts);
       if(log_time > nowstamp) {
         ts.tm_year--;
         log_time = mktime(&ts);
