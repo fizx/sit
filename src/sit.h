@@ -45,7 +45,7 @@ struct lrw_type;
 #include "lrw_dict.h"
 #include "pstring.h"
 #include "vstring.h"
-#include "query_parser.h"
+#include "_query_parser.h"
 #include "ring_buffer.h"
 #include "callback.h"
 #include "cursor.h"
@@ -53,7 +53,7 @@ struct lrw_type;
 #include "input.h"
 #include "engine.h"
 #include "parser.h"
-#include "regex_parser.h"
+#include "_regex_parser.h"
 #include "protocol.h"
 #include "query.h"
 #include "server.h"
@@ -61,7 +61,5 @@ struct lrw_type;
 #include "tokenizer.h"
 #include "util.h"
 #include "white_tokenizer.h"
-#include "qp.tab.h"
-#include "rx.tab.h"
 
 #endif

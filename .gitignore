@@ -10,3 +10,9 @@ build
 callgrind.out*
 TODO
 tmp.json
+.libs
+*.la
+*.Po
+.dirstamp
+.deps
+autom4te.cache

@@ -12,7 +12,8 @@
 %lex-param { void* scanner  }
 
 %code requires {
-  #include "regex_parser.h"
+  #include "_regex_parser.h"
+  #include "pstring.h"
 }
 
 %union
@@ -21,9 +22,7 @@
 }
 
 %{
-#include "query_parser.h"
 #include "callback.h"
-#include "pstring.h"
 #include "util.h"
 #include <stdlib.h>
 #include <stdio.h>

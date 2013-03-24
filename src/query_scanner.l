@@ -3,6 +3,8 @@
 %option bison-locations
 %option noyywrap
 %option yylineno
+%option outfile="lex.yy.c"
+%option prefix="qp"
 %option extra-type="QueryParser*"
 
 D			[0-9]
@@ -11,7 +13,7 @@ H			[a-fA-F0-9]
 NS    [^ \t\n\r,?*();:\^"]
 
 %{
-
+#include "query_parser.h"
 #include "sit.h"
 #define YYSTYPE         QPSTYPE
 #define YYLTYPE         QPLTYPE

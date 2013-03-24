@@ -2,6 +2,8 @@
 %option bison-bridge
 %option bison-locations
 %option noyywrap
+%option prefix="rx"
+%option outfile="lex.yy.c"
 %option yylineno
 %option extra-type="RegexParserState*"
 
@@ -11,7 +13,7 @@ H			[a-fA-F0-9]
 NS    [^ \t\n\r,?*();:\^"]
 
 %{
-
+#include "regex_parser.h"
 #include "sit.h"
 #define YYSTYPE         RXSTYPE
 #define YYLTYPE         RXLTYPE
@@ -29,6 +31,8 @@ NS    [^ \t\n\r,?*();:\^"]
 #define yydebug         rxdebug
 #define yynerrs         rxnerrs
 #define yylloc          rxlloc
+
+
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;
 
@@ -136,11 +140,11 @@ regex_parser_new(pstring *query) {
   state->parser = parser;
   parser->state = state;
   parser->consume = regex_parser_consume;
-  rxlex_init(&state->scanner);
+  yylex_init(&state->scanner);
   state->lvalp = malloc(sizeof(RXSTYPE));
   state->llocp = malloc(sizeof(RXLTYPE));
   state->stream = vstring_new();
-  rxset_extra(state, state->scanner);
+  yyset_extra(state, state->scanner);
   
   state->buf = query;
   rxparse(state);
@@ -191,3 +195,4 @@ regex_parser_fresh_copy(Parser *parser) {
   return regex_parser_new(state->buf);
 }
 
+#define yy_create_buffer ada_yy_create_buffer

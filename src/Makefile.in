@@ -50,10 +50,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = hello$(EXEEXT)
+bin_PROGRAMS = $(top_builddir)/sit$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/config/depcomp
+	$(top_srcdir)/config/depcomp $(top_srcdir)/config/ylwrap \
+	query_parser.c query_parser.h query_scanner.c regex_parser.c \
+	regex_parser.h regex_scanner.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -63,10 +65,23 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_hello_OBJECTS = hello.$(OBJEXT)
-hello_OBJECTS = $(am_hello_OBJECTS)
-hello_DEPENDENCIES = $(top_builddir)/contrib/libev/libev.la \
+am___top_builddir__sit_OBJECTS = ast.$(OBJEXT) callback.$(OBJEXT) \
+	dict.$(OBJEXT) dict_types.$(OBJEXT) doc_buf.$(OBJEXT) \
+	engine.$(OBJEXT) input.$(OBJEXT) json_parser.$(OBJEXT) \
+	jsonsl.$(OBJEXT) ll.$(OBJEXT) logger.$(OBJEXT) \
+	lrw_dict.$(OBJEXT) main.$(OBJEXT) parser.$(OBJEXT) \
+	plist.$(OBJEXT) protocol.$(OBJEXT) pstring.$(OBJEXT) \
+	query.$(OBJEXT) query_parser.$(OBJEXT) query_scanner.$(OBJEXT) \
+	regex_parser.$(OBJEXT) regex_scanner.$(OBJEXT) \
+	regex_tokenizer.$(OBJEXT) ring_buffer.$(OBJEXT) \
+	server.$(OBJEXT) solr_parser.$(OBJEXT) syslog_parser.$(OBJEXT) \
+	task.$(OBJEXT) term.$(OBJEXT) tokenizer.$(OBJEXT) \
+	util.$(OBJEXT) vstring.$(OBJEXT) white_tokenizer.$(OBJEXT)
+__top_builddir__sit_OBJECTS = $(am___top_builddir__sit_OBJECTS)
+__top_builddir__sit_DEPENDENCIES =  \
+	$(top_builddir)/contrib/libev/libev.la \
 	$(top_builddir)/contrib/pcre/libpcre.la
+am__dirstamp = $(am__leading_dot)dirstamp
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -80,8 +95,17 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(hello_SOURCES)
-DIST_SOURCES = $(hello_SOURCES)
+LEXCOMPILE = $(LEX) $(AM_LFLAGS) $(LFLAGS)
+LTLEXCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(LEX) $(AM_LFLAGS) $(LFLAGS)
+YLWRAP = $(top_srcdir)/config/ylwrap
+am__yacc_c2h = sed -e s/cc$$/hh/ -e s/cpp$$/hpp/ -e s/cxx$$/hxx/ \
+		   -e s/c++$$/h++/ -e s/c$$/h/
+YACCCOMPILE = $(YACC) $(AM_YFLAGS) $(YFLAGS)
+LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(YACC) $(AM_YFLAGS) $(YFLAGS)
+SOURCES = $(__top_builddir__sit_SOURCES)
+DIST_SOURCES = $(__top_builddir__sit_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -102,10 +126,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
-CXXCPP = @CXXCPP@
-CXXDEPMODE = @CXXDEPMODE@
-CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -166,7 +186,6 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
@@ -213,13 +232,82 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-hello_SOURCES = hello.c
-hello_LDADD = $(top_builddir)/contrib/libev/libev.la \
+AM_YFLAGS = -d
+__top_builddir__sit_LDADD = $(top_builddir)/contrib/libev/libev.la \
 	$(top_builddir)/contrib/pcre/libpcre.la
-all: all-am
+__top_builddir__sit_SOURCES = \
+  ast.c               \
+  ast.h               \
+  callback.c          \
+  callback.h          \
+  cursor.h            \
+  dict.c              \
+  dict.h              \
+  dict_types.c        \
+  dict_types.h        \
+  doc_buf.c           \
+  doc_buf.h           \
+  engine.c            \
+  engine.h            \
+  input.c             \
+  input.h             \
+  json_parser.c       \
+  json_parser.h       \
+  jsonsl.c            \
+  jsonsl.h            \
+  ll.c                \
+  ll.h                \
+  logger.c            \
+  logger.h            \
+  lrw_dict.c          \
+  lrw_dict.h          \
+  main.c              \
+  parser.c            \
+  parser.h            \
+  plist.c             \
+  plist.h             \
+  protocol.c          \
+  protocol.h          \
+  pstring.c           \
+  pstring.h           \
+  query.c             \
+  query.h             \
+  _query_parser.h     \
+  query_parser.y      \
+  query_scanner.l     \
+  _regex_parser.h     \
+  regex_parser.y      \
+  regex_scanner.l     \
+  regex_tokenizer.c   \
+  regex_tokenizer.h   \
+  ring_buffer.c       \
+  ring_buffer.h       \
+  server.c            \
+  server.h            \
+  sit.h               \
+  solr_parser.c       \
+  solr_parser.h       \
+  syslog_parser.c     \
+  syslog_parser.h     \
+  task.c              \
+  task.h              \
+  term.c              \
+  term.h              \
+  tokenizer.c         \
+  tokenizer.h         \
+  util.c              \
+  util.h              \
+  vstring.c           \
+  vstring.h           \
+  white_tokenizer.c   \
+  white_tokenizer.h   
+
+BUILT_SOURCES = query_parser.h regex_parser.h
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .c .l .lo .o .obj .y
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -296,9 +384,18 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-hello$(EXEEXT): $(hello_OBJECTS) $(hello_DEPENDENCIES) $(EXTRA_hello_DEPENDENCIES) 
-	@rm -f hello$(EXEEXT)
-	$(LINK) $(hello_OBJECTS) $(hello_LDADD) $(LIBS)
+query_parser.h: query_parser.c
+	@if test ! -f $@; then rm -f query_parser.c; else :; fi
+	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) query_parser.c; else :; fi
+regex_parser.h: regex_parser.c
+	@if test ! -f $@; then rm -f regex_parser.c; else :; fi
+	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) regex_parser.c; else :; fi
+$(top_builddir)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)
+	@: > $(top_builddir)/$(am__dirstamp)
+$(top_builddir)/sit$(EXEEXT): $(__top_builddir__sit_OBJECTS) $(__top_builddir__sit_DEPENDENCIES) $(EXTRA___top_builddir__sit_DEPENDENCIES) $(top_builddir)/$(am__dirstamp)
+	@rm -f $(top_builddir)/sit$(EXEEXT)
+	$(LINK) $(__top_builddir__sit_OBJECTS) $(__top_builddir__sit_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -306,7 +403,39 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hello.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ast.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callback.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dict.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dict_types.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/doc_buf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/engine.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/input.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/json_parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jsonsl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ll.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lrw_dict.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/protocol.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pstring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query_parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query_scanner.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_scanner.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_tokenizer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ring_buffer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/solr_parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syslog_parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/task.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/term.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tokenizer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vstring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/white_tokenizer.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -329,10 +458,17 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
+.l.c:
+	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
+
+.y.c:
+	$(am__skipyacc) $(SHELL) $(YLWRAP) $< y.tab.c $@ y.tab.h `echo $@ | $(am__yacc_c2h)` y.output $*.output -- $(YACCCOMPILE)
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
+	-rm -rf $(top_builddir)/.libs $(top_builddir)/_libs
 	-rm -rf .libs _libs
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -432,13 +568,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(PROGRAMS)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -464,10 +602,18 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-test -z "$(top_builddir)/$(am__dirstamp)" || rm -f $(top_builddir)/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-rm -f query_parser.c
+	-rm -f query_parser.h
+	-rm -f query_scanner.c
+	-rm -f regex_parser.c
+	-rm -f regex_parser.h
+	-rm -f regex_scanner.c
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
@@ -538,7 +684,7 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
 	clean-generic clean-libtool cscopelist ctags distclean \
