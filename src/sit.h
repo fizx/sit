@@ -11,8 +11,6 @@ struct lrw_type;
 
 #include <assert.h>
 #include <errno.h>
-#include <ev.h>
-#include <pcre.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <limits.h>
@@ -30,6 +28,8 @@ struct lrw_type;
 #include <time.h>
 #include <unistd.h>
 
+#include "../contrib/libev/ev.h"
+#include "../contrib/pcre/pcre.h"
 #include "ast.h"
 #include "dict.h"
 #include "dict_types.h"

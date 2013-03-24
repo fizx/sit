@@ -6,7 +6,7 @@
 #include "pstring.h"
 #include "vstring.h"
 #include "parser.h"
-#include <pcre.h>
+#include "../contrib/pcre/pcre.h"
 #include <stdbool.h>
 
 #define RE_PARSER_FIELD_LIMIT 64

@@ -251,7 +251,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
-SUBDIRS = contrib/libev contrib/pcre src
+SUBDIRS = contrib/libev contrib/pcre src rb
 all: all-recursive
 
 .SUFFIXES:

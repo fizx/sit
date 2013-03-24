@@ -6,7 +6,7 @@ require "rspec"
 require "socket"
 require "json"
 require "rr"
-require File.dirname(__FILE__) + "/../sit"
+require File.dirname(__FILE__) + "/../rb/sit"
 include Sit
 
 ppid = Process.pid

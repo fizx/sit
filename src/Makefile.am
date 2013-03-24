@@ -1,11 +1,23 @@
 bin_PROGRAMS = $(top_builddir)/sit
 
-AM_YFLAGS = -d
+__top_builddir__sit_SOURCES = main.c      
 
 __top_builddir__sit_LDADD = $(top_builddir)/contrib/libev/libev.la
 __top_builddir__sit_LDADD += $(top_builddir)/contrib/pcre/libpcre.la
+__top_builddir__sit_LDADD += $(top_builddir)/libsit.la
 
-__top_builddir__sit_SOURCES =         \
+__top_builddir__libsit_la_LIBADD = $(top_builddir)/contrib/libev/libev.la
+__top_builddir__libsit_la_LIBADD += $(top_builddir)/contrib/pcre/libpcre.la
+
+lib_LTLIBRARIES = $(top_builddir)/libsit.la
+AM_LIBTOOLFLAGS = 
+
+AM_YFLAGS = -d
+
+__top_builddir__libsit_la_LIBADD = $(top_builddir)/contrib/libev/libev.la
+__top_builddir__libsit_la_LIBADD += $(top_builddir)/contrib/pcre/libpcre.la
+
+__top_builddir__libsit_la_SOURCES =         \
   ast.c               \
   ast.h               \
   callback.c          \
@@ -31,7 +43,6 @@ __top_builddir__sit_SOURCES =         \
   logger.h            \
   lrw_dict.c          \
   lrw_dict.h          \
-  main.c              \
   parser.c            \
   parser.h            \
   plist.c             \

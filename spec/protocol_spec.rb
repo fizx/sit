@@ -5,7 +5,7 @@ require "bundler/setup"
 require "rspec"
 require "json"
 require "rr"
-require File.dirname(__FILE__) + "/../sit"
+require File.dirname(__FILE__) + "/../rb/sit"
 include Sit
 
 describe "Protocol" do

@@ -24,3 +24,5 @@ contrib/pcre/pcre_stringpiece_unittest
 contrib/pcre/pcrecpp_unittest
 contrib/pcre/pcregrep
 contrib/pcre/pcretest
+contrib/pcre/config.h
+contrib/pcre/config.status

@@ -1,7 +1,7 @@
 #ifndef SIT_SERVER_H_INCLUDED
 #define SIT_SERVER_H_INCLUDED
 
-#include <ev.h>
+#include "../contrib/libev/ev.h"
 #include "engine.h"
 #include "vstring.h"
 #include "input.h"
