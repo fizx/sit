@@ -62,7 +62,8 @@ task_to_json(Task *task) {
 }
 
 static void
-_retry_task(Task *task) {
+_retry_task(Task *task, bool now) {
+  DEBUG("retrying tail");
   struct ev_loop *loop = ev_default_loop(0);
   TailState *state = task->state;
   
@@ -70,7 +71,8 @@ _retry_task(Task *task) {
   int out = fstat(fileno(state->ptr), &buf);
   if(out < 0) return;
   state->size = buf.st_size;
-  
+  DEBUG("believe size: %d, offset: %d", state->size, state->off);
+  ev_timer_set(state->timer, now ? 1. : 0., 0.);
   ev_timer_start(loop, state->timer);
 }
 
@@ -89,7 +91,7 @@ _try_read(Task *task){
         aiocbp->aio_offset = state->off;
         aiocbp->aio_nbytes = nbytes;
         aio_read(aiocbp);
-        _retry_task(task);
+        _retry_task(task, true);
         break;
       }
       case 0: { // success
@@ -100,7 +102,7 @@ _try_read(Task *task){
           task->parser->consume(task->parser, &pstr);
           state->off += size;
       	}
-      	_retry_task(task);
+      	_retry_task(task, true);
         break;
       }
       default:
@@ -114,11 +116,13 @@ static void
 _task_stat(EV_P_ ev_stat *w, int revents) {  
   Task *task = w->data;
   TailState *state = task->state;
+  DEBUG("task_stat");
+  DEBUG("believe size: %d, offset: %d", state->size, state->off);
   if(w->attr.st_size > state->size) {
     state->size = w->attr.st_size;
     _try_read(task);
   } else {
-    _retry_task(task);
+    _retry_task(task, false);
   }
 }
 
@@ -168,7 +172,8 @@ _tail_task_to_json(Task *task) {
   char *buf;
   pstring escaped;
   json_escape(&escaped, state->path);
-  asprintf(&buf, "{\"id\": %d, \"type\": \"tail\", \"path\": \"%.*s\"}", task->id, escaped.len, escaped.val);
+  asprintf(&buf, "{\"id\": %d, \"type\": \"tail\", \"path\": \"%.*s\", \"docs\": %d, \"errors\": %d, \"offset\": %d}", 
+    task->id, escaped.len, escaped.val, state->docs, state->errors, state->off);
   pstring *str = malloc(sizeof(pstring));
   str->val = buf;
   str->len = strlen(buf);
@@ -238,10 +243,11 @@ tail_task_new(Engine *engine, pstring *more, double interval) {
   state->size = buf.st_size;
   state->aiocbp.aio_buf = state->buffer;
   state->aiocbp.aio_fildes = fileno(state->ptr);
-  state->aiocbp.aio_sigevent.sigev_notify = SIGEV_NONE;
+  state->aiocbp.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
   ev_stat *task_stat = malloc(sizeof(ev_stat));
   state->stat = task_stat;
   task_stat->data = task;
+  DEBUG("tail interval: %f");
   ev_stat_init(task_stat, _task_stat, name, interval);
   ev_stat_start(loop, task_stat);
   state->path = pcpy(&path);

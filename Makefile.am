@@ -6,3 +6,6 @@ SUBDIRS = contrib/libev contrib/pcre src
 
 check:
 	sh test.sh
+	
+valgrind: sit
+	glibtool --mode=execute valgrind --track-origins=yes --leak-check=full --dsymutil=yes ./sit --port 4000 --test-mode

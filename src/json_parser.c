@@ -9,12 +9,15 @@ typedef struct JSONState {
   DocBuf     *buffers[MAX_DEPTH];
   int level;
   vstring    *stream;      // the live window we care about
+  int last_field_idx;
 } JSONState;
 
 void
 _json_token_found(Callback *cb, void *data) {
   Token *token = data;
   JSONState *state = cb->user_data;
+  DEBUG("raw term_found level: %d", state->level);
+  assert(state->last_field_idx == state->level);
   doc_buf_term_found(state->buffers[state->level], token->text, token->offset);
 }
 
@@ -66,14 +69,27 @@ _jsonsl_stack_callback(
       vstring_get(&pstr, stream, state->pos_begin);
       DEBUG("level: %d", state->level);
       DocBuf *buf = mystate->buffers[state->level-1];
-      doc_buf_int_found(buf, strtol(pstr.val, NULL, 10));
+      if(mystate->last_field_idx == state->level - 1) {
+        doc_buf_int_found(buf, strtol(pstr.val, NULL, 10));
+      } else if (mystate->last_field_idx < state->level - 1) {
+        WARN("int too deep");
+      } else {
+        ERR("wtf int too shallow");
+      }
       break;
     }
    case JSONSL_T_HKEY: {
+     printf("Z: %d\n", state->pos_cur);
+     if(state->pos_cur > 610) {
+       puts("hai");
+     }
+     
      int len = state->pos_cur - state->pos_begin -1;
       pstring pstr = { NULL, len };
       vstring_get(&pstr, stream, state->pos_begin+1);
       DEBUG("level: %d", state->level);
+      DEBUG("raw field_found %d level: %d", pstr.val ,state->level-1);
+      mystate->last_field_idx = state->level - 1;
       doc_buf_field_found(mystate->buffers[state->level-1], &pstr);
      break;
    }
@@ -128,6 +144,7 @@ void
 _json_consume(struct Parser *parser, pstring *str) {
   JSONState *state = parser->state;
   vstring_append(state->stream, str);
+  assert(str->val != state->stream->node->pstr.val);
   jsonsl_feed(state->json_parser, state->stream->node->pstr.val, state->stream->node->pstr.len);
 }
 

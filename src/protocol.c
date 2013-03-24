@@ -165,7 +165,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   	input->parser->on_error = callback_new(_close_on_error2, handler);
     input->doc_acker = callback_new(_raw_noop, input);
     output->delimiter = &_empty;
-  } else if(!cpstrcmp("release_task", command)) {
+  } else if(!cpstrcmp("untask", command)) {
     long task_id = strtol(more->val, NULL, 10);
     bool success = engine_release_task(engine, task_id);
     if(success) {

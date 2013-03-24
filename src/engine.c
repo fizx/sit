@@ -631,9 +631,9 @@ void
 engine_document_found(Engine *engine, DocBuf *buffer) {  
   unsigned int hash_code = buffer->hash_code;
   if (!hash_code) {
-    hash_code = pstrhash(buffer->doc);
+    hash_code = pstrhash(&buffer->doc);
   }
-  DocRef dr = { buffer->doc, engine->stream->written, buffer->doc->len, hash_code };
+  DocRef dr = { &buffer->doc, engine->stream->written, buffer->doc.len, hash_code };
   if(engine->doc_set && dictFind(engine->doc_set, &dr)){
     engine->error = "duplicate document rejected";
     if(engine->after_on_document) {
@@ -642,7 +642,7 @@ engine_document_found(Engine *engine, DocBuf *buffer) {
   } else {
     engine->error = NULL;
     dr.tmp = NULL;
-    ring_buffer_append_pstring(engine->stream, buffer->doc);
+    ring_buffer_append_pstring(engine->stream, &buffer->doc);
   	ring_buffer_append(engine->docs, &dr, sizeof(dr));
     long doc_id = engine_last_document_id(engine);
     _engine_apply_ints(engine, buffer, doc_id);

@@ -8,10 +8,10 @@ typedef struct DocBuf {
 	// fields used to manage the current document
   dict            *term_index;
   int              term_count;
-  pstring         *field;
+  pstring          field;
   int              term_capacity;
 	dict            *ints;
-  pstring         *doc;
+  pstring          doc;
   unsigned int     hash_code;
   Term             terms[1];
 } DocBuf;

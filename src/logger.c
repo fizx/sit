@@ -1,6 +1,6 @@
 #include "sit.h"
 
-FILE *logfile;
+static FILE *logfile = NULL;
 
 void
 sit_log(const char *level, const char *format, ...) {

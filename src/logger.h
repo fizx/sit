@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 
+// #define DEBUG(x, ...)
+// #define WARN(x, ...) 
+// #define INFO(x, ...) 
+// #define ERR(x, ...)  
+// #define PERROR(x)    
+
 #define COMPILE_WITH_DEBUG
 
 #define WARN(x, ...)   sit_log("WARN", x,  ##__VA_ARGS__)

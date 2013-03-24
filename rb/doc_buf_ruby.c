@@ -74,5 +74,5 @@ VALUE
 rbc_doc_buf_doc(VALUE self) {
   DocBuf *buf;
 	Data_Get_Struct(self, DocBuf, buf);
-  return p2rstring(buf->doc);
+  return p2rstring(&buf->doc);
 }
