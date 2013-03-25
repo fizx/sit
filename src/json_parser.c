@@ -78,12 +78,7 @@ _jsonsl_stack_callback(
       }
       break;
     }
-   case JSONSL_T_HKEY: {
-     printf("Z: %d\n", state->pos_cur);
-     if(state->pos_cur > 610) {
-       puts("hai");
-     }
-     
+   case JSONSL_T_HKEY: {     
      int len = state->pos_cur - state->pos_begin -1;
       pstring pstr = { NULL, len };
       vstring_get(&pstr, stream, state->pos_begin+1);

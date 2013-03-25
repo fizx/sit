@@ -19,20 +19,23 @@ task_last_id() {
   return task_id - 1;
 }
 
-
 #define TBUF_SIZE 16384
 
 typedef struct TailState {
+  ev_async        notifier;
   FILE *ptr;
+  Task *task;
   pstring *path;
   long off;
   long size;
   ev_stat *stat;
   char buffer[TBUF_SIZE];
-  struct aiocb aiocbp;
-  ev_timer *timer;
+  int nread;
   long docs;
   long errors;
+  pthread_mutex_t mutex;
+  pthread_t       thread;
+  bool running;
 } TailState;
 
 typedef struct ClientState {
@@ -53,83 +56,12 @@ task_to_json(Task *task) {
     return task->to_json(task);
   } else {
     char *buf;
-    asprintf(&buf, "{\"id\": %d, \"type\": \"unknown\"}");
+    asprintf(&buf, "{\"id\": %d, \"type\": \"unknown\"}", task->id);
     pstring *str = malloc(sizeof(pstring));
     str->val = buf;
     str->len = strlen(buf);
     return str;
   }
-}
-
-static void
-_retry_task(Task *task, bool now) {
-  DEBUG("retrying tail");
-  struct ev_loop *loop = ev_default_loop(0);
-  TailState *state = task->state;
-  
-  struct stat buf;
-  int out = fstat(fileno(state->ptr), &buf);
-  if(out < 0) return;
-  state->size = buf.st_size;
-  DEBUG("believe size: %d, offset: %d", state->size, state->off);
-  ev_timer_set(state->timer, now ? 1. : 0., 0.);
-  ev_timer_start(loop, state->timer);
-}
-
-static void
-_try_read(Task *task){
-  TailState *state = task->state;
-  struct aiocb *aiocbp = &state->aiocbp;
-  if (state->size > state->off) {
-    errno = 0;
-    int status = aio_error(aiocbp);
-    switch(errno) {
-      case EINVAL: { // ready to read more
-        int left = state->size - state->off;
-        int nbytes = TBUF_SIZE > left ? left : TBUF_SIZE;
-      
-        aiocbp->aio_offset = state->off;
-        aiocbp->aio_nbytes = nbytes;
-        aio_read(aiocbp);
-        _retry_task(task, true);
-        break;
-      }
-      case 0: { // success
-        if(status != EINPROGRESS) {
-          assert(state->off == aiocbp->aio_offset);
-          ssize_t size = aio_return(aiocbp);
-          pstring pstr = { state->buffer, size };
-          task->parser->consume(task->parser, &pstr);
-          state->off += size;
-      	}
-      	_retry_task(task, true);
-        break;
-      }
-      default:
-        PERROR("unknown tail error");
-        // abort();
-    }
-  }
-}
-
-static void
-_task_stat(EV_P_ ev_stat *w, int revents) {  
-  Task *task = w->data;
-  TailState *state = task->state;
-  DEBUG("task_stat");
-  DEBUG("believe size: %d, offset: %d", state->size, state->off);
-  if(w->attr.st_size > state->size) {
-    state->size = w->attr.st_size;
-    _try_read(task);
-  } else {
-    _retry_task(task, false);
-  }
-}
-
-static void
-_try_again(EV_P_ ev_timer *w, int revents) {  
-  Task *task = w->data;
-  _try_read(task);
 }
 
 void 
@@ -195,6 +127,37 @@ _client_task_to_json(Task *task) {
   return str;
 }
 
+void 
+_tail_thread(void *data) {
+  TailState *state = data;
+  while(state->running) {
+    pthread_mutex_lock(&state->mutex);
+    state->nread = fread(state->buffer, 1, TBUF_SIZE, state->ptr);
+    state->off += state->nread;
+    if(state->nread > 0) {
+      DEBUG("read %d bytes", state->nread);
+      ev_async_send (EV_DEFAULT_ &state->notifier);
+    } else {
+      if(!feof(state->ptr)) {
+        PERROR("tail error");
+      }
+      pthread_mutex_unlock(&state->mutex);
+      sleep(1);
+      clearerr(state->ptr);
+    }
+  }
+}
+
+void
+_notify_tail(EV_P_ ev_async *w, int revents) {
+  TailState *state = (TailState *) w;
+  Parser *parser = state->task->parser;
+  pstring pstr = { state->buffer, state->nread };
+  DEBUG("consuming %d bytes", state->nread);
+  parser->consume(parser, &pstr);
+  pthread_mutex_unlock(&state->mutex);
+}
+
 Task *
 tail_task_new(Engine *engine, pstring *more, double interval) {
   char *space = memchr(more->val, ' ', more->len);
@@ -222,6 +185,7 @@ tail_task_new(Engine *engine, pstring *more, double interval) {
 
   TailState *state = calloc(1, sizeof(TailState));
   task->state = state;
+  state->task = task;
 	struct ev_loop *loop = ev_default_loop(0);
   char *name = p2cstring(&path);
 	state->ptr = fopen(name, "r");
@@ -234,25 +198,20 @@ tail_task_new(Engine *engine, pstring *more, double interval) {
   int out = fstat(fileno(state->ptr), &buf);
   if(out < 0) return NULL;
   
-  state->timer = malloc(sizeof(ev_timer));
-  state->timer->data = task;  
-  ev_timer_init(state->timer, _try_again, 0., 0.);
-  ev_timer_start(loop, state->timer);
-
   state->off = 0;
   state->size = buf.st_size;
-  state->aiocbp.aio_buf = state->buffer;
-  state->aiocbp.aio_fildes = fileno(state->ptr);
-  state->aiocbp.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
-  ev_stat *task_stat = malloc(sizeof(ev_stat));
-  state->stat = task_stat;
-  task_stat->data = task;
-  DEBUG("tail interval: %f");
-  ev_stat_init(task_stat, _task_stat, name, interval);
-  ev_stat_start(loop, task_stat);
+  
   state->path = pcpy(&path);
+  
   dictAdd(engine->tasks, task, task);
   free(name);
+
+  pthread_mutex_init(&state->mutex, NULL);
+  state->running = true;
+  ev_async_init(&state->notifier, _notify_tail);
+  ev_async_start(loop, &state->notifier);
+  pthread_create(&state->thread, NULL, _tail_thread, state);
+  
   return task;
 }
 
