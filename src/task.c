@@ -11,7 +11,11 @@ task_new() {
 
 void
 task_free(Task *task) {
-  
+  if(task->free) {
+    task->free(task);
+  } else {
+    free(task);
+  }
 }
 
 long
@@ -36,6 +40,7 @@ typedef struct TailState {
   pthread_mutex_t mutex;
   pthread_t       thread;
   bool running;
+  struct timespec sleep_for;
 } TailState;
 
 typedef struct ClientState {
@@ -142,10 +147,11 @@ _tail_thread(void *data) {
         PERROR("tail error");
       }
       pthread_mutex_unlock(&state->mutex);
-      sleep(1);
+      nanosleep(&state->sleep_for, NULL);
       clearerr(state->ptr);
     }
   }
+  // should free here
 }
 
 void
@@ -156,6 +162,13 @@ _notify_tail(EV_P_ ev_async *w, int revents) {
   DEBUG("consuming %d bytes", state->nread);
   parser->consume(parser, &pstr);
   pthread_mutex_unlock(&state->mutex);
+}
+
+void
+_settime(struct timespec *ts, double interval) {
+  ts->tv_sec = (int) interval;
+  double decimal = interval - ts->tv_sec;
+  ts->tv_nsec = (long) (decimal * 1e9);
 }
 
 Task *
@@ -186,6 +199,7 @@ tail_task_new(Engine *engine, pstring *more, double interval) {
   TailState *state = calloc(1, sizeof(TailState));
   task->state = state;
   state->task = task;
+  _settime(&state->sleep_for, interval);
 	struct ev_loop *loop = ev_default_loop(0);
   char *name = p2cstring(&path);
 	state->ptr = fopen(name, "r");

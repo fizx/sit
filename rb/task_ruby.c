@@ -8,7 +8,7 @@ rbc_task_new_tail(VALUE class, VALUE rengine, VALUE rpath) {
   pstring *path = r2pstring(rpath);
   Task *task = tail_task_new(engine, path, 0.01);
   pstring_free(path);
-	VALUE tdata = Data_Wrap_Struct(class, NULL, task_free, task);
+	VALUE tdata = Data_Wrap_Struct(class, NULL, NULL, task);
 	rb_obj_call_init(tdata, 0, NULL);
   return tdata;
 }

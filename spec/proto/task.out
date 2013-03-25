@@ -1,4 +1,4 @@
-{"status": "ok", "message": "added", "details: {"id": 0, "type": "tail", "path": "spec\/twitter.json"}}
+{"status": "ok", "message": "added", "details: {"id": 0, "type": "tail", "path": "spec\/twitter.json", "docs": 0, "errors": 0, "offset": 0}}
 {"status": "ok", "message": "begin"}
-{"status": "ok", details: {"id": 0, "type": "tail", "path": "spec\/twitter.json"}}
+{"status": "ok", details: {"id": 0, "type": "tail", "path": "spec\/twitter.json", "docs": 0, "errors": 0, "offset": *}}
 {"status": "ok", "message": "complete"}

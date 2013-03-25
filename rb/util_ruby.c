@@ -35,10 +35,10 @@ void
 _ev_loop_until(struct ev_loop *loop, struct ev_timer *timer, int revents) {
   if (loops++ > 100) {
 		rb_raise(rb_eRuntimeError, "loop timeout");
-    ev_break (EV_A_ EVBREAK_ONE);
+    ev_break (EV_A_ EVBREAK_ALL);
   } else {
     if(rb_yield(rb_ary_new()) == Qtrue){
-      ev_break (EV_A_ EVBREAK_ONE);
+      ev_break (EV_A_ EVBREAK_ALL);
     }
   }
 }

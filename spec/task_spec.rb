@@ -27,7 +27,7 @@ describe "Task" do
 	end
 	
 	it "should to_json" do
-	  @task.to_json.should == "{\"id\": 1, \"type\": \"tail\", \"path\": \"#{abs("tmp.json").gsub('/', '\\/')}\"}"
+	  @task.to_json.should be_start_with("{\"id\": 1, \"type\": \"tail\", \"path\": \"#{abs("tmp.json").gsub('/', '\\/')}\", \"docs\": 0, \"errors\": 0, \"offset\": ")
   end
   
   it "should register with engine" do
