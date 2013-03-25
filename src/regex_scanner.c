@@ -2162,7 +2162,7 @@ regex_parser_consume(Parser *parser, pstring *input) {
     assert(groups != -2);
     if(groups > 0) {
       FieldMatcher *field = state->fields;
-      for (int i = 1; i < groups; i++) {
+      for (int i = 0; i < groups; i++) {
         int len = ovector[2*i+1] - ovector[2*i];
         char *val = str.val + ovector[2*i];
         pstring p = { val, len };
@@ -2247,7 +2247,7 @@ regex_parser_new(pstring *query) {
         if(!pstrcmp(state->fields[j].name, pstr)) {
           found = true;
           pstring_free(pstr);
-          state->fields[j].group = group;
+          state->fields[j].group = group; //
           break;
         }
       }
@@ -2256,6 +2256,13 @@ regex_parser_new(pstring *query) {
         state->fields[state->count].group = group;
       }
     }
+		for (int i = 0; i < state->count; i++) {
+			char *name = state->fields[i].name->val;
+    	if(*name == '$') {
+				state->fields[i].group = *(name + 1) - '0';
+			}
+		}
+
     
     qsort(state->fields, state->count, sizeof(FieldMatcher), _fldcmp);
     

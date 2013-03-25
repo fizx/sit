@@ -39,6 +39,23 @@ describe "RegexParser" do
     hit.should be_true
   end
   
+  it "should take dollars" do
+    hit = false
+    string = "qtime=7 hello sweet world\n"
+    query = <<-STR 
+      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH int(qtime), tokenized(text, ` `) AS foo, $0 as doc;
+    STR
+    query.strip!
+    parser = Parser.new_regex(query)
+    parser.on_document(proc{|db|
+      db.ints.should == {"qtime" => 7}
+      db.terms.inspect.should == "[[doc:qtime=7 hello sweet world 0], [foo:hello 0], [foo:sweet 1], [foo:world 2]]"
+      db.doc.should == string.chomp
+      hit = true
+    })
+    parser.consume(string)
+    hit.should be_true
+  end
   
   it "handle multiple docs" do
     hits = 0

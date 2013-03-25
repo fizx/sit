@@ -106,6 +106,7 @@ select
 impl
   : RINT RLPAREN name RRPAREN                    { $$.type = INT; $$.name = $3.name; $$.value = NULL; }
   | RTOKENIZED RLPAREN name RCOMMA regex RRPAREN { $$.type = TOKENS; $$.name = $3.name; $$.value = $5.name; }
+  | name                                         { $$.type = STRING; $$.name = $1.name; }
   ;
 
 %%
