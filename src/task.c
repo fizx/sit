@@ -54,6 +54,22 @@ typedef struct ClientState {
   bool         connected;
 } ClientState;
 
+void
+tail_task_free(Task *task) {
+  if(task->parser) {
+    if(task->parser->on_document) callback_free(task->parser->on_document);
+    if(task->parser->on_error)    callback_free(task->parser->on_error);
+    parser_free(task->parser);
+  }
+  TailState *state = task->state;
+  if(state) {
+    if(state->path) pstring_free(state->path);
+    free(state);
+  }
+  
+  free(task);
+}
+
 pstring *
 task_to_json(Task *task) {
   if(!task) return pstring_new2("null", 4);
@@ -151,7 +167,7 @@ _tail_thread(void *data) {
       clearerr(state->ptr);
     }
   }
-  // should free here
+  tail_task_free(state->task);
 }
 
 void
@@ -171,24 +187,29 @@ _settime(struct timespec *ts, double interval) {
   ts->tv_nsec = (long) (decimal * 1e9);
 }
 
+char *tailerr = NULL;
+
 Task *
 tail_task_new(Engine *engine, pstring *more, double interval) {
   char *space = memchr(more->val, ' ', more->len);
-  if(!space) return NULL;
+  if(!space) {
+    tailerr = "couldn't find space";
+    return NULL;
+  }
   int pathlen = space - more->val;
   pstring path = { more->val, pathlen };
   pstring after = { more->val + pathlen + 1, more->len - (pathlen + 1) };
   if(after.len < 1) {
-    puts("a");
+    tailerr = "unspecified format";
     return NULL;
   }
   Task *task = task_new();
+  task->free = tail_task_free;
   task->engine = engine;
   task->parser = engine_new_stream_parser(engine, &after);
   if(!task->parser) {
     task_free(task);
-    printf("%.*s\n", after.len, after.val);
-    puts("b");
+    tailerr = "cannot create parser";
     return NULL;
   }
 	task->parser->on_document = callback_new(_tail_document_found, task);
@@ -204,13 +225,16 @@ tail_task_new(Engine *engine, pstring *more, double interval) {
   char *name = p2cstring(&path);
 	state->ptr = fopen(name, "r");
   if(!state->ptr) {
+    tailerr = "cannot open file";
     task_free(task);
-    free(name);
     return NULL;
   }
   struct stat buf;
   int out = fstat(fileno(state->ptr), &buf);
-  if(out < 0) return NULL;
+  if(out < 0) {
+    tailerr = "cannot fstat file";
+    return NULL;
+  }
   
   state->off = 0;
   state->size = buf.st_size;
@@ -301,9 +325,27 @@ _client_tell(Task *task, pstring *message) {
   ev_io_start(EV_A_ state);
 }
 
+void 
+_client_free(Task *task) {
+  if(task->parser) {
+    if(task->parser->on_document) callback_free(task->parser->on_document);
+    if(task->parser->on_error)    callback_free(task->parser->on_error);
+    parser_free(task->parser);
+  }
+  ClientState *state = task->state;
+  if(state) {
+    if(state->fd) close(state->fd);
+    if(state->endpoint) pstring_free(state->endpoint);
+    if(state->write_buffer) vstring_free(state->write_buffer);
+    free(state);
+  }
+  free(task);
+}
+
 Task *
 client_task_new(Engine *engine, pstring *hostport) {
   Task *task = task_new();
+  task->free = _client_free;
   task->engine = engine;
   task->parser = engine->parser->fresh_copy(engine->parser);
 	task->parser->on_document = callback_new(_client_document_found, task);
