@@ -122,10 +122,15 @@ extern int rxdebug;
 
   #include "_regex_parser.h"
   #include "pstring.h"
+  typedef struct ReToken {
+    pstring *name;
+    pstring *value;
+    FieldType type;
+  } ReToken;
 
 
 /* Line 387 of yacc.c  */
-#line 129 "regex_parser.c"
+#line 134 "regex_parser.c"
 
 /* Tokens.  */
 #ifndef RXTOKENTYPE
@@ -163,13 +168,13 @@ extern int rxdebug;
 typedef union RXSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 20 "regex_parser.y"
+#line 25 "regex_parser.y"
  
-  pstring *pstr;
+  ReToken token;
 
 
 /* Line 387 of yacc.c  */
-#line 173 "regex_parser.c"
+#line 178 "regex_parser.c"
 } RXSTYPE;
 # define RXSTYPE_IS_TRIVIAL 1
 # define rxstype RXSTYPE /* obsolescent; will be withdrawn */
@@ -227,7 +232,7 @@ void rxpstate_delete ();
 
 /* Copy the second part of user declarations.  */
 /* Line 390 of yacc.c  */
-#line 24 "regex_parser.y"
+#line 29 "regex_parser.y"
 
 #include "callback.h"
 #include "util.h"
@@ -253,7 +258,7 @@ _ret_inner(Callback *cb, void *data) {
 
 
 /* Line 390 of yacc.c  */
-#line 257 "regex_parser.c"
+#line 262 "regex_parser.c"
 
 #ifdef short
 # undef short
@@ -450,16 +455,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   13
+#define YYLAST   18
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  13
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  7
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  11
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  21
+#define YYNSTATES  26
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -506,7 +511,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     8,    11,    13,    15,    19,    21,    25,
-      27
+      27,    32
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -514,15 +519,15 @@ static const yytype_int8 yyrhs[] =
 {
       14,     0,    -1,    15,     3,    16,    11,    -1,    15,    11,
       -1,     9,    -1,    18,    -1,    16,    12,    18,    -1,    10,
-      -1,    17,     4,    19,    -1,     5,    -1,     6,     7,    15,
-       8,    -1
+      -1,    19,     4,    17,    -1,    19,    -1,     5,     7,    17,
+       8,    -1,     6,     7,    17,    12,    15,     8,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    58,    62,    66,    67,    71,    74,    88,
-      89
+       0,    62,    62,    63,    67,    71,    72,    76,    79,    91,
+     107,   108
 };
 #endif
 
@@ -533,8 +538,7 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "RWITH", "RAS", "RINT", "RTOKENIZED",
   "RLPAREN", "RRPAREN", "RSTRING_LITERAL", "RUNQUOTED", "REOQ", "RCOMMA",
-  "$accept", "expression", "regex", "modifiers", "name", "modifier",
-  "impl", YY_NULL
+  "$accept", "expression", "regex", "selects", "name", "select", "impl", YY_NULL
 };
 #endif
 
@@ -551,15 +555,15 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    13,    14,    14,    15,    16,    16,    17,    18,    19,
-      19
+       0,    13,    14,    14,    15,    16,    16,    17,    18,    18,
+      19,    19
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     4,     2,     1,     1,     3,     1,     3,     1,
-       4
+       4,     6
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -567,31 +571,31 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     4,     0,     0,     1,     0,     3,     7,     0,     0,
-       5,     2,     0,     0,     6,     9,     0,     8,     0,     0,
-      10
+       0,     4,     0,     0,     1,     0,     3,     0,     0,     0,
+       5,     9,     0,     0,     2,     0,     0,     7,     0,     0,
+       6,     8,    10,     0,     0,    11
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     8,     9,    10,    17
+      -1,     2,     3,     9,    18,    10,    11
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -11
+#define YYPACT_NINF -13
 static const yytype_int8 yypact[] =
 {
-      -4,   -11,     6,    -3,   -11,    -1,   -11,   -11,   -10,     3,
-     -11,   -11,    -1,    -2,   -11,   -11,     4,   -11,    -4,     2,
-     -11
+      -2,   -13,     9,    -3,   -13,     0,   -13,     3,     4,    -9,
+     -13,     8,     5,     5,   -13,     0,     5,   -13,     6,     1,
+     -13,   -13,   -13,    -2,    10,   -13
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -11,   -11,    -6,   -11,   -11,     1,   -11
+     -13,   -13,    -7,   -13,   -12,     2,   -13
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -600,29 +604,29 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       5,    11,    12,    15,    16,     1,     4,    13,     6,     7,
-      20,    18,    19,    14
+       5,    19,    14,    15,    21,     7,     8,     1,     6,     4,
+      12,    13,    16,    23,    22,    17,    24,    20,    25
 };
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-11)))
+  (!!((Yystate) == (-13)))
 
 #define yytable_value_is_error(Yytable_value) \
   YYID (0)
 
 static const yytype_uint8 yycheck[] =
 {
-       3,    11,    12,     5,     6,     9,     0,     4,    11,    10,
-       8,     7,    18,    12
+       3,    13,    11,    12,    16,     5,     6,     9,    11,     0,
+       7,     7,     4,    12,     8,    10,    23,    15,     8
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     9,    14,    15,     0,     3,    11,    10,    16,    17,
-      18,    11,    12,     4,    18,     5,     6,    19,     7,    15,
-       8
+       0,     9,    14,    15,     0,     3,    11,     5,     6,    16,
+      18,    19,     7,     7,    11,    12,     4,    10,    17,    17,
+      18,    17,     8,    12,    15,     8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1675,36 +1679,37 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 57 "regex_parser.y"
-    { context->pattern = (yyvsp[(1) - (4)].pstr); YYACCEPT; }
+#line 62 "regex_parser.y"
+    { context->pattern = (yyvsp[(1) - (4)].token).name; YYACCEPT; }
     break;
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 58 "regex_parser.y"
-    { context->pattern = (yyvsp[(1) - (2)].pstr); YYACCEPT; }
+#line 63 "regex_parser.y"
+    { context->pattern = (yyvsp[(1) - (2)].token).name; YYACCEPT; }
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 62 "regex_parser.y"
-    { (yyval.pstr) = context->ptr; }
+#line 67 "regex_parser.y"
+    { (yyval.token).name = context->ptr; }
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 71 "regex_parser.y"
-    { (yyval.pstr) = context->ptr; }
+#line 76 "regex_parser.y"
+    { (yyval.token).name = context->ptr; }
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 74 "regex_parser.y"
+#line 79 "regex_parser.y"
     { 
-    context->fields[context->count].name = (yyvsp[(1) - (3)].pstr);
-    context->fields[context->count].type = (yyvsp[(3) - (3)].pstr) ? TOKENS : INT; 
-    if((yyvsp[(3) - (3)].pstr)) {
-      char *c = p2cstring((yyvsp[(3) - (3)].pstr));
+    context->fields[context->count].name = (yyvsp[(1) - (3)].token).name;
+    context->fields[context->count].type = (yyvsp[(1) - (3)].token).type;
+    context->fields[context->count].alias = (yyvsp[(3) - (3)].token).name; 
+    if((yyvsp[(1) - (3)].token).type == TOKENS) {
+      char *c = p2cstring((yyvsp[(1) - (3)].token).value);
       context->fields[context->count].tokenizer = regex_tokenizer_new(c); 
       context->fields[context->count].tokenizer->on_token = callback_new(_ret_inner, context->parser->buffer);
       free(c);
@@ -1715,19 +1720,37 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 88 "regex_parser.y"
-    { (yyval.pstr) = NULL; }
+#line 91 "regex_parser.y"
+    {
+    context->fields[context->count].name = (yyvsp[(1) - (1)].token).name;
+    context->fields[context->count].type = (yyvsp[(1) - (1)].token).type;
+    context->fields[context->count].alias = (yyvsp[(1) - (1)].token).name;     
+    if((yyvsp[(1) - (1)].token).type == TOKENS) {
+      char *c = p2cstring((yyvsp[(1) - (1)].token).value);
+      context->fields[context->count].tokenizer = regex_tokenizer_new(c); 
+      context->fields[context->count].tokenizer->on_token = callback_new(_ret_inner, context->parser->buffer);
+      free(c);
+    }
+    
+    context->count++;
+  }
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 89 "regex_parser.y"
-    { (yyval.pstr) = (yyvsp[(3) - (4)].pstr); }
+#line 107 "regex_parser.y"
+    { (yyval.token).type = INT; (yyval.token).name = (yyvsp[(3) - (4)].token).name; (yyval.token).value = NULL; }
+    break;
+
+  case 11:
+/* Line 1792 of yacc.c  */
+#line 108 "regex_parser.y"
+    { (yyval.token).type = TOKENS; (yyval.token).name = (yyvsp[(3) - (6)].token).name; (yyval.token).value = (yyvsp[(5) - (6)].token).name; }
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1731 "regex_parser.c"
+#line 1754 "regex_parser.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1969,5 +1992,5 @@ yypushreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 92 "regex_parser.y"
+#line 111 "regex_parser.y"
 

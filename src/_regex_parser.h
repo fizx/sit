@@ -15,6 +15,7 @@ typedef enum { STRING, INT, TOKENS } FieldType;
 
 typedef struct FieldMatcher {
   pstring   *name;
+  pstring   *alias;
   int        group;
   FieldType  type;
   Tokenizer *tokenizer;

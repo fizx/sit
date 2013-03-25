@@ -7,7 +7,7 @@ describe "RegexParser" do
     hit = false
     string = "qtime=7 hello sweet world\n"
     query = <<-STR 
-      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH qtime as int, text as tokenized(` `);
+      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH int(qtime), tokenized(text, ` `);
     STR
     query.strip!
     parser = Parser.new_regex(query)
@@ -21,12 +21,31 @@ describe "RegexParser" do
     hit.should be_true
   end
   
+  it "should be renamable" do
+    hit = false
+    string = "qtime=7 hello sweet world\n"
+    query = <<-STR 
+      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH int(qtime), tokenized(text, ` `) AS foo;
+    STR
+    query.strip!
+    parser = Parser.new_regex(query)
+    parser.on_document(proc{|db|
+      db.ints.should == {"qtime" => 7}
+      db.terms.inspect.should == "[[foo:hello 0], [foo:sweet 1], [foo:world 2]]"
+      db.doc.should == string.chomp
+      hit = true
+    })
+    parser.consume(string)
+    hit.should be_true
+  end
+  
+  
   it "handle multiple docs" do
     hits = 0
     string = "qtime=7 hello sweet world\n"
     strings = string * 3
     query = <<-STR 
-      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH qtime as int, text as tokenized(` `);
+      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH int(qtime), tokenized(text, ` `);
     STR
     query.strip!
     parser = Parser.new_regex(query)
@@ -45,7 +64,7 @@ describe "RegexParser" do
     string = "qtime=7 hello sweet world\n"
     strings = string * 3
     query = <<-STR 
-      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH qtime as int, text as tokenized(` `);
+      `qtime=(?<qtime>\\d+) (?<text>.*)` WITH int(qtime), tokenized(text, ` `);
     STR
     query.strip!
     parser = Parser.new_regex(query)

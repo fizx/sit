@@ -53,10 +53,15 @@ extern int rxdebug;
 
   #include "_regex_parser.h"
   #include "pstring.h"
+  typedef struct ReToken {
+    pstring *name;
+    pstring *value;
+    FieldType type;
+  } ReToken;
 
 
 /* Line 2058 of yacc.c  */
-#line 60 "regex_parser.h"
+#line 65 "regex_parser.h"
 
 /* Tokens.  */
 #ifndef RXTOKENTYPE
@@ -94,13 +99,13 @@ extern int rxdebug;
 typedef union RXSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 20 "regex_parser.y"
+#line 25 "regex_parser.y"
  
-  pstring *pstr;
+  ReToken token;
 
 
 /* Line 2058 of yacc.c  */
-#line 104 "regex_parser.h"
+#line 109 "regex_parser.h"
 } RXSTYPE;
 # define RXSTYPE_IS_TRIVIAL 1
 # define rxstype RXSTYPE /* obsolescent; will be withdrawn */

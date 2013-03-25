@@ -14,11 +14,16 @@
 %code requires {
   #include "_regex_parser.h"
   #include "pstring.h"
+  typedef struct ReToken {
+    pstring *name;
+    pstring *value;
+    FieldType type;
+  } ReToken;
 }
 
 %union
 { 
-  pstring *pstr;
+  ReToken token;
 }
 
 %{
@@ -46,47 +51,61 @@ _ret_inner(Callback *cb, void *data) {
 
 %}
 
-%token<pstr> RWITH RAS RINT RTOKENIZED RLPAREN RRPAREN RSTRING_LITERAL RUNQUOTED REOQ RCOMMA
-%type<pstr> expression regex modifier modifiers impl name
+%token<token> RWITH RAS RINT RTOKENIZED RLPAREN RRPAREN RSTRING_LITERAL RUNQUOTED REOQ RCOMMA
+%type<token> expression regex select selects impl name
 %expect 0
 %start expression
 
 %%
 
 expression
-  : regex RWITH modifiers REOQ  { context->pattern = $1; YYACCEPT; }
-  | regex REOQ                  { context->pattern = $1; YYACCEPT; }
+  : regex RWITH selects REOQ  { context->pattern = $1.name; YYACCEPT; }
+  | regex REOQ                { context->pattern = $1.name; YYACCEPT; }
   ;
   
 regex
-  : RSTRING_LITERAL     { $$ = context->ptr; }
+  : RSTRING_LITERAL     { $$.name = context->ptr; }
   ;
 
-modifiers 
-  : modifier
-  | modifiers RCOMMA modifier
+selects 
+  : select
+  | selects RCOMMA select
   ;
 
 name
-  : RUNQUOTED  { $$ = context->ptr; }
+  : RUNQUOTED  { $$.name = context->ptr; }
   
-modifier
-  : name RAS impl                      { 
-    context->fields[context->count].name = $1;
-    context->fields[context->count].type = $3 ? TOKENS : INT; 
-    if($3) {
-      char *c = p2cstring($3);
+select
+  : impl RAS name                      { 
+    context->fields[context->count].name = $1.name;
+    context->fields[context->count].type = $1.type;
+    context->fields[context->count].alias = $3.name; 
+    if($1.type == TOKENS) {
+      char *c = p2cstring($1.value);
       context->fields[context->count].tokenizer = regex_tokenizer_new(c); 
       context->fields[context->count].tokenizer->on_token = callback_new(_ret_inner, context->parser->buffer);
       free(c);
     }
     context->count++;
   }
+  | impl {
+    context->fields[context->count].name = $1.name;
+    context->fields[context->count].type = $1.type;
+    context->fields[context->count].alias = $1.name;     
+    if($1.type == TOKENS) {
+      char *c = p2cstring($1.value);
+      context->fields[context->count].tokenizer = regex_tokenizer_new(c); 
+      context->fields[context->count].tokenizer->on_token = callback_new(_ret_inner, context->parser->buffer);
+      free(c);
+    }
+    
+    context->count++;
+  }
   ;
 
 impl
-  : RINT                                    { $$ = NULL; }
-  | RTOKENIZED RLPAREN regex RRPAREN        { $$ = $3; }
+  : RINT RLPAREN name RRPAREN                    { $$.type = INT; $$.name = $3.name; $$.value = NULL; }
+  | RTOKENIZED RLPAREN name RCOMMA regex RRPAREN { $$.type = TOKENS; $$.name = $3.name; $$.value = $5.name; }
   ;
 
 %%

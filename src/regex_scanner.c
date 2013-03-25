@@ -2168,7 +2168,7 @@ regex_parser_consume(Parser *parser, pstring *input) {
         pstring p = { val, len };
         while(field->group < i) field++; 
         if(field->group == i) {
-          doc_buf_field_found(doc, field->name);
+          doc_buf_field_found(doc, field->alias);
           switch(field->type) {
           case STRING:
             doc_buf_term_found(doc, &p, 0);
