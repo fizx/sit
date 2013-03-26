@@ -2,9 +2,9 @@
 cd `dirname $0`
 command -v bundle || gem install bundler
 bundle
-make install
+make
 cd rb
-ruby extconf.rb
+./configure
 make
 cd ..
 rspec

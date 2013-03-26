@@ -64,35 +64,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
+LTLIBRARIES = $(noinst_LTLIBRARIES)
 __top_builddir__libsit_la_DEPENDENCIES =  \
 	$(top_builddir)/contrib/libev/libev.la \
 	$(top_builddir)/contrib/pcre/libpcre.la
@@ -107,6 +79,7 @@ am___top_builddir__libsit_la_OBJECTS = ast.lo callback.lo dict.lo \
 __top_builddir__libsit_la_OBJECTS =  \
 	$(am___top_builddir__libsit_la_OBJECTS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am___top_builddir__sit_OBJECTS = main.$(OBJEXT)
 __top_builddir__sit_OBJECTS = $(am___top_builddir__sit_OBJECTS)
@@ -273,8 +246,7 @@ __top_builddir__sit_LDADD = $(top_builddir)/contrib/libev/libev.la \
 __top_builddir__libsit_la_LIBADD =  \
 	$(top_builddir)/contrib/libev/libev.la \
 	$(top_builddir)/contrib/pcre/libpcre.la
-lib_LTLIBRARIES = $(top_builddir)/libsit.la
-AM_LIBTOOLFLAGS = 
+noinst_LTLIBRARIES = $(top_builddir)/libsit.la
 AM_YFLAGS = -d
 __top_builddir__libsit_la_SOURCES = \
   ast.c               \
@@ -378,33 +350,10 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	list2=; for p in $$list; do \
-	  if test -f $$p; then \
-	    list2="$$list2 $$p"; \
-	  else :; fi; \
-	done; \
-	test -z "$$list2" || { \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-	}
 
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
-	done
-
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; \
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; \
 	locs=`for p in $$list; do echo $$p; done | \
 	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
 	      sort -u`; \
@@ -422,7 +371,7 @@ $(top_builddir)/$(am__dirstamp):
 	@$(MKDIR_P) $(top_builddir)
 	@: > $(top_builddir)/$(am__dirstamp)
 $(top_builddir)/libsit.la: $(__top_builddir__libsit_la_OBJECTS) $(__top_builddir__libsit_la_DEPENDENCIES) $(EXTRA___top_builddir__libsit_la_DEPENDENCIES) $(top_builddir)/$(am__dirstamp)
-	$(LINK) -rpath $(libdir) $(__top_builddir__libsit_la_OBJECTS) $(__top_builddir__libsit_la_LIBADD) $(LIBS)
+	$(LINK)  $(__top_builddir__libsit_la_OBJECTS) $(__top_builddir__libsit_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -647,10 +596,8 @@ check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
-install-binPROGRAMS: install-libLTLIBRARIES
-
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -694,8 +641,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool \
+	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -721,7 +668,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
+install-exec-am: install-binPROGRAMS
 
 install-html: install-html-am
 
@@ -761,24 +708,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libLTLIBRARIES clean-libtool cscopelist \
+	clean-generic clean-libtool clean-noinstLTLIBRARIES cscopelist \
 	ctags distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
 	install-data install-data-am install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-libLTLIBRARIES
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-binPROGRAMS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

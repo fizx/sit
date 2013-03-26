@@ -9,8 +9,7 @@ __top_builddir__sit_LDADD += $(top_builddir)/libsit.la
 __top_builddir__libsit_la_LIBADD = $(top_builddir)/contrib/libev/libev.la
 __top_builddir__libsit_la_LIBADD += $(top_builddir)/contrib/pcre/libpcre.la
 
-lib_LTLIBRARIES = $(top_builddir)/libsit.la
-AM_LIBTOOLFLAGS = 
+noinst_LTLIBRARIES = $(top_builddir)/libsit.la
 
 AM_YFLAGS = -d
 
