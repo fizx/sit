@@ -12,6 +12,8 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_LIBTOOL
 
+AC_CHECK_LIB([pthread], [pthread_create])
+
 AC_CONFIG_SUBDIRS([contrib/pcre contrib/libev src])
 
 AC_CONFIG_FILES([Makefile
