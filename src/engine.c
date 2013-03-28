@@ -27,7 +27,6 @@ engine_new(Parser *parser, long size, bool dedupe) {
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
 	engine->ints = dictCreate(getPstrRingBufferDict(), 0);
-	engine->stream_parsers = dictCreate(getPstrParserDict(), 0);
 	if(dedupe) {
     engine->doc_set = dictCreate(getDocRefDict(), engine);
     engine->docs->on_evict = callback_new(_doc_evict, engine);	  
@@ -48,7 +47,6 @@ engine_free(Engine *engine) {
   if(engine->docs->on_evict)callback_free(engine->docs->on_evict);
   ring_buffer_free(engine->docs);
   dictRelease(engine->ints);
-  dictRelease(engine->stream_parsers);
   if(engine->doc_set) dictRelease(engine->doc_set);
   free(engine);
 }

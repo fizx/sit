@@ -20,7 +20,6 @@ typedef struct Engine {
   // Data structures & indexes
   dict                  *queries;  // Registered for percolation
   Parser                *parser;
-  dict                  *stream_parsers;
   struct RingBuffer     *stream;
   struct LRWDict        *term_dictionary;
   struct PlistPool      *postings;
