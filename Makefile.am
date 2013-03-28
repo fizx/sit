@@ -4,8 +4,11 @@ SUBDIRS = contrib/libev contrib/pcre src
 
 # EXTRA_DIST = README.md NOTICE LICENSE ChangeLog conf scripts notes
 
-check:
-	sh test.sh
+ruby: all
+	cd rb && ./configure && make
+
+check: ruby
+	rspec
 	
 valgrind: sit
 	glibtool --mode=execute valgrind --track-origins=yes --leak-check=full --dsymutil=yes ./sit --port 4000 --test-mode

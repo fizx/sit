@@ -34,7 +34,6 @@ engine_new(Parser *parser, long size, bool dedupe) {
 	} else {
     engine->doc_set = NULL;
 	}
-	engine->tasks = dictCreate(getTaskTaskDict(), 0);
   engine->error = NULL;
 	return engine;
 }
@@ -52,25 +51,6 @@ engine_free(Engine *engine) {
   dictRelease(engine->stream_parsers);
   if(engine->doc_set) dictRelease(engine->doc_set);
   free(engine);
-}
-
-void
-engine_add_stream_parser(Engine *engine, char *name, Parser *parser) {
-  pstring p = { name, strlen(name) };
-  dictAdd(engine->stream_parsers, &p, parser);
-}
-
-Parser *
-engine_new_stream_parser(Engine *engine, pstring *more) {
-  if(!strncmp(more->val, "match", 5)) {
-    pstring q = { more->val + 5, more->len - 5 } ;
-    return regex_parser_new(&q);
-  } else if(!strncmp(more->val, "json", 4)) {
-    return json_white_parser_new();
-  } else if(!strncmp(more->val, "solr", 4)) {
-    return solr_parser_new();
-  }
-  return NULL;
 }
 
 void 
@@ -555,25 +535,6 @@ long
 result_iterator_document_id(ResultIterator *iter) {
   return iter->doc_id;
 }
-
-bool
-engine_release_task(Engine *engine, long task_id) {
-  Task *task = calloc(1, sizeof(Task));
-  task->id = task_id;
-  int status = dictDelete(engine->tasks, task);
-  free(task);
-  return status == DICT_OK;
-}
-
-Task *
-engine_get_task(Engine *engine, long task_id) {
-  Task *task = calloc(1, sizeof(Task));
-  task->id = task_id;
-  Task *real = dictFetchValue(engine->tasks, task);
-  free(task);
-  return real;
-}
-
 
 bool
 engine_unregister(Engine *engine, long query_id) {

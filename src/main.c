@@ -84,8 +84,6 @@ main(int argc, char **argv) {
   
   Parser *parser = json_white_parser_new();
   Engine *engine = engine_new(parser, ram, dedupe);
-  engine_add_stream_parser(engine, "solr", solr_parser_new());
-  engine_add_stream_parser(engine, "json", json_white_parser_new());
 
 	if(port > 0) {
 		struct sockaddr_in addr;

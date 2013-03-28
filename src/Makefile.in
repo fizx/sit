@@ -55,8 +55,7 @@ bin_PROGRAMS = $(top_builddir)/sit$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/depcomp $(top_srcdir)/config/ylwrap \
-	query_parser.c query_parser.h query_scanner.c regex_parser.c \
-	regex_parser.h regex_scanner.c
+	query_parser.c query_parser.h query_scanner.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -72,10 +71,8 @@ am___top_builddir__libsit_la_OBJECTS = ast.lo callback.lo dict.lo \
 	dict_types.lo doc_buf.lo engine.lo input.lo json_parser.lo \
 	jsonsl.lo ll.lo logger.lo lrw_dict.lo parser.lo plist.lo \
 	protocol.lo pstring.lo query.lo query_parser.lo \
-	query_scanner.lo regex_parser.lo regex_scanner.lo \
-	regex_tokenizer.lo ring_buffer.lo server.lo solr_parser.lo \
-	syslog_parser.lo task.lo term.lo tokenizer.lo util.lo \
-	vstring.lo white_tokenizer.lo
+	query_scanner.lo regex_tokenizer.lo ring_buffer.lo server.lo \
+	term.lo tokenizer.lo util.lo vstring.lo white_tokenizer.lo
 __top_builddir__libsit_la_OBJECTS =  \
 	$(am___top_builddir__libsit_la_OBJECTS)
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -287,9 +284,6 @@ __top_builddir__libsit_la_SOURCES = \
   _query_parser.h     \
   query_parser.y      \
   query_scanner.l     \
-  _regex_parser.h     \
-  regex_parser.y      \
-  regex_scanner.l     \
   regex_tokenizer.c   \
   regex_tokenizer.h   \
   ring_buffer.c       \
@@ -297,12 +291,6 @@ __top_builddir__libsit_la_SOURCES = \
   server.c            \
   server.h            \
   sit.h               \
-  solr_parser.c       \
-  solr_parser.h       \
-  syslog_parser.c     \
-  syslog_parser.h     \
-  task.c              \
-  task.h              \
   term.c              \
   term.h              \
   tokenizer.c         \
@@ -314,7 +302,7 @@ __top_builddir__libsit_la_SOURCES = \
   white_tokenizer.c   \
   white_tokenizer.h   
 
-BUILT_SOURCES = query_parser.h regex_parser.h
+BUILT_SOURCES = query_parser.h
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -364,9 +352,6 @@ clean-noinstLTLIBRARIES:
 query_parser.h: query_parser.c
 	@if test ! -f $@; then rm -f query_parser.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) query_parser.c; else :; fi
-regex_parser.h: regex_parser.c
-	@if test ! -f $@; then rm -f regex_parser.c; else :; fi
-	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) regex_parser.c; else :; fi
 $(top_builddir)/$(am__dirstamp):
 	@$(MKDIR_P) $(top_builddir)
 	@: > $(top_builddir)/$(am__dirstamp)
@@ -448,14 +433,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/query_scanner.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_scanner.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_tokenizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ring_buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/solr_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syslog_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/task.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/term.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tokenizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
@@ -635,9 +615,6 @@ maintainer-clean-generic:
 	-rm -f query_parser.c
 	-rm -f query_parser.h
 	-rm -f query_scanner.c
-	-rm -f regex_parser.c
-	-rm -f regex_parser.h
-	-rm -f regex_scanner.c
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 

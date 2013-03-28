@@ -149,94 +149,6 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     INFO("registering: %.*s", more->len, more->val);
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
-  } else if(!cpstrcmp("query", command)) {
-    input->qparser_mode = QUERYING;
-    query_parser_consume(input->qparser, more);
-    query_parser_reset(input->qparser);
-  } else if(!cpstrcmp("raw", command)) {
-    INFO("entering raw mode");
-    handler->error_found = _close_on_error;
-    query_parser_free(input->qparser);
-    input->qparser = query_parser_new(callback_new(_raw_query_handler, input));
-    callback_free(input->parser->on_document);
-    callback_free(input->parser->on_error);
-    callback_free(input->doc_acker);
-  	input->parser->on_document = callback_new(_raw_noop, input);
-  	input->parser->on_error = callback_new(_close_on_error2, handler);
-    input->doc_acker = callback_new(_raw_noop, input);
-    output->delimiter = &_empty;
-  } else if(!cpstrcmp("untask", command)) {
-    long task_id = strtol(more->val, NULL, 10);
-    bool success = engine_release_task(engine, task_id);
-    if(success) {
-      SMALL_OUT("{\"status\": \"ok\", \"message\": \"unregistered\", \"task_id\": ", "%ld}", task_id);
-    } else {
-      SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id);
-    }
-  } else if(!cpstrcmp("connect", command)) {
-    Task *task = client_task_new(engine, more);
-    if(task) {
-      pstring *json = task_to_json(task);
-      SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
-      pstring_free(json);    
-    } else {
-      SMALL_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", strerror(errno));
-    }
-  } else if(!cpstrcmp("tail", command)) {
-    Task *task = tail_task_new(engine, more, 1.);
-    pstring *json = task_to_json(task);
-    SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"details: ", "%.*s}", json->len, json->val);
-    pstring_free(json);
-  } else if(!cpstrcmp("tasks", command)) {
-    SMALL_OUT("{\"status\": \"ok\", \"message\": \"begin\"}", "");
-    dictIterator * iterator = dictGetIterator(engine->tasks);
-  	dictEntry *next;
-  	while((next = dictNext(iterator))) {
-      Task *task = dictGetKey(next);
-      pstring *json = task_to_json(task);
-      SMALL_OUT("{\"status\": \"ok\", details: ", "%.*s}", json->len, json->val);
-      pstring_free(json);
-  	}
-    dictReleaseIterator(iterator);
-    SMALL_OUT("{\"status\": \"ok\", \"message\": \"complete\"}", "");
-  } else if(!cpstrcmp("tell", command)) {  
-    long task_id = strtol(more->val, NULL, 10);
-    if(more->val[0] == '$' && more->val[1] == '!') {
-      task_id = task_last_id();
-    }
-    Task *task = engine_get_task(engine, task_id);
-    if(task) {
-      if(task->tell) {
-        char *space = memchr(more->val, ' ', more->len);
-        if(space) {
-          pstring message = { space + 1, more->len - (space - more->val) };
-          char *n = message.val + message.len - 1;
-          *(n) = '\n';
-          task->tell(task, &message);
-          SMALL_OUT("{\"status\": \"ok\", \"message\": \"success\"}", "");
-        } else {
-          SMALL_OUT("{\"status\": \"error\", \"message\": \"invalid tell message\"", ""); 
-        }
-      } else {
-        SMALL_OUT("{\"status\": \"error\", \"message\": \"task doesn't accept input\", \"task_id\": ", "%ld}", task_id); 
-      }
-    } else {
-      SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id); 
-    }
-  } else if(!cpstrcmp("stream", command)) {
-    Parser *parser = engine_new_stream_parser(engine, more);
-    if(parser) {
-      parser->on_document = input->parser->on_document;
-      parser->on_error = input->parser->on_error;
-      parser_free(input->parser);
-      input->parser = parser;
-      handler->parser->state = FORCE_DATA;      
-      SMALL_OUT("{\"status\": \"ok\", \"message\": \"streaming\"}", "");
-    } else {
-      pstring json;
-      json_escape(&json, more);
-      OUT("{\"status\": \"error\", \"message\": \"no stream parser for %.*s\"}", json.len, json.val);
-    }
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = engine_unregister(input->engine, query_id);
@@ -245,6 +157,10 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     } else {
       SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"query_id\": ", "%ld}", query_id);
     }
+  } else if(!cpstrcmp("query", command)) {
+    input->qparser_mode = QUERYING;
+    query_parser_consume(input->qparser, more);
+    query_parser_reset(input->qparser);
   } else if(!cpstrcmp("get", command)) {
     long doc_id = strtol(more->val, NULL, 10);
     pstring *doc = engine_get_document(input->engine, doc_id);

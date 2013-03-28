@@ -8,7 +8,6 @@
 #include "ast_ruby.h"
 #include "callback_ruby.h"
 #include "doc_buf_ruby.h"
-#include "task_ruby.h"
 #include "engine_ruby.h"
 #include "input_ruby.h"
 #include "vstring_ruby.h"

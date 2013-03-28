@@ -10,7 +10,6 @@ VALUE rbc_ast;
 VALUE rbc_ast_node;
 VALUE rbc_ring_buffer;
 VALUE rbc_term;
-VALUE rbc_task;
 VALUE rbc_callback;
 VALUE rbc_doc_buf;
 VALUE rbc_query;
@@ -55,12 +54,6 @@ Init_sit() {
 	rbc_ast = rb_define_class_under(m_sit, "AST", rb_cObject);
 	rb_define_singleton_method(rbc_ast, "new", rbc_ast_new, 0);
 
-	// Task
-	rbc_task = rb_define_class_under(m_sit, "Task", rb_cObject);
-	rb_define_singleton_method(rbc_task, "new_tail", rbc_task_new_tail, 2);
-	rb_define_method(rbc_task, "to_json", rbc_task_to_json, 0);
-	rb_define_method(rbc_task, "task_id", rbc_task_id, 0);
-	
 	// DocBuf
   rbc_doc_buf = rb_define_class_under(m_sit, "DocBuf", rb_cObject);
 	rb_define_singleton_method(rbc_doc_buf, "new", rbc_doc_buf_new, 0);
@@ -162,8 +155,6 @@ Init_sit() {
 	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
 	rb_define_method(rbc_engine, "unregister", rbc_engine_unregister, 1);
 	rb_define_method(rbc_engine, "queries", rbc_engine_queries, 0);
-	rb_define_method(rbc_engine, "tasks", rbc_engine_tasks, 0);
-	rb_define_method(rbc_engine, "release_task", rbc_engine_release_task, 1);
 	rb_define_method(rbc_engine, "last_document", rbc_engine_last_document, 0);
 	rb_define_method(rbc_engine, "last_document_id", rbc_engine_last_document_id, 0);
 	rb_define_method(rbc_engine, "search", rbc_engine_search, 1);

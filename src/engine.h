@@ -5,7 +5,6 @@
 #include "query.h"
 #include "input.h"
 #include "plist.h"
-#include "task.h"
 
 typedef struct QueryNode {
 	dict               *children;
@@ -30,7 +29,6 @@ typedef struct Engine {
   long                   ints_capacity;
   struct RingBuffer     *docs;
   dict                  *doc_set;
-  dict                  *tasks;
   
 	Callback 				      *catchall_callbacks;
   
@@ -77,12 +75,6 @@ engine_new(Parser *parser, long size, bool dedupe);
 void
 engine_free(Engine *engine);
 
-void
-engine_add_stream_parser(Engine *engine, char *name, Parser *parser);
-
-Parser *
-engine_new_stream_parser(Engine *engine, pstring *more);
-
 ResultIterator *
 engine_search(Engine *engine, Query *query);
 
@@ -115,12 +107,6 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id);
 
 void
 result_iterator_free(ResultIterator *iter);
-
-Task *
-engine_get_task(Engine *engine, long task_id);
-
-bool
-engine_release_task(Engine *engine, long task_id);
 
 long
 engine_register(Engine *engine, Query *query);

@@ -52,9 +52,6 @@ __top_builddir__libsit_la_SOURCES =         \
   _query_parser.h     \
   query_parser.y      \
   query_scanner.l     \
-  _regex_parser.h     \
-  regex_parser.y      \
-  regex_scanner.l     \
   regex_tokenizer.c   \
   regex_tokenizer.h   \
   ring_buffer.c       \
@@ -62,12 +59,6 @@ __top_builddir__libsit_la_SOURCES =         \
   server.c            \
   server.h            \
   sit.h               \
-  solr_parser.c       \
-  solr_parser.h       \
-  syslog_parser.c     \
-  syslog_parser.h     \
-  task.c              \
-  task.h              \
   term.c              \
   term.h              \
   tokenizer.c         \
@@ -79,5 +70,5 @@ __top_builddir__libsit_la_SOURCES =         \
   white_tokenizer.c   \
   white_tokenizer.h   
 
-BUILT_SOURCES = query_parser.h regex_parser.h
+BUILT_SOURCES = query_parser.h
 

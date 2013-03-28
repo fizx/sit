@@ -24,35 +24,6 @@ rbc_engine_last_document(VALUE self) {
   return rstr;
 }
 
-VALUE
-rbc_engine_tasks(VALUE self) {
-  Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-  VALUE klass = rb_eval_string("::Sit::ResultIterator");
-  VALUE ary = rb_ary_new();
-  dictIterator *iter = dictGetIterator(engine->tasks);
-  dictEntry *entry;
-  while ((entry = dictNext(iter))) {
-    Task *task = dictGetKey(entry);
-    VALUE tdata = Data_Wrap_Struct(klass, markall, NULL, task);
-  	rb_obj_call_init(tdata, 0, NULL);
-    rb_ary_push(ary, tdata);
-  }
-  dictReleaseIterator(iter);
-  return ary;
-}
-
-VALUE
-rbc_engine_release_task(VALUE self, VALUE rtaskid) {
-  Engine *engine;
-	Data_Get_Struct(self, Engine, engine);
-  long taskid = NUM2LONG(rtaskid);
-  return engine_release_task(engine, taskid) ? Qtrue : Qfalse;
-}
-
-
-
-
 VALUE 
 rbc_engine_search(VALUE self, VALUE rquery) {
 	Engine *engine;
