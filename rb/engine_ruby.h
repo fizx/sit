@@ -4,7 +4,7 @@
 #include "ruby.h"
 
 VALUE
-rbc_engine_new(VALUE class, VALUE parser, VALUE size, VALUE rdedupe);
+rbc_engine_new(VALUE class, VALUE parser, VALUE data_dir, VALUE size, VALUE rdedupe);
 
 VALUE
 rbc_engine_parser(VALUE self);
@@ -20,6 +20,18 @@ rbc_engine_register(VALUE self, VALUE rquery);
 
 VALUE 
 rbc_engine_queries(VALUE self);
+
+VALUE 
+rbc_engine_replay_journal(VALUE self);
+
+VALUE 
+rbc_engine_append_journal(VALUE self, VALUE rstr);
+
+VALUE 
+rbc_engine_fsync_journal(VALUE self);
+
+VALUE 
+rbc_engine_reopen_journal(VALUE self);
 
 VALUE 
 rbc_engine_unregister(VALUE self, VALUE id);

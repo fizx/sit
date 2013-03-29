@@ -150,7 +150,7 @@ Init_sit() {
 	
 	// Engine
 	rbc_engine = rb_define_class_under(m_sit, "Engine", rb_cObject);
-	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 3);
+	rb_define_singleton_method(rbc_engine, "new", rbc_engine_new, 4);
 	rb_define_method(rbc_engine, "parser", rbc_engine_parser, 0);
 	rb_define_method(rbc_engine, "register", rbc_engine_register, 1);
 	rb_define_method(rbc_engine, "unregister", rbc_engine_unregister, 1);
@@ -161,6 +161,10 @@ Init_sit() {
 	rb_define_method(rbc_engine, "get_int", rbc_engine_get_int, 2);
 	rb_define_method(rbc_engine, "incr", rbc_engine_incr, 3);
 	rb_define_method(rbc_engine, "set_int", rbc_engine_set_int, 3);
+	rb_define_method(rbc_engine, "replay_journal", rbc_engine_replay_journal, 0);
+	rb_define_method(rbc_engine, "append_journal", rbc_engine_append_journal, 1);
+	rb_define_method(rbc_engine, "fsync_journal", rbc_engine_fsync_journal, 0);
+	rb_define_method(rbc_engine, "reopen_journal", rbc_engine_reopen_journal, 0);
 
 	// LrwDict
 	rbc_lrw_dict = rb_define_class_under(m_sit, "LrwDict", rb_cObject);

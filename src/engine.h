@@ -23,6 +23,10 @@ typedef struct Engine {
   struct RingBuffer     *stream;
   struct LRWDict        *term_dictionary;
   struct PlistPool      *postings;
+  
+  pstring               *data_dir;
+  FILE                  *active_journal;
+  long                  last_offset;
 
   dict                  *ints;
   long                   ints_capacity;
@@ -69,10 +73,23 @@ typedef struct {
 } ResultIterator;
 
 Engine *
-engine_new(Parser *parser, long size, bool dedupe);
+engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe);
 
 void
 engine_free(Engine *engine);
+
+void
+engine_replay_journal(Engine *engine);
+
+void
+engine_append_journal(Engine *engine, pstring *str);
+
+void
+engine_reopen_journal(Engine *engine);
+
+void
+engine_fsync_journal(Engine *engine);
+
 
 ResultIterator *
 engine_search(Engine *engine, Query *query);

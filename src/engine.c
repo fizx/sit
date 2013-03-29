@@ -13,8 +13,8 @@ _doc_evict(Callback *cb, void *data) {
 }
 
 Engine *
-engine_new(Parser *parser, long size, bool dedupe) {
-  Engine *engine = malloc(sizeof(Engine));
+engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe) {
+  Engine *engine = calloc(1, sizeof(Engine));
 	engine->queries = dictCreate(getTermQueryNodeDict(), 0);
 	engine->parser = parser;
 	engine->query_id = 0;
@@ -27,6 +27,11 @@ engine_new(Parser *parser, long size, bool dedupe) {
 	engine->data = NULL;
 	engine->ints_capacity = size / 4;
 	engine->ints = dictCreate(getPstrRingBufferDict(), 0);
+  if(data_dir) {
+    engine->data_dir = pcpy(data_dir);
+    engine_replay_journal(engine);
+    engine_reopen_journal(engine);
+  }
 	if(dedupe) {
     engine->doc_set = dictCreate(getDocRefDict(), engine);
     engine->docs->on_evict = callback_new(_doc_evict, engine);	  
@@ -40,6 +45,9 @@ engine_new(Parser *parser, long size, bool dedupe) {
 void
 engine_free(Engine *engine) {
   dictRelease(engine->queries);
+  if(engine->data_dir) {
+    pstring_free(engine->data_dir);
+  }
   parser_free(engine->parser);
   ring_buffer_free(engine->stream);
   lrw_dict_free(engine->term_dictionary);
@@ -49,6 +57,92 @@ engine_free(Engine *engine) {
   dictRelease(engine->ints);
   if(engine->doc_set) dictRelease(engine->doc_set);
   free(engine);
+}
+
+#define BUF_SIZE 16384
+
+void
+_log_write(struct Output *output, pstring *message) {
+  INFO("replay: %.*s", message->len, message->val);
+}
+
+void
+engine_replay_journal(Engine *engine) {
+  if(!engine->data_dir) return;
+
+  glob_t g;
+  char *pattern;
+
+  asprintf(&pattern, "%.*s/[0-9]*.log", engine->data_dir->len, engine->data_dir->val);
+  
+  int status = glob(pattern, 0, NULL, &g);
+  if(status || !g.gl_matchc) {
+    INFO("Can't glob: %d", status);
+    return;
+  }
+  pstring nl = {"\n", 1};
+
+	Input *input = input_new(engine, BUF_SIZE);
+  input->output = malloc(sizeof(Output));
+  input->output->write = _log_write;
+  ProtocolParser *pparser = line_input_protocol_new(input);
+  pstring *pstr = pstring_new(BUF_SIZE);
+  
+  for(int i = 0; i < g.gl_matchc; i++) {
+    char *path = g.gl_pathv[i];
+    DEBUG("found %s", path);
+    FILE *file = fopen(path, "r");
+    if(!file) {
+      ERR("can't open %s", path);
+    } else {
+    
+      int nread =0;
+      while ((pstr->len = fread(pstr->val, 1, BUF_SIZE, file))) {
+        pparser->consume(pparser, pstr);
+    	}
+      fclose(file);
+    }
+  }
+  
+  pstring_free(pstr);
+
+  line_input_protocol_free(pparser);
+  free(input->output);
+	input_free(input);  
+}
+
+#define FILE_LIMIT 16777216
+
+void
+engine_append_journal(Engine *engine, pstring *str) {
+  if(!engine->data_dir) return;
+  if(!engine->active_journal || 
+      engine->stream->written - engine->last_offset > FILE_LIMIT) {
+    engine_reopen_journal(engine);
+  }
+  fwrite(str->val, 1, str->len, engine->active_journal);
+}
+
+void
+engine_fsync_journal(Engine *engine) {
+  if(engine->active_journal) {
+    fflush(engine->active_journal);
+  }
+}
+
+void
+engine_reopen_journal(Engine *engine) {
+  if(!engine->data_dir) {
+    return;
+  }
+  if(engine->active_journal) {
+    fclose(engine->active_journal);
+  }
+  char *path;
+  engine->last_offset = engine->stream->written;
+  asprintf(&path, "%.*s/%d.log", engine->data_dir->len, engine->data_dir->val, engine->stream->written);
+  engine->active_journal = fopen(path, "w");
+  free(path);
 }
 
 void 
@@ -601,6 +695,7 @@ engine_document_found(Engine *engine, DocBuf *buffer) {
   } else {
     engine->error = NULL;
     dr.tmp = NULL;
+    engine_append_journal(engine, &buffer->doc);
     ring_buffer_append_pstring(engine->stream, &buffer->doc);
   	ring_buffer_append(engine->docs, &dr, sizeof(dr));
     long doc_id = engine_last_document_id(engine);

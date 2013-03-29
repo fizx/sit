@@ -6,7 +6,7 @@ require File.dirname(__FILE__) + "/test_helper"
 
 describe "integration" do
   before do
-    @engine = Engine.new(Parser.new_json, 1_000_000, false)
+    @engine = Engine.new(Parser.new_json, nil, 1_000_000, false)
     @output = []
     @input = Input.new(@engine, 1 << 20, @output)
     @proto = LineProtocol.new(@input)

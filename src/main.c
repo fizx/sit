@@ -32,6 +32,7 @@ main(int argc, char **argv) {
   long ram            = 10000000; // 10mb
   bool solr = false;
   bool dedupe = false;
+  pstring *data_dir = NULL;
   
   set_logger(stderr);
   
@@ -71,7 +72,7 @@ main(int argc, char **argv) {
       DEBUG("test-mode is engaged");
       break;
     case 'd':
-      // TODO: care about persistance.
+      data_dir = c2pstring(optarg);
       break;
     case 'z':
       dedupe = true;
@@ -83,7 +84,7 @@ main(int argc, char **argv) {
   set_logger(logfile ? fopen(logfile, "a") : stderr);
   
   Parser *parser = json_white_parser_new();
-  Engine *engine = engine_new(parser, ram, dedupe);
+  Engine *engine = engine_new(parser, data_dir, ram, dedupe);
 
 	if(port > 0) {
 		struct sockaddr_in addr;

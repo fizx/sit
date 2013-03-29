@@ -1,10 +1,14 @@
 #!/usr/bin/env ruby -w
 # encoding: UTF-8
 require File.dirname(__FILE__) + "/test_helper"
+include FileUtils
 
 describe "Engine" do
   before do
-    @engine = Engine.new(Parser.new_json, 1_000_000, false)
+    @tmp = File.expand_path(File.dirname(__FILE__) + "/tmp")
+    rm_rf @tmp
+    mkdir_p @tmp
+    @engine = Engine.new(Parser.new_json, @tmp, 1_000_000, false)
     @output = []
  		@input = Input.new(@engine, 1 << 20, @output)
     $events = []
@@ -25,6 +29,21 @@ describe "Engine" do
     @engine.get_int(id, "_level").should == 3
     @engine.set_int(id, "columns", 5)
     @engine.get_int(id, "columns").should == 5
+  end
+  
+  it "should journal" do  
+    @input.consume('{"hello": "world"}
+    {"goodbye": "world"}');
+    @input.consume("\n")
+    @engine.fsync_journal
+    File.read(@tmp + "/0.log").should == "{\"hello\": \"world\"}{\"goodbye\": \"world\"}"
+    
+    @engine = Engine.new(Parser.new_json, @tmp, 1_000_000, false)
+    @output = []
+ 		@input = Input.new(@engine, 1 << 20, @output)
+    $events = []
+    @engine.last_document_id.should == 1
+    
   end
   
   it "should be able to register queries" do

@@ -2,6 +2,7 @@
 
 pstring *
 r2pstring(VALUE rstr) {
+  if(rstr == Qnil) return NULL;
 	rstr = StringValue(rstr);
   return pstring_new2(RSTRING_PTR(rstr), RSTRING_LEN(rstr));
 }

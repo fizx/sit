@@ -25,7 +25,7 @@ struct lrw_type;
 #include <sys/queue.h>
 #include <sys/stat.h>
 #include <netdb.h>
-#include <aio.h>
+#include <glob.h>
 #include <time.h>
 #include <unistd.h>
 

@@ -1,14 +1,14 @@
 #include "sit_ruby.h"
 
 VALUE
-rbc_engine_new(VALUE class, VALUE rparser, VALUE rsize, VALUE rdedupe) {
+rbc_engine_new(VALUE class, VALUE rparser, VALUE rdata_dir, VALUE rsize, VALUE rdedupe) {
 	Parser *parser;
 	Data_Get_Struct(rparser, Parser, parser);
+  pstring *data_dir = r2pstring(rdata_dir);
 	long size = NUM2LONG(rsize);
-	Engine *engine = engine_new(parser, size, rdedupe == Qtrue);
+	Engine *engine = engine_new(parser, data_dir, size, rdedupe == Qtrue);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
-  // rb_funcall(rparser, rb_intern("receiver="), 1, tdata);
 	engine->parser = parser;
 	SET_ONCE(engine->data, (void *) vwrap(tdata));
 	return tdata;
@@ -35,6 +35,41 @@ rbc_engine_search(VALUE self, VALUE rquery) {
 	VALUE tdata = Data_Wrap_Struct(rb_eval_string("::Sit::ResultIterator"), markall, NULL, iter);
   return tdata;
 }
+
+VALUE 
+rbc_engine_replay_journal(VALUE self) {
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  engine_replay_journal(engine);
+  return Qnil;
+}
+
+VALUE 
+rbc_engine_append_journal(VALUE self, VALUE rstr) {
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  pstring *str = r2pstring(rstr);
+  engine_append_journal(engine, str);
+  pstring_free(str);
+  return Qnil;
+}
+
+VALUE 
+rbc_engine_fsync_journal(VALUE self)  {
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  engine_fsync_journal(engine);
+  return Qnil;
+}
+
+VALUE 
+rbc_engine_reopen_journal(VALUE self) {
+	Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  engine_reopen_journal(engine);
+  return Qnil;
+}
+
 
 VALUE
 rbc_result_iterator_prev(VALUE self) {
