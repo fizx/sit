@@ -19,6 +19,17 @@ describe "Parser" do
     $hit.should be_true
   end
   
+  it "should do tokenized json" do
+    str = "{\"hello\":[\"world\", \"two\"]}"
+    @parser = Parser.new_json()
+    @parser.on_document(proc{|db|
+      db.terms.should == [Term.new("hello", "world", 0, false), Term.new("hello", "two", 1, false)]
+      $hit = true
+    })
+    @parser.consume(str)
+    $hit.should be_true
+  end
+  
   it "should do account for newline" do
     str = "\n\n{\"hello\":\"world\"}  "
     @parser = Parser.new_json()

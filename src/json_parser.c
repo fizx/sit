@@ -17,8 +17,8 @@ _json_token_found(Callback *cb, void *data) {
   Token *token = data;
   JSONState *state = cb->user_data;
   DEBUG("raw term_found level: %d", state->level);
-  assert(state->last_field_idx == state->level);
-  doc_buf_term_found(state->buffers[state->level], token->text, token->offset);
+  // assert(state->last_field_idx == state->level);
+  doc_buf_term_found(state->buffers[state->last_field_idx], token->text, token->offset);
 }
 
 pstring LEVEL = {
