@@ -76,7 +76,7 @@ engine_replay_journal(Engine *engine) {
   asprintf(&pattern, "%.*s/[0-9]*.log", engine->data_dir->len, engine->data_dir->val);
   
   int status = glob(pattern, 0, NULL, &g);
-  if(status || !g.gl_matchc) {
+  if(status || !g.gl_pathc) {
     INFO("Can't glob: %d", status);
     return;
   }
@@ -88,7 +88,7 @@ engine_replay_journal(Engine *engine) {
   ProtocolParser *pparser = line_input_protocol_new(input);
   pstring *pstr = pstring_new(BUF_SIZE);
   
-  for(int i = 0; i < g.gl_matchc; i++) {
+  for(int i = 0; i < g.gl_pathc; i++) {
     char *path = g.gl_pathv[i];
     DEBUG("found %s", path);
     FILE *file = fopen(path, "r");

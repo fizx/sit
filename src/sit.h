@@ -1,6 +1,8 @@
 #ifndef SIT_H_INCLUDED
 #define SIT_H_INCLUDED
 
+#define _GNU_SOURCE     
+
 struct PlistPool;
 struct Cursor;
 struct Callback; 
@@ -22,6 +24,7 @@ struct lrw_type;
 #include <string.h>
 #include <sys/socket.h>
 #include <pthread.h>
+#include <signal.h>
 #include <sys/queue.h>
 #include <sys/stat.h>
 #include <netdb.h>
