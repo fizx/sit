@@ -20,7 +20,12 @@
 #else
 #define DEBUG(x, ...)
 #endif
-#define PERROR(x)    sit_log("ERROR", "%s: %s", x, strerror(errno))
+#define PERROR(x, ...)    do{                     \
+  char *z;                                        \
+  asprintf(&z, x, ##__VA_ARGS__);                     \
+  sit_log("ERROR", "%s: %s", z, strerror(errno)); \
+  free(z);                                        \
+} while(0)
 
 void
 sit_log(const char *level, const char *format, ...);

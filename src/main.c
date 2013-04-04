@@ -81,7 +81,14 @@ main(int argc, char **argv) {
       ram = strtol(optarg, NULL, 10);  
     }
   }
-  set_logger(logfile ? fopen(logfile, "a") : stderr);
+  if(logfile) {
+    FILE *handle = fopen(logfile, "a");
+    if(handle) {
+      set_logger(handle);
+    } else {
+      PERROR("can't log to %s, using", logfile);
+    }
+  }
   
   Parser *parser = json_white_parser_new();
   Engine *engine = engine_new(parser, data_dir, ram, dedupe);
