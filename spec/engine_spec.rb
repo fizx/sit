@@ -27,6 +27,20 @@ describe "Engine" do
     @engine.get_int(id, "columns").should == 5
   end
   
+  it "should understand min_doc" do
+    last_id = @engine.last_document_id
+    @engine.last_document.should be_nil
+    message = "{\"hello\": \"world\"}\n"
+    n = 20000
+    n.times do
+      @input.consume(message)
+    end
+    @engine.last_document_id.should == n - 1 
+    @engine.min_document_id.should > 0
+    @engine.get(@engine.min_document_id).should == message.chomp
+    @engine.get(@engine.min_document_id - 1).should be_nil
+  end
+  
   it "should be able to register queries" do
     term = Term.new("hello", "world", 0, false)
     cj = Conjunction.new([term])

@@ -173,6 +173,10 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     } else {
       SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"task_id\": ", "%ld}", task_id);
     }
+  } else if(!cpstrcmp("range", command)) {
+    long min = engine_min_document_id(engine);
+    long max = engine_last_document_id(engine);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"range\", \"min_id\": ", "%ld, \"max_id\": %ld}", min, max);
   } else if(!cpstrcmp("connect", command)) {
     Task *task = client_task_new(engine, more);
     if(task) {

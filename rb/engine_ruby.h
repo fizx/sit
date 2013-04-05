@@ -31,6 +31,12 @@ VALUE
 rbc_engine_last_document_id(VALUE self);
 
 VALUE
+rbc_engine_min_document_id(VALUE self);
+
+VALUE
+rbc_engine_get(VALUE self, VALUE key);
+
+VALUE
 rbc_engine_tasks(VALUE self);
 
 VALUE

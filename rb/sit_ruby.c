@@ -166,6 +166,8 @@ Init_sit() {
 	rb_define_method(rbc_engine, "release_task", rbc_engine_release_task, 1);
 	rb_define_method(rbc_engine, "last_document", rbc_engine_last_document, 0);
 	rb_define_method(rbc_engine, "last_document_id", rbc_engine_last_document_id, 0);
+	rb_define_method(rbc_engine, "min_document_id", rbc_engine_min_document_id, 0);
+	rb_define_method(rbc_engine, "get", rbc_engine_get, 1);
 	rb_define_method(rbc_engine, "search", rbc_engine_search, 1);
 	rb_define_method(rbc_engine, "get_int", rbc_engine_get_int, 2);
 	rb_define_method(rbc_engine, "incr", rbc_engine_incr, 3);

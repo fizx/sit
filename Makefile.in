@@ -779,6 +779,9 @@ check:
 valgrind: sit
 	glibtool --mode=execute valgrind --track-origins=yes --leak-check=full --dsymutil=yes ./sit --port 4000 --test-mode
 
+ruby: all
+	cd rb && ./configure && make
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

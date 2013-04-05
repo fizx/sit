@@ -9,3 +9,7 @@ check:
 	
 valgrind: sit
 	glibtool --mode=execute valgrind --track-origins=yes --leak-check=full --dsymutil=yes ./sit --port 4000 --test-mode
+	
+
+ruby: all
+	cd rb && ./configure && make
