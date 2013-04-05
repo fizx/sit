@@ -149,6 +149,26 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     INFO("registering: %.*s", more->len, more->val);
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
+  } else if(!cpstrcmp("query", command)) {
+    input->qparser_mode = QUERYING;
+    query_parser_consume(input->qparser, more);
+    query_parser_reset(input->qparser);
+  } else if(!cpstrcmp("raw", command)) {
+    INFO("entering raw mode");
+    handler->error_found = _close_on_error;
+    query_parser_free(input->qparser);
+    input->qparser = query_parser_new(callback_new(_raw_query_handler, input));
+    callback_free(input->parser->on_document);
+    callback_free(input->parser->on_error);
+    callback_free(input->doc_acker);
+  	input->parser->on_document = callback_new(_raw_noop, input);
+  	input->parser->on_error = callback_new(_close_on_error2, handler);
+    input->doc_acker = callback_new(_raw_noop, input);
+    output->delimiter = &_empty;
+  } else if(!cpstrcmp("range", command)) {
+    long min = engine_min_document_id(engine);
+    long max = engine_last_document_id(engine);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"range\", \"min_id\": ", "%ld, \"max_id\": %ld}", min, max);
   } else if(!cpstrcmp("unregister", command)) {
     long query_id = strtol(more->val, NULL, 10);
     bool success = engine_unregister(input->engine, query_id);

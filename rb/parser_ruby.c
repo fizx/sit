@@ -87,6 +87,7 @@ rbc_parser_new_regex(VALUE class, VALUE rspec) {
   VALUE str = StringValue(rspec);
   pstring *spec = r2pstring(str);
 	Parser *parser = regex_parser_new(spec);
+  assert(parser);
   pstring_free(spec);
   parser->fresh_copy = rbc_regex_fresh_copy;
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, parser);

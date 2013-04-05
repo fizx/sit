@@ -33,6 +33,8 @@ typedef struct Engine {
   struct RingBuffer     *docs;
   dict                  *doc_set;
   
+  long                   min_doc_id;
+  
 	Callback 				      *catchall_callbacks;
   
   char *error;
@@ -102,6 +104,9 @@ engine_set_int(Engine *engine, long doc_id, pstring *field, int value);
 
 void
 engine_incr(Engine *engine, long doc_id, pstring *field, int value);
+
+long
+engine_min_document_id(Engine *engine);
 
 pstring *
 engine_last_document(Engine *engine);

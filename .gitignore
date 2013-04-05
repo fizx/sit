@@ -28,3 +28,4 @@ contrib/pcre/config.h
 contrib/pcre/config.status
 contrib/pcre/test*
 config.status
+contrib/pcre/pcre_chartables.c

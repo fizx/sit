@@ -36,6 +36,25 @@ rbc_engine_search(VALUE self, VALUE rquery) {
   return tdata;
 }
 
+VALUE
+rbc_engine_min_document_id(VALUE self) {
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  long id = engine_min_document_id(engine);
+  return LONG2NUM(id);
+}
+
+VALUE
+rbc_engine_get(VALUE self, VALUE key) {
+  long n = NUM2LONG(key);
+  Engine *engine;
+	Data_Get_Struct(self, Engine, engine);
+  pstring *str = engine_get_document(engine, n);
+  VALUE rstr = p2rstring(str);
+  pstring_free(str);
+  return rstr;
+}
+
 VALUE 
 rbc_engine_replay_journal(VALUE self) {
 	Engine *engine;

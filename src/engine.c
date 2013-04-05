@@ -324,6 +324,26 @@ engine_get_document(Engine *engine, long doc_id) {
   }
 }
 
+static long
+_b(Engine *engine, long min, long max) {
+  if (max <= min) return max;
+  if (max == min + 1) return max;
+  long middle = (max + min) / 2;
+  if(engine_get_document(engine, middle)) {
+    return _b(engine, min, middle);
+  } else {
+    return _b(engine, middle, max);
+  }
+}
+
+long
+engine_min_document_id(Engine *engine) {
+  long drs = sizeof(DocRef);
+  long bound = (engine->docs->written - engine->docs->capacity) / drs - 1;
+  if(bound < 0) bound = -1;
+  return _b(engine, bound, engine_last_document_id(engine));
+}
+
 long
 engine_last_document_id(Engine *engine) {
   return engine->docs->written / sizeof(DocRef) - 1;
