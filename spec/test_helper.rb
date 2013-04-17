@@ -2,6 +2,7 @@ begin
   require "rubygems"
   require "bundler/setup"
   require "rspec"
+  require "socket"
   require "json"
   require "rr"
   require File.dirname(__FILE__) + "/../rb/sit"

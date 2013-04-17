@@ -10,10 +10,13 @@ struct Input;
 
 typedef struct {
 	struct ev_io        as_io;
+	struct ev_io        as_udp_io;
 	struct ev_loop     *loop;
-	struct Engine  *engine;
+	struct Engine      *engine;
 	struct sockaddr_in *addr;
 	int                 total_clients;
+	
+  struct Input       *udp_input;
 } Server;
 
 typedef struct {

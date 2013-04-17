@@ -14,10 +14,14 @@ _ack_doc(Callback *cb, void *data) {
   Engine *engine = data;
   Input *input = cb->user_data;
   Output *output = input->output;
-  if(engine->error) {
-    SMALL_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", engine->error);
+  if(output) {
+    if(engine->error) {
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"", "%s\"}", engine->error);
+    } else {
+      SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
+    }
   } else {
-    SMALL_OUT("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": ", "%ld}", engine_last_document_id(engine));
+    INFO("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": %ld}", engine_last_document_id(engine));
   }
 }
 
@@ -28,7 +32,11 @@ __input_error_found(Callback *cb, void *data) {
   pstring escaped;
   json_escape(&escaped, data);
   pstring *buf = pstringf("{\"status\": \"error\", \"message\": \"%.*s\"}", escaped.len, escaped.val);
-  output->write(output, buf);
+  if(output) {
+    output->write(output, buf);
+  } else {
+    WARN("Error in unidirectional stream: %.*s", escaped.len, escaped.val);
+  }
   free(escaped.val);
 }
 

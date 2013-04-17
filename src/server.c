@@ -58,6 +58,20 @@ conn_free(conn_t * conn) {
 
 void
 _enqueue_flush(conn_t *conn);
+
+char udpbuf[STREAM_BUFFER_SIZEBUFFER_SIZE];
+
+void
+_udp_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
+  struct sockaddr_in addr;
+  int addr_len = sizeof(addr);
+	Server *server = (Server *) watcher->data;
+  socklen_t bytes = recvfrom(watcher->fd, udpbuf, sizeof(udpbuf) - 1, 0, (struct sockaddr*) &addr, (socklen_t *) &addr_len);
+  printf("wut: %d\n", bytes);
+  udpbuf[bytes] = '\0';
+  pstring pstr = { udpbuf, bytes };
+  input_consume(server->udp_input, &pstr);
+}
   
 void
 _conn_flush_cb(struct ev_loop *loop, struct ev_timer *timer, int revents) {
@@ -211,6 +225,10 @@ conn_start(conn_t * conn, int revents) {
 	INFO("%d client(s) connected.", conn->server->total_clients);
 }
 
+void
+_cb_no_op(Callback *cb, void *data) {
+}
+
 Server *
 server_new(Engine *engine) {
 	Server *server = malloc(sizeof(*server));
@@ -218,6 +236,9 @@ server_new(Engine *engine) {
 	server->loop = ev_default_loop (0);
 	server->addr = NULL;
 	server->total_clients = 0;
+  server->udp_input = input_new(server->engine, STREAM_BUFFER_SIZE);
+  server->udp_input->output = NULL;
+  
   signal(SIGPIPE, SIG_IGN);
 	return server;
 }
@@ -227,10 +248,16 @@ int reuse = 1;
 int
 server_start(Server *server, struct sockaddr_in *addr) {
 	struct ev_loop *loop = ev_default_loop(0);
-	int sd;
+	int sd, udps;
 
 	// Create server socket
 	if( (sd = socket(PF_INET, SOCK_STREAM, 0)) < 0 ) {
+	  PERROR("socket error");
+	  return -1;
+	}
+	
+	// Create udp socket
+	if( (udps = socket(PF_INET, SOCK_DGRAM, 0)) < 0 ) {
 	  PERROR("socket error");
 	  return -1;
 	}
@@ -243,11 +270,21 @@ server_start(Server *server, struct sockaddr_in *addr) {
 	  return -1;
 	}
 	
-	// Start listing on the socket
+	// Bind udp socket to address.  You don't need to listen.
+	if (bind(udps, (struct sockaddr*) addr, sizeof(*addr)) != 0) {
+	  PERROR("bind error");
+	  return -1;
+	}
+	
+	// Start listening on the socket
 	if (listen(sd, 2) < 0) {
 	  PERROR("listen error");
 	  return -1;
 	}
+
+  server->as_udp_io.data = server;
+  ev_io_init(&server->as_udp_io, _udp_cb, udps, EV_READ);
+  ev_io_start(loop, &server->as_udp_io);
 
 	// Initialize and start a watcher to accepts client requests
 	ev_io_init((struct ev_io *) server, accept_cb, sd, EV_READ);
