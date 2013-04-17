@@ -59,7 +59,7 @@ conn_free(conn_t * conn) {
 void
 _enqueue_flush(conn_t *conn);
 
-char udpbuf[STREAM_BUFFER_SIZE];
+char udpbuf[STREAM_BUFFER_SIZEBUFFER_SIZE];
 
 void
 _udp_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
@@ -283,7 +283,6 @@ server_start(Server *server, struct sockaddr_in *addr) {
 	}
 
   server->as_udp_io.data = server;
-  puts("hai");
   ev_io_init(&server->as_udp_io, _udp_cb, udps, EV_READ);
   ev_io_start(loop, &server->as_udp_io);
 
