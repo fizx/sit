@@ -59,7 +59,7 @@ conn_free(conn_t * conn) {
 void
 _enqueue_flush(conn_t *conn);
 
-char udpbuf[BUFFER_SIZE];
+char udpbuf[STREAM_BUFFER_SIZE];
 
 void
 _udp_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
