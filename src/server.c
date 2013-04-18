@@ -67,7 +67,6 @@ _udp_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
   int addr_len = sizeof(addr);
 	Server *server = (Server *) watcher->data;
   socklen_t bytes = recvfrom(watcher->fd, udpbuf, sizeof(udpbuf) - 1, 0, (struct sockaddr*) &addr, (socklen_t *) &addr_len);
-  printf("wut: %d\n", bytes);
   udpbuf[bytes] = '\0';
   pstring pstr = { udpbuf, bytes };
   input_consume(server->udp_input, &pstr);

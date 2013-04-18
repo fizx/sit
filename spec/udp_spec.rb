@@ -6,7 +6,7 @@ describe "udp" do
 	it "should respond to udp" do
 	  begin
   	  pid = fork do
-  	    exec "./sit --port 4009"
+  	    exec "./sit --port 4009 --log-file=/tmp/test.log"
   	  end
   	  sleep 0.1
 	    u = UDPSocket.new
