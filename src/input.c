@@ -22,6 +22,7 @@ _ack_doc(Callback *cb, void *data) {
     }
   } else {
     INFO("{\"status\": \"ok\", \"message\": \"added\", \"doc_id\": %ld}", engine_last_document_id(engine));
+    DEBUG("%s", engine_last_document(engine));
   }
 }
 
