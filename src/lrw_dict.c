@@ -16,32 +16,47 @@ lrw_dict_free(LRWDict *dict) {
   free(dict);
 }
 
-void 
+static void
+_extract(LRWDict *d, Term *term) {
+  if(term->next) term->next->prev = term->prev;
+  if(term->prev) term->prev->next = term->next;
+  if(term == d->oldest) {
+    d->oldest = term->next;
+  }
+}
+
+static void 
 _truncate(LRWDict *d) {
   Term *key = d->oldest;
-  if(!key) return;
-
-  Term *next  = ((Term *)key)->next;
-  next->prev = NULL;
-  d->oldest = next;
-  dictDelete(d->dict, key);
+  if (key) {
+    _extract(d, key);
+    dictDelete(d->dict, key);
+  }
 }
 
 static void
-_set_next(Term *ptr, Term *next) {
+_bump(LRWDict *d, Term *term) {
+  _extract(d, term);
   
-  if(next->next) next->next->prev = next->prev;
-  if(next->prev) next->prev->next = next->next;
+  if(!d->oldest) {
+    d->oldest = term;
+  }
   
-  next->prev = ptr;
-  ptr->next = next;
-  next->next = NULL;
-	
+  // insert
+  Term *old = d->newest;
+  if(old) {
+    old->next = term;
+  }
+  term->prev = old;
+  term->next = NULL;
+  d->newest = term;
 }
 
 void
-lrw_dict_put(LRWDict *d, const void *key, const void *value) {
+lrw_dict_put(LRWDict *d, const Term *key, const void *value) {
 	dictEntry *entry = dictFind(d->dict, key);
+  //   pstring *t = term_to_s(key);
+  // printf("adding %.*s to size %d\n", t->len, t->val,dictSize(d->dict));
 	if(entry == NULL) {
 		if(dictSize(d->dict) >= d->capacity) {
       _truncate(d);
@@ -53,24 +68,11 @@ lrw_dict_put(LRWDict *d, const void *key, const void *value) {
 		assert(entry);
 	}
 	dictSetVal(d->dict, entry, (void *) value);
-  void *newest = d->newest;
-  if(newest == entry->key) {
-    return;
-  }
-  if(newest) {
-    _set_next(newest, entry->key);
-  }
-  if(entry->key == d->oldest) {
-    d->oldest = ((Term*)entry->key)->next;
-  }
-  d->newest = entry->key;
-  if(!(d->oldest)) {
-    d->oldest = entry->key;
-  }
+	_bump(d, entry->key);
 }
 
 void *
-lrw_dict_get(LRWDict *d, const void *key) {
+lrw_dict_get(LRWDict *d, const Term *key) {
  	dictEntry *entry = dictFind(d->dict, key);
 	if(entry == NULL) {
 		return NULL;

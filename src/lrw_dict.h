@@ -20,10 +20,10 @@ void
 lrw_dict_free(LRWDict *dict);
 
 void *
-lrw_dict_get(LRWDict *d, const void *key);
+lrw_dict_get(LRWDict *d, const Term *key);
 
 void
-lrw_dict_put(LRWDict *d, const void *key, const void *value);
+lrw_dict_put(LRWDict *d, const Term *key, const void *value);
 
 #endif
 
