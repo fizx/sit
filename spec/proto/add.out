@@ -2,3 +2,4 @@
 {"status": "ok", "message": "added", "doc_id": 1}
 {"status": "ok", "message": "added", "doc_id": 2}
 {"status": "ok", "message": "added", "doc_id": 3}
+{"status": "ok", "message": "get success", "doc": {"hello": "world"}}

@@ -185,9 +185,7 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     long doc_id = strtol(more->val, NULL, 10);
     pstring *doc = engine_get_document(input->engine, doc_id);
     if(doc) {
-      pstring json;
-      json_escape(&json, doc);
-      OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": \"%.*s\"}", json.len, json.val);
+      OUT("{\"status\": \"ok\", \"message\": \"get success\", \"doc\": %.*s}", doc->len, doc->val);
     } else {
       SMALL_OUT("{\"status\": \"error\", \"message\": \"not found\", \"doc_id\": ", "%ld}", doc_id);
     }
