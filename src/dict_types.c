@@ -24,9 +24,18 @@ _term_next(void *data) {
 }
 
 static void
-_term_set_next(void *data, void *next) {
-	Term *term = data;
+_term_set_next(void *vterm, void *vnext) {
+  
+  Term *term = vterm;
+	Term *next = vnext;
+  
+  if(next->next) next->next->prev = next->prev;
+  if(next->prev) next->prev->next = next->next;
+  
+  next->prev = term;
   term->next = next;
+  next->next = NULL;
+	
 }
 
 
