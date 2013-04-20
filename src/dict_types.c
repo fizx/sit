@@ -17,11 +17,18 @@ _parser_free(void *privdata, void *parser) {
   parser_free(parser);
 }
 
-static void
-_term_bump(dictEntry *entry, long value) {
-	Term *term = dictGetKey(entry);
-	term->offset = value;
+static void *
+_term_next(void *data) {
+	Term *term = term;
+  return term->next;
 }
+
+static void
+_term_set_next(void *data, void *next) {
+	Term *term = data;
+  term->next = next;
+}
+
 
 static long
 _term_version(dictEntry *entry) {
@@ -202,8 +209,8 @@ dictType docrefDict = {
 };
 
 lrw_type termLrw = {
-	_term_bump,
-	_term_version
+	_term_next,
+	_term_set_next
 };
 
 dictType *getPstrDict() { return &pstrDict; }

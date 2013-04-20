@@ -1,13 +1,13 @@
 #include "sit_ruby.h"
 
-typedef struct {
+typedef struct ruby_plus_next {
 	void *pointer;
-	long version;
-} versioned_ruby_pointer;
+  struct ruby_plus_next *next;
+} ruby_plus_next;
 
 static unsigned int
 _rb_hash(const void *key) {
-	versioned_ruby_pointer *ptr = (versioned_ruby_pointer *)key;
+	ruby_plus_next *ptr = (ruby_plus_next *)key;
 	VALUE rkey = vunwrap(ptr->pointer);
 	VALUE rhash = rb_funcall(rkey, rb_intern("hash"), 0);
 	unsigned int hash = (unsigned int) NUM2LONG(rhash);
@@ -23,7 +23,7 @@ rbc_lrw_dict_each(VALUE self) {
 		dictEntry *entry;
 		while ((entry = dictNext(iter)) != NULL) {
 			VALUE ary = rb_ary_new();
-			versioned_ruby_pointer *ptr = dictGetKey(entry);
+			ruby_plus_next *ptr = dictGetKey(entry);
 			rb_ary_push(ary, vunwrap(ptr->pointer));
 			rb_ary_push(ary, vunwrap(dictGetVal(entry)));
 	    rb_yield(ary);
@@ -36,36 +36,37 @@ rbc_lrw_dict_each(VALUE self) {
 static int 
 _rb_compare(void *privdata, const void *key1, const void *key2) {
   DICT_NOTUSED(privdata);
-	versioned_ruby_pointer *a = (versioned_ruby_pointer *)key1;
-	versioned_ruby_pointer *b = (versioned_ruby_pointer *)key2;
+	ruby_plus_next *a = (ruby_plus_next *)key1;
+	ruby_plus_next *b = (ruby_plus_next *)key2;
 	VALUE ra = vunwrap(a->pointer);
 	VALUE rb = vunwrap(b->pointer);
 	return (int) rb_equal(ra, rb);
 }
 
-static void
-_rb_bump(dictEntry *entry, long version) {
-	versioned_ruby_pointer *ptr = dictGetKey(entry);
-	ptr->version = version;
+static void *
+_rb_next(void *key) {
+	ruby_plus_next *ptr = key;
+  return ptr->next;
 }
 
-static long
-_rb_version(dictEntry *entry) {
-	versioned_ruby_pointer *ptr = dictGetKey(entry);
-	return ptr->version;
+static void
+_rb_set_next(void *key, void *next) {
+	ruby_plus_next *ptr = key;
+  ptr->next = next;
 }
+
 static void *
 vvwrap(VALUE key) {
 	void *wrapped = (void *)vwrap(key);
-	versioned_ruby_pointer *versioned = malloc(sizeof(versioned_ruby_pointer));
-	versioned->version = 0;
+	ruby_plus_next *versioned = malloc(sizeof(ruby_plus_next));
+	versioned->next = NULL;
 	versioned->pointer = wrapped;
 	return versioned;
 }
 
 lrw_type rubyLRU = {
-  _rb_bump,  
-	_rb_version
+  _rb_next,
+  _rb_set_next,
 };
 
 dictType rubyDict = {
@@ -83,7 +84,7 @@ _dmark(void *data) {
 	dictIterator *iter = dictGetSafeIterator(d->dict);
 	dictEntry *entry;
 	while ((entry = dictNext(iter)) != NULL) {
-		versioned_ruby_pointer *ptr = dictGetKey(entry);
+		ruby_plus_next *ptr = dictGetKey(entry);
 		rb_gc_mark(vunwrap(ptr->pointer));
 		rb_gc_mark(vunwrap(dictGetVal(entry)));
 	}	

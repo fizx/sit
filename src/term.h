@@ -20,6 +20,7 @@ typedef struct Term {
   bool negated;
   TermType type;
   bool owns_string;
+  struct Term *next;
 } Term;
 
 Term *
