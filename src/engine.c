@@ -424,10 +424,7 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
 		if(value == NULL) {
 			value = plist_new(engine->postings);
 			lrw_dict_put(engine->term_dictionary, term, value);
-			assert(lrw_dict_get(engine->term_dictionary, term));
-		} else {
-      lrw_dict_tap(engine->term_dictionary, term);
-			assert(lrw_dict_get(engine->term_dictionary, term));
+      // assert(lrw_dict_get(engine->term_dictionary, term));
 		}
     PlistEntry entry = { doc_id, term->offset };
 		plist_append_entry(value, &entry);
