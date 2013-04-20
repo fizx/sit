@@ -10,5 +10,5 @@
 {"status": "ok", "message": "added", "doc_id": 9}
 {"status": "ok", "message": "added", "doc_id": 10}
 {"status": "ok", "message": "querying", "id": 0}
-{"status": "ok", "message": "found", "query_id": 0, "doc_id": 4}
+{"status": "ok", "message": "found", "query_id": 0, "doc_id": 4, "doc": {"hello":"world 4", "points": 5}}
 {"status": "ok", "message": "complete", "id": 0}
