@@ -24,8 +24,8 @@ _truncate(LRWDict *d) {
   if(!key) return;
   
   void *next = d->lrw_type->next(key);
-  dictDelete(d->dict, key);
   d->oldest = next;
+  dictDelete(d->dict, key);
 }
 
 void
@@ -33,7 +33,7 @@ lrw_dict_put(LRWDict *d, const void *key, const void *value) {
 	dictEntry *entry = dictFind(d->dict, key);
 	if(entry == NULL) {
 		if(dictSize(d->dict) >= d->capacity) {
-			_truncate(d);
+      _truncate(d);
 		}
 		entry = dictAddRaw(d->dict, (void *) key);
 		if(!entry && dictIsRehashing(d->dict)) {
@@ -43,8 +43,14 @@ lrw_dict_put(LRWDict *d, const void *key, const void *value) {
 	}
 	dictSetVal(d->dict, entry, (void *) value);
   void *newest = d->newest;
+  if(newest == entry->key) {
+    return;
+  }
   if(newest) {
     d->lrw_type->set_next(newest, entry->key);
+  }
+  if(key == d->oldest) {
+    d->oldest = d->lrw_type->next(entry->key);
   }
   d->newest = entry->key;
   if(!d->oldest) {

@@ -2,6 +2,7 @@
 
 typedef struct ruby_plus_next {
 	void *pointer;
+	struct ruby_plus_next *prev;
   struct ruby_plus_next *next;
 } ruby_plus_next;
 
@@ -18,18 +19,18 @@ VALUE
 rbc_lrw_dict_each(VALUE self) {
 	LRWDict *d;
 	Data_Get_Struct(self, LRWDict, d);	
-	dictIterator *iter = dictGetSafeIterator(d->dict);
+  
 	if (rb_block_given_p()) {
-		dictEntry *entry;
-		while ((entry = dictNext(iter)) != NULL) {
-			VALUE ary = rb_ary_new();
-			ruby_plus_next *ptr = dictGetKey(entry);
-			rb_ary_push(ary, vunwrap(ptr->pointer));
+	  ruby_plus_next *k = d->oldest; 
+	  while(k) {
+	    VALUE ary = rb_ary_new();
+			dictEntry *entry = dictFind(d->dict, k);
+			rb_ary_push(ary, vunwrap(k->pointer));
 			rb_ary_push(ary, vunwrap(dictGetVal(entry)));
-	    rb_yield(ary);
-		}
+      rb_yield(ary);
+      k = k->next;
+	  }
   }
-	dictReleaseIterator(iter);
 	return Qnil;
 }
 
@@ -50,15 +51,23 @@ _rb_next(void *key) {
 }
 
 static void
-_rb_set_next(void *key, void *next) {
+_rb_set_next(void *key, void *after) {
 	ruby_plus_next *ptr = key;
+	ruby_plus_next *next = after;
+  
+  if(next->next) next->next->prev = next->prev;
+  if(next->prev) next->prev->next = next->next;
+  
+  next->prev = ptr;
   ptr->next = next;
+  next->next = NULL;
 }
 
 static void *
 vvwrap(VALUE key) {
 	void *wrapped = (void *)vwrap(key);
 	ruby_plus_next *versioned = malloc(sizeof(ruby_plus_next));
+	versioned->prev = NULL;
 	versioned->next = NULL;
 	versioned->pointer = wrapped;
 	return versioned;
