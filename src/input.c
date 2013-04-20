@@ -7,8 +7,7 @@ _perc_found_handler(Callback *callback, void *data) {
   Output *output = input->output;
   long query_id = callback->id;
   pstring *doc = engine_get_document(input->engine, doc_id);
-  SMALL_OUT("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": ", 
-            "%ld, \"doc_id\": %ld, \"doc\": %.*s}", 
+  OUT("{\"status\": \"ok\", \"message\": \"found\", \"query_id\": %ld, \"doc_id\": %ld, \"doc\": %.*s}", 
             query_id, doc_id, doc->len, doc->val);  
 }
 
