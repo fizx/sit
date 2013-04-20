@@ -12,7 +12,7 @@ typedef enum { TEXT, NUMERIC, CATCHALL } TermType;
  * The quirkiest thing right now is that points > 1 is a term with
  * field:points, offset:1, numeric:true, text:>.
  */
-typedef struct Term {
+typedef struct Term { 
   pstring field;
   pstring text;
   unsigned int hash_code;

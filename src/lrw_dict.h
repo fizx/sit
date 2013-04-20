@@ -4,23 +4,17 @@
 #include "dict.h"
 #include "ring_buffer.h"
 
-typedef struct lrw_type {
-	void *(*next)(void *key);
-  void  (*set_next)(void *key, void *next);
-} lrw_type;
-
 typedef struct LRWDict {
 	dict *dict;
 	dictType *dict_type;
-	lrw_type *lrw_type;
 	long capacity;
 	long written;
-  void *newest;
-  void *oldest;
+  Term *newest;
+  Term *oldest;
 } LRWDict;
 
 LRWDict *
-lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity);
+lrw_dict_new(dictType *dt, long capacity);
 
 void
 lrw_dict_free(LRWDict *dict);

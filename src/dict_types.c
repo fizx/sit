@@ -17,28 +17,6 @@ _parser_free(void *privdata, void *parser) {
   parser_free(parser);
 }
 
-static void *
-_term_next(void *data) {
-	Term *term = term;
-  return term->next;
-}
-
-static void
-_term_set_next(void *vterm, void *vnext) {
-  
-  Term *term = vterm;
-	Term *next = vnext;
-  
-  if(next->next) next->next->prev = next->prev;
-  if(next->prev) next->prev->next = next->next;
-  
-  next->prev = term;
-  term->next = next;
-  next->next = NULL;
-	
-}
-
-
 static long
 _term_version(dictEntry *entry) {
 	Term *term = dictGetKey(entry);
@@ -217,13 +195,7 @@ dictType docrefDict = {
     NULL   /* val destructor */
 };
 
-lrw_type termLrw = {
-	_term_next,
-	_term_set_next
-};
-
 dictType *getPstrDict() { return &pstrDict; }
-lrw_type *getTermLrw() { return &termLrw; }
 dictType *getTermDict() { return &termDict; }
 dictType *getTermTermDict() { return &termTermDict; }
 dictType *getPstrRingBufferDict() { return &pstrRingBufferDict; }

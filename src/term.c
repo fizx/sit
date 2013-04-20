@@ -9,8 +9,9 @@ term_new(pstring *field, pstring *text, int offset, bool negated) {
  	  0,
  	  offset,
  	  negated,
+ 	  TEXT,
  	  false,
- 	  false,
+ 	  NULL, 
  	  NULL
   };
 	term_update_hash(&tmp);
@@ -36,6 +37,7 @@ term_copulate(Term *copy, const Term *term) {
   copy->negated = term->negated;
   copy->type = term->type;
   copy->hash_code = term->hash_code;
+  copy->prev = term->prev;
   copy->next = term->next;
 }
 

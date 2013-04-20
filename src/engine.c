@@ -21,7 +21,7 @@ engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe) {
   engine->catchall_callbacks = NULL;
 	engine->after_on_document = NULL;
 	engine->stream = ring_buffer_new(size / 4);
-	engine->term_dictionary = lrw_dict_new(getTermPlistDict(), getTermLrw(), size / 32);
+  engine->term_dictionary = lrw_dict_new(getTermPlistDict(), size / 32);
 	engine->postings = plist_pool_new(size / 4);
 	engine->docs = ring_buffer_new((size / 4 / sizeof(DocRef)) * sizeof(DocRef));
 	engine->data = NULL;

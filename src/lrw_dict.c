@@ -1,14 +1,12 @@
 #include "sit.h"
 
 LRWDict *
-lrw_dict_new(dictType *dt, lrw_type *lrwt, long capacity) {
+lrw_dict_new(dictType *dt, long capacity) {
 	LRWDict *dict = calloc(1, sizeof(LRWDict));
 	dict->capacity = capacity;
 	dict->dict_type = dt;
-	dict->lrw_type = lrwt;
 	dict->dict = dictCreate(dt, 0);
-	dict->written = 0;
-	
+	dict->written = 0;	
 	return dict;
 }
 
@@ -20,12 +18,25 @@ lrw_dict_free(LRWDict *dict) {
 
 void 
 _truncate(LRWDict *d) {
-  void *key = d->oldest;
+  Term *key = d->oldest;
   if(!key) return;
-  
-  void *next = d->lrw_type->next(key);
+
+  Term *next  = ((Term *)key)->next;
+  next->prev = NULL;
   d->oldest = next;
   dictDelete(d->dict, key);
+}
+
+static void
+_set_next(Term *ptr, Term *next) {
+  
+  if(next->next) next->next->prev = next->prev;
+  if(next->prev) next->prev->next = next->next;
+  
+  next->prev = ptr;
+  ptr->next = next;
+  next->next = NULL;
+	
 }
 
 void
@@ -47,13 +58,13 @@ lrw_dict_put(LRWDict *d, const void *key, const void *value) {
     return;
   }
   if(newest) {
-    d->lrw_type->set_next(newest, entry->key);
+    _set_next(newest, entry->key);
   }
-  if(key == d->oldest) {
-    d->oldest = d->lrw_type->next(entry->key);
+  if(entry->key == d->oldest) {
+    d->oldest = ((Term*)entry->key)->next;
   }
   d->newest = entry->key;
-  if(!d->oldest) {
+  if(!(d->oldest)) {
     d->oldest = entry->key;
   }
 }
