@@ -24,6 +24,8 @@ typedef struct Input {
   Callback *doc_acker;
   Callback *found_callback;
   
+  LList *query_callbacks;
+  
   Output         *output;
 
 	void *data;
