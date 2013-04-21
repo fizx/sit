@@ -12,6 +12,6 @@ void
 ll_free(LList *ll) {
   if(!ll) return;
   ll_free(ll->next);
-  free((void *)ll->data);
+  if (ll->data) free((void *)ll->data);
   free(ll);
 }

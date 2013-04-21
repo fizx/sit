@@ -62,6 +62,7 @@ _channel_handler(Callback *callback, void *data) {
     query->callback = callback_new(_perc_found_handler, input);
     long query_id = engine_register(engine, query);
     SMALL_OUT("{\"status\": \"ok\", \"message\": \"registered\", \"id\": ", "%ld}", query_id);
+    ll_add(&input->query_callbacks, query->callback);
     query->callback = NULL; // disassociate from gc.
   } else {
     query->callback = callback_new(_perc_found_handler, input);
@@ -80,7 +81,7 @@ input_new(struct Engine *engine, long buffer_size) {
   (void) buffer_size;
 	assert(engine);
 	assert(engine->parser);
- 	Input *input = malloc(sizeof(Input));
+ 	Input *input = calloc(1, sizeof(Input));
 	input->engine = engine;
   input->qparser_mode = REGISTERING;
 	input->qparser = query_parser_new(callback_new(_channel_handler, input));
@@ -94,6 +95,16 @@ input_new(struct Engine *engine, long buffer_size) {
 
 void
 input_free(Input *input) {  
+  Engine *engine = input->engine;
+  LList *ll = input->query_callbacks;
+  while(ll) {
+    Callback *cb = ll->data;
+    engine_unregister(engine, cb->id);
+    callback_free(cb);
+    ll->data = NULL;
+    ll = ll->next;
+  }
+  ll_free(input->query_callbacks);
   callback_free(input->qparser->on_query);
   callback_free(input->parser->on_document);
   callback_free(input->parser->on_error);

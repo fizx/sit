@@ -47,7 +47,13 @@ accept_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {
 }
 
 void
+conn_unregister_all(conn_t * conn) {
+  
+}
+
+void
 conn_free(conn_t * conn) {
+  conn_unregister_all(conn);
   Input *input = conn->parser->handler->data;
   free(input->output);
   input_free(input);

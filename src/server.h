@@ -35,6 +35,9 @@ server_new(struct Engine *engine);
 int
 server_start(Server *server, struct sockaddr_in *addr);
 
+void
+conn_unregister_all(conn_t * conn);
+
 conn_t *
 conn_new(Server *server);
 
