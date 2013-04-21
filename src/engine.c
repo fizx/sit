@@ -285,6 +285,7 @@ _each_query(Callback *cb, void *vnode) {
 		Query *query = query_new(cjs, 1, qc);
 		user_callback->handler(user_callback, query);
 		qc = qc->next;
+		// TODO: free query?!
 	}
 }
 

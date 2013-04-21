@@ -138,6 +138,21 @@ _raw_noop(Callback *cb, void *data) {}
 pstring _empty = {"", 0};
 
 void
+_ps(Callback *cb, void *data) {
+  Input *input = data;
+  Engine *engine = data;
+  Query *query = data;
+  Output *output = input->output;
+  pstring *s = query_to_s(query);
+  if(output) {
+    OUT("%s", s->len, s->val);
+  } else {
+    INFO("%s", s->len, s->val);
+  }
+  pstring_free(s);
+}
+
+void
 _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring *more) {
   DEBUG("found cmd:  %.*s", command->len, command->val);
   Input *input = handler->data;
@@ -153,6 +168,10 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     input->qparser_mode = QUERYING;
     query_parser_consume(input->qparser, more);
     query_parser_reset(input->qparser);
+  } else if(!cpstrcmp("ps", command)) {
+    Callback *cb = callback_new(_ps, input);
+    engine_each_query(engine, cb);
+    callback_free(cb);
   } else if(!cpstrcmp("raw", command)) {
     INFO("entering raw mode");
     handler->error_found = _close_on_error;
