@@ -226,6 +226,7 @@ conn_start(conn_t * conn, int revents) {
 
   ev_io_init((struct ev_io *) conn, read_cb, client_sd, EV_READ);
   ev_io_start(loop, (struct ev_io *) conn);
+  signal(SIGPIPE, SIG_IGN);
 	INFO("Successfully connected with client.");
 	INFO("%d client(s) connected.", conn->server->total_clients);
 }
