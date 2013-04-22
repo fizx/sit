@@ -260,10 +260,10 @@ _recurse_each(Callback *cb, dict *hash) {
 	dictEntry *next;
 	while((next = dictNext(iterator))) {
 		QueryNode *node = dictGetVal(next);
-		cb->handler(cb, node);
 		if(node->children) {
 			_recurse_each(cb, node->children);
 		}
+		cb->handler(cb, node);
 	}
   dictReleaseIterator(iterator);
 }
@@ -452,6 +452,16 @@ engine_index(Engine *engine, DocBuf *buffer, long doc_id) {
 }
 
 void
+_drop_if_empty(QueryNode *node) {
+  if((node->children && dictSize(node->children) > 0) || node->callback) {
+    return;
+  }
+  if(node->parent) {
+    dictDelete(node->parent->children, node->term);
+  }
+}
+
+void
 _unregister_handler(Callback *cb, void *vnode) {
 	QueryNode *node = vnode;
 	unregister_data *data = cb->user_data;
@@ -468,6 +478,7 @@ _unregister_handler(Callback *cb, void *vnode) {
 			old->free(old);
 		}
     data->success = true;
+    _drop_if_empty(node);
     return;
 	}
 	
@@ -480,6 +491,7 @@ _unregister_handler(Callback *cb, void *vnode) {
 				qc->free(qc);
 			}
 			data->success = true;
+			_drop_if_empty(node);
       return;
 		}
 		prev = qc;
