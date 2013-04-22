@@ -170,7 +170,9 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
     query_parser_reset(input->qparser);
   } else if(!cpstrcmp("ps", command)) {
     Callback *cb = callback_new(_ps, input);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"listing\"}", "");
     engine_each_query(engine, cb);
+    SMALL_OUT("{\"status\": \"ok\", \"message\": \"complete\"}", "");
     callback_free(cb);
   } else if(!cpstrcmp("raw", command)) {
     INFO("entering raw mode");
