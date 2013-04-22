@@ -294,6 +294,25 @@ engine_each_query(Engine *engine, Callback *callback) {
 	Callback wrapper;
 	wrapper.user_data = callback;
 	wrapper.handler = _each_query;
+	
+  Query q;
+  conjunction_t c;
+  
+  conjunction_t *cc[1] = { &c }; 
+  Term *t = &c.terms[0];
+  t->negated = false;
+  t->type = CATCHALL;
+  q.limit = 0;
+  q.count = 1;
+  c.count = 1;
+  q.conjunctions = cc;  
+	Callback *cb = engine->catchall_callbacks;
+	while(cb) {
+    q.callback = cb;
+		callback->handler(callback, &q);
+		cb = cb->next;
+	}
+	
 	engine_each_node(engine, &wrapper);
 }
 

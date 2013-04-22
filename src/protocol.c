@@ -139,15 +139,15 @@ pstring _empty = {"", 0};
 
 void
 _ps(Callback *cb, void *data) {
-  Input *input = data;
+  Input *input = cb->user_data;
   Engine *engine = data;
   Query *query = data;
   Output *output = input->output;
   pstring *s = query_to_s(query);
   if(output) {
-    OUT("%s", s->len, s->val);
+    output->write(output, s);                            
   } else {
-    INFO("%s", s->len, s->val);
+    INFO("%.*s", s->len, s->val);
   }
   pstring_free(s);
 }

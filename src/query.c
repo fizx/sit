@@ -13,7 +13,7 @@ qtermcmp(const void *a, const void *b) {
 
 Query *
 query_new(conjunction_t **conjunctions, int count, Callback *callback) {
-  Query *query = malloc(sizeof(*query));
+  Query *query = calloc(1, sizeof(*query));
   query->conjunctions = malloc(sizeof(conjunction_t*) * count);
   memcpy(query->conjunctions, conjunctions, sizeof(conjunction_t*) * count);
 	query->count = count;
@@ -59,21 +59,26 @@ query_free(Query *query) {
 pstring *
 query_to_s(Query *query) {
 	pstring *buf = pstring_new(0);
-	PC("<");
+	PC("{\"query\": \"");
 	for(int i = 0; i < query->count; i++) {
 	  if(i > 0) {
 			PC(" OR ");
     }
 		conjunction_t *con = query->conjunctions[i];
-		P(conjunction_to_s(con));
+    pstring *str = conjunction_to_s(con);
+    pstring escaped;
+    json_escape(&escaped, str);
+		P(&escaped);
+    pstring_free(str);
+    free(escaped.val);
 	}
-	PC(" cb:");
+	PC("\", \"id\": ");
 	if (query->callback) {
 		PV("%d", query->callback->id);
 	} else {
-		PC("NULL");
+		PC("null");
 	}
-	PC(">");
+	PC("}");
 	return buf;
 }
 

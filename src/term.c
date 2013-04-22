@@ -51,8 +51,19 @@ term_copy(const Term *term) {
 pstring *
 term_to_s(Term *term) {	
 	pstring *buf = pstring_new(0);
-	PV("%.*s:%.*s", term->field.len, term->field.val, 
-	term->text.len, term->text.val);
+  switch(term->type) {
+	case NUMERIC:
+	  PV("%.*s%.*s%d", term->field.len, term->field.val, 
+	     term->text.len, term->text.val, term->offset);
+    break;
+  case TEXT:
+    PV("%.*s:%.*s", term->field.len, term->field.val, 
+	     term->text.len, term->text.val);
+    break;
+  case CATCHALL:
+    PV("*:*");
+    break;
+	}
 	return buf;
 }
 
