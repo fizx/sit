@@ -25,6 +25,7 @@ typedef struct Input {
   Callback *found_callback;
   
   LList *query_callbacks;
+  pstring *auth;
   
   Output         *output;
 

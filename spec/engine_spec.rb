@@ -8,7 +8,7 @@ describe "Engine" do
     @tmp = File.expand_path(File.dirname(__FILE__) + "/tmp")
     rm_rf @tmp
     mkdir_p @tmp
-    @engine = Engine.new(Parser.new_json, @tmp, 1_000_000, false)
+    @engine = Engine.new(Parser.new_json, @tmp, 1_000_000, false, nil)
     @output = []
  		@input = Input.new(@engine, 1 << 20, @output)
     $events = []
@@ -38,7 +38,7 @@ describe "Engine" do
     @engine.fsync_journal
     File.read(@tmp + "/0.log").should == "{\"hello\": \"world\"}{\"goodbye\": \"world\"}"
     
-    @engine = Engine.new(Parser.new_json, @tmp, 1_000_000, false)
+    @engine = Engine.new(Parser.new_json, @tmp, 1_000_000, false, nil)
     @output = []
  		@input = Input.new(@engine, 1 << 20, @output)
     $events = []
