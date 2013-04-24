@@ -1,12 +1,13 @@
 #include "sit_ruby.h"
 
 VALUE
-rbc_engine_new(VALUE class, VALUE rparser, VALUE rdata_dir, VALUE rsize, VALUE rdedupe) {
+rbc_engine_new(VALUE class, VALUE rparser, VALUE rdata_dir, VALUE rsize, VALUE rdedupe, VALUE rauth) {
 	Parser *parser;
 	Data_Get_Struct(rparser, Parser, parser);
   pstring *data_dir = r2pstring(rdata_dir);
+  pstring *auth = r2pstring(rauth);
 	long size = NUM2LONG(rsize);
-	Engine *engine = engine_new(parser, data_dir, size, rdedupe == Qtrue);
+	Engine *engine = engine_new(parser, data_dir, size, rdedupe == Qtrue, auth);
 	VALUE tdata = Data_Wrap_Struct(class, markall, NULL, engine);
 	rb_obj_call_init(tdata, 0, NULL);
 	engine->parser = parser;

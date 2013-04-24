@@ -27,6 +27,8 @@ typedef struct Engine {
   pstring               *data_dir;
   FILE                  *active_journal;
   long                  last_offset;
+  
+  pstring               *auth;
 
   dict                  *ints;
   long                   ints_capacity;
@@ -75,7 +77,7 @@ typedef struct {
 } ResultIterator;
 
 Engine *
-engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe);
+engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe, pstring *auth);
 
 void
 engine_free(Engine *engine);

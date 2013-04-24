@@ -13,7 +13,7 @@ _doc_evict(Callback *cb, void *data) {
 }
 
 Engine *
-engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe) {
+engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe, pstring *auth) {
   Engine *engine = calloc(1, sizeof(Engine));
 	engine->queries = dictCreate(getTermQueryNodeDict(), 0);
 	engine->parser = parser;
@@ -25,6 +25,9 @@ engine_new(Parser *parser, pstring *data_dir, long size, bool dedupe) {
 	engine->postings = plist_pool_new(size / 4);
 	engine->docs = ring_buffer_new((size / 4 / sizeof(DocRef)) * sizeof(DocRef));
 	engine->data = NULL;
+	if(auth) {
+    engine->auth = pcpy(auth);
+  }
 	engine->ints_capacity = size / 4;
 	engine->ints = dictCreate(getPstrRingBufferDict(), 0);
   if(data_dir) {
@@ -50,6 +53,7 @@ engine_free(Engine *engine) {
   }
   parser_free(engine->parser);
   ring_buffer_free(engine->stream);
+  if(engine->auth) pstring_free(engine->auth);
   lrw_dict_free(engine->term_dictionary);
   plist_pool_free(engine->postings);
   if(engine->docs->on_evict)callback_free(engine->docs->on_evict);

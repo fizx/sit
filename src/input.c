@@ -104,6 +104,7 @@ input_free(Input *input) {
     ll->data = NULL;
     ll = ll->next;
   }
+  if(input->auth) pstring_free(input->auth);
   ll_free(input->query_callbacks);
   callback_free(input->qparser->on_query);
   callback_free(input->parser->on_document);

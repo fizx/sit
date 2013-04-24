@@ -4,9 +4,9 @@
 
 void
 usage() {
-  puts("Usage: sit [--mem-size=<bytes>] [--log-file=<path>]");
-  puts("           [--data-dir=<path>]  [--port=<num>]");
-  puts("           [--help] [--test-mode]");
+  puts("Usage: sit [--mem-size=<bytes>]    [--log-file=<path>]");
+  puts("           [--data-dir=<path>]     [--port=<num>]");
+  puts("           [--help] [--auth=<key>] [--test-mode]");
   exit(1);
 }
 
@@ -33,6 +33,7 @@ main(int argc, char **argv) {
   bool solr = false;
   bool dedupe = false;
   pstring *data_dir = NULL;
+  pstring *auth = NULL;
   
   set_logger(stderr);
   
@@ -40,6 +41,7 @@ main(int argc, char **argv) {
     static struct option long_options[] = {
       {"help",      no_argument,       0, 'h'},
       {"port",      required_argument, 0, 'p'},
+      {"auth",      required_argument, 0, 'a'},
       {"log-file",  required_argument, 0, 'l'},
       {"data-dir",  required_argument, 0, 'd'},
       {"mem-size",  required_argument, 0, 'm'},
@@ -50,7 +52,7 @@ main(int argc, char **argv) {
     };
     
     int option_index = 0;
-    c = getopt_long(argc, argv, "hp:l:d:r:tsz", long_options, &option_index);
+    c = getopt_long(argc, argv, "ha:p:l:d:r:tsz", long_options, &option_index);
     if (c == -1) break;
     
     switch (c) {
@@ -70,6 +72,9 @@ main(int argc, char **argv) {
     case 't':
       setTestMode(true);
       DEBUG("test-mode is engaged");
+      break;
+    case 'a':
+      auth = c2pstring(optarg);
       break;
     case 'd':
       data_dir = c2pstring(optarg);
@@ -91,7 +96,7 @@ main(int argc, char **argv) {
   }
   
   Parser *parser = json_white_parser_new();
-  Engine *engine = engine_new(parser, data_dir, ram, dedupe);
+  Engine *engine = engine_new(parser, data_dir, ram, dedupe, auth);
 
 	if(port > 0) {
 		struct sockaddr_in addr;

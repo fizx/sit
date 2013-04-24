@@ -4,7 +4,7 @@
 #include "ruby.h"
 
 VALUE
-rbc_engine_new(VALUE class, VALUE parser, VALUE data_dir, VALUE size, VALUE rdedupe);
+rbc_engine_new(VALUE class, VALUE parser, VALUE data_dir, VALUE size, VALUE rdedupe, VALUE auth);
 
 VALUE
 rbc_engine_parser(VALUE self);

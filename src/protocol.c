@@ -61,6 +61,10 @@ _line_consume(ProtocolParser *parser, pstring *pstr) {
     return;
   }
   
+  Input *input = handler->data;
+  Output *output = input->output;
+  Engine *engine = input->engine;
+  
   char *buf;
   pstring tmp = {
     pstr->val,
@@ -68,7 +72,9 @@ _line_consume(ProtocolParser *parser, pstring *pstr) {
   };
   while ((buf = memchr(tmp.val, '\n', tmp.len))) {
     tmp.len = buf - tmp.val;
-    if(tmp.val[0] == '{' || parser->state != COMPLETE) {
+    if((tmp.val[0] == '{' || parser->state != COMPLETE) &&
+      (!engine->auth || !pstrcmp(engine->auth, input->auth))) {  
+      
       handler->data_found(handler, &tmp);
       if(parser->state != FORCE_DATA) {
         handler->data_complete(handler);
@@ -143,8 +149,20 @@ _input_command_found(struct ProtocolHandler *handler, pstring *command, pstring 
   Input *input = handler->data;
   Output *output = input->output;
   Engine *engine = input->engine;
-  
-  if(!cpstrcmp("register", command)) {
+
+  if(!cpstrcmp("auth", command)) {
+    if(input->auth) {
+      pstring_free(input->auth);
+    }
+    input->auth = pcpy(more);
+    if (!pstrcmp(engine->auth, input->auth)) {
+      SMALL_OUT("{\"status\": \"ok\", \"message\": \"welcome\"}", "");
+    } else {
+      SMALL_OUT("{\"status\": \"error\", \"message\": \"authentication not valid\"}", "");
+    }
+  } else if(engine->auth && pstrcmp(engine->auth, input->auth)) {  
+    SMALL_OUT("{\"status\": \"error\", \"message\": \"not authenticated\"}", "");    
+  } else if(!cpstrcmp("register", command)) {
     input->qparser_mode = REGISTERING;
     INFO("registering: %.*s", more->len, more->val);
     query_parser_consume(input->qparser, more);
