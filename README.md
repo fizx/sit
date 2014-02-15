@@ -17,8 +17,7 @@ any stream using custom parsers.
   Trivially support search results which include the document you _just_ added.
 * **Computationally efficient percolation**
   SIT is designed to add documents and execute query callbacks efficiently with
-  up to 100,000 registered queries and/or connections. Efficiency is not just a
-  buzz word, we mean rigorous computational efficiency for performance at scale.
+  up to 100,000 registered queries and/or connections.
 * **Flexible pubsub**
   Rather than publishing into channels, you can use SIT to publish into a global
   event stream, and subscribe to dynamic channels defined by search queries.
