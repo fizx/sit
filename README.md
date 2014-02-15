@@ -1,6 +1,6 @@
-# Chaser
+# SIT (Streaming Index Toy)
 
-Chaser is a lightweight TCP server that provides real-time full-text search over
+SIT is a lightweight TCP server that provides real-time full-text search over
 streams of JSON documents. It's also usable as a C library, where it can parse
 any stream using custom parsers.
 
@@ -10,22 +10,22 @@ any stream using custom parsers.
   The executable is 228K on my machine.  It only depends on libev and libc;
   and currently (and temporarily) uses Ruby for the build and test suites.
 * **True realtime**
-  This is "true" real time, as opposed to "near" real time. Chaser eliminates
+  This is "true" real time, as opposed to "near" real time. SIT eliminates
   garbage collection, "commits," "flushes," and fsyncs. This is search highly
   optimized for recency and real-time.
 * **Write, then read**
   Trivially support search results which include the document you _just_ added.
 * **Computationally efficient percolation**
-  Chaser is designed to add documents and execute query callbacks efficiently with
+  SIT is designed to add documents and execute query callbacks efficiently with
   up to 100,000 registered queries and/or connections. Efficiency is not just a
   buzz word, we mean rigorous computational efficiency for performance at scale.
 * **Flexible pubsub**
-  Rather than publishing into channels, you can use Chaser to publish into a global
+  Rather than publishing into channels, you can use SIT to publish into a global
   event stream, and subscribe to dynamic channels defined by search queries.
 
 ## Protocol
 
-Chaser speaks a simple line-based pipelineable protocol.  Any line that starts with
+SIT speaks a simple line-based pipelineable protocol.  Any line that starts with
 a curly brace (`{`) is interpreted as a JSON document to add to the indexed
 dataset. Other lines are interpreted as commands.
 
@@ -34,7 +34,7 @@ or error.  Other keys are implemented on a per-command basis.
 
 ## Search & Percolation
 
-Chaser provides traditional search, where you give a query and get a resultset
+SIT provides traditional search, where you give a query and get a resultset
 back.  It also provides percolation, where you can register a query that will
 notify you when matching documents are added to the index.
 
@@ -42,7 +42,7 @@ notify you when matching documents are added to the index.
 
 * **register** _QUERY_    
   Registers the query, or queries, for percolation.  When any document that
-  matches the query is added, Chaser will print a "found" response in this stream.
+  matches the query is added, SIT will print a "found" response in this stream.
 
   Sample request/response:    
   
@@ -89,7 +89,7 @@ notify you when matching documents are added to the index.
 
 ## Query Language
 
-Chaser has a simple query language, composed of boolean operations (`AND`, `OR`,
+SIT has a simple query language, composed of boolean operations (`AND`, `OR`,
 `NOT`) over clauses. You can append `LIMIT N` to the end of a query. Queries
 are terminated with either a newline or a semicolon. The following are valid
 clauses:
@@ -104,7 +104,7 @@ clauses:
 
 ## Tokenization
 
-Chaser is designed to use pluggable tokenization strategies.
+SIT is designed to use pluggable tokenization strategies.
 
 __TODO: Describe tokenization 101 basics, concepts, examples.__
 
@@ -145,9 +145,9 @@ world"` will be transformed into `(title ~ hello AND title ~ world)`.
 
 ## Quick Start
 
-Feeling adventurous? Run chaser on your own system and try some of these demos.
+Feeling adventurous? Run SIT on your own system and try some of these demos.
 
-### Downloading and building chaser
+### Downloading and building SIT
 
 ```
 git clone git://github.com/fizx/sit.git
@@ -156,7 +156,7 @@ bundle install
 bundle exec rake
 ```
 
-### Demo: Running chaser with simple inputs and searches
+### Demo: Running SIT with simple inputs and searches
 
 Start the server with `./sit`, which reads commands from standard input, and
 prints its output to standard out.
