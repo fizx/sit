@@ -179,8 +179,7 @@ Reminder, this is pre-release software. We use Twitter Streaming APIs as testing
 to find new and novel edge cases which cause crashes.
 
 You should assume that this demo has a 50/50 chance to format your hard drive,
-and proceed accordingly. Preferably by reading the source to see whether this
-paragraph is serious or not.
+and proceed accordingly (you're piping raw internet data through a pre-release C program). 
 
 First, [install and authenticate twurl](https://github.com/marcel/twurl).
 
