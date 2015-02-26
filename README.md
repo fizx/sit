@@ -12,7 +12,8 @@ any stream using custom parsers.
 * **True realtime**
   This is "true" real time, as opposed to "near" real time. SIT eliminates
   garbage collection, "commits," "flushes," and fsyncs. This is search highly
-  optimized for recency and real-time.
+  optimized for recency and real-time. (However, we have not gone as far as 
+  hardware realtime or kernel guarantees)
 * **Write, then read**
   Trivially support search results which include the document you _just_ added.
 * **Computationally efficient percolation**
